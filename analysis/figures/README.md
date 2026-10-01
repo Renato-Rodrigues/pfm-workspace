@@ -44,9 +44,7 @@ cat(figureExplainer("theta-sweep"))               # caption + what it shows + ra
 ## The four ideas
 
 **1. The registry is the source of truth.** Caption, explainer and rails live beside the
-builder, not in the paper and again in the deck. It follows
-`pfmreports::measureDefinitions()`, which solved the same problem for statistic definitions.
-If a figure is not in the registry it does not exist; if its fields are empty it is not
+builder, not in the paper and again in the deck. If a figure is not in the registry it does not exist; if its fields are empty it is not
 finished.
 
 **2. One builder, many renders.** A builder returns a ggplot and never sets a size. `build.R`

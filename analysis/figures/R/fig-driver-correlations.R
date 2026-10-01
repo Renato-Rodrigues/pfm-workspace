@@ -1,7 +1,7 @@
 # Driver correlations — why the selection bootstrap cannot separate the channels.
 #
-# The figure form of the correlation tables the old reports carried
-# (pfm-reports::kableCorrelationMatrix, one table per driver group). Promoted into the figure
+# The figure form of the correlation tables the old reports carried (one table per driver
+# group). Promoted into the figure
 # layer because it is the direct evidence for a claim the paper makes in words: the deployed
 # channel set is reselected in only 29.4% of resamples and leads its runner-up by 0.5
 # percentage points (claims C17). Collinearity between the institutional channels is WHY, and

@@ -330,7 +330,7 @@ next to an unexplained drift in every contrast. The gate reuses `COUPLING.md` §
 **D20 — version control for the project layer.**
 
 - `analysis/`, `analysis/figures/`, `paper*/`, `docs/` and `docs/design-notes/` are not under git.
-  `models/pfm-reports/.git` is broken ("not a git repository").
+  `models/pfm-reports` had a broken `.git`; it was deprecated and archived on 2026-10-01.
 - This is `TODO.md` 39 and paper2's oldest open referee point (GP-16 / v16 M3, carried since v04).
   A v6 built the same way recreates the same blocker.
 
@@ -358,7 +358,7 @@ next to an unexplained drift in every contrast. The gate reuses `COUPLING.md` §
   - readers that accept either artifact name, so `output/pfm/v5/` and `output/remind-inputs/v5/` keep working
     unmodified;
   - a test that loads the `v5` group through the new code.
-- **Discipline:** one isolated commit per repository (`pfm`, `pfm-reports`, `remind_pfm` for
+- **Discipline:** one isolated commit per repository (`pfm`, `remind_pfm` for
   `preparePFM.R`, the project repo for `analysis/` and `analysis/figures/`), containing nothing else, so
   the rename can be reviewed as a mechanical diff. Afterwards, update `CLAUDE.md` ("Naming") and
   close `TODO.md` 7.
@@ -502,7 +502,7 @@ Blocking for Phase 0:
       override) and `config/scenario_config_PFM.csv` (18 GP-23 / GP-24 rows, now never to be run on
       `v5`). Commit them as they stand, before the rename, then push. The v6 config is generated
       (D22) and drops those rows.
-- [ ] **E3** — `models/pfm-reports/.git` is broken. Repair it or re-clone; check for unpushed work first.
+- [x] **E3** — `models/pfm-reports` was deprecated and archived on 2026-10-01 (`../_archive/_wip/2026-10-01/models/pfm-reports`); `pfm` no longer shells out to it.
 - [ ] **E4** — `analysis/`, `analysis/figures/`, `../communication/`, `papers/pfm-paper-v5/` and the governed docs are not
       under version control (`TODO.md` 39) → D20. (`paper/` was archived on 2026-10-01.)
 
@@ -620,7 +620,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 - [ ] **F5 — Promote the reproduction-chain scripts into package code.** Move the `analysis/`
       scripts the paper's numbers depend on (the F4 list, `makeGroupVariants.R`,
       `buildPFMScenarioConfig.R`, `validatePFMScenarioConfig.R`) into `pfm` (compute: extraction,
-      facts) or `pfmreports` (rendering), with tests. One-off scripts stay in `analysis/`. This is
+      facts) or `analysis/figures/` (rendering), with tests. One-off scripts stay in `analysis/`. This is
       the code half of the deposit (D-M3).
 - [ ] **F6 — The anchor artifact as a pipeline step** (C6). `pfmRun(stage = "remind")` exports it
       with the rest. The in-REMIND call then reads one small file instead of re-deriving the ranking.
@@ -671,16 +671,15 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
    - Create the project repository for `pfm-workspace/` (formerly `_wip/`; D20) with its first commit = today's tree. Its
      `.gitignore` excludes `data/`, `output/`, `output/remind-runs/`, `output/remind-inputs/`, `_archive/`, `_bckp/`, the
      sub-repos and the large binaries.
-   - Repair `models/pfm-reports/.git` (E3); check for unpushed work first.
 1. **The `psm` → `pfm` rename (D21, F9)** — before anything else is changed.
    1. Inventory every `psm` / `PSM` occurrence per repository. Classify each as function, step,
       artifact file name, option, documentation or comment.
-   2. Rename in `pfm`, `pfm-reports`, `models/remind_pfm/scripts/start/preparePFM.R`, `analysis/`,
+   2. Rename in `pfm`, `models/remind_pfm/scripts/start/preparePFM.R`, `analysis/`,
       `analysis/figures/`, `config.yml` and the governed docs. Leave `papers/pfm-paper-v5/` and `_archive/` untouched.
    3. Add the compatibility layer: deprecated function aliases, artifact readers that accept either
       name, step-name aliases in `pfmRun()`.
    4. Verify:
-      - `devtools::test()` and `devtools::check()` pass in `pfm` and `pfm-reports`;
+      - `devtools::test()` and `devtools::check()` pass in `pfm`;
       - `pfmRun(group = "v5", stage = "downstream")` in dry-run mode resolves every `v5` artifact
         through the aliases;
       - `preparePFM.R` stages `output/remind-inputs/v5/` (old names) and a group exported under the new names;

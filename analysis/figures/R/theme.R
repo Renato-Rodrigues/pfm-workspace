@@ -1,12 +1,8 @@
 # Theme and palette.
 #
-# Deliberately NOT a copy of pfmreports::theme_report(): that theme is tuned for HTML
-# reports at one size, and these figures have to hold up at 89 mm in a journal column and
-# at A1 on a board. Sizes therefore come from the render spec (see build.R) and are applied
-# through `base_size`, so one definition scales instead of three definitions drifting.
-#
-# If pfmreports is installed its palette constants are reused so colours cannot diverge
-# between a report and the paper; otherwise the fallbacks below apply.
+# These figures have to hold up at 89 mm in a journal column and at A1 on a board. Sizes
+# therefore come from the render spec (see build.R) and are applied through `base_size`, so
+# one definition scales instead of three definitions drifting.
 
 #' Sector colours — the one distinction that appears on almost every figure
 pfmSectorColours <- function() {

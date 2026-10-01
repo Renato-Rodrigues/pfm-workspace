@@ -38,10 +38,10 @@ read `docs/MODEL.md`, not the archived copy.
 | 0015 | Temporal-split (out-of-time) validation | **Active** — the skill-vs-persistence protocol |
 | 0016 | Subnational coverage toggle | Historical |
 | 0017 | SSP2 GDP/population source | **Active** — the aggregation weights depend on it |
-| 0018 | Compute/report layering, Results Root | **Active** — `pfm` computes, `pfmreports` consumes |
+| 0018 | Compute/report layering, Results Root | **Active** — `pfm` computes and never renders; the report layer it names (`pfmreports`) was archived 2026-10-01, and rendering is `analysis/figures/` |
 | 0019 | Parallel sweep execution, Fit-Cache concurrency | **Active** |
 | 0020 | Run entrypoint, SLURM run record | **Active** — `pfmRun()` + `manifest.json` |
-| 0021 | `pfmreports` as a package | **Active** |
+| 0021 | `pfmreports` as a package | Historical — `pfm-reports` archived 2026-10-01 (`../_archive/_wip/2026-10-01/models/pfm-reports`) |
 | 0022 | FE-discounted parsimony, drop idle controls | **Active** |
 | 0023 | Projection plausibility filter, clamp fix | Historical (clamps are unnecessary under satP) |
 | 0024 | PFM↔IAM coupling: the feasibility envelope | **Active** as doctrine; its κ mechanism superseded by 0041 |

@@ -1,7 +1,7 @@
 # The figure registry — the single source of truth for what figures exist.
 #
-# Modelled on pfmreports::measureDefinitions(): one row per figure, so nothing about a
-# figure can drift between the paper, the deck, the poster and the reports. If a figure is
+# One row per figure, so nothing about a figure can drift between the paper, the deck,
+# the poster and the reports. If a figure is
 # not in here it does not exist; if a field is empty the figure is not finished.
 #
 # Every consumer pulls from this table:
@@ -606,8 +606,7 @@ figureRegistry <- function(consumers = NULL, status = NULL) {
                        "the other at almost no cost in fit, which is exactly what the",
                        "bootstrap reports."),
       rails    = paste("This is the figure form of the correlation tables the old reports",
-                       "carried (pfm-reports::kableCorrelationMatrix). It documents a",
-                       "LIMITATION, not a result - do not present a strong correlation as a",
+                       "carried. It documents a LIMITATION, not a result - do not present a strong correlation as a",
                        "finding about politics. Correlation is polarity data, so the scale is",
                        "diverging with a neutral midpoint at zero; do not swap it for a",
                        "sequential ramp. Values are printed in every cell so the encoding is",
