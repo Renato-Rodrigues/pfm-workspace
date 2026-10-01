@@ -1,0 +1,18 @@
+# key: 92377c8a78621f1dcaf0423770420aa1
+# tag: v5
+# pfm: 0.4.1
+# The madrat cache files this Run-Group reads (pfm::pfmPrepareCache). Deposit them with the version.
+file	size	md5	builders
+calcCarbonPrice.rds	112987	f081e9113406822f0b54361da27383db	historical-panel,historical-panel-four,pin,scenario-panel
+calcEmber-Fc06f7a5c-6962d9dc.rds	98992	b034902f7a2132dd1c21ee677f59b474	coupling-weights,historical-panel,historical-panel-four,pin,scenario-panel
+calcFAOLandArea.rds	2329	e83e332d1f503a97bb5e415d102a3634	historical-panel,historical-panel-four,pin,scenario-panel
+calcFE-F9005b22a.rds	7853883	f970664379c31517ae15c8e95a3d1c93	coupling-weights,historical-panel,historical-panel-four,pin,scenario-panel
+calcGDP-F5d88b5f2-c25d42e0.rds	171617	b35e2cf0c8e4fc4b6f96bfa366d66619	coupling-weights,historical-panel,historical-panel-four,pin,scenario-panel
+calcPE-F9aca69d1.rds	1623436	ba52f2f858bb206056abc2e055d0b027	coupling-weights,historical-panel,historical-panel-four,pin,scenario-panel
+calcPolicyStringency-917f5b72.rds	80902	cbee1287c526c87e70ab667e79ed929e	historical-panel-four,pin
+calcPolicyStringency.rds	30824	9bbe662fc6d1fa396dd676f56d15ec33	historical-panel
+calcPopulation-F5d88b5f2-d4e449d0.rds	162756	106e7680813ffbf3dd33e1ecfb45bd04	historical-panel,historical-panel-four,pin,scenario-panel
+calcSSPextensions-7edac484.rds	824763	1d3f29c95b96f2b40c0d7bc0cd4904b5	historical-panel,historical-panel-four,pin,scenario-panel
+calcVDem-daeceebc.rds	2233454	c6941c71bfbf2ba0be3c3b96ef4696ef	historical-panel,historical-panel-four,pin,scenario-panel
+calcVDem.rds	1877138	e56f369febac3ee6a7c941aeb4b4d3db	historical-panel,historical-panel-four,pin,scenario-panel
+calcWGIindicator.rds	505592	8296f043b3b089028a83295367eeba85	historical-panel,historical-panel-four,pin,scenario-panel

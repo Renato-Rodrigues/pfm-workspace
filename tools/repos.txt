@@ -1,0 +1,18 @@
+# Repositories that live inside this project folder, each its own git repository.
+# Read by tools/setup.sh. One per line, whitespace-separated:
+#
+#   name             where    path                     url                                              branch
+#
+# where:  both    = workstation and cluster
+#         local   = workstation only (paper toolkit, a single REMIND checkout for editing configs)
+#         cluster = cluster only (one REMIND checkout per resolution, so EU21 and H12 batches
+#                   can run side by side without sharing a run folder or a scenario-config edit)
+# url "-" = no remote yet; the script reports it and skips it.
+
+mrpfm             both     models/mrpfm              https://github.com/Renato-Rodrigues/mrpfm.git    main
+pfm               both     models/pfm                https://github.com/Renato-Rodrigues/pfm.git      main
+remind_pfm        local    models/remind_pfm         https://github.com/Renato-Rodrigues/remind.git   pfm
+remind_pfm-EU21   cluster  models/remind_pfm-EU21    https://github.com/Renato-Rodrigues/remind.git   pfm
+remind_pfm-H12    cluster  models/remind_pfm-H12     https://github.com/Renato-Rodrigues/remind.git   pfm
+paper-forge       local    papers/paper-forge        https://github.com/Renato-Rodrigues/paper-forge  main
+pfm-paper-v5      local    papers/pfm-paper-v5       -                                                main

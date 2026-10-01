@@ -1,0 +1,141 @@
+# PFM run configuration — ROOT copy.
+#
+# ALL relative paths here resolve against THIS FILE'S folder (the repo root, e.g.
+# /p/projects/elevate/WP3.4 on the cluster), NOT the working directory. So use
+# root-relative paths without a leading `../` — a `../` here climbs out of the project.
+#
+# Read by pfm::pfmResolveConfig(), which pfm::pfmRun() calls before showing its plan:
+#
+#   pfmRun(group = "v5", stage = "downstream", config = "config.yml")
+#
+# Every run reads the madrat block (its cache is checked before any step). The scenario
+# registry is read by the steps that use scenario gdxs - psm-projection and psm-coupling-bound.
+
+# ── madrat data cache ────────────────────────────────────────────────────────────
+# ONE prepared cache feeds the historical panel, the estimation, the projection AND the
+# coupling (the REMIND export stages the coupling's subset into each run folder), so all of
+# them read the same data versions. pfm::pfmPrepareCache() checks and fills it; it runs from
+# tools/setup.sh --install and at the start of every pfmRun(). ADR 0047; docs/RUNNING.md step 2.
+#
+#   cachefolder     the project cache. {group} is replaced by the Run-Group, so each group
+#                   gets its own folder (data/madrat/v5, data/madrat/v6, ...) holding exactly
+#                   one version of each calculation. Use a fixed tag instead
+#                   ("data/madrat/2026-10") for groups that must share one cache.
+#   cacheSources    caches to COPY a missing file from, searched in this order. Only files the
+#                   pipeline actually looks up are copied, chosen by madrat's own rule.
+#   sourcefolder    madrat RAW sources, for what no cache has (then COMPUTED). Candidates:
+#                   the first that exists on this machine wins, so workstation and cluster
+#                   paths can both be listed here.
+#   useMadratConfig also use madrat's own configured cachefolder (as the last copy source)
+#                   and sourcefolder (when no candidate above exists). On the PIK cluster that
+#                   is the shared input-data cache and sources.
+#   compute         FALSE = check only: a file in no cache is an error, nothing is computed.
+# (Older configs with a top-level `cachefolder:`/`sourcefolder:` still work.)
+madrat:
+  cachefolder: "data/madrat/{group}"
+  cacheSources:
+    - "data/madrat/legacy"                                # the pre-2026-10-01 flat project cache
+    - "C:/_data/work/remind_input_data/cache/default"     # workstation REMIND input cache
+    - "/p/tmp/benke/clean-cache-aug"                      # cluster: a clean cache, read before madrat's own
+  sourcefolder:
+    - "C:/_data/work/remind_input_data/sources"           # workstation
+  useMadratConfig: true
+  compute: true
+
+# ── Panel spatial resolution ─────────────────────────────────────────────────────
+# The unit set the historical panel is aggregated to before anything is fitted.
+# "country"  — no aggregation (the project default since 2026-08-25)
+# "regionmapping_54.csv" — 54 regions; what Run-Group v3 was built at
+#
+# 🔴 THIS IS NOT A DISPLAY SETTING. Every min-max normalised quantity is normalised
+# over whatever units are in frame, so u — and hence phi, and hence the theta anchor —
+# is a DIFFERENT OBJECT at each resolution. Measured: the efficiency anchor moves
+# 0.744 (country) -> 0.396 (region) on the same fit. See MODEL.md 5.3 and PITFALLS 15.
+#
+# Two Run-Groups at different resolutions are NOT COMPARABLE, and the difference is
+# silent: both complete, both look fine. Check `panel_hash` in each manifest.json
+# before differencing anything across groups.
+#
+# pfmRun() threads this to every psm step, so the fit and the projection cannot drift
+# apart; it prints as `panel res` in the plan. Override per-run with
+# outputRegionMappingFile= on the call.
+outputRegionMappingFile: "country"
+
+# ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
+# The REMIND pathways the one shared Fitted Model is projected onto. Each entry:
+#   id                a stable key — the projection-artifact stem and report/figure key.
+#                     These MATCH models/remind_pfm/config/scenario_config_PFM.csv so reports,
+#                     figure legends and the coupled runs key off the same names.
+#   name              human-readable label used in reports and the manuscript
+#   gdx               path to that scenario's fulldata.gdx
+#   gdxRegionMapping  the mapping matching THAT GDX'S OWN native resolution. This is a
+#                     property of the gdx, not a target: an H12 gdx stays H12 here even
+#                     though the coupling is delivered at EU21. Getting it wrong
+#                     mis-assigns every region, silently.
+#
+# Both runs below are the Run-Group v5 uncoupled baselines, EU21 (regionmapping_21_EU11.csv),
+# stored under output/remind-runs/<Run-Group>/<resolution>/. NOTE the carbon budget
+# also changed when the runs moved to EU21 — 1000 Gt, not the 750 Gt of the earlier
+# H12 pair — so price levels are NOT comparable with anything quoted from H12 results.
+scenarios:
+  - id: SSP2-NPi2025-PFMbase
+    name: "Current Policies (P_ref)"
+    gdx: "output/remind-runs/v5/EU21/SSP2-EU21-NPi2025_2026-08-26_16.51.07/fulldata.gdx"
+    gdxRegionMapping: "regionmapping_21_EU11.csv"
+    aliases: ["national-policies"]
+
+  - id: SSP2-PkBudg1000-PFMref
+    name: "Climate Ambition (reference twin)"
+    gdx: "output/remind-runs/v5/EU21/SSP2-EU21-PkBudg1000_2026-08-26_19.58.59/fulldata.gdx"
+    gdxRegionMapping: "regionmapping_21_EU11.csv"
+    aliases: ["climate-ambition", "SSP2-PkBudg1000-PFMref"]
+
+# The one scenario whose projection drives model selection (the Projection-Sanity and
+# clamp-reliance gates): the high-ambition pathway, because it is the stress test.
+# Selection runs once against it; every scenario is projected.
+#
+# It is ALSO the ambitious pathway runPSMCouplingBound() bounds against — P_opt — with
+# the reference (P_ref) taken from the non-gating scenario. Declaring it here rather
+# than inferring it from the id matters: a registry carrying both PkBudg750 and
+# PkBudg1000 would otherwise resolve to whichever was listed first.
+gatingScenario: SSP2-PkBudg1000-PFMref
+
+# Delivery resolution for the coupling (aggregateFeasibilityToRegions). EU21 keeps
+# European heterogeneity instead of averaging 36 countries into one EUR block.
+couplingRegionMapping: "regionmapping_21_EU11.csv"
+
+# Legacy single-scenario fallback, used ONLY when `scenarios:` is absent. If you ever
+# see the projection running against this rather than the registry above, the registry
+# failed to resolve and the result is a projection of the wrong pathway.
+gdxPath: "data/fulldata.gdx"
+
+# ── Storage ──────────────────────────────────────────────────────────────────────
+# Fit Cache / model store (ADR 0009): models/, panels/, index.json. Content-addressed
+# and SHARED across Run-Groups — this is what makes a new group over an unchanged
+# panel cheap. The `modelDir` argument of the pfm run* functions.
+modelDir: "output/pfm/fit-cache"
+
+# Results Root (ADR 0018): curated per-Run-Group artifacts, <resultsDir>/<group>/.
+resultsDir: "output/pfm"
+
+# Reproduction records, one folder per Run-Group, TRACKED in git (output/ is not): the madrat
+# cache record and pin (ADR 0047). records/README.md.
+recordsDir: "records"
+
+# Default Run-Group. Override per call with pfmRun(group = "...").
+group: "v5"
+
+# Where rendered HTML reports are written.
+outputDir: "output/reports"
+
+# Dashboard model store (reads index.json + models/ from here).
+dashboardModelsDir: "output/pfm/fit-cache"
+
+# ── Legacy price-model (hurdle) settings ─────────────────────────────────────────
+# Used only by the older two-stage adoption+stringency model, kept for comparison.
+# The deployed PSM takes its fixed-effects mapping from the spec in
+# selected-models-psm.yml (regionmapping_EU_OECDp.csv), NOT from here.
+modelName: "Baseline + Rule of Law"
+regionMappingFE: "regionmappingH12.csv"
+includeLagged: false
+adoptionThreshold: 0.5
