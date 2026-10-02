@@ -138,18 +138,32 @@ Locally, run the later stages only:
 ## Step 7 — Run the coupled REMIND batch
 
 Each coupled row names its Run-Group in the scenario config's column `pfmGroup`. It still says
-`v5`, so set it to `v6`, commit and push. Then, for each resolution:
+`v5`, so set it to `v6`, commit and push. Then, for each resolution, from the project root:
 
-```bash
-Rscript analysis/run-groups/validatePFMScenarioConfig.R models/remind_pfm-EU21/config/scenario_config_PFM.csv
-cd models/remind_pfm-EU21
-git pull
-Rscript start.R --test config/scenario_config_PFM.csv startgroup=EU21     # must report 0 errors
-Rscript start.R config/scenario_config_PFM.csv startgroup=EU21
-cd ../..
+```r
+library(pfm)
+submitPFM("EU21", remindDir = "models/remind_pfm-EU21")                # dry run: checks + plan
+submitPFM("EU21", remindDir = "models/remind_pfm-EU21", dry = FALSE)   # submits
 ```
 
-For H12, do the same from `models/remind_pfm-H12` with `startgroup=H12`.
+`submitPFM()` (design note 0005 F3) does in one call what this step did by hand, and refuses on
+any failure:
+- `pfmPreflight()` (F2): every repository clean and pushed; the `pfm` and `mrpfm` installed in
+  the checkout's own library are the working tree's code (a fingerprint of every function, since
+  the version number no longer moves with every change; `PITFALLS.md` §23); every Run-Group the
+  start group names is exported completely to `output/remind-inputs/`; the region mappings
+  resolve to `mrpfm`'s copies (§1); each coupled row's SSP equals its reference run's (D9); the
+  replay harness and its negative control pass;
+- `analysis/run-groups/validatePFMScenarioConfig.R`;
+- `start.R --test`, which must report 0 errors;
+- then, only with `dry = FALSE`, a **batch manifest** in `output/remind-runs/batches/` (every
+  repository's commit, the installed versions, the scenario config's md5, the rows) and
+  `start.R` itself, its output saved beside the manifest.
+
+For H12, the same with `"H12"` and `models/remind_pfm-H12`. By hand, the old way still works:
+`validatePFMScenarioConfig.R`, then `Rscript start.R --test config/scenario_config_PFM.csv
+startgroup=EU21` and `Rscript start.R config/scenario_config_PFM.csv startgroup=EU21` in the
+checkout.
 
 - Start one start group at a time.
 - Start the sensitivity groups (`SCENARIOS.md` §2.5, e.g. `EU21FIXPRICE`) only after the plain
@@ -187,10 +201,15 @@ Per run, this fetches `fulldata.gdx`, `log.txt` and a few small records into
 git pull                                   # brings records/v6 from Step 6
 Rscript tools/listMadratCacheUsed.R output/remind-runs/v6/*/* --out records/v6/madrat-cache-used-runs.tsv
 git add records/v6 && git commit -m "v6: what the coupled runs read"
-Rscript analysis/coupled/extractCoupledResults.R output/remind-runs/v6 v6
+Rscript analysis/coupled/runCoupledStage.R v6                # the whole post-batch chain
 ```
 
-Then run the rest of the post-batch chain, in the order of `analysis/README.md` (`coupled/`).
+`runCoupledStage.R` (design note 0005 F4) runs `extractCoupledResults`, then **stops** if a run
+is still in flight and fails the early-market test (`PITFALLS.md` §25) or a finished run has an
+early-period market over tolerance (§25a), and otherwise runs the facts scripts in order
+(`coupledBatchFacts` → `coupled-facts.json`, costs, held-budget prices, rule-C freeze,
+convergence, provenance), stopping on the first that fails. `--allow-skipped` goes on without the
+in-flight runs, listing them.
 
 ---
 

@@ -31,7 +31,12 @@ Phase 0 of the v6 plan is almost done. Steps 0 (snapshot and tags), 1 (the renam
 small fixes E5, E10, E13) are finished. The **data side of Phase 2 is done in code** (2026-10-02):
 the panel definition (2023 on the IEA 2025 edition, the annual sibling `v6-annual`, geothermal),
 SSP-dependent scenario panels and the institution rule (A2 coverage, A3, A4, E9, E14, D10;
-`DATA.md`), released as **`mrpfm` 0.4.0** and **`pfm` 0.8.0** (with D7, the actor-power form). Only what the `v6` run needs is
+`DATA.md`), with D7 (the actor-power form) — the last releases are **`mrpfm` 0.4.0** and **`pfm`
+0.8.0**. Also done 2026-10-02 (0005 E/F): a run with gaps now fails (E23); the coupling call
+went from 99 s to 11 s after its first call (E17/F7); convergence covers the market shares (E8);
+`pfmPreflight()` and `submitPFM()` (F2/F3); the post-batch chain as one command (F4); the
+`paper-forge` data check (E19); `config.yml` cleaned (E15). These are commits after 0.8.0 /
+0.4.0, not released (the version moves when the author decides). Only what the `v6` run needs is
 listed here, in order.
 
 1. 🔴 **On the cluster: Phase 0, step 3, and the `v6` cache.** Nothing else needs the workstation.
@@ -39,10 +44,11 @@ listed here, in order.
      `models/remind_pfm-EU21/` and `-H12/`; delete each REMIND checkout's stale
      `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc` by hand (git-ignored,
      so the pull leaves it; E10).
-   - Install `mrpfm` 0.4.0 and `pfm` 0.8.0 into each checkout's own renv library, and check the
-     versions from inside each checkout (`PITFALLS.md` §2, §23).
-   - Gate: `pfmReplayInterface()` and its negative control pass on the pushed fork (passed on the
-     workstation with `pfm` 0.8.0, 2026-10-02).
+   - Install `mrpfm` and `pfm` from the pushed `main` into each checkout's own renv library.
+     The version number alone no longer proves the code (commits land under 0.8.0 / 0.4.0), so
+     check with `pfm::pfmPreflight(checks = c("repos", "installed", "replay"))` from the
+     project root: it compares a fingerprint of every function installed in each checkout's
+     library with the working tree, and runs the replay gate (`PITFALLS.md` §2, §23).
    - Prepare the `v6` cache: `Rscript tools/prepareMadratCache.R --group v6`, then the same for
      `--group v6-annual`. The first prints `panel: 2000-2023, 5-year moving average, IEA 2025
      edition, geothermal …`. **This must run on the cluster:** the IEA 2025 edition recomputes
@@ -52,7 +58,8 @@ listed here, in order.
    options 1C/2C/3A) and in `config.yml` `sweep:`: all four actor-power forms, no composite specs,
    the actor-power extrapolation gate. `pfmRun(group = "v6", stage = "sweep", dryRun = TRUE)`
    prints both the `panel` and the `sweep` line; check them before submitting. The grid is
-   about twice the `v5` one in split specs, so size the job accordingly.
+   about twice the `v5` one in split specs, so size the job accordingly. Later, the coupled
+   batch goes through `submitPFM()` (`RUNNING.md` step 7) and `runCoupledStage.R` (step 10).
 3. **Workstation, in parallel: Phase 1, the offline prototype on `v5`** (0005 Phase 1).
    - Write `computeAnchorGap()` and `computeStrengthPath()`.
    - The acceptance test: reproduce the methodology's $k_{Diffuse}$ = 0.70 / 0.54 / 0.56 and

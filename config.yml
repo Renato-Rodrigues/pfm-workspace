@@ -56,7 +56,7 @@ madrat:
 # silent: both complete, both look fine. Check `panel_hash` in each manifest.json
 # before differencing anything across groups.
 #
-# pfmRun() threads this to every psm step, so the fit and the projection cannot drift
+# pfmRun() threads this to every pfm step, so the fit and the projection cannot drift
 # apart; it prints as `panel res` in the plan. Override per-run with
 # outputRegionMappingFile= on the call.
 outputRegionMappingFile: "country"
@@ -136,12 +136,14 @@ scenarios:
     name: "Current Policies (P_ref)"
     gdx: "output/remind-runs/v5/EU21/SSP2-EU21-NPi2025_2026-08-26_16.51.07/fulldata.gdx"
     gdxRegionMapping: "regionmapping_21_EU11.csv"
+    ssp: SSP2
     aliases: ["national-policies"]
 
   - id: SSP2-PkBudg1000-PFMref
     name: "Climate Ambition (reference twin)"
     gdx: "output/remind-runs/v5/EU21/SSP2-EU21-PkBudg1000_2026-08-26_19.58.59/fulldata.gdx"
     gdxRegionMapping: "regionmapping_21_EU11.csv"
+    ssp: SSP2
     aliases: ["climate-ambition", "SSP2-PkBudg1000-PFMref"]
 
 # The one scenario whose projection drives model selection (the Projection-Sanity and
@@ -153,10 +155,6 @@ scenarios:
 # than inferring it from the id matters: a registry carrying both PkBudg750 and
 # PkBudg1000 would otherwise resolve to whichever was listed first.
 gatingScenario: SSP2-PkBudg1000-PFMref
-
-# Delivery resolution for the coupling (aggregateFeasibilityToRegions). EU21 keeps
-# European heterogeneity instead of averaging 36 countries into one EUR block.
-couplingRegionMapping: "regionmapping_21_EU11.csv"
 
 # Legacy single-scenario fallback, used ONLY when `scenarios:` is absent. If you ever
 # see the projection running against this rather than the registry above, the registry
@@ -179,17 +177,7 @@ recordsDir: "records"
 # Default Run-Group. Override per call with pfmRun(group = "...").
 group: "v5"
 
-# Where rendered HTML reports are written.
-outputDir: "output/reports"
-
-# Dashboard model store (reads index.json + models/ from here).
-dashboardModelsDir: "output/pfm/fit-cache"
-
-# ── Legacy price-model (hurdle) settings ─────────────────────────────────────────
-# Used only by the older two-stage adoption+stringency model, kept for comparison.
-# The deployed PFM takes its fixed-effects mapping from the spec in
-# selected-models-pfm.yml (regionmapping_EU_OECDp.csv), NOT from here.
-modelName: "Baseline + Rule of Law"
-regionMappingFE: "regionmappingH12.csv"
-includeLagged: false
-adoptionThreshold: 0.5
+# Removed 2026-10-02 (design note 0005 E15), read by no code: outputDir and dashboardModelsDir
+# (the archived pfm-reports), couplingRegionMapping (the coupling delivers at the REMIND run's
+# own cfg$regionmapping, set by preparePFM.R), and the retired hurdle model's modelName,
+# regionMappingFE, includeLagged, adoptionThreshold.

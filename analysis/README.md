@@ -27,6 +27,15 @@ is not evidence and lives in `tools/` at the project root.
 
 ## `coupled/` — after a batch lands (any Run-Group), in this order
 
+All of it in one command, which stops on the `PITFALLS.md` §25/§25a admission rules (design note
+0005 F4):
+
+```
+Rscript analysis/coupled/runCoupledStage.R <group> [runsDir] [--allow-skipped]
+```
+
+The scripts it runs, one by one:
+
 | script | writes (under `output/pfm/<group>/`) | what |
 |---|---|---|
 | `extractCoupledResults.R` | `coupling/coupled-runs.rds` | reads every run under `output/remind-runs/<group>/<res>/`; flags unfinished runs and admits them only by the `PITFALLS.md` §25a rule |

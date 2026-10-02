@@ -561,12 +561,16 @@ Latent defects (P0 unless noted):
       is unused under the continuous rule. Fix the defaults and comments.
 - [ ] **E6** — `projectFeasiblePath(rule = "frozen-gap")` returns NA on the coupled scenario frame:
       the seed ceiling comes from the earliest frame year (0004 caveats). Replace it with the v6
-      anchor computation (C6) rather than patching it (P1).
+      anchor computation (C6) rather than patching it (P1). *Waits for Phase 1 (C6).*
 - [ ] **E7** — `v5` inconsistency: covered countries are λ-projected while uncovered ones hold
       $E$, inside one regional aggregate (D1). Removed in v6. `papers/pfm-paper-v5` is not submitted (D19), so it
       needs no disclosure. The new paper's `v5` → `v6` comparison names it as one reason for the
       change.
-- [ ] **E8** — Convergence checks only the economy-wide floor φ, not the per-market shares (D5; P3).
+- [x] **E8** — ✅ **Done 2026-10-02.** The convergence delta written to `p45_pfmDelta` is now the
+      largest change over the floor φ **and every per-market share** (`.pfmPhiDelta`);
+      `pfm-phi-history.rds` records the market shares with each call (`COUPLING.md` §5). The rest of
+      D5 (the φ *path* over checkpoint years) comes with the time-indexed φ in Phase 3.
+      Was: convergence checks only the economy-wide floor φ, not the per-market shares (D5; P3).
 - [x] **E9** — ✅ **Done 2026-10-02.** SSP2 was hard-coded in the scenario panel and in
       `calcSSPextensions()` (D9; P2); both now take the SSP.
 - [x] **E10** — ✅ **Done 2026-10-02.** The file was git-ignored (REMIND ignores `input/`), so it
@@ -577,7 +581,8 @@ Latent defects (P0 unless noted):
       Was: the stale seed `input/p45_regiDiff_feasibility.inc`, an H12-shaped export from
       2026-08-10 (`TODO.md` 20).
 - [ ] **E11** — No GAMS peak-budget check next to `pm_pfmBudgetWarn` (`TODO.md` 32, `PITFALLS.md`
-      §26). Add it in the P3 GAMS pass.
+      §26). Add it in the P3 GAMS pass. *Analysis side in place: `extractCoupledResults` reports a
+      budget-forced run that never peaks, and `runCoupledStage.R` prints it (F4).*
 - [ ] **E12** — No bind-share diagnostic for mode R (`TODO.md` 21). Needed if ratio mode stays as
       rule C's sensitivity (P3). Mode M is retired (D13).
 - [x] **E13** — ✅ **Done 2026-10-02** (`pfm` 0.6.0). The sanity walk raises a severe
@@ -588,32 +593,42 @@ Latent defects (P0 unless noted):
 - [x] **E14** — ✅ **Done 2026-10-02.** `.driverSupportRanges()` excludes the trend from the guard
       (`TODO.md` 11a): kept, and documented why — the projection freezes the trend at the last panel
       year (`projectFeasiblePath`), so guarding it is a no-op.
-- [ ] **E15** — `config.yml` is stale:
-  - comments reference `psm-country-v4`;
-  - the scenario registry has only the 2026-08-26 SSP2 pair;
-  - the legacy hurdle keys remain.
-
-  Add the SSP dimension to the registry (P2).
+- [x] **E15** — ✅ **Done 2026-10-02.** The stale `psm` comment is fixed; the keys no code reads
+  are removed (`outputDir`, `dashboardModelsDir`, `couplingRegionMapping` and the hurdle model's
+  `modelName`, `regionMappingFE`, `includeLagged`, `adoptionThreshold`); the registry carries the
+  SSP dimension (`ssp`, `institutions` per entry, explicit `ssp: SSP2` on the pair). SSP1/SSP3
+  entries are added when their `v6` gdxs exist.
+  Was: `config.yml` is stale (comments reference `psm-country-v4`; only the SSP2 pair; legacy
+  hurdle keys).
 - [ ] **E16** — The scenario-config generator is out of sync with the hand-maintained CSV
-      (`buildPFMScenarioConfig.R`, 🔴 note) → D22 (P4).
-- [ ] **E17** — Each PFM call takes 128–189 s (median 159 s, `TODO.md` 9). Profile it before
-      optimising. The likely cost is `panelDataScenario()` rebuilding every exogenous series and
-      calling `panelDataHistorical()` for harmonisation on every call. Cache the exogenous,
-      SSP-specific part once per run in `preparePFM` (P3).
+      (`buildPFMScenarioConfig.R`, 🔴 note) → D22 (P4). *Waits for the Phase 3 switches the v6
+      matrix is made of (formulation, hold year, κ).*
+- [x] **E17** — ✅ **Done 2026-10-02.** Profiled on a replay of `v5`'s EU21 `-PFMlevelBfix`
+      (workstation): **99 s per call**, 95% in `panelDataScenario()` — the institution projections
+      (`toolProjectScenario`) 38 s, the downscaling of REMIND results (`toolIPFDownscale`) 29 s, the
+      harmonisation's historical panel 9 s. The first two were element-wise magpie indexing; both now
+      go through plain arrays (`mrpfm`, output `identical()`). The historical panel is cached in the
+      run folder (F7). **Now 27 s for a run's first call, 11 s for every later one**; the replayed
+      shares are unchanged (max |replay − run| 0.0395 before and after, the known cluster-cache gap).
+      Was: each PFM call takes 128–189 s (median 159 s, `TODO.md` 9).
 - [x] **E18** — **Done 2026-10-01.** Non-governed files left `docs/`:
       - `PFM-Methodology.docx` and `MODEL_NOTATION_TABLE.html` → `../communication/methodology/`;
       - `LAMBDA-EXPLAINED.html` → `output/pfm/v5/lambda-explained/`;
       - the two `pfm_*coupling*.md` notes → `../_archive/_wip/2026-10-01/docs/`.
 
       See `../_archive/_wip/2026-10-01/MOVES.md`.
-- [ ] **E19** — `paper-check` run from inside `papers/pfm-paper-v5/` reports every data source as missing
-      (decisions-v18). Fix it in `paper-forge` before the new workspace relies on it.
+- [x] **E19** — ✅ **Done 2026-10-02** (`paper-forge` `bdb7eb5`). Manifest source paths are relative
+      to the project; the data check now resolves them against every folder above the paper root
+      too. From inside `papers/pfm-paper-v5/` the old check reported 42 of 42 sources missing, the
+      fixed one reports the bundle complete. The frozen `v5` workspace keeps its copy.
+      Was: `paper-check` run from inside `papers/pfm-paper-v5/` reports every data source as missing.
 - [x] **E20** — **Done 2026-10-01** (`../_archive/_wip/2026-10-01/MOVES.md`).
       - Root clutter, `_bckp/`, `tmp/` and `slide_assets/` were archived.
       - Run-Groups `v1`–`v4` (output, gdx, output/remind-inputs), `paper/`, `data/runs/` and 12 dead
         `analysis/` scripts were archived.
       - `output/remind-runs/` now holds runs as `output/remind-runs/<group>/<resolution>/`.
-      - **Still pending:** `paper-skills/` (locked by another program when the move ran).
+      - `paper-skills/` (locked when the move ran) was moved by the author afterwards
+        (`../_archive/_wip/2026-10-01/paper-skills/`).
       - The layout is described in the root `README.md`.
 
 Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01/docs/RUNNING.md`, §6):
@@ -622,9 +637,11 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
       test). The fix must be committed and pushed before any v6 run.
 - [x] **E22** — `pfmReplayInterface()` looked for REMIND at `../remind_pfm` and skipped silently.
       **Fixed** (searches `models/remind_pfm*`).
-- [ ] **E23** — A step that fails inside (for example a scenario panel that cannot be built)
-      still lets `pfmRun()` exit 0, and the previous artifact stays in place. Make a failed step
-      fail the run, and delete or flag the stale artifact (`PITFALLS.md` §18).
+- [x] **E23** — ✅ **Done 2026-10-02.** `startRun()` raises an error after the manifest and the
+      last log lines when a run ends `failed` or `incomplete` (`failOnGaps = TRUE`), so `Rscript`
+      and the SLURM job exit non-zero; a NOT REFRESHED artifact is moved aside to `<file>.stale`
+      (`PITFALLS.md` §18).
+      Was: a step that fails inside still lets `pfmRun()` exit 0, and the previous artifact stays.
 - [x] **E24 — decided: ADR 0047** — The coupling inside REMIND read madrat's default cache
       (PIK's shared cache), while estimation read `data/madrat`. On `v5` the two held different
       FE/PE versions, and those versions moved a regional share by 0.14 in a local refit.
@@ -644,7 +661,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 ### F. Refactors to make model and scenario runs easier to create and submit
 
-- [ ] **F1 — Scenario matrix → generated config (D22).** One YAML lists:
+- [ ] **F1 — Scenario matrix → generated config (D22).** *Waits for the Phase 3 switches (E16).* One YAML lists:
   - the canonical parents per SSP and resolution;
   - the arms (closure, θ, markup, ordering test, hold year, spread, κ);
   - the Run-Group per arm;
@@ -652,8 +669,11 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
   `buildPFMScenarioConfig()` writes the CSV, and `validatePFMScenarioConfig()` runs on the output.
   Section separators and `path_gdx` chains are generated, not typed. Adding an SSP becomes one line.
-- [ ] **F2 — `pfmPreflight()`.** One call, before any submission, checking what `PITFALLS.md`
-      §1–§3 and §23 leave to memory:
+- [x] **F2 — `pfmPreflight()`.** ✅ **Done 2026-10-02.** Every check below except the anchor
+      artifact, which joins with F6. "Installed equals the working tree" compares a fingerprint of
+      every function, not the version. On the workstation it found the local REMIND checkout's own
+      library has no `pfm` (expected: REMIND does not run there).
+      One call, before any submission, checking what `PITFALLS.md` §1–§3 and §23 leave to memory:
   - every sub-repo is clean and pushed;
   - the `pfm` version *installed in the run library* equals the working tree;
   - every `pfmGroup` named in the start group exists in `output/remind-inputs` with its anchor artifact;
@@ -662,11 +682,21 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   - the SSP is consistent across row, NPi reference and anchor donor (D9).
 
   It refuses to proceed on any failure.
-- [ ] **F3 — A submit wrapper.** `submitPFM(startgroup, dry = TRUE)` runs the preflight, prints the
+- [x] **F3 — A submit wrapper.** ✅ **Done 2026-10-02** (`RUNNING.md` step 7): preflight, the
+      config validator, `start.R --test`, the plan; with `dry = FALSE` the batch manifest
+      (`output/remind-runs/batches/`) and `start.R`. Tested with the REMIND calls mocked: the
+      workstation's REMIND library lacks `gms`, so `start.R --test` cannot run here.
+      `submitPFM(startgroup, dry = TRUE)` runs the preflight, prints the
       rows and Run-Groups it will start, then calls REMIND's `start.R`. It records the commits used
       into a batch manifest (this answers the per-run provenance that `runProvenance.R`
       reconstructs today after the fact).
-- [ ] **F4 — A post-batch stage:** `pfmRun(stage = "coupled", batch = …)`. It runs, in order:
+- [x] **F4 — A post-batch stage.** ✅ **Done 2026-10-02 as `analysis/coupled/runCoupledStage.R
+      <group>`** (`RUNNING.md` step 10): the chain below, stopping on §25/§25a. It is project
+      tooling that runs the `analysis/` scripts; it becomes `pfmRun(stage = "coupled")` when F5
+      moves them into `pfm` (a package shelling out to project scripts is what `pfm-reports` did).
+      Checked on the `v5` batch under a scratch group: 89 runs admitted (1 unfinished, on the
+      §25a test), every step ran, and `coupled-facts.json` equals `v5`'s in every value.
+      Was: `pfmRun(stage = "coupled", batch = …)`. It runs, in order:
   - `extractCoupledResults`, then its flags;
   - `coupledBatchFacts`, `coupledCostsAndAbatement`, `heldBudgetPrices`, `ruleCBoundFreeze`,
     `coupledRunConvergence`, `runProvenance`.
@@ -674,16 +704,23 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   It writes `coupled-facts.json` stamped with the Run-Group, and **stops on the §25 / §25a
   admission rules** instead of leaving them to the reader. This is today's checklist after a batch
   lands, as one command.
-- [ ] **F5 — Promote the reproduction-chain scripts into package code.** Move the `analysis/`
+- [ ] **F5 — Promote the reproduction-chain scripts into package code.** *After Phase 3: the
+      extraction reads the coupling symbols, which the time-indexed φ interface (D14) changes.* Move the `analysis/`
       scripts the paper's numbers depend on (the F4 list, `makeGroupVariants.R`,
       `buildPFMScenarioConfig.R`, `validatePFMScenarioConfig.R`) into `pfm` (compute: extraction,
       facts) or `analysis/figures/` (rendering), with tests. One-off scripts stay in `analysis/`. This is
       the code half of the deposit (D-M3).
-- [ ] **F6 — The anchor artifact as a pipeline step** (C6). `pfmRun(stage = "remind")` exports it
+- [ ] **F6 — The anchor artifact as a pipeline step** (C6). *Waits for Phase 1 (C6).* `pfmRun(stage = "remind")` exports it
       with the rest. The in-REMIND call then reads one small file instead of re-deriving the ranking.
-- [ ] **F7 — Cache the exogenous scenario panel per SSP** in `preparePFM` (E17). Expected to cut
-      each call substantially; measure before and after.
-- [ ] **F8 — Typed options instead of side files.** Ordering tests (D15), hold year (D6), spread
+- [x] **F7 — Cache the exogenous scenario panel per SSP** (E17). ✅ **Done 2026-10-02**, measured:
+      the harmonisation's historical panel, with the state it leaves for the scenario panel, is built
+      on a run's first call and read from `pfm/hist-harmonisation-cache.rds` afterwards (keyed on
+      every argument). Done in `iterativePFM()` rather than `preparePFM`: same effect, nothing to
+      keep in step. The institution projections no longer need a cache (0.2 s). 27 s → 11 s per
+      later call; the second call's shares are identical to the first's.
+      Was: cache it in `preparePFM`; measure before and after.
+- [ ] **F8 — Typed options instead of side files.** *The institution rule is already typed
+      (`pfm-coupling.yml` `institutions`); the rest are Phase 3 switches.* Ordering tests (D15), hold year (D6), spread
       (D11), κ (D13) and the formulation switch become `pfm-coupling.yml` or runtime-config fields.
       Each is echoed in the log and recorded in `pfm-phi-history.rds`. `phi-override.yml` is kept
       only for `v5` reproduction.
@@ -792,7 +829,9 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
    says ("do it with D7"). E19 is a `paper-forge` fix needed by the paper workspace, not by a run,
    so it is due before Phase 6.)
 3. **Push everything** and reinstall `pfm` on the cluster. Verify the installed version from inside
-   `models/remind_pfm/` (`PITFALLS.md` §2, §23).
+   `models/remind_pfm/` (`PITFALLS.md` §2, §23). *Workstation half done 2026-10-02; what remains is
+   the cluster (pull, install, replay gate). `pfmPreflight()` (F2) now checks both the push and the
+   installed code.*
 
 **No `v5` runs** (author's decision, 2026-10-01). The ordering question (GP-24) is answered on `v6`
 in Phase 5, with an offline first read in Phase 1.

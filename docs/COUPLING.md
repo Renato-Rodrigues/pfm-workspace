@@ -305,7 +305,11 @@ moves the price, which moves the energy system. Converged when
 
 $$\delta = \max_r\big|\varphi_r^{(n)} - \varphi_r^{(n-1)}\big| \le \texttt{cm\_pfmConvTol}$$
 
-A **max**, not a mean — one region still moving keeps the loop open. The first call has no
+A **max**, not a mean — one region still moving keeps the loop open. **Since 2026-10-02 the max
+also runs over every per-market share** $arphi_{r,s}$ (`p45_pfmPhiMkt`), not the floor alone
+(design note 0005 E8): with the floor only, a market share could still be moving when the run was
+declared converged. `pfm-phi-history.rds` records the market shares with each call; an entry
+written before that contributes its floor only. The first call has no
 predecessor and is non-convergent by construction. After convergence $\varphi$ is **frozen**,
 never reset; the price is still rebuilt every iteration because the budget iteration keeps
 moving the anchor.
@@ -384,7 +388,7 @@ What to check:
 | runtime log | `iterativePFM` entries at the `c_pfmIter` iterations |
 | GAMS listing | `p45_regiDiff_phi` displayed, all ≈ 1 at θ = 0 |
 | | `p45_pfmMaxPrice`, `p45_pfmInfesCode` — **must be 0** |
-| run dir | `p45_regiDiff_phi.gdx`, `pfm-phi-history.rds`, `pfm-coupling-runtime.yml` |
+| run dir | `p45_regiDiff_phi.gdx`, `pfm-phi-history.rds`, `pfm-coupling-runtime.yml`, `pfm/hist-harmonisation-cache.rds` (from the first call; 0005 E17) |
 | convergence | Nash blocked until φ settles |
 | emissions | **identical** to `-PkBudg1000-PFMgateRef` |
 

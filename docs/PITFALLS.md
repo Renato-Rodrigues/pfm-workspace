@@ -321,6 +321,13 @@ Both raise a `warning()`, both print a block in the log, `startRun()` repeats th
 **What to check on any cluster run:** the last line. `DONE` means every audited step wrote a
 fresh artifact; `DONE WITH GAPS` means it did not, and names the steps.
 
+**Since 2026-10-02 (design note 0005 E23) a run with gaps fails.** `startRun()` raises an error
+after writing the manifest and the last log lines when the run ends `failed` or `incomplete`, so
+`Rscript` and the SLURM job exit non-zero (`failOnGaps = FALSE` returns the status instead). A
+NOT REFRESHED artifact is **moved aside** to `<file>.stale`: left in place, the next step, the
+next run or the REMIND export would read the previous run's version as this one's. It is renamed,
+not deleted, so it can be inspected or restored by hand.
+
 ## 19. A rendered figure whose medium was un-declared is never rewritten again
 
 `analysis/figures/build-figures.R` renders each figure only to the media it is asked for. Change what a
