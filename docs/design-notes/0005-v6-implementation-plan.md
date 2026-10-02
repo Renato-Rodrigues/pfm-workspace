@@ -702,7 +702,10 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
    5. One commit per repository, nothing else in it. Push. Then update `CLAUDE.md` ("Naming") and
       close `TODO.md` 7.
 
-   ✅ **Done 2026-10-02** (branch `rename-psm-pfm` in `pfm` and `remind_pfm`).
+   ✅ **Done 2026-10-02**. Released as **`pfm` 0.5.0** through `lucode2::buildLibrary`, its
+   first validated build since 0.3.0. Clearing the linter refactored `computeMaximinScore`,
+   `.pfmFrontierVcov` and `.pfmApplyPhiOverride`; each was checked `identical()` to its
+   original, the first on `v5`'s 4 396-spec sweep over 144 setting combinations.
    - **Inventory.** About 1 480 hits in `pfm`, 244 in the project repo, 4 in `preparePFM.R`.
    - **Renamed:** 21 exported and about 65 internal functions, 31 source and test files, the 17
      step names, `selected-models-pfm.yml`, the log tags (`[PFM-BOUND]` …) and the prose
