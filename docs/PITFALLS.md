@@ -57,6 +57,14 @@ Rscript -e 'any(grepl("<new-symbol>", deparse(body(pfm::<function>))))'
 | `madrat: cachefolder` | the **madrat data cache**, one per Run-Group (`data/madrat/{group}`) — where CarbonPrice, CAPMF, EDGAR, V-Dem, SSP2 come from. Prepared by `pfmPrepareCache()` (ADR 0047) |
 | `modelDir` | the **Fit Cache / model store** — content-addressed fits, `index.json`, `panels/` |
 
+**A copied cache file is trusted on its name alone (2026-10-03).** Under `forcecache` madrat loads
+any file whose arguments match, whatever code or configuration produced it, and the file name
+covers the calculation's *arguments* only. `calcPolicyStringency`'s coverage filter read madrat's
+global `regionmapping` - not an argument - so a copy from a shared cluster cache, filtered by
+other regions, served the `v6` cache: 37 countries instead of 48. The regions are now an
+argument (`coverageMapping`, 0005 E27). Anything a calculation takes from the global madrat
+configuration must become an argument before its result can be shared between caches.
+
 Never point one at the other. Locally, madrat also needs **`forcecache = TRUE`**: local package
 fingerprints never match the cluster's, and without it madrat rebuilds from source data that
 only exists at PIK. Parallel workers must have the madrat config propagated into them

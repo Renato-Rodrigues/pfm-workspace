@@ -673,6 +673,19 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
         REMIND's `config/` (so a machine whose mappingfolder holds the future version fails it).
       - **Effect.** The workstation replay of `v5` `-PFMlevelBfix` moved from max |replay − run|
         **0.0395 to 0.00226** (tolerance 0.002): the "cluster-cache gap" was almost all mapping.
+- [x] **E27** — ✅ **Found and fixed 2026-10-03** (the cluster's first `v6` cache). The outcome's
+      coverage filter (`calcPolicyStringency`: drop every country of a region whose data-bearing
+      members cover less than 80% of its GDP or population) grouped countries by madrat's **global**
+      `regionmapping` setting, which madrat's cache key does not cover. `pfmPrepareCache()` copied a
+      result from a shared cluster cache that had been filtered by other regions, and under
+      `forcecache` it was loaded as this group's: **37 countries with both outcomes in 2021-2023
+      instead of 48**. Now the regions are an argument (`coverageMapping`, mrpfm), passed explicitly
+      by `panelDataHistorical()`, so they enter the cache key; checked locally: the explicit call is
+      computed under the country mapping and keeps 49 countries. The legacy (`v5`) call is left as
+      it was so its cache file keeps its name; its copy was computed under the country mapping and
+      holds 49 countries. General lesson (`PITFALLS.md` §3): under `forcecache` a copied file is
+      trusted on its name alone - anything a calculation reads from the global madrat configuration
+      must be an argument.
 - [ ] **E25** — Under `forcecache`, madrat reads the newest-timestamped file among those whose
       arguments match. **For new groups, solved by ADR 0047**: the prepared cache holds one
       version of each calculation, and its `cache-manifest.tsv` is the record. Deposit those
