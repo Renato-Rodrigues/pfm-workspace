@@ -94,23 +94,26 @@ The IEA 2025 edition can only be computed on the cluster (`DATA.md` §7).
 
 The coupling runs inside REMIND, which loads **only its own renv library** (`renv/library`, set by
 REMIND's `.Rprofile`), never yours. So `pfm` is installed twice: once in your library for the
-estimation, and once into each checkout's renv for the coupled runs. Step 3 does both; by hand,
-after a change to `pfm` or `mrpfm` (pull first):
+estimation, and once into each checkout's renv for the coupled runs. **Step 3 does both** - re-run
+`./tools/setup.sh --cluster --install --no-cache` after every change to `pfm` or `mrpfm` (pull
+first). Per checkout it:
 
-```bash
-R CMD INSTALL models/mrpfm && R CMD INSTALL models/pfm          # your library
-for r in models/remind_pfm-EU21 models/remind_pfm-H12; do       # each REMIND renv
-  (cd $r && Rscript -e 'need <- c("madrat", "magclass", "mrremind")
-                        miss <- need[!vapply(need, requireNamespace, logical(1), quietly = TRUE)]
-                        if (length(miss)) renv::install(miss, prompt = FALSE)
-                        renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE)')
-done
-```
+1. copies `mrpfm`'s and `pfm`'s dependencies from **your library** into the checkout's renv with
+   `renv::hydrate()` - nothing is downloaded, and what the checkout already has (REMIND's own
+   `madrat`, `magclass`) is left alone;
+2. removes the `mrpfm`/`pfm` that hydrate linked from renv's cache;
+3. installs them from `models/` with `R CMD INSTALL -l <renv library>`, run from the project root;
+4. prints `<checkout> loads pfm … | mrpfm … | mrremind …` from inside the checkout.
 
-`mrremind` (and `madrat`, `magclass`) are installed first, and only when the checkout lacks
-them: for a local `mrpfm`, renv installed `mrremind`'s dependencies but not `mrremind` itself
-(`dependency 'mrremind' is not available`, the cluster, 2026-10-02). Installing only what is
-missing leaves REMIND's own `madrat`/`magclass` versions untouched.
+Why this way (all three were hit on the cluster, 2026-10-02):
+- `renv::install("../mrpfm")` resolves the dependency tree from the repositories, and failed on it
+  twice: `dependency 'mrremind' is not available`, then `package 'Deriv' is not available`. Your
+  library already holds the whole working set, so hydrating from it needs no repository.
+- renv's cache is keyed by version, and commits land without a version change: a cached
+  `pfm 0.8.0` can be older code than `models/pfm`. Installing `mrpfm`/`pfm` directly keeps them out
+  of the cache.
+- Inside a REMIND checkout, `R CMD INSTALL` (and `install.packages`) fail: REMIND's `.Rprofile`
+  calls `installed.packages()` before `utils` is loaded. Hence `-l` from the project root.
 
 The first R start in a freshly cloned checkout bootstraps that library (REMIND's `.Rprofile` runs
 `renv::hydrate`), which takes several minutes.

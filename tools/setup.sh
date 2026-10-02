@@ -92,26 +92,45 @@ done
 # 'repository' to remote", the cluster, 2026-10-02). R CMD INSTALL resolves nothing: the
 # dependencies must already be in your library (they are on the cluster); a missing one is named
 # in its error - install it with install.packages() and re-run.
-# In a REMIND checkout renv::install() is the native way, and fetches what renv lacks itself. The
-# first R start in a freshly cloned checkout bootstraps its renv library (renv::hydrate in REMIND's
-# .Rprofile), which takes several minutes.
-# The Depends of mrpfm/pfm first, and only those the checkout lacks: renv resolved mrremind's own
-# dependencies but not mrremind for a local mrpfm ("dependency 'mrremind' is not available", the
-# cluster, 2026-10-02), and installing only what is missing leaves REMIND's madrat/magclass alone.
-RENV_INSTALL='need <- c("madrat", "magclass", "mrremind"); miss <- need[!vapply(need, requireNamespace, logical(1), quietly = TRUE)]; if (length(miss)) renv::install(miss, prompt = FALSE); renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE); cat("pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "\n")'
+# Into a REMIND checkout's renv, nothing is downloaded: on the cluster, renv::install() of a
+# local mrpfm failed twice while resolving its dependency tree from the repositories
+# ("dependency 'mrremind' is not available", then "package 'Deriv' is not available";
+# 2026-10-02). Your library already holds the whole working set, so per checkout:
+#   a. renv::hydrate() copies mrpfm's and pfm's dependencies from your library (and the site
+#      library) into the checkout's renv; packages it already has, such as REMIND's own madrat and
+#      magclass, are left alone;
+#   b. the copies of mrpfm and pfm that hydrate linked from renv's cache are removed: the cache is
+#      keyed by version, and commits land without a version change, so a cached pfm 0.8.0 can be
+#      older code than models/pfm;
+#   c. R CMD INSTALL -l <renv library> installs them from models/, as real directories. Run from
+#      the project root: inside the checkout REMIND's .Rprofile breaks R CMD INSTALL
+#      ("could not find function installed.packages").
+# The first R start in a freshly cloned checkout bootstraps its renv library (renv::hydrate in
+# REMIND's .Rprofile), which takes several minutes.
+RENV_DEPS='src <- strsplit(Sys.getenv("PFM_SOURCE_LIBS"), .Platform$path.sep, fixed = TRUE)[[1]]; renv::hydrate(packages = c("mrpfm", "pfm"), sources = src, prompt = FALSE, report = FALSE); lib <- .libPaths()[1]; old <- intersect(c("pfm", "mrpfm"), rownames(utils::installed.packages(lib.loc = lib))); if (length(old)) renv::remove(old, library = lib); cat("RLIB=", lib, "\n", sep = "")'
+RENV_CHECK='cat("[setup]", basename(getwd()), "loads pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "| mrremind", format(packageVersion("mrremind")), "\n")'
 if [ "$INSTALL" = 1 ]; then
   for p in mrpfm pfm; do
     say "install models/$p into your R library"
     run R CMD INSTALL "models/$p" || { say "FAILED: R CMD INSTALL models/$p"; exit 1; }
   done
+  # your library and the site library, as a session started here sees them
+  LIBS=$(Rscript -e 'cat("LIBS=", paste(.libPaths(), collapse = .Platform$path.sep), "\n", sep = "")' 2>/dev/null \
+           | grep "^LIBS=" | sed 's/^LIBS=//; s/ *$//')
   for r in models/remind_pfm*; do
     [ -d "$r" ] || continue
-    say "install mrpfm and pfm into the renv library of $r"
+    say "mrpfm and pfm into the renv library of $r"
     if [ "$DRY" = 1 ]; then
-      echo "  [dry-run] (cd $r && Rscript -e '$RENV_INSTALL')"
-    else
-      (cd "$r" && Rscript -e "$RENV_INSTALL") || { say "FAILED: renv::install in $r"; exit 1; }
+      echo "  [dry-run] (cd $r && Rscript -e '<hydrate the dependencies from $LIBS; remove the cached pfm/mrpfm>')"
+      echo "  [dry-run] R CMD INSTALL -l <the renv library of $r> models/mrpfm, models/pfm"
+      continue
     fi
+    RLIB=$(cd "$r" && PFM_SOURCE_LIBS="$LIBS" Rscript -e "$RENV_DEPS" | grep "^RLIB=" | sed 's/^RLIB=//; s/ *$//')
+    [ -n "$RLIB" ] || { say "FAILED: renv::hydrate in $r"; exit 1; }
+    for p in mrpfm pfm; do
+      R CMD INSTALL -l "$RLIB" "models/$p" > /dev/null || { say "FAILED: R CMD INSTALL -l $RLIB models/$p"; exit 1; }
+    done
+    (cd "$r" && Rscript -e "$RENV_CHECK") || { say "FAILED: pfm does not load in $r"; exit 1; }
   done
   say "check that every library holds the working tree's code:"
   echo "  Rscript -e 'pfm::pfmPreflight(checks = c(\"repos\", \"installed\"))'"
