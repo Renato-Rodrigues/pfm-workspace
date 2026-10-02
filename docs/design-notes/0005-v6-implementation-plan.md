@@ -713,8 +713,9 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
      which old and new groups both have. 21 deprecated aliases warn and forward
      (`R/pfmDeprecated.R`). `preparePFM.R` accepts either marker.
    - **Kept on purpose:**
-     - cache identity: the fit-cache key `psm-<estimator>`, the bootstrap tag and `psmboot_`.
-       Renaming them would invalidate every cached fit;
+     - the bootstrap digest's internal `"psm"` tag. Since 2026-10-02 new cache entries are
+       `pfm-<estimator>` and `pfmboot_`, and pre-rename `psm-`/`psmboot_` entries are read as a
+       fallback (`2108de9`);
      - old Run-Group names, archived file names, the ADRs, `mrpfm`, `papers/pfm-paper-v5`.
    - **Verified:**
      - `devtools::test()`: 6 802 passed, 0 failed, including `test-pfmLegacyNames.R` (which reads

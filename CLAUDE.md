@@ -106,8 +106,10 @@ Pre-commit hooks enforce: parsable R, deps-in-desc, no `browser()`/`debug()`, ti
 `psm`, on purpose:
 - artifacts written before the rename (`v5` and earlier: `selected-models-psm.yml`, `psm-*`
   step names in `manifest.json`). They are frozen, and the code reads both names;
-- cache identity: the fit-cache key `psm-<estimator>`, the bootstrap-cache tag and its
-  `psmboot_` files. Renaming them would invalidate every cached fit;
+- cache entries written before the rename (fit-cache key `psm-<estimator>`, `psmboot_` files).
+  New entries are `pfm-`/`pfmboot_`, and the old ones are still read as a fallback. The
+  bootstrap digest's internal `"psm"` tag stays: it never appears in a name, and changing it
+  would orphan every cached resample;
 - old Run-Group names (`psm-country-v3` …), archived file names, the ADRs, and
   `papers/pfm-paper-v5`.
 
