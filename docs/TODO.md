@@ -30,10 +30,7 @@ that note.
 Phase 0 of the v6 plan is half done: step 0 (snapshot and tags) and step 1 (the rename) are
 finished. Before Phase 1:
 
-1. 🔴 **Phase 0, step 2: small fixes.**
-   - **E5**: `iterativePFM()` defaults are stale. They give `group = "psm-country-v3"` and
-     `weightYear = 2050`, while the deployed runs use 2025. The help text links to a document that
-     does not exist, the comments are out of date, and `nTiers` is unused.
+1. 🔴 **Phase 0, step 2: small fixes.** E5 is done (2026-10-02, `pfm` 0.5.1); still open:
    - **E10**: delete the stale seed `p45_regiDiff_feasibility.inc` in `remind_pfm` (H12-shaped,
      2026-08-10). Was item 20.
    - **E13**: screen a corrupt frontier covariance in `runPFMSweep()`'s sanity walk. Needed before
@@ -44,7 +41,7 @@ finished. Before Phase 1:
      Fix it in `paper-forge` before the `v6` paper workspace relies on it.
    - Optional now, otherwise in the Phase 3 GAMS pass: **E11**, the peak-budget check (was item
      32), and **E12**, the mode-R bind share (was item 21).
-2. 🔴 **Phase 0, step 3: install `pfm` 0.5.0 wherever runs load it, and verify.**
+2. 🔴 **Phase 0, step 3: install `pfm` 0.5.1 (the latest) wherever runs load it, and verify.**
    - On the cluster, install it into each REMIND checkout's own R library and check the version
      from inside `models/remind_pfm-EU21/` and `-H12/` (`PITFALLS.md` §2, §23).
    - On the workstation, which still has 0.4.1.
@@ -75,18 +72,29 @@ Phase 4. Until then, read the last lines of every run log (`DONE WITH GAPS` name
 
 ---
 
-## 9. ⚪ The per-run `.Rprofile` is hand-written and untracked
-
-The REMIND run directory gets a `.Rprofile` that supplies absolute paths, because the working
-directory there is the run folder (`COUPLING.md`). It is written by hand, holds static paths only,
-and design note 0005 does not track it. Fold it into the run tooling (F2 preflight / F3 submit
-wrapper), or retire it if `preparePFM()` staging makes it unnecessary. The item's other two points
-moved to D9 and E17 (§22).
-
-## 35. 🟠 Two literature hazards the `v6` paper must resolve
+## 35. 🟠 Two literature hazards the `v6` paper must resolve: copies found 2026-10-02
 
 Every citation slot was filled by an appraised source on 2026-09-18 (57 notes, 41 INCLUDE). The
-literature is ported to the new paper workspace (0005 D19), and two hazards travel with it:
+literature is ported to the new paper workspace (0005 D19), and two hazards travel with it.
+
+**Both are resolvable with the copies in `process/`** (untracked, added 2026-10-02):
+- `BF00158774.pdf` is the publisher's PDF of Battese & Coelli 1992, with a full text layer. Its
+  eq. (2), $U_{it} = \exp[-\eta(t - T)]\,U_i$, with $U_{it}$ falling, constant or rising as
+  $\eta > 0$, $= 0$ or $< 0$, confirms the model form the note gives.
+- `carbon_tax_aversion.pdf` is Douenne & Fabre under the published title. It is the authors' final
+  manuscript, not the typeset AEJ article. `file.pdf` is its online appendix, and
+  `yellow-vests-last-version.pdf` is the working paper already held. The 70 / 14 / 22% figures
+  are unchanged; the sentence is in §3.1, and the footnote cited as fn. 11 is fn. 21 in this
+  version.
+
+**Still to do, when the literature is ported:**
+- replace the held PDFs with these copies, in the new workspace's `literature/sources/`;
+- re-appraise the Battese & Coelli note, delete its warning, and allow numbers;
+- update the Douenne & Fabre note: cite the AEJ 2022 article with its DOI, and change the locators
+  to §3.1 and fn. 21. Check the page numbers against the typeset article if it can be obtained.
+
+The note text (`papers/pfm-paper-v5/literature/notes/`) stays frozen with `v5`. The original
+hazards, as written on 2026-09-18:
 
 - 🔴 **Battese & Coelli 1992 is a scan with no text layer** and could not be read. Its DOI and metadata
   are Crossref-verified; **no number may be quoted from it**, and it is cited only as the origin of the
@@ -122,7 +130,7 @@ on 2026-10-02), and the bodies of the items closed on 2026-09-17/18 are in
 | **32** | → E11 | analysis side done 2026-09-17; the GAMS side is 0005 Phase 3 |
 | **4** | ⛔ superseded 2026-10-02 | the `v6` decomposition of $k_s(t)$ by driver group (0005 C3) |
 | **8** | → C11 | optional, a separate workstream (0005 §6) |
-| **9** (two of three points) | → D9, E17 | the SSP check of `couplingWeightScenario` (D9, Phase 3); the cost of a PFM call (E17); the `.Rprofile` point stays open above |
+| **9** | ⛔ obsolete 2026-10-02 | the coupling uses no `.Rprofile`: since 2026-08-11 the run folder carries its configuration (`pfm-coupling.yml` from REMIND's `preparePFM.R`, `pfm-coupling-runtime.yml` from `presolve.gms`; `COUPLING.md` §2, corrected 2026-10-02). The item's other points: the SSP check → D9, the cost of a PFM call → E17 |
 | **38** | → D-M3 | the deposit, built into `v6` (0005 Phase 6) |
 | **39** | ✅ done 2026-10-01/02 | project repo created and pushed; everything tagged `v5-final`; the rest is E4 (deferred) |
 | **35** (citation slots) | ✅ done 2026-09-18 | 57 notes, 41 INCLUDE; the two hazards stay open above |

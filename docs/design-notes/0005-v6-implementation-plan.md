@@ -507,7 +507,9 @@ Blocking for Phase 0:
       under version control (`TODO.md` 39) → D20. (`paper/` was archived on 2026-10-01.)
 
 Latent defects (P0 unless noted):
-- [ ] **E5** — `iterativePFM()` defaults are stale. `group = "psm-country-v3"`. `weightYear = 2050`,
+- [x] **E5** — ✅ **Done 2026-10-02** (`pfm` 0.5.1): defaults `group = "v5"`,
+      `weightYear = 2025`; help and comments corrected; `nTiers` documented as tiered-rule only.
+      Was: `iterativePFM()` defaults are stale. `group = "psm-country-v3"`. `weightYear = 2050`,
       while the deployed runs use 2025 via `preparePFM.R`, so an offline call silently uses
       different weights. The help text points to `docs/psm-coupling-scenario-design.md`, which does
       not exist. Comments say "phi is time-invariant by construction (tiers fixed at 2022)". `nTiers`

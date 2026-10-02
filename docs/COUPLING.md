@@ -99,30 +99,56 @@ before every call and R overrides its own settings from it — no hand-kept copy
 > `pm_pfmBudgetWarn` too, and on any batch before 2026-09-14 — where neither parameter exists —
 > read `p80_globalBudget_absDev_iter` at the last iteration by hand.
 
-**R owns the static project configuration** (paths, Run-Group, mappings), read from
-`config.yml` via `pfmResolveConfig()`, with a per-run-directory `.Rprofile` supplying
-absolute paths because the working directory is the REMIND run dir.
+**The run folder carries the coupling's whole configuration.** REMIND's own `.Rprofile` is
+not used, and nothing in the run folder is edited by hand or changed by PFM while the run is
+going. `iterativePFM()` reads two files from the run folder (its working directory when GAMS
+calls `Rscript`):
 
-| option | must be |
-|---|---|
-| `pfm.resultsDir` / `pfm.modelDir` | **absolute** paths |
-| `pfm.couplingGroup` | the Run-Group — currently **`v5`** (`output/remind-inputs/v5/`, `panel_f8845f66fb39d316`) |
-| `pfm.couplingRefGdx` | NPi gdx for $P^{\text{ref}}$; **absolute**; required for bind mode 2 |
-| `pfm.couplingMapping` | delivery resolution — `regionmapping_21_EU11.csv` |
-| `pfm.gdxRegionMapping` | the gdx's **own** native resolution (a property of the gdx, not a target) |
-| `pfm.couplingWeightScenario` | SSP for the weight projection — **must match the run's SSP**, and GAMS cannot check this because the SSP is not a `45_carbonprice` switch |
-| `pfm.couplingWeightYear` | year the weights represent (2025) |
+| file | written by | when | holds |
+|---|---|---|---|
+| `pfm-coupling.yml` | REMIND's `scripts/start/preparePFM.R` | at submission, after the standard `files2export` copy | the Run-Group, `resultsDir`/`modelDir` (`pfm`), the region mapping (the run's own `cfg$regionmapping`), the weight SSP (the run's `cm_GDPpopScen`) and year, the staged madrat cache, `refGdx: input_ref.gdx` |
+| `pfm-coupling-runtime.yml` | `presolve.gms` | before every coupling call | `bindMode`, `theta`, gap closure and the iteration, from the scenario row |
 
-On the REMIND side, `config/default.cfg` needs one setting:
+Every path is relative to the run folder, so the folder is self-contained. `preparePFM()` also
+copies into `<run>/pfm/` exactly what the coupling opens:
+- the spec file, `manifest.json`, `frontier.rds`, `temporal-validation.rds` and the two
+  donor-band files;
+- the panel named by `panel_hash`;
+- the staged madrat cache (ADR 0047);
+- `phi-override.yml`, if the Run-Group carries one.
+
+The `pfm-coupling.yml` mechanism dates from 2026-08-11. It replaced setting PFM options in
+REMIND's `.Rprofile`, a file shared by every run, not per-scenario, and carrying absolute
+paths. Bind mode and $\theta$ are deliberately absent from `pfm-coupling.yml`, so the
+scenario row is the only place they are set.
+
+On the REMIND side, `config/default.cfg` holds the only settings:
 
 ```r
-cfg$pfm <- list(source = "../../output/remind-inputs",   # the PARENT of output/, not output/ itself
+cfg$pfm <- list(source = "../../output/remind-inputs",   # one folder per Run-Group, seen from models/remind_pfm*
                 weightYear = 2025)
+cfg$pfmGroup <- ""   # scenario-config column `pfmGroup`; empty = see below
 ```
 
-Everything else is derived from the run: Run-Group auto-detected in `<source>/output/`, SSP
-from `cfg$gms$cm_GDPpopScen`, region mapping from `cfg$regionmapping`, reference gdx from
-REMIND's own `input_ref.gdx`, bind mode and $\theta$ from the scenario row.
+A run is coupled when `cm_taxCO2_regiDiff = 11`. The Run-Group is taken from the scenario row's
+`pfmGroup`, else the `PFM_GROUP` environment variable, else `cfg$pfm$group`, else auto-detected
+as the only group under `cfg$pfm$source`. The spec file identifies a group,
+`selected-models-pfm.yml`, or `selected-models-psm.yml` for groups exported before the rename.
+Everything else is derived from the run, as in the table.
+
+**Offline calls** have neither file: tests, `tools/replayCouplingCall.R` (which builds the run
+folder with `preparePFM()` itself) and analysis scripts. `iterativePFM()` then uses its
+arguments, whose defaults read these R options. None of them plays any part in a REMIND run.
+
+| option | default | note |
+|---|---|---|
+| `pfm.resultsDir` / `pfm.modelDir` | `"pfm"` | the Run-Group folder and the panel store |
+| `pfm.couplingGroup` | `"v5"` | the Run-Group |
+| `pfm.couplingRefGdx` | none | NPi gdx for $P^{\text{ref}}$; required for bind mode 2 |
+| `pfm.couplingMapping` | `regionmapping_21_EU11.csv` | delivery resolution |
+| `pfm.gdxRegionMapping` | `regionmapping_21_EU11.csv` | the gdx's **own** native resolution (a property of the gdx, not a target) |
+| `pfm.couplingWeightScenario` | `"SSP2"` | SSP for the weight projection; **must match the gdx's SSP** |
+| `pfm.couplingWeightYear` | `2025` | year the weights represent, as in the deployed runs |
 
 ---
 
@@ -367,7 +393,7 @@ Then work up the ladder: `-PFMratio` → `-PFMlevelC` → `-PFMgateB` → `-PFMl
 |---|---|
 | φ stays exactly 1 every iteration | the Rscript call failed; **check the runtime log** — GAMS keeps the previous φ by design and does not stop |
 | `iterativePFM: missing band assignment` | §6.3 incomplete |
-| `bind mode 2 … no feasibility bound` | `pfm.couplingRefGdx` unset — a deliberate refusal, not a crash |
+| `bind mode 2 … no feasibility bound` | no reference gdx: in a REMIND run, `input_ref.gdx` (REMIND's copy of `path_gdx_ref`, declared in `pfm-coupling.yml`) is missing; offline, `refGdx` / `pfm.couplingRefGdx` unset — a deliberate refusal, not a crash |
 | `p45_pfmInfesCode = 1 / 2 / 3` | see §5 |
 | converged after one call | check `p45_pfmDelta` is region-indexed, not `GLO` |
 | regions look shuffled | the gdx returns regions **alphabetically**; never index positionally |
