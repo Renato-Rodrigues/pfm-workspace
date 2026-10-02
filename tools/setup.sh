@@ -95,7 +95,10 @@ done
 # In a REMIND checkout renv::install() is the native way, and fetches what renv lacks itself. The
 # first R start in a freshly cloned checkout bootstraps its renv library (renv::hydrate in REMIND's
 # .Rprofile), which takes several minutes.
-RENV_INSTALL='renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE); cat("pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "\n")'
+# The Depends of mrpfm/pfm first, and only those the checkout lacks: renv resolved mrremind's own
+# dependencies but not mrremind for a local mrpfm ("dependency 'mrremind' is not available", the
+# cluster, 2026-10-02), and installing only what is missing leaves REMIND's madrat/magclass alone.
+RENV_INSTALL='need <- c("madrat", "magclass", "mrremind"); miss <- need[!vapply(need, requireNamespace, logical(1), quietly = TRUE)]; if (length(miss)) renv::install(miss, prompt = FALSE); renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE); cat("pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "\n")'
 if [ "$INSTALL" = 1 ]; then
   for p in mrpfm pfm; do
     say "install models/$p into your R library"

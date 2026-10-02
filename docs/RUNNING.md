@@ -100,9 +100,17 @@ after a change to `pfm` or `mrpfm` (pull first):
 ```bash
 R CMD INSTALL models/mrpfm && R CMD INSTALL models/pfm          # your library
 for r in models/remind_pfm-EU21 models/remind_pfm-H12; do       # each REMIND renv
-  (cd $r && Rscript -e 'renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE)')
+  (cd $r && Rscript -e 'need <- c("madrat", "magclass", "mrremind")
+                        miss <- need[!vapply(need, requireNamespace, logical(1), quietly = TRUE)]
+                        if (length(miss)) renv::install(miss, prompt = FALSE)
+                        renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE)')
 done
 ```
+
+`mrremind` (and `madrat`, `magclass`) are installed first, and only when the checkout lacks
+them: for a local `mrpfm`, renv installed `mrremind`'s dependencies but not `mrremind` itself
+(`dependency 'mrremind' is not available`, the cluster, 2026-10-02). Installing only what is
+missing leaves REMIND's own `madrat`/`magclass` versions untouched.
 
 The first R start in a freshly cloned checkout bootstraps that library (REMIND's `.Rprofile` runs
 `renv::hydrate`), which takes several minutes.
