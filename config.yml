@@ -61,6 +61,29 @@ madrat:
 # outputRegionMappingFile= on the call.
 outputRegionMappingFile: "country"
 
+# ── Panel definition ─────────────────────────────────────────────────────────────
+# Which years the historical panel spans, whether it is smoothed, and which IEA World Energy
+# Balances edition its energy drivers come from (pfm::pfmPanelDef; docs/DATA.md §3).
+#   years           first and last panel year
+#   movingAverage   centred window in years; 1 = annual values
+#   ieaVersion      default = IEA 2024 edition (complete to 2022); latest = 2025 edition
+#                   (complete to 2023). 2023 needs latest.
+#   groups          per-Run-Group overrides of the keys above
+#
+# Read ONLY for a group that has not been swept yet: the sweep records the definition in the
+# group's manifest.json and every later step - the projection, the REMIND export and the
+# coupled run - reads it from there. A group swept before the record existed (v5 and
+# earlier) keeps the legacy definition: 2000-2022, 5-year moving average, IEA 2024 edition.
+# Editing this block never changes a swept group. pfmRun() prints it as `panel` in the plan.
+panel:
+  years: [2000, 2023]
+  movingAverage: 5
+  ieaVersion: latest
+  groups:
+    # Sibling of v6 on annual values - the robustness rung of the smoothing (0005 D3).
+    v6-annual:
+      movingAverage: 1
+
 # ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
 # The REMIND pathways the one shared Fitted Model is projected onto. Each entry:
 #   id                a stable key — the projection-artifact stem and report/figure key.
@@ -72,6 +95,11 @@ outputRegionMappingFile: "country"
 #                     property of the gdx, not a target: an H12 gdx stays H12 here even
 #                     though the coupling is delivered at EU21. Getting it wrong
 #                     mis-assigns every region, silently.
+#   ssp               the run's SSP (its cm_GDPpopScen); drives the scenario panel's GDP,
+#                     population and SSP-extension series. Default SSP2.
+#   institutions      how the institution series with no SSP projection are projected:
+#                     convergence (default) | storyline | hold. pfm::pfmInstitutionProjection;
+#                     docs/DATA.md §5.
 #
 # Both runs below are the Run-Group v5 uncoupled baselines, EU21 (regionmapping_21_EU11.csv),
 # stored under output/remind-runs/<Run-Group>/<resolution>/. NOTE the carbon budget

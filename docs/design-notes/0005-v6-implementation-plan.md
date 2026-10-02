@@ -98,14 +98,14 @@ here (D1).
 |---|---|---|---|
 | D1 | Deploy the **anchor + mean-gap strength** formulation ("Next step 1") as the v6 coupling. Keep the v5 2035 reading only as a reproduction switch | keep the 2035 reading; extra tier years under the λ projection | recommended |
 | D2 | Hold each country's distance on the **logit scale** ($q = \eta - y$), not the efficiency ratio $E$ | hold $E$ (natural scale); hold the index-point gap | recommended — **must be stated as the mechanism** |
-| D3 | Anchor at the last panel year on the moving-average panel; fit the frontier on that panel; annual data as a robustness rung | switch the deployed fit to annual data | recommended |
+| D3 | Anchor at the last panel year on the moving-average panel; fit the frontier on that panel; annual data as a robustness rung, built as the **sibling Run-Group `v6-annual`** with its own panel | switch the deployed fit to annual data | **decided by the author, 2026-10-02** |
 | D4 | Normalise $k$ at $t_0 = 2025$ in every scenario; $u$ from anchor-year data; $\varphi(t_0) = 1 - \theta u$ | normalise at 2022 | recommended |
 | D5 | Converge on the **φ path** (max over regions, markets and checkpoint years) at the existing tolerance 0.002; log the all-period δ; switch to the strict rule if it ends above 2 × tol | converge on $k$ with tolerance tol/θ | agreed |
 | D6 | **No hold year in the central case:** $k_s$ follows the ceilings to 2100. **Hold at 2060 is the sensitivity.** The out-of-support share is reported per year with every run | hold at 2060 as the central case | **decided by the author, 2026-10-01** |
 | D7 | Innovator power on the **saturating transform, declared**; keep every other clamp | linear innovator power with the clamp; drop every clamp | recommended |
-| D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating innovator power together | three separate refits | recommended |
+| D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating innovator power together. 2023 comes from the **IEA 2025 edition**, which also revises earlier years | three separate refits; a 2022-only fit on the 2025 edition | **decided by the author, 2026-10-02** (2023 and its edition) |
 | D9 | One SSP per run, taken from `cm_GDPpopScen` and threaded to the panel, the weights, $P^{ref}$ and the anchor donor; **asserted** | SSP2 everywhere (today) | recommended |
-| D10 | Vertical accountability under SSPs: a **declared storyline convergence** (target percentile and midpoint per SSP), SSP2 unchanged. Decide only after the re-sweep shows whether accountability is still in the spec | map from the Andrijevic composite index; no SSP variation | recommended, conditional |
+| D10 | Institutions with no SSP projection (all V-Dem series, Rule of Law included; WGI Voice and Accountability, Political Stability, Regulatory Quality): **(b) declared storyline convergence** (target percentile and speed per SSP, SSP2 unchanged) in the headline; **(a)** the same convergence for every SSP and **(d)** hold at the last observed value as sensitivities. Rule of Law stays V-Dem, not WGI | (c) map from the Andrijevic composite index; WGI Rule of Law | **decided by the author, 2026-10-02**; implemented (`pfmInstitutionProjection`, `DATA.md` §5.4) |
 | D11 | Spread: $d_s = k_s$ in every headline run; a declared storyline spread $d_s = \rho_{SSP}(t)\,k_s$ only as an SI arm; the model-derived $D_s(t)/D_s(t_0)$ reported as a diagnostic only | model-derived spread in the headline | recommended |
 | D12 | Clip φ to [0, 1]; redefine θ as "severity at $t_0$"; log the clipped share, and flag $k_s > 1/\theta$ | let φ float below $1-\theta$ unbounded | recommended |
 | D13 | **Remove λ from the coupling.** Retire mode M and the `GAPCLOSE` arm from the v6 batch. Replace gap closure by one declared closure arm on the strength. Keep the ECM in diagnostics only | keep λ for the 2022→2035 step; keep `GAPCLOSE` | recommended |
@@ -236,14 +236,23 @@ is reported as one documented change set, not three drifting ones.
 **D10 — vertical accountability under SSPs.**
 
 - No SSP projection exists. The cached SSP extensions (Andrijevic et al.) carry the composite
-  Governance Index, Government Effectiveness, Control of Corruption and Rule of Law for SSP1–5 to
-  2100, but **no voice or accountability series** (checked in `data/madrat/convertSSPextensions.rds`).
+  Governance Index, Government Effectiveness and Control of Corruption for SSP1–5 and a Rule of Law
+  index for SSP1–3 only, to 2100, but **no voice or accountability series** (checked in
+  `data/madrat/convertSSPextensions.rds`).
 - A declared storyline table, swept, is the honest option; Leininger et al. (2024) give the
   storyline language.
 - **Ordering matters:** no accountability option reaches half the bootstrap winners on `v5`, so
   the re-sweep may drop the channel. Implement the declared rule only if the `v6` spec keeps it.
-- Side note: Rule of Law *is* SSP-projected. If the re-sweep picks it (it is in 92% of the `v5`
-  top-60), its SSP path is free.
+- **Correction (2026-10-02):** the Rule of Law in the candidate set is **V-Dem's**, not WGI's, and
+  stays so (author). It has no SSP projection: it follows the declared rule like the accountability
+  series. The Andrijevic Rule-of-Law path (SSP1–3; SSP4/5 fall back to SSP2) only replaces the WGI
+  series, which is not a candidate. The earlier note here ("Rule of Law *is* SSP-projected, its SSP
+  path is free") was wrong.
+- **Decided 2026-10-02 and implemented** whatever the re-sweep keeps, since it costs nothing when
+  the spec has no such term: `pfmInstitutionProjection(rule, ssp)` with rules `storyline` (default),
+  `convergence`, `hold`; the storyline table is `pfmInstitutionStorylines()`; REMIND
+  `cfg$pfmInstitutions` → `pfm-coupling.yml` `institutions`; registry key `institutions`.
+  `DATA.md` §5.4 is the reference.
 
 **D11 — no model-derived spread in the headline.**
 
@@ -393,15 +402,21 @@ Each item names the phase that closes it (P0–P6) and its source.
 - [ ] **A2 — Next step 2a: panel to 2023.** Verify that CAPMF, WGI, V-Dem and the energy data
       cover 2023 without imputation (CAPMF is in the vintages through 2023: GP-19 /
       `input-vintages.rds`). Move the anchor and the trend freeze year to 2023 (D8; P2).
-- [ ] **A3 — Next step 2b: SSP projections.** Expose `drivers_SSP1…5` in `calcSSPextensions()`;
-      add an `ssp` argument to `panelDataScenario()`; GDP and population by SSP; the
-      accountability rule (D9, D10; P2).
+      **Coverage verified and the panel definition built, 2026-10-02:** every source covers 2023;
+      the energy data need the IEA 2025 edition, which is complete for 2023 (`DATA.md` §4). The
+      definition (years, smoothing, IEA edition) is a recorded Run-Group property
+      (`pfmPanelDef`, `config.yml` `panel:`). Open: the anchor and trend freeze year, in the sweep.
+- [x] **A3 — Next step 2b: SSP projections.** ✅ **Done 2026-10-02.** `calcSSPextensions(subtype =
+      "drivers_SSP1…5")`; `panelDataScenario(ssp, institutions)`; GDP, population and the
+      extensions by SSP; the institution rule (D9, D10; `DATA.md` §5). The SSP reaches the
+      coupled run from `cm_GDPpopScen` and the offline steps from the registry key `ssp`.
 - [ ] **A4 — Next step 3: geothermal in the hydro/nuclear control.** Add it in `mrpfm` (historical
       panel) **and** in the REMIND-side computation of the share from primary energy
       (`iamCalculatedDrivers` / `downscaleREMINDResults`); refit inside the one re-sweep (D8; P2).
 - [ ] **A5 — Next step 4: actor-power clamps.** Saturating innovator, declared; other clamps kept
       (D7; P2). Report `driverOutOfSupport` per year with every run (P3).
-- [ ] **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2).
+- [ ] **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2). The sibling
+      group `v6-annual` is declared in `config.yml` (`panel: groups:`); it runs with the sweep.
 
 ### B. Problems in the methodology document itself (fix before it is used as the spec)
 
@@ -522,7 +537,8 @@ Latent defects (P0 unless noted):
       needs no disclosure. The new paper's `v5` → `v6` comparison names it as one reason for the
       change.
 - [ ] **E8** — Convergence checks only the economy-wide floor φ, not the per-market shares (D5; P3).
-- [ ] **E9** — SSP2 is hard-coded in the scenario panel and in `calcSSPextensions()` (D9; P2).
+- [x] **E9** — ✅ **Done 2026-10-02.** SSP2 was hard-coded in the scenario panel and in
+      `calcSSPextensions()` (D9; P2); both now take the SSP.
 - [x] **E10** — ✅ **Done 2026-10-02.** The file was git-ignored (REMIND ignores `input/`), so it
       was moved to `../_archive/_wip/2026-10-02/` rather than committed away. `datainput.gms` sets
       φ = 1, λ = 0 before its `$ifthen exist` include, so runs now start uncoupled until the first
@@ -801,13 +817,15 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
 ### Phase 2 — Data and estimation, Run-Group `v6` (two to three weeks; cluster for the sweep)
 
 1. **`mrpfm`:**
-   - `calcSSPextensions(subtype = "drivers_SSPx")` for x = 1…5 (or a `scenario` argument);
+   - ✅ `calcSSPextensions(subtype = "drivers_SSPx")` for x = 1…5 (2026-10-02);
    - geothermal in the clean-baseload control (A4);
-   - panel inputs to 2023 after the coverage check (A2);
-   - the accountability storyline rule in `toolProjectScenario()`, parameterised, with SSP2
-     reproducing today (D10).
-2. **`pfm` scenario panel:** an `ssp` argument everywhere SSP2 is hard-coded (E9). Split the
-   exogenous part, which is cacheable per SSP (F7), from the REMIND-dependent actor power.
+   - ✅ panel inputs to 2023: coverage checked, IEA 2025 edition selected by the panel definition
+     (A2, `DATA.md` §3–§4; 2026-10-02);
+   - ✅ the institution rule (D10), in `pfm` rather than `toolProjectScenario()`: SSP2 reproduces
+     today exactly (2026-10-02).
+2. **`pfm` scenario panel:** ✅ an `ssp` argument everywhere SSP2 was hard-coded (E9, 2026-10-02;
+   the `v5` scenario panel rebuilds to within 2e-15). Open: split the exogenous part, which is
+   cacheable per SSP (F7), from the REMIND-dependent actor power.
 3. **The REMIND-side driver computation:** geothermal included, so the scenario control matches the
    historical one. Check with the seam test (C8).
 4. **The sweep (D7, D8):** innovator power declared saturating; the trend freeze at the anchor year;
@@ -823,7 +841,8 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    $u$, floor regions. This becomes Methods and SI material for the new paper.
 
 **Gate:** deployed `v6` spec diagnostics at least as clean as `v5` (γ, gates, influence, sign
-stability). The 2023 coverage decision is recorded. D10 resolved: accountability kept or dropped.
+stability). The 2023 coverage decision is recorded (`DATA.md` §4). D10 decided 2026-10-02; the
+re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law term kept or dropped).
 
 ### Phase 3 — Coupling code (two to three weeks; workstation + test runs)
 

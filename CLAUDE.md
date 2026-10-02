@@ -26,6 +26,7 @@ Two consequences for how work is judged here:
 | You are working on | Read |
 |---|---|
 | the model, its maths, its numbers | `docs/MODEL.md` |
+| the data: sources, editions, panel definition, SSP and future series, assumptions | `docs/DATA.md` |
 | the REMIND interface, running or debugging a coupled run | `docs/COUPLING.md` |
 | what a coupled scenario is for, and what its results mean | `docs/SCENARIOS.md` |
 | what to do next | `docs/TODO.md` |
