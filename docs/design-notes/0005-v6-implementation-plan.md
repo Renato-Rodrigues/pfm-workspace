@@ -102,7 +102,7 @@ here (D1).
 | D4 | Normalise $k$ at $t_0 = 2025$ in every scenario; $u$ from anchor-year data; $\varphi(t_0) = 1 - \theta u$ | normalise at 2022 | recommended |
 | D5 | Converge on the **φ path** (max over regions, markets and checkpoint years) at the existing tolerance 0.002; log the all-period δ; switch to the strict rule if it ends above 2 × tol | converge on $k$ with tolerance tol/θ | agreed |
 | D6 | **No hold year in the central case:** $k_s$ follows the ceilings to 2100. **Hold at 2060 is the sensitivity.** The out-of-support share is reported per year with every run | hold at 2060 as the central case | **decided by the author, 2026-10-01** |
-| D7 | Innovator power on the **saturating transform, declared**; keep every other clamp | linear innovator power with the clamp; drop every clamp | recommended |
+| D7 | Actor-power form **selected, under an extrapolation gate**: every split actor-power spec is fitted linear, both-saturating, innovator-only and incumbent-only saturating; the composite Actor Power Index is dropped; a new sanity gate rejects specs whose actor-power drivers extrapolate beyond the training support over 2025–2100 (gating and reference). Every other clamp kept | innovator saturating, declared (the earlier recommendation); saturate both groups; keep the composite | **decided by the author, 2026-10-02** (options 1C, 2C, 3A); implemented |
 | D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating innovator power together. 2023 comes from the **IEA 2025 edition**, which also revises earlier years | three separate refits; a 2022-only fit on the 2025 edition | **decided by the author, 2026-10-02** (2023 and its edition) |
 | D9 | One SSP per run, taken from `cm_GDPpopScen` and threaded to the panel, the weights, $P^{ref}$ and the anchor donor; **asserted** | SSP2 everywhere (today) | recommended |
 | D10 | Institutions with no SSP projection (all V-Dem series, Rule of Law included; WGI Voice and Accountability, Political Stability, Regulatory Quality): **(b) declared storyline convergence** (target percentile and speed per SSP, SSP2 unchanged) in the headline; **(a)** the same convergence for every SSP and **(d)** hold at the last observed value as sensitivities. Rule of Law stays V-Dem, not WGI | (c) map from the Andrijevic composite index; WGI Rule of Law | **decided by the author, 2026-10-02**; implemented (`pfmInstitutionProjection`, `DATA.md` §5.4) |
@@ -204,20 +204,46 @@ here (D1).
     2070 under SSP1 and SSP5, and 60% of countries are above the GDP range by 2100 on SSP2 (0004
     §1, §4). The SSP results are therefore always reported next to their hold-2060 twin.
 
-**D7 — saturating innovator power.**
+**D7 — the actor-power form: selected, under an extrapolation gate (decided 2026-10-02).**
 
+- **Decision** (author, options 1C, 2C, 3A of the D7 brief):
+  - *1C, incumbents:* selection chooses whether incumbent power (share and per capita) is
+    saturated, as for innovators.
+  - *2C, innovators:* the linear form stays in the grid; what removes the extrapolation problem is
+    a gate, not a declaration. **Actor-power extrapolation gate:** severe when more than 27.5% of
+    the in-coverage country-years in 2025–2100 have an actor-power driver more than 1 training SD
+    beyond its support, on the gating or the reference projection. Saturating columns are guarded
+    at their physical domain, so they pass by construction; a linear term passes only if the
+    scenario keeps it near the data. 0.275 is the existing support-share gate's tolerance
+    (ADR 0045); both thresholds are declared, and recorded per group.
+  - *3A:* the composite Actor Power Index specs leave the grid: a difference cannot be saturated
+    and would extrapolate innovators linearly through the back door (≤ 6.7% of `v5` bootstrap
+    winners used any form other than `bothIncAP` / `splitAPpc`).
+  - **Why selection rather than declaration:** in sample the data are indifferent between linear and
+    saturating (`satAP` 45.9% of `v5` bootstrap winners against 43.3% of the pool, p = 0.47,
+    `MODEL.md` §6); the gate makes the out-of-sample behaviour the deciding evidence instead of an
+    assumption.
+  - **Implemented:** `apTransform` gains `"saturating-innovator"` / `"saturating-incumbent"`
+    (twins `" satInn"` / `" satInc"`; `" satAP"` stays both); `pfmSpecs(apTransforms,
+    dropCompositeAP)`; the gate in the sanity walk (`apExtrapolationGate`, `apExtrapolationSd`,
+    `apExtrapolationWindow`); all set in `config.yml` `sweep:` and recorded in the group's
+    manifest (`sweepOptions`), so `v5` keeps its grid.
+- **What it does not cover:** the gate is scored on the registry's gating and reference gdxs
+  (SSP2). An SSP3/SSP5 run can push incumbent per capita further; Phase 1 step 4 measures that on
+  the `v5` gdxs, and the out-of-support share is reported per year with every run (C10).
+- Background, unchanged:
 - v6 reads ceilings to 2060–2100. The linear innovator term is then extrapolated 5–9 SD beyond the
   data for most countries (0004 §1). Without the clamp, half of all Diffuse ceilings exceed 9 by
   2100 and the ordering compresses.
 - The saturating form $x/(x + \bar x)$ already exists (ADR 0040, `satAP`). It decays at the
   physical domain, not at the sample edge.
-- "Declared, not selected" follows the precedent of the trend shape (`MODEL.md` §2.3.1). Selection
-  is made over everything else.
 - The other clamps stay: log population (up to 130 SD), the upper bound on incumbent power per
   capita (40–75 SD outliers), GDP and GovEff. They cost nothing today and stop explosions under
   SSP inputs (0004 §1).
-- **The linear-clamped spec stays as an SI rung**, because it was the `v5` choice and 76% of
-  bootstrap winners chose the linear `bothIncAP` form (methodology).
+- **Rungs:** the selected spec's other actor-power forms (its linear and saturating twins) are
+  reported as SI rungs, so the effect of the form is shown, whichever wins. (`bothIncAP`, 76% of
+  `v5` bootstrap winners, is the incumbency *structure*, share plus per capita; it is independent of
+  the linear/saturating form.)
 
 **D8 — one re-sweep.** Each of panel-to-2023, geothermal and the saturating transform changes the
 panel hash or the candidate set, so each would force selection on its own. Done together, the
@@ -415,8 +441,10 @@ Each item names the phase that closes it (P0–P6) and its source.
       (IEA) and the REMIND downscale already carried; it is the panel-definition field
       `geothermal` (`v5` false, `v6` true), so `v5` rebuilds unchanged. 29 countries move by more
       than 0.01 (`DATA.md` §3). Refit inside the one re-sweep (D8; P2).
-- [ ] **A5 — Next step 4: actor-power clamps.** Saturating innovator, declared; other clamps kept
-      (D7; P2). Report `driverOutOfSupport` per year with every run (P3).
+- [x] **A5 — Next step 4: actor-power clamps.** ✅ **Code done 2026-10-02** as decided in D7: the
+      four actor-power forms selected under the actor-power extrapolation gate, composite specs
+      dropped, other clamps kept (`config.yml` `sweep:`). Open: report `driverOutOfSupport` per year
+      with every run (P3).
 - [ ] **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2). The sibling
       group `v6-annual` is declared in `config.yml` (`panel: groups:`); it runs with the sweep.
 
@@ -831,13 +859,15 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    cacheable per SSP (F7), from the REMIND-dependent actor power.
 3. **The REMIND-side driver computation:** geothermal included, so the scenario control matches the
    historical one. Check with the seam test (C8).
-4. **The sweep (D7, D8):** innovator power declared saturating; the trend freeze at the anchor year;
+4. **The sweep (D7, D8):** the four actor-power forms under the extrapolation gate, no composite
+   specs (`config.yml` `sweep:`, done); the trend freeze at the anchor year (automatic: the last
+   panel year);
    the covariance screen in place (E13). Then:
    - selection, selection bootstrap, frontier, diagnostics and inference;
    - the spec band (the `v6-specalt` analogue);
    - the ceiling-fall gate re-checked (C9);
    - the annual-data rung (A6);
-   - the linear-clamped rung (D7).
+   - the selected spec's other actor-power forms as rungs (D7).
 5. **Donor assignment at the anchor year,** then the **anchor artifact** (C6, F6). Then
    `pfmRun(group = "v6", stage = "remind")`.
 6. **Write the `v5` → `v6` comparison:** spec, coefficients, $E$ ordering at the anchor, regional
@@ -910,7 +940,7 @@ submit prints the expected rows, groups and commits.
 | 2 | ordering tests: Bfix uniform, permuted 1–3, reversed; C uniform, permuted 1 | EU21 (H12 for Bfix uniform + 1 permuted) | 7 + 2 | D-M1 / GP-24 |
 | 2 | assignment rules: Bfix and C × all-median, all-low; USA donor / low (Bfix) | EU21 | 6 | D-M2 (ii), GP-3 / 10 |
 | 2 | markup off (`-Min`) for B and C; ratio mode for C | EU21, H12 | 6 | v5 continuity |
-| 2 | spec band and rungs: Bfix on `v6-specalt`, linear-clamped, annual | EU21 | 3 | D7, D3 |
+| 2 | spec band and rungs: Bfix on `v6-specalt`, the other actor-power form, annual | EU21 | 3 | D7, D3 |
 | 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ (Bfix and C) | EU21 | 6 | D2, D6, D16, D13 |
 | 3 | hold-2060 twin of each SSP's `-PFMlevelBfix` | EU21 | 2 | D6: SSP results always travel with their hold-2060 twin |
 | 3 | SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC` | EU21 | 12 | the SSP axis (if Phase 1 keeps it) |

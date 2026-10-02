@@ -87,6 +87,29 @@ panel:
     v6-annual:
       movingAverage: 1
 
+# ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
+# Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
+# records them in manifest.json (sweepOptions); v5 and earlier keep the v5 grid (linear + satAP
+# twins, no actor-power extrapolation gate). pfmRun() prints them as `sweep` in the plan.
+#   apTransforms          the actor-power forms every split actor-power spec is fitted in:
+#                         linear | saturating (both groups) | saturating-innovator |
+#                         saturating-incumbent. Selection chooses among them (D7, options 1C/2C).
+#   dropCompositeAP       drop the composite Actor Power Index specs, which cannot be
+#                         saturated (D7, option 3A)
+#   apExtrapolationGate   severe in the sanity walk when more than this share of in-coverage
+#                         country-years in apExtrapolationWindow has an actor-power driver more
+#                         than apExtrapolationSd training SDs beyond its support - on the gating
+#                         OR the reference projection. Saturating columns are guarded at their
+#                         physical domain and pass by construction. 0.275 is the tolerance of
+#                         the existing support-share gate (ADR 0045); both values are declared.
+#   groups                per-Run-Group overrides, as for panel
+sweep:
+  apTransforms: [linear, saturating, saturating-innovator, saturating-incumbent]
+  dropCompositeAP: true
+  apExtrapolationGate: 0.275
+  apExtrapolationSd: 1
+  apExtrapolationWindow: [2025, 2100]
+
 # ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
 # The REMIND pathways the one shared Fitted Model is projected onto. Each entry:
 #   id                a stable key — the projection-artifact stem and report/figure key.
