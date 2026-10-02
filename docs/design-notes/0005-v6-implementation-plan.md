@@ -732,8 +732,10 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
        `-PFMlevelBfix` gives the pre-rename result (max 0.0395, the known cluster-cache gap);
      - the paper bundle reads `output/pfm/v5/` directly and calls no `pfm` function, so its
        byte-identical rebuild of 2026-10-01 is unaffected.
-2. **Small fixes:** E5, E10, E13, E14, E20; E19 in the forge. Optionally E11 and E12 now; otherwise
-   they go into the P3 GAMS pass.
+2. **Small fixes:** E5, E10, E13, E20. Optionally E11 and E12 now; otherwise they go into the P3
+   GAMS pass. (Revised 2026-10-02: E5 and E20 are done. E14 moves to Phase 2, as its own entry
+   says ("do it with D7"). E19 is a `paper-forge` fix needed by the paper workspace, not by a run,
+   so it is due before Phase 6.)
 3. **Push everything** and reinstall `pfm` on the cluster. Verify the installed version from inside
    `models/remind_pfm/` (`PITFALLS.md` §2, §23).
 
