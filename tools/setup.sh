@@ -100,7 +100,7 @@ if [ "$CACHE" = 1 ]; then
   if Rscript -e 'quit(status = !requireNamespace("pfm", quietly = TRUE))' >/dev/null 2>&1; then
     say "madrat cache: pfm::pfmPrepareCache(${GROUP:+group = \"$GROUP\"})"
     if [ -n "$GROUP" ]; then garg="group = '$GROUP'"; else garg="group = NULL"; fi
-    run Rscript -e "r <- pfm::pfmPrepareCache('config.yml', $garg); if (r\$status == 'incomplete') quit(status = 1)"       || say "madrat cache INCOMPLETE - see [cache] above; fix config.yml madrat: cacheSources / sourcefolder"
+    run Rscript -e "suppressMessages(library(pfm)); r <- pfmPrepareCache('config.yml', $garg); if (r\$status == 'incomplete') quit(status = 1)"       || say "madrat cache INCOMPLETE - see [cache] above; fix config.yml madrat: cacheSources / sourcefolder"
   else
     say "madrat cache: skipped - pfm is not installed (run with --install, or pfmRun() prepares it)"
   fi

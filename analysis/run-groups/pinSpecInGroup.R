@@ -17,7 +17,7 @@
 # Typical sequence for a BOTH-SECTOR variant:
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc Bulk    "<spec>"   # creates the group
 #   Rscript analysis/run-groups/pinSpecInGroup.R          v5-noinc Diffuse "<spec>"   # pins the second sector
-#   Rscript -e 'pfm::pfmRun(group = "v5-noinc", steps = c("psm-frontier","psm-temporal",
+#   Rscript -e 'library(pfm); pfmRun(group = "v5-noinc", steps = c("psm-frontier","psm-temporal",
 #               "psm-donor","psm-projection","psm-coupling-bound"), cluster = "slurm")'
 #   Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-noinc
 #

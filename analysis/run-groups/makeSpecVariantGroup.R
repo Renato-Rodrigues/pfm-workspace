@@ -21,7 +21,7 @@
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v1 v1-specalt Diffuse "X-0102 WGIge|RoL|HorAcc splitAP lev ctl:GDPq fe:OECDp satAP"
 #
 # then on the cluster:
-#   Rscript -e 'pfm::pfmRun(group = "v1-specalt",
+#   Rscript -e 'library(pfm); pfmRun(group = "v1-specalt",
 #                           steps = c("psm-frontier","psm-temporal","psm-donor",
 #                                     "psm-projection","psm-coupling-bound"),
 #                           cluster = "slurm")'
@@ -103,7 +103,7 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
   say("  now: ", specName)
   say("\nNext, on the cluster (psm-sweep is EXCLUDED on purpose - it would re-select and ",
       "overwrite the pin):")
-  say("  Rscript -e 'pfm::pfmRun(group = \"", to, "\", steps = c(\"psm-frontier\",",
+  say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(\"psm-frontier\",",
       "\"psm-temporal\",\"psm-donor\",\"psm-projection\",\"psm-coupling-bound\"), ",
       "cluster = \"slurm\")'")
   say("  psm-temporal is REQUIRED: psm-coupling-bound reads lambda from ",

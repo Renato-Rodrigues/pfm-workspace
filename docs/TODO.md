@@ -133,7 +133,7 @@ band with its max and rank shift (not the median alone), and P4.4 cites C31 as e
 ```bash
 # Bulk per-sector optimum; the name must match sweep.rds EXACTLY (this one has no satAP suffix)
 Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-specalt Bulk "X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp"
-Rscript -e 'pfm::pfmRun(group = "v5-specalt",
+Rscript -e 'library(pfm); pfmRun(group = "v5-specalt",
                         steps = c("psm-frontier","psm-temporal","psm-donor",
                                   "psm-projection","psm-coupling-bound"),
                         cluster = "slurm")'

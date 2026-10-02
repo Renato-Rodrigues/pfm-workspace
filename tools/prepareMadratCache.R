@@ -14,7 +14,10 @@ args <- commandArgs(TRUE)
 opt <- function(k) { i <- match(k, args); if (is.na(i) || i == length(args)) NULL else args[i + 1] }
 if (!file.exists("config.yml")) stop("run from the repository root (no config.yml here)")
 
-r <- pfm::pfmPrepareCache("config.yml", group = opt("--group"),
+# library(pfm), not pfm::: it attaches mrpfm (Depends), which is what registers mrpfm's
+# calculations with madrat.
+suppressMessages(library(pfm))
+r <- pfmPrepareCache("config.yml", group = opt("--group"),
                           compute = if ("--check" %in% args) FALSE else NULL,
                           force = "--force" %in% args,
                           verify = if ("--md5" %in% args) "md5" else "size")
