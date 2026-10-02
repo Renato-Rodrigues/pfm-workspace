@@ -14,8 +14,8 @@
 # for the past against the PROJECTED LEVEL (projections/*.rds$index) for the future, and reported
 # the gap between them as an unexplained discontinuity. They are different objects:
 #
-#     frontierIndex  the SFA frontier - a CEILING              runPSMFrontier
-#     index          projected policy stringency - a LEVEL     projectPSMSpecScenario
+#     frontierIndex  the SFA frontier - a CEILING              runPFMFrontier
+#     index          projected policy stringency - a LEVEL     projectPFMSpecScenario
 #
 # projectFeasiblePath() says so in its own header: the path converges to the ECM equilibrium, NOT
 # to the SFA frontier; the frontier enters only as an upper bound and as the gap exhibit. So the

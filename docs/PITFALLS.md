@@ -159,7 +159,7 @@ When something looks fine, these are what to check first.
 
 ## 14. An artifact labelled with the deployed spec is not proof it fitted the deployed spec
 
-The post-selection steps read `selected-models-psm.yml`, stamp `cfg$name` onto their output, and
+The post-selection steps read `selected-models-pfm.yml`, stamp `cfg$name` onto their output, and
 then call the estimator with a **hand-written argument list**. That list omitted `apTransform`,
 so the estimator fell back to its `"linear"` default while the artifact carried the deployed
 spec's name — which ends in `satAP`. `estimator-agreement.rds`, `iv.rds` and `influence.rds`
@@ -167,14 +167,14 @@ therefore described a different model from the deployed one, with nothing anywhe
 
 Two rules follow:
 
-1. **Derive forwarded arguments from `formals()`, never restate them.** `.psmSpecArgs()` does
+1. **Derive forwarded arguments from `formals()`, never restate them.** `.pfmSpecArgs()` does
    this, so a spec field added later is forwarded automatically instead of being silently
    dropped until someone notices the numbers are subtly off. Callers pass their own overrides
    explicitly via `exclude =`.
 2. **Absent is not the same as default.** For the driver blocks and
    `regionMappingFixedEffects`, a spec that does not name the field means *none*. Their
    estimator defaults are substantive (`"regionmappingH12.csv"`, full default driver blocks), so
-   letting them apply hands a spec fixed effects it never asked for. `.psmSpecArgs()` passes
+   letting them apply hands a spec fixed effects it never asked for. `.pfmSpecArgs()` passes
    those five as `NULL` when absent; every other field falls through to the default.
 
 **How it was caught, and how to check it again:** the agreement fit's BIC matched the
@@ -182,18 +182,18 @@ Two rules follow:
 match its own row in `sweep.rds$results`. That is the cheap test. Do not rely on
 `driverScaling$sat` as the indicator; it is absent in the corrected fit too.
 
-**It reached further than the diagnostics.** `runPSMFrontier()` and
-`runPSMTemporalValidation()` carried the same hand-written list, so **the frontier itself** — the
+**It reached further than the diagnostics.** `runPFMFrontier()` and
+`runPFMTemporalValidation()` carried the same hand-written list, so **the frontier itself** — the
 ceiling, the efficiency ratio, every gap and tier, φ and the coupling bound — and **λ**, the
 coupling's speed limit, were also estimated on linear actor power. Six files and ~13 call sites
-share this pattern. When you touch any of them, convert to `.psmSpecArgs()` rather than
+share this pattern. When you touch any of them, convert to `.pfmSpecArgs()` rather than
 adding one more argument to the list.
 
-The same call sites had a second, independent instance of the family: `psm-iv` and
-`psm-influence` were invoked without dots forwarding, so `outputRegionMappingFile` kept its
+The same call sites had a second, independent instance of the family: `pfm-iv` and
+`pfm-influence` were invoked without dots forwarding, so `outputRegionMappingFile` kept its
 `"regionmapping_54.csv"` default and diagnosed a country-resolution Run-Group at R54 — visible
 only as `influence.rds` reporting 36 clusters named `ANZ`/`BELUX` rather than 48 countries. The
-code's own comment above the `psm-agreement` call had warned about exactly this.
+code's own comment above the `pfm-agreement` call had warned about exactly this.
 
 **Audited 2026-08-17 — the estimator call sites are clean.** All six sites that fit from a
 deployed spec now forward `apTransform`, including `iterativePFM()`, which is the coupling
@@ -294,7 +294,7 @@ any cross-run price comparison. (`TODO.md` item 3, closed 2026-08-22: the floor 
 uninstalled optional package — writes one line and returns quietly:
 
 ```
-[PSM-BOUND:v5-specalt] skipped — missing: temporal-validation.rds
+[PFM-BOUND:v5-specalt] skipped — missing: temporal-validation.rds
 ```
 
 It does **not** raise. The run then printed `done: <every requested step>` and exited 0. On a
@@ -314,7 +314,7 @@ Both raise a `warning()`, both print a block in the log, `startRun()` repeats th
 `completed` and `failed`, because "completed" must not mean "every requested step ran".
 
 > ⚠️ **NOT REFRESHED is the more dangerous of the two** and is what the ordering bug in §17 was
-> silently doing: `psm-projection` ran before `psm-frontier`, found the *previous* frontier
+> silently doing: `pfm-projection` ran before `pfm-frontier`, found the *previous* frontier
 > already on disk, and projected against it. Nothing was missing, so nothing complained.
 > Suppressed under `resume = TRUE`, where reusing an artifact is the point.
 
@@ -363,7 +363,7 @@ The panel `pfm` estimates on carries a column called **`Energy Intensity`** and 
 and its GDP counterpart, min–max normalised into $[0,1]$ so the frontier's coefficients are
 comparable. They are **not levels**, and their product is not a size.
 
-`runPSMCouplingBound()` used exactly that product as its country aggregation weight, for
+`runPFMCouplingBound()` used exactly that product as its country aggregation weight, for
 months. The tell that nobody looked for:
 
 | weight | max / median over positive weights |
@@ -377,7 +377,7 @@ At a dispersion of 1.4 every multi-country region aggregates its members almost 
 was unaffected, which is why the defect survived every spot check that looked at the USA.
 
 **Blast radius, and it is narrower than it first looks.** `iterativePFM()` — the runtime that
-runs *inside* a coupled REMIND job — resolves its weights through `psmCouplingWeights()` and
+runs *inside* a coupled REMIND job — resolves its weights through `pfmCouplingWeights()` and
 always has. So:
 
 - **unaffected:** every gdx in the 2026-08-17 batch, `SCENARIOS.md`, headline B, the sector
@@ -391,15 +391,15 @@ Sizing the correction at $\theta = 0.50$: Spearman 0.961, median $|\Delta\varphi
 A shifted floor region changes which region the whole bound is anchored on, so this is a
 re-run, not a footnote.
 
-**The guard.** `psmAssertSizeWeights()` (`models/pfm/R/psmCouplingWeights.R`, exported) rejects any
+**The guard.** `pfmAssertSizeWeights()` (`models/pfm/R/pfmCouplingWeights.R`, exported) rejects any
 weight vector whose max/median over positive entries is below 20. It is now called on **both**
-paths — `runPSMCouplingBound()` and `iterativePFM()`. `iterativePFM()` previously *warned* and
+paths — `runPFMCouplingBound()` and `iterativePFM()`. `iterativePFM()` previously *warned* and
 fell back to equal weights when the madrat cache was missing; inside a multi-hour batch that
 warning scrolls past unread, so it now **errors**. `weights = NULL` remains the deliberate
 opt-out and is left alone (it says so out loud).
 
 > **The general rule: never build a weight out of the estimation panel.** The panel exists to
-> be normalised. Weights are levels and come from `psmCouplingWeights()`. If a new step needs
+> be normalised. Weights are levels and come from `pfmCouplingWeights()`. If a new step needs
 > country weights, call that function and assert the result — the two lines are the whole fix.
 
 ## 21. Two series on one axis must be the same quantity
@@ -417,8 +417,8 @@ countries. Those are **different quantities**:
 
 | series | what it is | from |
 |---|---|---|
-| `frontierIndex` | the **SFA frontier** — the ceiling | `runPSMFrontier` |
-| `index` | **projected policy stringency** — the mean level | `projectPSMSpecScenario`, via `estimatePolicyStringencyModel` |
+| `frontierIndex` | the **SFA frontier** — the ceiling | `runPFMFrontier` |
+| `index` | **projected policy stringency** — the mean level | `projectPFMSpecScenario`, via `estimatePolicyStringencyModel` |
 
 `projectFeasiblePath()` says so in its own header: *"the path converges to the ECM equilibrium,
 **not** to the SFA frontier … the frontier enters only as an upper bound and as the gap exhibit."*
@@ -444,7 +444,7 @@ historical counterpart the projection is continuous:
    same-year η decomposition that looked airtight. But the scenario panel had been built with
    `outputRegionMappingFile = "regionmapping_54.csv"` while the fitted panel is at country
    resolution — **a mismatch the pipeline explicitly guards against**
-   (`runPSMPostProcessing.R`, the 2026-08-10 resolution guard). Rebuilt at `"country"`, the panels
+   (`runPFMPostProcessing.R`, the 2026-08-10 resolution guard). Rebuilt at `"country"`, the panels
    agree to four decimals (ARG Population 2020: 0.8362 vs 0.8360) and flagged variable-region
    pairs fall from 189/1560 to 119/9711.
 
@@ -458,7 +458,7 @@ historical counterpart the projection is continuous:
 
 `computeSeamDiagnostics()` had been exported for months **without a single call site** — which is
 why nothing had ever compared the panels. It is now wired into the projection step
-(`runPSMPostProcessing.R`) and writes `<group>/seam-diagnostics.rds` every run. It is what
+(`runPFMPostProcessing.R`) and writes `<group>/seam-diagnostics.rds` every run. It is what
 eventually produced the right answer, and it is the only lasting change from this episode.
 
 ---
@@ -490,7 +490,7 @@ On the correct measure the ordering reverses: on $E$ Bulk is the more constraine
 countries (32 of 48 at 2022 on `v5`, claim C10), the opposite of the retracted claim.
 `MODEL.md` §3.4.2.
 
-**No coupled result was affected.** `iterativePFM()` and `runPSMCouplingBound()` never read the
+**No coupled result was affected.** `iterativePFM()` and `runPFMCouplingBound()` never read the
 column; they build $E$ = `feasibleIndex / ceilingIndex` from `projectFeasiblePath()`. This is
 the §20 shape again: **runtime correct, offline reporting artifact wrong.**
 

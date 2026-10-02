@@ -76,13 +76,13 @@ rowFile <- function(group, sector, id)
 # --------------------------------------------------------------------------
 if (WORKER) {
   source("analysis/_common/_loadPfm.R")
-  if (!exists(".psmSpecArgs")) source("models/pfm/R/psmSpecArgs.R")
+  if (!exists(".pfmSpecArgs")) source("models/pfm/R/pfmSpecArgs.R")
   SECTOR <- args[[which(args == "--worker") + 1L]]
   ID     <- args[[which(args == "--worker") + 2L]]
   G <- Filter(function(g) identical(g$id, ID), GRID)[[1]]
 
   panel <- .panelForGroup(GROUP)
-  sel   <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml"))
+  sel   <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))
   .norm <- function(s) {
     for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
       if (!is.null(s[[f]])) s[[f]] <- unlist(s[[f]])
@@ -97,7 +97,7 @@ if (WORKER) {
   fitOne <- function(estimator) {
     cfg <- .norm(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", SECTOR)),
                         sel)[[1]])
-    a <- .psmSpecArgs(cfg)
+    a <- .pfmSpecArgs(cfg)
     for (n in names(trendArgs)) a[[n]] <- trendArgs[[n]]
     suppressWarnings(do.call(estimatePolicyStringencyModel, c(
       list(data = panel, sector = SECTOR, estimator = estimator, indexMax = 10,

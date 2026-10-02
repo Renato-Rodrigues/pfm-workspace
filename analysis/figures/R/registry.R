@@ -580,7 +580,7 @@ figureRegistry <- function(consumers = NULL, status = NULL) {
       rails    = paste("The interval REQUIRES Cov(beta_focal, beta_interaction) - at v1 that",
                        "covariance is -0.00119 in Bulk, so an interval built from the two",
                        "standard errors alone is wrong, not merely approximate. This figure",
-                       "was impossible until runPSMFrontier() began persisting $vcov and",
+                       "was impossible until runPFMFrontier() began persisting $vcov and",
                        "$support (2026-08-18); do not reintroduce a version that assumes a",
                        "+/-3 SD window or drops the covariance. Never extend the axis beyond",
                        "the observed support - MODEL.md 2.7. And note this is one conditional",

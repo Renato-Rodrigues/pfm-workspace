@@ -28,7 +28,7 @@
 
 source("analysis/_common/_loadPfm.R")
 suppressWarnings(suppressMessages({library(yaml); library(sandwich)}))
-source("models/pfm/R/psmSpecArgs.R")
+source("models/pfm/R/pfmSpecArgs.R")
 
 #   Rscript analysis/checks/efficiencyRatioBand.R [group]
 #
@@ -44,7 +44,7 @@ OUT   <- file.path("output/pfm", GROUP, "efficiency-ratio-band.rds")
 # Resolved from the group's OWN manifest panel_hash; never a hardcoded path.
 panel <- .panelForGroup(GROUP)
 fr    <- readRDS(file.path("output/pfm", GROUP, "frontier.rds"))
-sel   <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml"))
+sel   <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))
 norm  <- function(s) {
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
     if (!is.null(s[[f]])) s[[f]] <- unlist(s[[f]])
@@ -57,7 +57,7 @@ for (sec in c("Bulk", "Diffuse")) {
                      sel)[[1]])
   fit <- do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sec, estimator = "frontier", indexMax = 10,
-         modelDir = NULL, verbose = FALSE), .psmSpecArgs(cfg)))
+         modelDir = NULL, verbose = FALSE), .pfmSpecArgs(cfg)))
 
   mm   <- stats::model.matrix(stats::as.formula(fit$formula), data = fit$data)
   beta <- stats::coef(fit$model)[colnames(mm)]
@@ -82,7 +82,7 @@ for (sec in c("Bulk", "Diffuse")) {
   # SAME design via the satP mean regression, where a clustered sandwich does exist.
   mfit <- do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sec, estimator = "satP", indexMax = 10,
-         modelDir = NULL, verbose = FALSE), .psmSpecArgs(cfg)))
+         modelDir = NULL, verbose = FALSE), .pfmSpecArgs(cfg)))
   nse <- sqrt(diag(stats::vcov(mfit$model)))
   cse <- sqrt(diag(sandwich::vcovCL(mfit$model, cluster = mfit$data$region)))
   cmn <- intersect(names(nse), names(cse))

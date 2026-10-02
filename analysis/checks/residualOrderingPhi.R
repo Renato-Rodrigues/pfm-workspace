@@ -39,7 +39,7 @@ nm <- vapply(s$specs, function(z) as.character(z$name %||% NA), character(1))
 cfg <- s$specs[[which(nm == s$selected$PolicyStringency)]]
 for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
   if (!is.null(cfg[[f]])) cfg[[f]] <- unlist(cfg[[f]])
-panel <- pfm:::.psmHistPanel(GDIR, verbose = FALSE)
+panel <- pfm:::.pfmHistPanel(GDIR, verbose = FALSE)
 SECT <- c("Bulk", "Diffuse")
 
 map <- utils::read.csv(MAPF, sep = ";", stringsAsFactors = FALSE)
@@ -52,7 +52,7 @@ cov <- stats::setNames(as.numeric(cs$tiers$inCoverageShare), as.character(cs$tie
 country <- do.call(rbind, lapply(SECT, function(sec) {
   fit <- do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sec, estimator = "satP", indexMax = M, modelDir = NULL, verbose = FALSE),
-    pfm:::.psmSpecArgs(cfg)))
+    pfm:::.pfmSpecArgs(cfg)))
   fv <- stats::fitted(fit$model)                       # fitted y* (logit scale), named by row
   nd <- fit$data
   pos <- match(names(fv), rownames(nd))                # by NAME, never by position (orderingChecks.R)

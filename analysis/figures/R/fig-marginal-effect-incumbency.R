@@ -13,7 +13,7 @@
 # The covariance term is the one a coefficient table cannot give you, and it is not small:
 # at v1 Cov = -0.00119 in Bulk, so ignoring it would overstate the interval where the two
 # terms pull together and understate it elsewhere. This figure was BLOCKED until
-# runPSMFrontier() started persisting $vcov and $support (2026-08-18).
+# runPFMFrontier() started persisting $vcov and $support (2026-08-18).
 #
 # BOTH INCUMBENCY TERMS, ONE ROW EACH (added 2026-09-18, TODO item 37). The deployed spec is
 # `bothIncAP`: incumbency enters twice, as a SHARE of the energy system and PER CAPITA, and the

@@ -98,7 +98,7 @@ computeThetaBounds <- function(group = "v5", outRoot = "output/pfm", minYear = 2
     perRegion = d[order(d$thetaCap), c("region", "year", "u", "priceReference",
                                        "priceOptimal", "thetaCap")],
     parityRegionYears = nrow(parity), parityYears = sort(unique(parity$year)),
-    # Mirrors runPSMCouplingBound()'s swept grid; 0.95/0.99 added 2026-08-25 with it
+    # Mirrors runPFMCouplingBound()'s swept grid; 0.95/0.99 added 2026-08-25 with it
     # (TODO 14b(b)) so the violation count is reported at every severity that is
     # actually swept. Read from the artifact rather than hard-coded where possible.
     violatedAt = stats::setNames(lapply(cs$thetas[cs$thetas > 0], violated),

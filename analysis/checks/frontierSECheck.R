@@ -13,7 +13,7 @@
 # See docs/TODO.md item 14f.
 #
 # ✅ FIXED IN `pfm` 2026-08-26. `estimatePolicyStringencyModel()` now recomputes the
-# covariance matrix through `.psmFrontierVcov()` and records the outcome on
+# covariance matrix through `.pfmFrontierVcov()` and records the outcome on
 # `fit$vcovCheck`, so a NEW frontier fit carries trustworthy standard errors and
 # says so. This script exists for the other direction:
 #
@@ -22,7 +22,7 @@
 #   * to produce `output/pfm/<group>/frontier-se-check.rds`, the record of what a given
 #     group's reported standard errors were worth.
 #
-# It calls the same `.psmFrontierVcov()` the estimator now uses, so there is one
+# It calls the same `.pfmFrontierVcov()` the estimator now uses, so there is one
 # implementation of the likelihood and one of the Hessian, not two.
 #
 # READING IT.  `ratio` is reported / recomputed.
@@ -41,14 +41,14 @@ suppressWarnings(suppressMessages({
   library(yaml); library(magclass); library(frontier)
 }))
 source("analysis/_common/_loadPfm.R")           # also provides .panelForGroup()
-if (!exists(".psmSpecArgs")) source("models/pfm/R/psmSpecArgs.R")
+if (!exists(".pfmSpecArgs")) source("models/pfm/R/pfmSpecArgs.R")
 
 args    <- commandArgs(trailingOnly = TRUE)
 GROUP   <- if (length(args) >= 1) args[[1]] else "v4"
 SECTORS <- if (length(args) >= 2) args[-1] else c("Bulk", "Diffuse")
 
 panel <- .panelForGroup(GROUP)
-sel   <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml"))
+sel   <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))
 
 .norm <- function(s) {
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
@@ -61,7 +61,7 @@ frontierSECheck <- function(sector) {
                       sel)[[1]])
   fit <- suppressWarnings(do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sector, estimator = "frontier", indexMax = 10,
-         modelDir = NULL, verbose = FALSE), .psmSpecArgs(cfg))))
+         modelDir = NULL, verbose = FALSE), .pfmSpecArgs(cfg))))
 
   chk <- fit$vcovCheck
   cf  <- stats::coef(fit$model)

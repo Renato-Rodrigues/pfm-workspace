@@ -20,7 +20,7 @@
 # first-order uncertainty and belongs in the sweep.
 #
 # WHAT IS HELD FIXED.  The deployed specification, theta = 0.50, seed year 2022, and the
-# weighting step -- psmCouplingWeights() needs IEA energy balances that are not on the
+# weighting step -- pfmCouplingWeights() needs IEA energy balances that are not on the
 # workstation, so every statistic is reported under equal AND GDP weights. If the two
 # agree the conclusion does not depend on the weights that could not be rebuilt. This is
 # the same bracket propagateFrontierRungsToPhi.R uses, for the same reason.
@@ -33,7 +33,7 @@
 
 suppressWarnings(suppressMessages({library(yaml); library(magclass); library(frontier)}))
 source("analysis/_common/_loadPfm.R")
-if (!exists(".psmSpecArgs")) source("models/pfm/R/psmSpecArgs.R")
+if (!exists(".pfmSpecArgs")) source("models/pfm/R/pfmSpecArgs.R")
 
 args      <- commandArgs(trailingOnly = TRUE)
 GROUP     <- if (length(args) >= 1) args[[1]] else "v5"
@@ -55,7 +55,7 @@ SETTINGS <- list(
   linear    = list(logisticTimeTrend = FALSE, timeTrend = TRUE))
 
 panel <- .panelForGroup(GROUP)
-sel   <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml"))
+sel   <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))
 .norm <- function(s) {
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
     if (!is.null(s[[f]])) s[[f]] <- unlist(s[[f]])
@@ -65,7 +65,7 @@ sel   <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml
 fitFor <- function(sector, over) {
   cfg <- .norm(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sector)),
                       sel)[[1]])
-  a <- .psmSpecArgs(cfg)
+  a <- .pfmSpecArgs(cfg)
   for (n in names(over)) a[[n]] <- over[[n]]
   suppressWarnings(do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sector, estimator = "frontier", indexMax = 10,

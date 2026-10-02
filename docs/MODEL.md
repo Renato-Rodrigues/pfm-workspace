@@ -22,7 +22,7 @@ never from this page.
 `COUPLING.md`. Traps are `PITFALLS.md`.
 
 **Naming.** This document says **PFM** throughout. Code, artifact paths and step names still
-carry the older `psm*` prefix (`runPSMSweep()`, `selected-models-psm.yml`); they mean the same
+carry the older `psm*` prefix (`runPFMSweep()`, `selected-models-pfm.yml`); they mean the same
 object. See `TODO.md` § Rename.
 
 ---
@@ -65,7 +65,7 @@ The outcome is bounded by construction, so it is mapped to the real line before 
 
 $$p = \frac{S}{M}, \qquad \tilde p = \frac{p(n-1)+0.5}{n}, \qquad y^{*} = \operatorname{logit}(\tilde p)$$
 
-with $n$ the number of estimation rows (Smithson–Verkuilen squeeze, `.psmSqueeze`).
+with $n$ the number of estimation rows (Smithson–Verkuilen squeeze, `.pfmSqueeze`).
 
 > *In words:* the 0–10 index becomes a proportion, nudged just off the boundaries so the
 > logit is finite, and is modelled on the logit scale. The squeeze is an estimation device
@@ -175,7 +175,7 @@ standard deviation — including the trend.
 $$T(t) = \big[1+\exp(-k(t-m))\big]^{-1},\qquad m = 2010,\; k = 0.20$$
 
 Read the shape from the artifact, never from here: `manifest.json$trend` (`form`, `midpoint`,
-`steepness`, `scaled`) and `selected-models-psm.yml`'s `trendMidpoint` / `trendSteepness`.
+`steepness`, `scaled`) and `selected-models-pfm.yml`'s `trendMidpoint` / `trendSteepness`.
 
 > *In words:* a time effect cannot be extrapolated, so it is held at its last historical value
 > and the scenario drivers — not the calendar — carry all future differentiation. Over the
@@ -253,7 +253,7 @@ fragility 1. The sanity walk accepted it first (`forced = FALSE`, 0 severe flags
 
 Gates in force: `supportShareGate` **0.275** over 2040–2060 (ADR 0045), `ceilingFallGate` 0.90
 (ADR 0043), `gammaGate` 0.999 (ADR 0046), VIF hard 10 / soft 6 (soft as tie-break only). All
-three are now the code defaults of `runPSMSweep()`.
+three are now the code defaults of `runPFMSweep()`.
 
 > ⚠️ **Rank 1 is not dominance.** Rank 1 is on the maximin rule's ordering, not on any single
 > column. The best *per-sector* specifications fit more: Bulk `X-1791` (no `satAP` suffix) reaches ΔR² 0.139
@@ -545,7 +545,7 @@ and aggregation — not read off the estimated cross-section.
 
 **`projection.rds$implementability` is $S/10$, not $E$** (`computeImplementabilityFactor()` is
 `index / indexMax`). Nothing in the coupling reads it — `iterativePFM()` and
-`runPSMCouplingBound()` take $E$ = `feasibleIndex / ceilingIndex` from `projectFeasiblePath()` —
+`runPFMCouplingBound()` take $E$ = `feasibleIndex / ceilingIndex` from `projectFeasiblePath()` —
 but any offline figure built from that column is on the prohibited measure (§7).
 
 ---
@@ -644,7 +644,7 @@ reasons:
 
 The two rates are labelled wherever either is quoted: the validation estimate carries the skill scores
 and the placebo comparison; the projection estimate is the one inside every $\varphi$. At the deployed
-`cm_pfmGapClosure = 0` neither rate enters a price in modes R and L. `runPSMCouplingBound()` logs both
+`cm_pfmGapClosure = 0` neither rate enters a price in modes R and L. `runPFMCouplingBound()` logs both
 roles.
 
 #### 4.3.2 What the λ audit found (`output/pfm/v5/lambda-explained/LAMBDA-EXPLAINED.html`)
@@ -731,7 +731,7 @@ iterations, never a decision variable.
 
 **The tier year.** Inside REMIND it is `cm_startyear + 5` (`iterativePFM.R`), the first period
 REMIND is free to change — **2035** for every coupled scenario, all of which run
-`cm_startyear = 2030`. The offline bound (`runPSMCouplingBound`) uses **2025**. Offline and
+`cm_startyear = 2030`. The offline bound (`runPFMCouplingBound`) uses **2025**. Offline and
 coupled $\varphi$ are therefore read at different years and are not interchangeable.
 
 **The offline bound at θ = 0.50** (`coupling/coupling-summary.rds`, EU21, 2025, final-energy
@@ -772,7 +772,7 @@ for the median region (region resolution, tier year 2025, $n$ = 21,
 > 🔴 **Bulk is inadmissible and Diffuse alone lands near the low point.** The analogy therefore
 > cannot bracket the sweep from both sides, and **no θ value may be called "the efficiency
 > anchor"**. 0.325 / 0.50 / 0.675 is a declared, symmetric sweep; 0.325 sits close to the Diffuse
-> analogy and that is a coincidence of the numbers, not a calibration. `runPSMCouplingBound()`
+> analogy and that is a coincidence of the numbers, not a calibration. `runPFMCouplingBound()`
 > records the derivation on every run (`computeEfficiencyAnchor()`, carrying `resolution` and
 > `tierYear`), so it stays re-checkable.
 
@@ -975,7 +975,7 @@ $$w_i = \mathrm{FE}_i(t_0)\cdot\frac{\mathrm{GDP}^{\text{ssp}}_i(t_w)}{\mathrm{G
 max/median weight **417**. Only relative within-region shares matter, so uniform growth cancels
 and the SSP enters through differential growth only.
 
-Both `iterativePFM()` and `runPSMCouplingBound()` call `psmAssertSizeWeights()`, which fails on
+Both `iterativePFM()` and `runPFMCouplingBound()` call `pfmAssertSizeWeights()`, which fails on
 any weight vector with max/median < 20 — the signature of accidentally equal weights
 (`PITFALLS.md` §20).
 
@@ -1252,7 +1252,7 @@ All in `output/pfm/v5/`.
 
 | Quantity | File | Path within |
 |---|---|---|
-| Deployed spec | `selected-models-psm.yml` | — |
+| Deployed spec | `selected-models-pfm.yml` | — |
 | Every estimation number in this document | `doc-facts/facts.json` | written by `analysis/checks/docFacts.R` |
 | ΔR²(theory), trend share, VIF, tier, maximin, sanity walk | `sweep.rds` | `$results`, `$maximin`, `$sanity` |
 | Sharing cost, per-tier winners | `selection-variants.rds` | `$perSector`, `$winners` |
@@ -1278,7 +1278,7 @@ All in `output/pfm/v5/`.
 | Every coupled number quoted in the docs | `coupling/coupled-facts.json` | written by `analysis/coupled/coupledBatchFacts.R` |
 
 **Code entry points.** `estimatePolicyStringencyModel()`, `computeFeasibilityFrontier()`,
-`runPSMTemporalValidation()`, `runPSMSectorSpeeds()`, `computeWildClusterBootstrap()`,
+`runPFMTemporalValidation()`, `runPFMSectorSpeeds()`, `computeWildClusterBootstrap()`,
 `predictPolicyStringency()`, `projectFeasiblePath()`, `computeDonorAssignment()`,
-`aggregateFeasibilityToRegions()`, `exportFeasibilityBound()`, `runPSMCouplingBound()`,
+`aggregateFeasibilityToRegions()`, `exportFeasibilityBound()`, `runPFMCouplingBound()`,
 `iterativePFM()`.

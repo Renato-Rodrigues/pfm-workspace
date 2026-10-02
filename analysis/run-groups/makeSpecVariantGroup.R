@@ -10,38 +10,38 @@
 #     two floor regions - is missing entirely.
 # Running the real chain removes all three. This script only does the setup.
 #
-# WHAT IT DOES. Copies a finished Run-Group, then rewrites `selected-models-psm.yml` in the copy
+# WHAT IT DOES. Copies a finished Run-Group, then rewrites `selected-models-pfm.yml` in the copy
 # so a chosen sector names a different spec. Everything else is inherited, so the only thing
 # that differs downstream is the specification - which is the whole point.
 #
-# It deliberately does NOT run psm-sweep in the copy: the sweep would re-SELECT and overwrite
-# the pin. Start the chain at psm-frontier.
+# It deliberately does NOT run pfm-sweep in the copy: the sweep would re-SELECT and overwrite
+# the pin. Start the chain at pfm-frontier.
 #
 # Usage, from the project root:
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v1 v1-specalt Diffuse "X-0102 WGIge|RoL|HorAcc splitAP lev ctl:GDPq fe:OECDp satAP"
 #
 # then on the cluster:
 #   Rscript -e 'library(pfm); pfmRun(group = "v1-specalt",
-#                           steps = c("psm-frontier","psm-temporal","psm-donor",
-#                                     "psm-projection","psm-coupling-bound"),
+#                           steps = c("pfm-frontier","pfm-temporal","pfm-donor",
+#                                     "pfm-projection","pfm-coupling-bound"),
 #                           cluster = "slurm")'
 #
-# psm-temporal is NOT optional. psm-coupling-bound reads the political closure rate lambda from
+# pfm-temporal is NOT optional. pfm-coupling-bound reads the political closure rate lambda from
 # temporal-validation.rds$bySector$<s>$ecm$metrics$adjustmentSpeed, and that ECM is fitted on
 # the SPEC. Copying v1's temporal-validation.rds into the variant instead would pair the
 # deployed spec's lambda with the alternative spec's frontier - two specifications inside one
 # phi, which is precisely the silent mixing this comparison exists to avoid. Without it the run
 # completes and only the last step reports
-#     [PSM-BOUND] skipped - missing: temporal-validation.rds
+#     [PFM-BOUND] skipped - missing: temporal-validation.rds
 # which is easy to lose in a long log.
 #
 # CHECK THE LOG LINE "steps to run:". It must read
-#     psm-frontier, psm-temporal, psm-donor, psm-projection, psm-coupling-bound
-# If psm-projection comes FIRST, the installed pfm predates the 2026-08-18 step-ordering fix:
+#     pfm-frontier, pfm-temporal, pfm-donor, pfm-projection, pfm-coupling-bound
+# If pfm-projection comes FIRST, the installed pfm predates the 2026-08-18 step-ordering fix:
 # startRun()/runPostProcessing() filtered steps with intersect(validSteps, steps), which
-# re-sorted any caller's list into DECLARATION order - and psm-projection was declared second.
+# re-sorted any caller's list into DECLARATION order - and pfm-projection was declared second.
 # The job then runs the projection before the frontier exists and dies. Reinstall pfm, or
-# submit psm-frontier as its own job first.
+# submit pfm-frontier as its own job first.
 #
 # and finally diff the two:
 #   Rscript analysis/checks/compareSpecVariantPhi.R v1 v1-specalt
@@ -78,7 +78,7 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
   # so a stale file cannot masquerade as a fresh one. frontier.rds and temporal-validation.rds
   # are deliberately NOT copied: both are fitted on the spec, and a copied one would put the
   # deployed spec's frontier or lambda underneath the alternative spec's phi.
-  keep <- c("selected-models-psm.yml", "sweep.rds", "channels-exhaustive.yml", "manifest.json")
+  keep <- c(basename(pfm:::.pfmSelectedModels(src)), "sweep.rds", "channels-exhaustive.yml", "manifest.json")
   for (f in keep) {
     p <- file.path(src, f)
     if (file.exists(p)) file.copy(p, file.path(dst, f))
@@ -88,25 +88,26 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
   }
   say("copied inputs from ", src, " to ", dst)
 
-  sel <- yaml::read_yaml(file.path(dst, "selected-models-psm.yml"))
+  selFile <- pfm:::.pfmSelectedModels(dst)   # the copy keeps the source group's file name
+  sel <- yaml::read_yaml(selFile)
   tag <- paste0("PolicyStringency: ", sector)
   idx <- which(vapply(sel, function(x) identical(x$model_type, tag), logical(1)))
-  if (!length(idx)) stop("makeSpecVariantGroup: no '", tag, "' entry in selected-models-psm.yml")
+  if (!length(idx)) stop("makeSpecVariantGroup: no '", tag, "' entry in selected-models-pfm.yml")
 
   old <- sel[[idx[1]]]$name
   cfg$model_type <- tag
   sel[[idx[1]]] <- cfg
-  yaml::write_yaml(sel, file.path(dst, "selected-models-psm.yml"))
+  yaml::write_yaml(sel, selFile)
 
   say("pinned ", sector, ":")
   say("  was: ", old)
   say("  now: ", specName)
-  say("\nNext, on the cluster (psm-sweep is EXCLUDED on purpose - it would re-select and ",
+  say("\nNext, on the cluster (pfm-sweep is EXCLUDED on purpose - it would re-select and ",
       "overwrite the pin):")
-  say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(\"psm-frontier\",",
-      "\"psm-temporal\",\"psm-donor\",\"psm-projection\",\"psm-coupling-bound\"), ",
+  say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(\"pfm-frontier\",",
+      "\"pfm-temporal\",\"pfm-donor\",\"pfm-projection\",\"pfm-coupling-bound\"), ",
       "cluster = \"slurm\")'")
-  say("  psm-temporal is REQUIRED: psm-coupling-bound reads lambda from ",
+  say("  pfm-temporal is REQUIRED: pfm-coupling-bound reads lambda from ",
       "temporal-validation.rds, and that ECM is fitted on the spec.")
   say("\nThen: Rscript analysis/checks/compareSpecVariantPhi.R ", from, " ", to)
   invisible(list(from = from, to = to, sector = sector, was = old, now = specName))

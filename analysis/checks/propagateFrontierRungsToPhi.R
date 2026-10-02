@@ -15,7 +15,7 @@
 # aggregate to EU21 regions, min-max, phi = 1 - theta*u.  Then compare against
 # the headline rung.
 #
-# THE ONE THING HELD FIXED, AND WHY.  psmCouplingWeights() needs IEA energy
+# THE ONE THING HELD FIXED, AND WHY.  pfmCouplingWeights() needs IEA energy
 # balances, which are not on the workstation, so the exact final-energy weights
 # cannot be rebuilt offline.  The weighting step is IDENTICAL across rungs, so it
 # cannot by itself create rank instability -- but it does decide which countries
@@ -69,9 +69,9 @@ OUT       <- file.path("output/pfm", GROUP, "frontier-rung-phi.rds")
   readRDS(p)
 }
 
-# .psmSpecArgs comes from the source tree loaded above; source() it only if we
+# .pfmSpecArgs comes from the source tree loaded above; source() it only if we
 # fell back to an installed build old enough to lack it.
-if (!exists(".psmSpecArgs")) source("models/pfm/R/psmSpecArgs.R")
+if (!exists(".pfmSpecArgs")) source("models/pfm/R/pfmSpecArgs.R")
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
@@ -79,7 +79,7 @@ if (!exists(".psmSpecArgs")) source("models/pfm/R/psmSpecArgs.R")
 # 1. the deployed fit, per sector
 # ---------------------------------------------------------------------------
 panel <- .panelForGroup(GROUP)
-sel <- yaml::read_yaml(file.path("output/pfm", GROUP, "selected-models-psm.yml"))
+sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))
 norm <- function(s) {
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
     if (!is.null(s[[f]])) s[[f]] <- unlist(s[[f]])
@@ -89,7 +89,7 @@ fitSector <- function(sec) {
   cfg <- norm(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]])
   do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sec, estimator = "frontier", indexMax = 10,
-         modelDir = NULL, verbose = FALSE), .psmSpecArgs(cfg)))
+         modelDir = NULL, verbose = FALSE), .pfmSpecArgs(cfg)))
 }
 
 # ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@
 #     preparePFM() copies into a run whose pfmGroup names that group;
 #   * override groups: a copy of the EXPORTED v5 (output/remind-inputs/v5, exported first if absent) plus a
 #     phi-override.yml that pfm::iterativePFM() applies to the regional shares on every coupling call
-#     (pfm >= 0.4.1; R/psmPhiOverride.R). Nothing is re-estimated - the estimation is v5's, and only the
+#     (pfm >= 0.4.1; R/pfmPhiOverride.R). Nothing is re-estimated - the estimation is v5's, and only the
 #     shares REMIND receives are replaced: uniform at the sector mean (no ordering), permuted across
 #     regions (ordering scrambled, distribution kept), or China held at its 2022-seed reading.
 # The coupled run needs nothing else from the group - no projection, no offline bound.
@@ -76,7 +76,7 @@ expectBasis <- function(ov, sec) {
 for (g in intersect(todo, names(overrides))) {
   cat("\n==================", g, "(phi override) ==================\n")
   srcDir <- file.path(remindDir, base)
-  if (!file.exists(file.path(srcDir, "selected-models-psm.yml"))) {
+  if (!file.exists(pfm:::.pfmSelectedModels(srcDir))) {
     cat("no exported ", base, " in ", remindDir, " - exporting it first\n", sep = "")
     pfmRun(group = base, stage = "remind", remindDir = remindDir)
   }
@@ -105,9 +105,9 @@ for (g in todo) {
     }
     f <- file.path("output/pfm", g, c("donor-assignment-band-Bulk.rds", "donor-assignment-band-Diffuse.rds"))
     t0 <- max(file.mtime(f))
-    runPSMDonorAssumptions(g, basisOverride = twins[[g]])
+    runPFMDonorAssumptions(g, basisOverride = twins[[g]])
     if (max(file.mtime(f)) <= t0) {
-      stop("runPSMDonorAssumptions('", g, "') did not rewrite the band assignment - most likely it could ",
+      stop("runPFMDonorAssumptions('", g, "') did not rewrite the band assignment - most likely it could ",
            "not find the historical panel (it returns quietly in that case). Nothing was exported.")
     }
     chk <- rbind(expectBasis(twins[[g]], "Bulk"), expectBasis(twins[[g]], "Diffuse"))
@@ -115,7 +115,7 @@ for (g in todo) {
     if (any(chk$mismatches > 0) || any(chk$missing > 0)) stop("the override did not take effect in ", g)
   }
   pfmRun(group = g, stage = "remind", remindDir = remindDir)
-  marker <- file.path(remindDir, g, "selected-models-psm.yml")
+  marker <- pfm:::.pfmSelectedModels(file.path(remindDir, g))
   if (!file.exists(marker)) stop("export of ", g, " did not produce ", marker)
   cat("exported: ", normalizePath(file.path(remindDir, g)), "\n", sep = "")
 }

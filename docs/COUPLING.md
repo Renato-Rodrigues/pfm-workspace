@@ -313,7 +313,7 @@ errors before; installing only `pfm` is not enough.
 
 ### 6.3 Artifacts the coupling reads
 
-The Run-Group must contain `selected-models-psm.yml`, `manifest.json`, `frontier.rds`,
+The Run-Group must contain `selected-models-pfm.yml`, `manifest.json`, `frontier.rds`,
 `temporal-validation.rds` and **`donor-assignment-band-{Bulk,Diffuse}.rds`**. The band files
 are not optional — `iterativePFM()` **errors** without them rather than silently reverting to
 $\varphi = 1$.
@@ -402,7 +402,7 @@ they establish are permanent.
 **The ADR 0042 companions carry a market dimension** (since 2026-08-17). The ADR originally
 rejected the extra rank — defect 4 *was* a rank/order failure — but the symmetric markup
 needs both sectors delivered, which is 8 flat parameters against 4 indexed ones, so the
-gain is now real. The trap is answered by `.psmVerifyCouplingGdx()` and
+gain is now real. The trap is answered by `.pfmVerifyCouplingGdx()` and
 `test-gdxRoundTrip.R`, not by avoiding the rank. **Note the two rank-2 families lead with
 different indices** — `(ttot, all_regi)` vs `(all_regi, all_emiMkt)` — which is exactly the
 confusion the order defect was made of, so both are pinned by tests:
@@ -534,9 +534,9 @@ pfmRun(group = "v5", stage = "remind",      remindDir = "../../output/remind-inp
 pfmRun(group = "v5", stage = "all",         cluster = "slurm")  # all 13 steps, in order
 ```
 
-Stages: `sweep` (psm-sweep, -frontier, -temporal, -sector-speeds) · `diagnostics`
-(psm-agreement, -iv, -influence, -replay) · `downstream` (psm-donor, -projection,
--coupling-bound, -selection-bootstrap) · `remind` (psm-remind-inputs) · `all` (every step, in
+Stages: `sweep` (pfm-sweep, -frontier, -temporal, -sector-speeds) · `diagnostics`
+(pfm-agreement, -iv, -influence, -replay) · `downstream` (pfm-donor, -projection,
+-coupling-bound, -selection-bootstrap) · `remind` (pfm-remind-inputs) · `all` (every step, in
 dependency order) · `custom`. Called with no arguments it runs interactively and shows its plan
 before doing anything.
 
@@ -609,7 +609,7 @@ per market. Keeping the floor in `pm_taxCO2eq` means every other consumer of
 trade tariffs — keeps working untouched. Putting the whole price into `pm_taxemiMkt` would
 have required auditing all of them.
 
-**Sector ↔ market.** One place only: `.psmSectorMarkets()` in `iterativePFM.R`.
+**Sector ↔ market.** One place only: `.pfmSectorMarkets()` in `iterativePFM.R`.
 
 | PFM sector | markets |
 |---|---|
@@ -687,7 +687,7 @@ Fixed by giving the economy-wide rate the same treatment as every other coupled 
 | guard | freshness stamp **plus** `> 0`, exactly as `p45_pfmLambdaMkt` (§11.3), so a failed export reproduces the pre-fix run rather than inventing a rate |
 | pinned by | `test-gdxRoundTrip.R` (rank, domain, value, and that the floor rate is the *slower* sector) and the replay declaration check in `test-pfmReplayInterface.R` |
 
-`.psmSectorLambda()` is the single resolver both exports call, so the floor's `min()` and the
+`.pfmSectorLambda()` is the single resolver both exports call, so the floor's `min()` and the
 markets' per-sector lookup cannot drift apart again.
 
 ### 11.2b `cm_pfmGapClosure` — λ is a declared switch, decided 2026-09-11
@@ -867,7 +867,7 @@ GAMS loaded a transposed `p45_pfmPriceBoundMkt` in silence.
 ### 12.2 The negative control is the load-bearing half
 
 `negativeControl = TRUE` (default) builds a second gdx **by hand** through gamstransfer —
-`.psmCouplingSymMkt2d()` refuses to produce it — with `p45_pfmPriceBoundMkt` transposed to
+`.pfmCouplingSymMkt2d()` refuses to produce it — with `p45_pfmPriceBoundMkt` transposed to
 `(all_regi, ttot, all_emiMkt)`, and feeds it to the same stub. The harness must **abort**.
 
 > A run in which the control passes quietly is a **failure of the harness**, not a pass: it
@@ -896,7 +896,7 @@ estimated information, or one region's share replaced, with everything else — 
 severity, bind mode, level-cap bound — computed exactly as in the deployed run.
 
 **How.** A Run-Group may carry `phi-override.yml`. `pfm::iterativePFM()` (pfm ≥ 0.4.1,
-`R/psmPhiOverride.R`) applies it to `feas$phi` — the per-sector regional share — right after it is
+`R/pfmPhiOverride.R`) applies it to `feas$phi` — the per-sector regional share — right after it is
 computed and before the economy-wide share, the per-market shares and the mode-2 bound are derived,
 so every symbol GAMS loads sees the same values. No file, no change. `preparePFM.R` copies the file
 into the run folder when present and prints `PHI OVERRIDE in this Run-Group: …` in the run log; the

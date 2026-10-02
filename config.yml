@@ -9,7 +9,7 @@
 #   pfmRun(group = "v5", stage = "downstream", config = "config.yml")
 #
 # Every run reads the madrat block (its cache is checked before any step). The scenario
-# registry is read by the steps that use scenario gdxs - psm-projection and psm-coupling-bound.
+# registry is read by the steps that use scenario gdxs - pfm-projection and pfm-coupling-bound.
 
 # ── madrat data cache ────────────────────────────────────────────────────────────
 # ONE prepared cache feeds the historical panel, the estimation, the projection AND the
@@ -94,7 +94,7 @@ scenarios:
 # clamp-reliance gates): the high-ambition pathway, because it is the stress test.
 # Selection runs once against it; every scenario is projected.
 #
-# It is ALSO the ambitious pathway runPSMCouplingBound() bounds against — P_opt — with
+# It is ALSO the ambitious pathway runPFMCouplingBound() bounds against — P_opt — with
 # the reference (P_ref) taken from the non-gating scenario. Declaring it here rather
 # than inferring it from the id matters: a registry carrying both PkBudg750 and
 # PkBudg1000 would otherwise resolve to whichever was listed first.
@@ -133,8 +133,8 @@ dashboardModelsDir: "output/pfm/fit-cache"
 
 # ── Legacy price-model (hurdle) settings ─────────────────────────────────────────
 # Used only by the older two-stage adoption+stringency model, kept for comparison.
-# The deployed PSM takes its fixed-effects mapping from the spec in
-# selected-models-psm.yml (regionmapping_EU_OECDp.csv), NOT from here.
+# The deployed PFM takes its fixed-effects mapping from the spec in
+# selected-models-pfm.yml (regionmapping_EU_OECDp.csv), NOT from here.
 modelName: "Baseline + Rule of Law"
 regionMappingFE: "regionmappingH12.csv"
 includeLagged: false

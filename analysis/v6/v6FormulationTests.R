@@ -22,7 +22,7 @@ GDX <- file.path(list.files(file.path(ROOT, "output/remind-runs/v5/EU21"), "^SSP
 MAP <- "regionmapping_21_EU11.csv"; SECT <- c("Bulk", "Diffuse"); THETA <- 0.5
 say <- function(...) message("[v6] ", ...)
 
-sel <- yaml::read_yaml(file.path(GD, "selected-models-psm.yml"))
+sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 cfgOf <- function(sec) {
   cfg <- Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]]
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
@@ -37,7 +37,7 @@ asg <- stats::setNames(lapply(SECT, function(s) readRDS(file.path(GD, paste0("do
 fitECM <- function(pan, sec) {
   cfg <- cfgOf(sec)
   do.call(estimatePolicyStringencyModel, c(list(data = pan, sector = sec, estimator = "satP", form = "ecm",
-    modelDir = NULL, updateIndex = FALSE, verbose = FALSE), pfm:::.psmSpecArgs(cfg)))
+    modelDir = NULL, updateIndex = FALSE, verbose = FALSE), pfm:::.pfmSpecArgs(cfg)))
 }
 
 # ------------------------------------------------------------------ shared: scenario panel + weights
@@ -47,13 +47,13 @@ if (needScen) {
   scen <- if (file.exists(scf)) readRDS(scf) else {
     s <- panelDataScenario(gdxFile = GDX, aggregate = TRUE, gdxRegionMappingFile = MAP, outputRegionMappingFile = "country")
     saveRDS(s, scf); s }
-  wts <- pfm:::psmAssertSizeWeights(psmCouplingWeights(year = 2025, scenario = "SSP2"), "v6")
+  wts <- pfm:::pfmAssertSizeWeights(pfmCouplingWeights(year = 2025, scenario = "SSP2"), "v6")
   ecm <- stats::setNames(lapply(SECT, function(s) fitECM(panel, s)), SECT)
 }
 
 # The guard, instrumented: records the UNGUARDED design and the ranges on every call, and optionally
 # exempts columns matching `exempt` from the clamp (they are still audited).
-ORIG_GUARD <- pfm:::.psmDriverGuard
+ORIG_GUARD <- pfm:::.pfmDriverGuard
 AUDIT <- new.env()
 setGuard <- function(exempt = NULL) {
   g <- function(df, ranges) {
@@ -68,7 +68,7 @@ setGuard <- function(exempt = NULL) {
     }
     ORIG_GUARD(df, ranges)
   }
-  utils::assignInNamespace(".psmDriverGuard", g, "pfm")
+  utils::assignInNamespace(".pfmDriverGuard", g, "pfm")
 }
 project <- function(sec, rule = "speed-limited", exempt = NULL) {
   setGuard(exempt)
@@ -216,7 +216,7 @@ if ("gaprules" %in% args) {
   # Order-preserving severity path: phi_r(t) = 1 - theta(t) * u_r(2035), theta(t) = theta * G(t) / G(2035).
   # G(t) from the regional relative gaps of a ceiling-responsive rule: the final-energy-weighted MEAN gap,
   # or its SPREAD (weighted interquartile range, robust to the two extreme regions that min-max uses).
-  regW <- tapply(wts[names(wts)], pfm:::.psmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
+  regW <- tapply(wts[names(wts)], pfm:::.pfmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
   wq <- function(x, w, p) { o <- order(x); cw <- cumsum(w[o]) / sum(w[o]); x[o][which(cw >= p)[1]] }
   thetaPath <- do.call(rbind, lapply(c("absolute", "logit-u"), function(rl) do.call(rbind, lapply(c(4, 1, 2, 3), function(i) {
     L <- res[[rl]]$phi[[i]]$long
@@ -256,7 +256,7 @@ if ("levels" %in% args) {
   rob <- do.call(rbind, lapply(SECT, function(sec) {
     cfg <- cfgOf(sec)
     fit <- do.call(estimatePolicyStringencyModel, c(list(data = panel, sector = sec, estimator = "frontier", indexMax = 10,
-                   modelDir = NULL, verbose = FALSE), pfm:::.psmSpecArgs(cfg)))
+                   modelDir = NULL, verbose = FALSE), pfm:::.pfmSpecArgs(cfg)))
     df <- fit$data; fml <- stats::as.formula(fit$formula)
     fmlNoFE <- if ("regionFE" %in% all.vars(fml)) stats::update(fml, . ~ . - regionFE) else fml
     pd <- { d <- df; d$region <- as.character(d$region); plm::pdata.frame(d, index = c("region", "year")) }
@@ -319,7 +319,7 @@ if ("isotonic" %in% args) {
     }
     rep(v, n)
   }
-  regW <- tapply(wts[names(wts)], pfm:::.psmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
+  regW <- tapply(wts[names(wts)], pfm:::.pfmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
   # E held from 2022 for every country (ratio rule): the 2022-anchored gap, with each year's ceiling
   e22 <- function(sec) { sc <- fr$bySector[[sec]]$scores; stats::setNames(sc$efficiencyRatio[sc$year == 2022], sc$region[sc$year == 2022]) }
   ps <- stats::setNames(lapply(SECT, function(s) {
@@ -382,7 +382,7 @@ if ("sspstrength" %in% args) {
     dlt <- normSSP(ssp)[reg, yS, ] - base2[reg, yS, ]; dlt[is.na(dlt)] <- 0
     s2[reg, yS, GE] <- pmin(pmax(s2[reg, yS, GE] + as.numeric(dlt), 0), 1); s2
   }
-  regW <- tapply(wts[names(wts)], pfm:::.psmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
+  regW <- tapply(wts[names(wts)], pfm:::.pfmResolveCountryMap(MAP)[names(wts)], sum, na.rm = TRUE)
   wsd <- function(x, w) { m <- sum(w * x) / sum(w); sqrt(sum(w * (x - m)^2) / sum(w)) }
   sq <- function(p, n = 1056) (p * (n - 1) + 0.5) / n
   holdRule <- function(p, sec, rule) {       # ceiling-responsive rules anchored at 2025 with the 2022 E
@@ -445,7 +445,7 @@ if ("annual" %in% args) {
   fitBoth <- function(pan, sec) {
     cfg <- cfgOf(sec)
     fF <- do.call(estimatePolicyStringencyModel, c(list(data = pan, sector = sec, estimator = "frontier",
-      indexMax = 10, modelDir = NULL, verbose = FALSE), pfm:::.psmSpecArgs(cfg)))
+      indexMax = 10, modelDir = NULL, verbose = FALSE), pfm:::.pfmSpecArgs(cfg)))
     fE <- fitECM(pan, sec)
     sc <- computeFeasibilityFrontier(fF)$scores %||% computeFeasibilityFrontier(fF)
     list(frontier = fF, ecm = fE, scores = sc,
@@ -504,5 +504,5 @@ if ("ssp" %in% args) {
     print(tab, row.names = FALSE, digits = 3)
   }
 }
-utils::assignInNamespace(".psmDriverGuard", ORIG_GUARD, "pfm")
+utils::assignInNamespace(".pfmDriverGuard", ORIG_GUARD, "pfm")
 say("done -> ", OUT)

@@ -14,7 +14,7 @@ energy-system feedback responds to any variant. Shares below 2035 read "φ"; "Sp
 
 ## 1. Actor-power clamps (and the others)
 
-**What the guard does now.** `psmDriverGuard()` winsorises *every* standardised base driver of the
+**What the guard does now.** `pfmDriverGuard()` winsorises *every* standardised base driver of the
 linear (`lev`) spec at its 2001–2022 training range, then rebuilds the interactions from the clamped
 factors. The scenario panel clamps GovEff, GDP and population a second time during normalisation.
 

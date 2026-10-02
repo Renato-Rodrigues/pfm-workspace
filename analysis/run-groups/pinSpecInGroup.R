@@ -8,7 +8,7 @@
 #
 # This script does exactly the pinning half of that script, in place, and nothing else:
 # it reads the candidate config out of the group's own sweep.rds (never hand-written), replaces
-# the named sector's entry in selected-models-psm.yml, and prints both entries afterwards so the
+# the named sector's entry in selected-models-pfm.yml, and prints both entries afterwards so the
 # result is visible rather than assumed.
 #
 # Usage, from the project root:
@@ -17,8 +17,8 @@
 # Typical sequence for a BOTH-SECTOR variant:
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc Bulk    "<spec>"   # creates the group
 #   Rscript analysis/run-groups/pinSpecInGroup.R          v5-noinc Diffuse "<spec>"   # pins the second sector
-#   Rscript -e 'library(pfm); pfmRun(group = "v5-noinc", steps = c("psm-frontier","psm-temporal",
-#               "psm-donor","psm-projection","psm-coupling-bound"), cluster = "slurm")'
+#   Rscript -e 'library(pfm); pfmRun(group = "v5-noinc", steps = c("pfm-frontier","pfm-temporal",
+#               "pfm-donor","pfm-projection","pfm-coupling-bound"), cluster = "slurm")'
 #   Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-noinc
 #
 # It REFUSES to pin a group whose fitted artifacts already exist, because a pin applied after
@@ -40,12 +40,12 @@ pinSpecInGroup <- function(group, sector, specName, resultsDir = "output/pfm", f
     stop("pinSpecInGroup: ", group, " already holds fitted artifacts (",
          paste(present, collapse = ", "), "). Pinning now would leave them describing the ",
          "previous specification while the yml names the new one. Delete them deliberately ",
-         "and re-run the chain from psm-frontier, or pass force = TRUE if you are about to.")
+         "and re-run the chain from pfm-frontier, or pass force = TRUE if you are about to.")
   }
 
-  selFile <- file.path(dir, "selected-models-psm.yml")
+  selFile <- pfm:::.pfmSelectedModels(dir)
   swFile  <- file.path(dir, "sweep.rds")
-  if (!file.exists(selFile)) stop("pinSpecInGroup: no selected-models-psm.yml in ", dir)
+  if (!file.exists(selFile)) stop("pinSpecInGroup: no selected-models-pfm.yml in ", dir)
   if (!file.exists(swFile))  stop("pinSpecInGroup: no sweep.rds in ", dir,
                                   " - the pin must come from the sweep, not from hand-written yaml.")
 
@@ -77,7 +77,7 @@ pinSpecInGroup <- function(group, sector, specName, resultsDir = "output/pfm", f
   # Print every sector entry, so "did both pins land?" is answered by the file rather than by
   # remembering which commands were run.
   after <- yaml::read_yaml(selFile)
-  say("\nselected-models-psm.yml now reads:")
+  say("\nselected-models-pfm.yml now reads:")
   for (e in after) {
     mt <- e$model_type %||% "(no model_type)"
     say("  ", mt, "  ->  ", e$name %||% "(unnamed)")

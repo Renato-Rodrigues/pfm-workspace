@@ -32,7 +32,7 @@ cfg <- s$specs[[which(nm == s$selected$PolicyStringency)]]
 for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
   if (!is.null(cfg[[f]])) cfg[[f]] <- unlist(cfg[[f]])
 
-panel <- pfm:::.psmHistPanel(GDIR, verbose = FALSE)
+panel <- pfm:::.pfmHistPanel(GDIR, verbose = FALSE)
 SECT <- c("Bulk", "Diffuse")
 sp <- function(x, y) stats::cor(as.numeric(x), as.numeric(y), method = "spearman", use = "complete.obs")
 out <- list()
@@ -42,7 +42,7 @@ for (sec in SECT) {
   fit <- do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sec, estimator = "satP", indexMax = M,
          modelDir = NULL, verbose = FALSE),
-    pfm:::.psmSpecArgs(cfg)))
+    pfm:::.pfmSpecArgs(cfg)))
 
   # The glm drops incomplete rows, so residuals are matched back to the design frame by the row
   # names the model kept, never by position - matching by position misaligns silently.

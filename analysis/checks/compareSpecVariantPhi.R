@@ -5,7 +5,7 @@
 # weights, the projected tier year, the out-of-coverage transfer, and all 21 regions including
 # the USA, which the laptop test cannot see at all because it is 0% covered.
 #
-# Usage, after both groups have run psm-coupling-bound:
+# Usage, after both groups have run pfm-coupling-bound:
 #   Rscript analysis/checks/compareSpecVariantPhi.R v1 v1-specalt
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
@@ -16,7 +16,7 @@ compareSpecVariantPhi <- function(a = "v1", b = "v1-specalt", resultsDir = "outp
   rd <- function(g) {
     p <- file.path(resultsDir, g, "coupling", "coupling-summary.rds")
     if (!file.exists(p)) {
-      stop("compareSpecVariantPhi: ", p, " not found - has psm-coupling-bound run for '",
+      stop("compareSpecVariantPhi: ", p, " not found - has pfm-coupling-bound run for '",
            g, "'?")
     }
     readRDS(p)
@@ -83,7 +83,7 @@ compareSpecVariantPhi <- function(a = "v1", b = "v1-specalt", resultsDir = "outp
     groups = c(deployed = a, variant = b), theta = theta,
     # coupling-summary.rds does not carry the spec name, so take it from the pin itself.
     spec = vapply(c(deployed = a, variant = b), function(g) {
-      f <- file.path(resultsDir, g, "selected-models-psm.yml")
+      f <- pfm:::.pfmSelectedModels(file.path(resultsDir, g))
       if (!file.exists(f) || !requireNamespace("yaml", quietly = TRUE)) return(NA_character_)
       sel <- yaml::read_yaml(f)
       paste(vapply(c("Bulk", "Diffuse"), function(sec) {

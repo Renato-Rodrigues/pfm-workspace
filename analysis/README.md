@@ -40,8 +40,8 @@ is not evidence and lives in `tools/` at the project root.
 ## `run-groups/`
 
 The donor step (band-rule assignment of uncovered countries, which `iterativePFM()` requires) and
-the offline feasibility bound are `pfmRun()` steps, not scripts: `pfmRun(group, steps = "psm-donor")`
-and `steps = "psm-coupling-bound"`.
+the offline feasibility bound are `pfmRun()` steps, not scripts: `pfmRun(group, steps = "pfm-donor")`
+and `steps = "pfm-coupling-bound"`.
 
 | script | what |
 |---|---|

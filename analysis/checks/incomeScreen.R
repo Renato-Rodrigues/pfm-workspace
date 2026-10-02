@@ -53,7 +53,7 @@ cfgDep <- norm(s$specs[[which(nm == depName)]])
 cfgAlt <- norm(s$specs[[which(nm == altName)]])
 
 suppressMessages(library(magclass))
-panel <- pfm:::.psmHistPanel(GDIR, verbose = FALSE)   # a magpie object, not a data.frame
+panel <- pfm:::.pfmHistPanel(GDIR, verbose = FALSE)   # a magpie object, not a data.frame
 yrs <- as.integer(gsub("y", "", getItems(panel, 2)))
 cat("panel:", length(getItems(panel, 1)), "units |", paste(range(yrs), collapse = "-"),
     "|", length(getItems(panel, 3)), "variables\n\n")
@@ -78,7 +78,7 @@ fitOne <- function(cfg, sector) {
   do.call(estimatePolicyStringencyModel, c(
     list(data = panel, sector = sector, estimator = "frontier", indexMax = 10,
          modelDir = NULL, verbose = FALSE),
-    pfm:::.psmSpecArgs(cfg)))
+    pfm:::.pfmSpecArgs(cfg)))
 }
 
 SECT <- c("Bulk", "Diffuse")
@@ -154,7 +154,7 @@ cat("--- the quotable version, if this screen says the ordering is worth defendi
 cat("Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc Bulk    \"", altName, "\"\n", sep = "")
 cat("Rscript analysis/run-groups/makeSpecVariantGroup.R v5-noinc v5-noinc Diffuse \"", altName, "\"\n", sep = "")
 cat("Rscript -e 'library(pfm); pfmRun(group = \"v5-noinc\",\n")
-cat("                        steps = c(\"psm-frontier\",\"psm-temporal\",\"psm-donor\",\n")
-cat("                                  \"psm-projection\",\"psm-coupling-bound\"),\n")
+cat("                        steps = c(\"pfm-frontier\",\"pfm-temporal\",\"pfm-donor\",\n")
+cat("                                  \"pfm-projection\",\"pfm-coupling-bound\"),\n")
 cat("                        cluster = \"slurm\")'\n")
 cat("Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-noinc\n")

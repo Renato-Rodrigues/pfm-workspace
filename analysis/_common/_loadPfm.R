@@ -89,7 +89,7 @@ local({
 
 # .scenarioPanelForGroup() — the companion trap, closed the same way (TODO 14i)
 # ---------------------------------------------------------------------------
-# runPSMCouplingBound() writes the projection panel as
+# runPFMCouplingBound() writes the projection panel as
 # <resultsDir>/panel-cache/<group>-scen-ca.rds, so it is already group-keyed. Every
 # analysis script nonetheless read "v1-scen-ca.rds" by name, which pairs one group's
 # SPECIFICATION with another group's SCENARIO panel — the same silent mismatch as
@@ -102,7 +102,7 @@ local({
   p <- file.path(root, "panel-cache", paste0(group, "-scen-ca.rds"))
   if (!file.exists(p)) {
     stop("no scenario panel for Run-Group '", group, "' (looked for ", p, "). It is written ",
-         "by the psm-coupling-bound step; run that for this group, or copy the cache from ",
+         "by the pfm-coupling-bound step; run that for this group, or copy the cache from ",
          "the cluster. Do NOT substitute another group's scenario panel.", call. = FALSE)
   }
   message("[scen] group ", group, " -> ", basename(p))

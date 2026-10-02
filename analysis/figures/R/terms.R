@@ -78,7 +78,7 @@ pfmFrontierCoefs <- function(group, drop = c("(Intercept)", "sigmaSq", "gamma"))
 #' predictor, in logits. Standardized terms are unchanged (SD = 1); the trend is multiplied by
 #' its own SD and lands on scale.
 #'
-#' @section Where the SDs come from: since 2026-08-18 `runPSMFrontier()` persists
+#' @section Where the SDs come from: since 2026-08-18 `runPFMFrontier()` persists
 #'   `$bySector$<s>$support`, which carries the SD and observed range of every model-matrix
 #'   column **as actually fitted**. That is authoritative and is used when present. Artifacts
 #'   written before that date lack it, so the trend SD falls back to reconstruction from the

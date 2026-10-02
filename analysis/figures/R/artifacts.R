@@ -89,7 +89,7 @@ pfmWeightNote <- function(cs, ok = NULL) {
   disp <- cs$weights$maxOverMedian %||% NA_real_
   if (!is.finite(disp) || disp < 20) {
     return(sprintf(paste0("NOT QUOTABLE - aggregation weight is not size-like (max/median = %s);",
-                          " re-run psm-coupling-bound"),
+                          " re-run pfm-coupling-bound"),
                    if (is.finite(disp)) signif(disp, 3) else "absent"))
   }
   ok %||% sprintf("%s weights", cs$weights$source %||% "size")
