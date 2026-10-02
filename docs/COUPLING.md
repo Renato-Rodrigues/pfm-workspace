@@ -106,7 +106,7 @@ calls `Rscript`):
 
 | file | written by | when | holds |
 |---|---|---|---|
-| `pfm-coupling.yml` | REMIND's `scripts/start/preparePFM.R` | at submission, after the standard `files2export` copy | the Run-Group, `resultsDir`/`modelDir` (`pfm`), the region mapping (the run's own `cfg$regionmapping`), the weight SSP (the run's `cm_GDPpopScen`) and year, the staged madrat cache, `refGdx: input_ref.gdx` |
+| `pfm-coupling.yml` | REMIND's `scripts/start/preparePFM.R` | at submission, after the standard `files2export` copy | the Run-Group, `resultsDir`/`modelDir` (`pfm`), the region mapping (the run's own `cfg$regionmapping`), the run's SSP (`weightScenario`, from `cm_GDPpopScen`: the weights **and** the scenario panel's GDP, population and SSP-extension series) and the weight year, the institution rule (`institutions`, from `cfg$pfmInstitutions`; `DATA.md` §5.4), the staged madrat cache, `refGdx: input_ref.gdx` |
 | `pfm-coupling-runtime.yml` | `presolve.gms` | before every coupling call | `bindMode`, `theta`, gap closure and the iteration, from the scenario row |
 
 Every path is relative to the run folder, so the folder is self-contained. `preparePFM()` also
@@ -128,13 +128,16 @@ On the REMIND side, `config/default.cfg` holds the only settings:
 cfg$pfm <- list(source = "../../output/remind-inputs",   # one folder per Run-Group, seen from models/remind_pfm*
                 weightYear = 2025)
 cfg$pfmGroup <- ""   # scenario-config column `pfmGroup`; empty = see below
+cfg$pfmInstitutions <- "storyline"   # column `pfmInstitutions`: storyline | convergence | hold
 ```
 
 A run is coupled when `cm_taxCO2_regiDiff = 11`. The Run-Group is taken from the scenario row's
 `pfmGroup`, else the `PFM_GROUP` environment variable, else `cfg$pfm$group`, else auto-detected
 as the only group under `cfg$pfm$source`. The spec file identifies a group,
 `selected-models-pfm.yml`, or `selected-models-psm.yml` for groups exported before the rename.
-Everything else is derived from the run, as in the table.
+Everything else is derived from the run, as in the table. The scenario panel is built on the
+group's own panel definition (years, smoothing, IEA edition, geothermal), read from the exported
+`manifest.json` (`DATA.md` §3), never from the run.
 
 **Offline calls** have neither file: tests, `tools/replayCouplingCall.R` (which builds the run
 folder with `preparePFM()` itself) and analysis scripts. `iterativePFM()` then uses its
@@ -149,6 +152,7 @@ arguments, whose defaults read these R options. None of them plays any part in a
 | `pfm.gdxRegionMapping` | `regionmapping_21_EU11.csv` | the gdx's **own** native resolution (a property of the gdx, not a target) |
 | `pfm.couplingWeightScenario` | `"SSP2"` | SSP for the weight projection; **must match the gdx's SSP** |
 | `pfm.couplingWeightYear` | `2025` | year the weights represent, as in the deployed runs |
+| `pfm.couplingInstitutions` | `"storyline"` | institution rule of the scenario panel (`DATA.md` §5.4) |
 
 ---
 

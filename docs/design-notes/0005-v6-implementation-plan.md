@@ -410,9 +410,11 @@ Each item names the phase that closes it (P0–P6) and its source.
       "drivers_SSP1…5")`; `panelDataScenario(ssp, institutions)`; GDP, population and the
       extensions by SSP; the institution rule (D9, D10; `DATA.md` §5). The SSP reaches the
       coupled run from `cm_GDPpopScen` and the offline steps from the registry key `ssp`.
-- [ ] **A4 — Next step 3: geothermal in the hydro/nuclear control.** Add it in `mrpfm` (historical
-      panel) **and** in the REMIND-side computation of the share from primary energy
-      (`iamCalculatedDrivers` / `downscaleREMINDResults`); refit inside the one re-sweep (D8; P2).
+- [x] **A4 — Next step 3: geothermal in the hydro/nuclear control.** ✅ **Code done 2026-10-02.**
+      Both sides compute the share in `pfm::iamCalculatedDrivers()` from `pegeo`, which history
+      (IEA) and the REMIND downscale already carried; it is the panel-definition field
+      `geothermal` (`v5` false, `v6` true), so `v5` rebuilds unchanged. 29 countries move by more
+      than 0.01 (`DATA.md` §3). Refit inside the one re-sweep (D8; P2).
 - [ ] **A5 — Next step 4: actor-power clamps.** Saturating innovator, declared; other clamps kept
       (D7; P2). Report `driverOutOfSupport` per year with every run (P3).
 - [ ] **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2). The sibling
@@ -555,8 +557,9 @@ Latent defects (P0 unless noted):
       `corrupt` is not gated, because the recomputed matrix replaces FRONTIER's (TODO 14f);
       `boundary` stays the γ gate's. The status is recorded for every evaluated spec.
       Was: nothing screens a corrupt frontier covariance in `runPSMSweep()` (`TODO.md` 40).
-- [ ] **E14** — `.driverSupportRanges()` excludes the trend from the guard (`TODO.md` 11a). A
-      harmless clean-up; do it with D7.
+- [x] **E14** — ✅ **Done 2026-10-02.** `.driverSupportRanges()` excludes the trend from the guard
+      (`TODO.md` 11a): kept, and documented why — the projection freezes the trend at the last panel
+      year (`projectFeasiblePath`), so guarding it is a no-op.
 - [ ] **E15** — `config.yml` is stale:
   - comments reference `psm-country-v4`;
   - the scenario registry has only the 2026-08-26 SSP2 pair;
@@ -818,7 +821,7 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
 
 1. **`mrpfm`:**
    - ✅ `calcSSPextensions(subtype = "drivers_SSPx")` for x = 1…5 (2026-10-02);
-   - geothermal in the clean-baseload control (A4);
+   - ✅ geothermal in the clean-baseload control (A4, 2026-10-02; in `pfm`, panel-definition field);
    - ✅ panel inputs to 2023: coverage checked, IEA 2025 edition selected by the panel definition
      (A2, `DATA.md` §3–§4; 2026-10-02);
    - ✅ the institution rule (D10), in `pfm` rather than `toolProjectScenario()`: SSP2 reproduces

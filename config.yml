@@ -68,6 +68,8 @@ outputRegionMappingFile: "country"
 #   movingAverage   centred window in years; 1 = annual values
 #   ieaVersion      default = IEA 2024 edition (complete to 2022); latest = 2025 edition
 #                   (complete to 2023). 2023 needs latest.
+#   geothermal      count geothermal with hydro and nuclear in the clean-baseload control
+#                   ("Hydro Nuclear Share"; design note 0005 A4). Legacy (v5): false.
 #   groups          per-Run-Group overrides of the keys above
 #
 # Read ONLY for a group that has not been swept yet: the sweep records the definition in the
@@ -79,6 +81,7 @@ panel:
   years: [2000, 2023]
   movingAverage: 5
   ieaVersion: latest
+  geothermal: true
   groups:
     # Sibling of v6 on annual values - the robustness rung of the smoothing (0005 D3).
     v6-annual:

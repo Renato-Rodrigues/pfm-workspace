@@ -28,18 +28,33 @@ outside it. IDs such as E13 or D17 refer to that note.
 ## 🧭 What to do next
 
 Phase 0 of the v6 plan is almost done. Steps 0 (snapshot and tags), 1 (the rename) and 2 (the
-small fixes E5, E10, E13) are finished, `pfm` 0.6.0 is installed on the workstation, and the
-replay gate passes there. Only what the `v6` run needs is listed here, in order.
+small fixes E5, E10, E13) are finished. The **data side of Phase 2 is done in code** (2026-10-02):
+the panel definition (2023 on the IEA 2025 edition, the annual sibling `v6-annual`, geothermal),
+SSP-dependent scenario panels and the institution rule (A2 coverage, A3, A4, E9, E14, D10;
+`DATA.md`), released as **`mrpfm` 0.4.0** and **`pfm` 0.7.0**. Only what the `v6` run needs is
+listed here, in order.
 
-1. 🔴 **Phase 0, step 3, on the cluster.** The workstation half is done.
-   - Pull `remind_pfm` (branch `pfm`) in `models/remind_pfm-EU21/` and `-H12/`, then delete each
-     checkout's stale `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc`
-     by hand. It is git-ignored, so the pull leaves it in place (E10).
-   - Install `mrpfm` and `pfm` 0.6.0 into each checkout's own renv library, and check the version
-     from inside each checkout (`PITFALLS.md` §2, §23).
-   - Gate: `pfmReplayInterface()` and its negative control pass on the pushed fork. Passed on the
-     workstation, 2026-10-02.
-2. **Then Phase 1: the offline prototype on `v5`** (0005 Phase 1).
+1. 🔴 **On the cluster: Phase 0, step 3, and the `v6` cache.** Nothing else needs the workstation.
+   - Pull the project repo, `pfm`, `mrpfm` and `remind_pfm` (branch `pfm`) in
+     `models/remind_pfm-EU21/` and `-H12/`; delete each REMIND checkout's stale
+     `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc` by hand (git-ignored,
+     so the pull leaves it; E10).
+   - Install `mrpfm` 0.4.0 and `pfm` 0.7.0 into each checkout's own renv library, and check the
+     versions from inside each checkout (`PITFALLS.md` §2, §23).
+   - Gate: `pfmReplayInterface()` and its negative control pass on the pushed fork (passed on the
+     workstation with `pfm` 0.7.0, 2026-10-02).
+   - Prepare the `v6` cache: `Rscript tools/prepareMadratCache.R --group v6`, then the same for
+     `--group v6-annual`. The first prints `panel: 2000-2023, 5-year moving average, IEA 2025
+     edition, geothermal …`. **This must run on the cluster:** the IEA 2025 edition recomputes
+     mrremind's `calcIO`, whose raw sources (GCAM, FAO, IMF, PEAP) the workstation lacks
+     (`DATA.md` §7). Then check the 2023 sample (countries with both outcomes in 2023, NA drivers).
+2. 🔴 **Decide D7 before the `v6` sweep** (0005 D7; A5). The code has the saturating transform as
+   a *selectable twin* applied to innovator **and** incumbent shares (`satAP`). "Declared
+   saturating innovator" needs three answers: incumbent shares saturated too, or linear with the
+   clamp? are the linear originals dropped from the grid or kept as the SI rung only? what of the
+   composite Actor Power Index specs, which cannot be saturated? Then the `v6` and `v6-annual`
+   sweeps (0005 Phase 2, step 4).
+3. **Workstation, in parallel: Phase 1, the offline prototype on `v5`** (0005 Phase 1).
    - Write `computeAnchorGap()` and `computeStrengthPath()`.
    - The acceptance test: reproduce the methodology's $k_{Diffuse}$ = 0.70 / 0.54 / 0.56 and
      $k_{Bulk}$ = 1.08 / 1.18 / 1.21 (2035 / 2050 / 2070) on the `-PFMlevelBfix` energy system.

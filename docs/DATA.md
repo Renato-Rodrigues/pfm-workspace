@@ -56,7 +56,7 @@ follows the institution rule (§5.4), not the Andrijevic Rule-of-Law path.
 
 ## 3. The panel definition
 
-Three settings decide what the historical panel *is*. They are a Run-Group property, resolved once
+Four settings decide what the historical panel *is*. They are a Run-Group property, resolved once
 and recorded (`pfm::pfmPanelDef()`):
 
 | | `v5` and earlier (legacy) | `v6` | `v6-annual` |
@@ -64,6 +64,7 @@ and recorded (`pfm::pfmPanelDef()`):
 | years | 2000–2022 | **2000–2023** | 2000–2023 |
 | moving average | centred, 5 years | centred, 5 years | **none (annual values)** |
 | IEA edition | 2024 (`default`) | **2025 (`latest`)** | 2025 (`latest`) |
+| clean-baseload control ("Hydro Nuclear Share") | hydro + nuclear | **hydro + nuclear + geothermal** | hydro + nuclear + geothermal |
 
 - **Where it is set.** `config.yml` → `panel:` (default for new groups, with `groups:` overrides).
   The sweep writes the effective definition into the group's `manifest.json` (`panel`). Every later
@@ -82,6 +83,11 @@ and recorded (`pfm::pfmPanelDef()`):
   year of the group's own historical panel, built with the same definition. A smoothed fit
   harmonised to an annual anchor, or the reverse, would run without error and be wrong; the
   definition is therefore never passed by hand.
+- **Geothermal** (0005 A4) is counted in the same control on both sides: history (IEA) and
+  scenario (the REMIND gdx's `pegeo`). The variable keeps its name so specs stay addressable. On the
+  2024 edition it moves the 2022 share by more than 0.01 in 29 countries — Iceland +0.53, El
+  Salvador +0.30, Costa Rica +0.24, New Zealand +0.23, Nicaragua +0.16, Kenya +0.15, the Philippines
+  +0.14, Indonesia +0.12 — and changes no other variable.
 - **Training years.** The estimation sample is `v5`'s 2001–2022 (n = 1056 = 48 × 22, `MODEL.md`
   header); the first panel year is consumed by the lag. `v6` adds 2023.
 
@@ -198,7 +204,8 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
    fewer than two observations, the cross-country median; then min–max normalised on the global
    country-level range (WGI, V-Dem) so 0 = worst, 1 = best; three "bad when high" V-Dem variables are
    inverted first.
-5. **Income, population, area** enter in logs, min–max normalised on the historical range.
+5. **Income, population, area** enter in logs, min–max normalised on the historical range. The
+   clean-baseload control counts hydro, nuclear and, from `v6`, geothermal (§3).
 6. **Energy intensity** is final energy / GDP, `log1p`, normalised on [0, `log1p(600)`]: a fixed
    ceiling rather than the sample maximum, the same in the historical and the scenario panel.
 7. **SSP extensions:** missing countries median-filled; SSP4/5 Rule of Law = SSP2's; held constant
@@ -213,8 +220,21 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
   `pfm::pfmPrepareCache()` fills it, and `records/<group>/` (tracked) holds the manifest and pins
   (ADR 0047). A group's panel definition is part of what the cache key covers (the IEA edition
   changes the madrat calls; the years change what is read).
+- **The cache follows the group.** `pfmPrepareCache()` (and `tools/prepareMadratCache.R --group
+  <g>`) resolves the group's own panel definition, and prepares the scenario panel and the coupling
+  weights for every SSP the scenario registry declares (`ssp`; SSP2 always).
 - **The definition is in the manifest** (`output/pfm/<group>/manifest.json` → `panel`), so a
   reproduction needs no configuration beyond the group name.
+- **What the workstation can and cannot build.** From the `v5` cache it rebuilds every legacy
+  panel, and the annual and geothermal variants of it. It **cannot** build the 2025-edition energy
+  data: mrremind's `calcFE`/`calcPE` with `ieaVersion = "latest"` recompute `calcIO`, which needs
+  raw sources the workstation lacks (GCAM, FAO, IMF, PEAP). The first `v6` panel is therefore built
+  on the cluster, and its cache brought back with the Run-Group.
+- **A known gap in `v5`.** Rebuilt from `data/madrat/v5`, the legacy panel matches `v5`'s fitted
+  panel (`f8845f66`) in every variable to 1e-15 **except Urban Population Share for Austria**
+  (up to 0.018, growing from 2000 to 2014): the cached SSP-extension file differs from the one the
+  fit read. Both `pfm` 0.6.0 and the current code show it, so it predates the v6 changes. The
+  deployed `v5` spec does not use urban share; the gap is recorded, not repaired.
 - **Sources differ between machines.** The workstation's raw Ember file is the January 2024
   release while the `v5` cache holds Ember to 2024; raw sources are only read for calculations no
   cache has. Reproduce from the group's cache, not from a fresh compute.
