@@ -12,7 +12,7 @@ Last reviewed **2026-10-02**.
 - its 62-run coupled batch;
 - the evidence bundle of `papers/pfm-paper-v5`, which is frozen at v18 and will not be submitted.
 
-The `psm` → `pfm` rename is done and released as `pfm` 0.5.0; the current release is **`pfm` 0.5.1**.
+The `psm` → `pfm` rename is done and released as `pfm` 0.5.0; the current release is **`pfm` 0.6.0**.
 
 **The work plan is `docs/design-notes/0005-v6-implementation-plan.md`** (Phases 0–6). This list
 orders its next steps; every open item is a step of that plan, placed below, or marked as
@@ -27,21 +27,19 @@ outside it. IDs such as E13 or D17 refer to that note.
 
 ## 🧭 What to do next
 
-Phase 0 of the v6 plan is half done: step 0 (snapshot and tags) and step 1 (the rename) are
-finished, and so is E5. Only what the `v6` run needs is listed here, in order.
+Phase 0 of the v6 plan is almost done. Steps 0 (snapshot and tags), 1 (the rename) and 2 (the
+small fixes E5, E10, E13) are finished, `pfm` 0.6.0 is installed on the workstation, and the
+replay gate passes there. Only what the `v6` run needs is listed here, in order.
 
-1. 🔴 **Phase 0, step 2: two small fixes.**
-   - **E10**: delete the stale seed `p45_regiDiff_feasibility.inc` in `remind_pfm` (H12-shaped,
-     2026-08-10). `datainput.gms` includes it only `$ifthen exist`, so without it a run starts
-     uncoupled (φ = 1) until the first PFM call. Was item 20.
-   - **E13**: screen a corrupt frontier covariance in `runPFMSweep()`'s sanity walk. Needed before
-     the `v6` sweep. Was item 40.
-2. 🔴 **Phase 0, step 3: install `pfm` 0.5.1 (the latest) wherever runs load it, and verify.**
-   - On the cluster, install it into each REMIND checkout's own R library and check the version
-     from inside `models/remind_pfm-EU21/` and `-H12/` (`PITFALLS.md` §2, §23).
-   - On the workstation, which still has 0.4.1.
-   - Gate: `pfmReplayInterface()` and its negative control pass on the pushed fork.
-3. **Then Phase 1: the offline prototype on `v5`** (0005 Phase 1).
+1. 🔴 **Phase 0, step 3, on the cluster.** The workstation half is done.
+   - Pull `remind_pfm` (branch `pfm`) in `models/remind_pfm-EU21/` and `-H12/`, then delete each
+     checkout's stale `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc`
+     by hand. It is git-ignored, so the pull leaves it in place (E10).
+   - Install `mrpfm` and `pfm` 0.6.0 into each checkout's own renv library, and check the version
+     from inside each checkout (`PITFALLS.md` §2, §23).
+   - Gate: `pfmReplayInterface()` and its negative control pass on the pushed fork. Passed on the
+     workstation, 2026-10-02.
+2. **Then Phase 1: the offline prototype on `v5`** (0005 Phase 1).
    - Write `computeAnchorGap()` and `computeStrengthPath()`.
    - The acceptance test: reproduce the methodology's $k_{Diffuse}$ = 0.70 / 0.54 / 0.56 and
      $k_{Bulk}$ = 1.08 / 1.18 / 1.21 (2035 / 2050 / 2070) on the `-PFMlevelBfix` energy system.

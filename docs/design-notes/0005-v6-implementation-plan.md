@@ -523,14 +523,22 @@ Latent defects (P0 unless noted):
       change.
 - [ ] **E8** — Convergence checks only the economy-wide floor φ, not the per-market shares (D5; P3).
 - [ ] **E9** — SSP2 is hard-coded in the scenario panel and in `calcSSPextensions()` (D9; P2).
-- [ ] **E10** — The stale seed `input/p45_regiDiff_feasibility.inc`, an H12-shaped export from
-      2026-08-10 (`TODO.md` 20). Delete it, and let runs start uncoupled until the first call.
+- [x] **E10** — ✅ **Done 2026-10-02.** The file was git-ignored (REMIND ignores `input/`), so it
+      was moved to `../_archive/_wip/2026-10-02/` rather than committed away. `datainput.gms` sets
+      φ = 1, λ = 0 before its `$ifthen exist` include, so runs now start uncoupled until the first
+      call. H12 runs had been starting from its stale shares; EU21 runs ignored it. **The cluster
+      checkouts may hold their own copy: delete it there by hand.**
+      Was: the stale seed `input/p45_regiDiff_feasibility.inc`, an H12-shaped export from
+      2026-08-10 (`TODO.md` 20).
 - [ ] **E11** — No GAMS peak-budget check next to `pm_pfmBudgetWarn` (`TODO.md` 32, `PITFALLS.md`
       §26). Add it in the P3 GAMS pass.
 - [ ] **E12** — No bind-share diagnostic for mode R (`TODO.md` 21). Needed if ratio mode stays as
       rule C's sensitivity (P3). Mode M is retired (D13).
-- [ ] **E13** — Nothing screens a corrupt frontier covariance in `runPSMSweep()` (`TODO.md` 40).
-      Needed before the `v6` sweep (P2).
+- [x] **E13** — ✅ **Done 2026-10-02** (`pfm` 0.6.0). The sanity walk raises a severe
+      `frontierVcov` flag for the statuses in `vcovGate` (default `likelihood-mismatch`, `flat`).
+      `corrupt` is not gated, because the recomputed matrix replaces FRONTIER's (TODO 14f);
+      `boundary` stays the γ gate's. The status is recorded for every evaluated spec.
+      Was: nothing screens a corrupt frontier covariance in `runPSMSweep()` (`TODO.md` 40).
 - [ ] **E14** — `.driverSupportRanges()` excludes the trend from the guard (`TODO.md` 11a). A
       harmless clean-up; do it with D7.
 - [ ] **E15** — `config.yml` is stale:
@@ -732,8 +740,8 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
        `-PFMlevelBfix` gives the pre-rename result (max 0.0395, the known cluster-cache gap);
      - the paper bundle reads `output/pfm/v5/` directly and calls no `pfm` function, so its
        byte-identical rebuild of 2026-10-01 is unaffected.
-2. **Small fixes:** E5, E10, E13, E20. Optionally E11 and E12 now; otherwise they go into the P3
-   GAMS pass. (Revised 2026-10-02: E5 and E20 are done. E14 moves to Phase 2, as its own entry
+2. **Small fixes:** E5, E10, E13, E20. ✅ **All done 2026-10-02** (`pfm` 0.6.0). E11 and E12 go
+   into the P3 GAMS pass. (Revised 2026-10-02: E5 and E20 are done. E14 moves to Phase 2, as its own entry
    says ("do it with D7"). E19 is a `paper-forge` fix needed by the paper workspace, not by a run,
    so it is due before Phase 6.)
 3. **Push everything** and reinstall `pfm` on the cluster. Verify the installed version from inside
