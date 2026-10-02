@@ -14,7 +14,7 @@ Read `PITFALLS.md` §1–§3 before the first cluster session.
 
 ```bash
 cd /p/projects/elevate
-git clone <project-repo> WP3.4-v6
+git clone https://github.com/Renato-Rodrigues/pfm-workspace.git WP3.4-v6
 cd WP3.4-v6
 ```
 
@@ -218,8 +218,8 @@ The `v5` test of 2026-10-01, with every result, is kept in
    - Reading `/p/tmp/benke/clean-cache-aug` was not tested.
    - Neither was the cache preparation on the login node, which can take several minutes for a
      new group.
-2. **`<project-repo>` does not exist yet.** Create the GitHub repository and put its URL here
-   and in `README.md`.
+2. ✅ **Done 2026-10-01:** the project repository is
+   <https://github.com/Renato-Rodrigues/pfm-workspace>, in the commands above and in `README.md`.
 3. **`/p/tmp` is scratch space and may be cleaned up.** Once `data/madrat/v6` is prepared, it
    holds its own copies. For the long term, deposit the files listed in
    `records/v6/madrat-cache-manifest.tsv` with the version.

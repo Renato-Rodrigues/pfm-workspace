@@ -100,7 +100,7 @@ short:
 ./tools/setup.sh --install                # models/, R packages, then the madrat cache data/madrat/<group>
 
 # cluster, once per model version
-git clone <project-repo> /p/projects/elevate/WP3.4-v6 && cd /p/projects/elevate/WP3.4-v6
+git clone https://github.com/Renato-Rodrigues/pfm-workspace.git /p/projects/elevate/WP3.4-v6 && cd /p/projects/elevate/WP3.4-v6
 ./tools/setup.sh --cluster --install --group v6   # models/ incl. one REMIND checkout per resolution; data/madrat/v6
 #   then: pfm into each REMIND checkout's own library, the baseline runs, then ONE estimation job:
 #   Rscript -e 'library(pfm); pfmRun(group="v6", stage=c("sweep","diagnostics","downstream","remind"), cluster="slurm", config="config.yml")'
