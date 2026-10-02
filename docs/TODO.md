@@ -45,7 +45,7 @@ listed here, in order.
      `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc` by hand (git-ignored,
      so the pull leaves it; E10).
    - Install `mrpfm` and `pfm` from the pushed `main`: once into your R library (`R CMD INSTALL`)
-     and into each REMIND checkout's renv (dependencies hydrated from your library, `pfm`/`mrpfm` installed directly). `./tools/setup.sh --cluster --install
+     and into each REMIND checkout's renv (dependencies hydrated from your library, `pfm`/`mrpfm` installed directly). `./tools/setup.sh --cluster --update --install
      --no-cache` does both (`RUNNING.md` steps 3-4; `devtools::install` fails on the cluster).
      Then `pfm::pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`: the
      version number alone no longer proves the code (commits land under 0.8.0 / 0.4.0), so it

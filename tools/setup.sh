@@ -76,7 +76,7 @@ grep -vE '^\s*(#|$)' tools/repos.txt | while read -r name where path url branch;
     run git -C "$path" checkout --quiet "$target"
     if git -C "$path" symbolic-ref -q HEAD >/dev/null; then run git -C "$path" pull --ff-only --quiet; fi
   else
-    say "$name: present ($(git -C "$path" rev-parse --short HEAD) on $(git -C "$path" rev-parse --abbrev-ref HEAD))"
+    say "$name: present ($(git -C "$path" rev-parse --short HEAD) on $(git -C "$path" rev-parse --abbrev-ref HEAD)) - NOT updated; --update fetches and fast-forwards it"
   fi
 done
 

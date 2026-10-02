@@ -94,9 +94,19 @@ The IEA 2025 edition can only be computed on the cluster (`DATA.md` §7).
 
 The coupling runs inside REMIND, which loads **only its own renv library** (`renv/library`, set by
 REMIND's `.Rprofile`), never yours. So `pfm` is installed twice: once in your library for the
-estimation, and once into each checkout's renv for the coupled runs. **Step 3 does both** - re-run
-`./tools/setup.sh --cluster --install --no-cache` after every change to `pfm` or `mrpfm` (pull
-first). Per checkout it:
+estimation, and once into each checkout's renv for the coupled runs. **Step 3 does both.** After
+every change to `pfm` or `mrpfm`:
+
+```bash
+git pull                                                   # the project repo only
+./tools/setup.sh --cluster --update --install --no-cache    # --update: fetch and fast-forward models/*
+```
+
+`git pull` in the project root does **not** update `models/pfm`, `models/mrpfm` or the REMIND
+checkouts: each is its own repository, and `setup.sh` leaves existing ones as they are unless given
+`--update` (it then fast-forwards every one that has no local changes). Without it, `--install`
+re-installs the old code - which happened on 2026-10-02. `pfmPreflight()` now fetches and fails a
+repository that is behind its remote. Per checkout, `--install`:
 
 1. copies `mrpfm`'s and `pfm`'s dependencies from **your library** into the checkout's renv with
    `renv::hydrate()` - nothing is downloaded, and what the checkout already has (REMIND's own
