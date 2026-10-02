@@ -101,10 +101,17 @@ Pre-commit hooks enforce: parsable R, deps-in-desc, no `browser()`/`debug()`, ti
 
 ## Rules
 
-**Naming.** Documents and the paper say **PFM** and *feasibility frontier*. Code still carries
-the older `psm*` prefix (`runPSMSweep()`, `selected-models-psm.yml`, `psm-*` steps) — same
-object, rename deferred (`docs/TODO.md` item 8). Do not "fix" the prefix opportunistically; it
-invalidates artifact paths the paper traces to.
+**Naming.** Documents, code and the paper say **PFM** and *feasibility frontier*. The older
+`psm*` prefix was renamed to `pfm*` on 2026-10-02 (`design-notes/0005` D21). What still says
+`psm`, on purpose:
+- artifacts written before the rename (`v5` and earlier: `selected-models-psm.yml`, `psm-*`
+  step names in `manifest.json`). They are frozen, and the code reads both names;
+- cache identity: the fit-cache key `psm-<estimator>`, the bootstrap-cache tag and its
+  `psmboot_` files. Renaming them would invalidate every cached fit;
+- old Run-Group names (`psm-country-v3` …), archived file names, the ADRs, and
+  `papers/pfm-paper-v5`.
+
+Do not "fix" any of these.
 
 **Layer boundaries.** `mrpfm` produces magpie objects; `pfm` consumes them. The `calc*` prefix
 is exclusive to `mrpfm` (madrat convention) — in `pfm` the equivalent is `compute*`, and a

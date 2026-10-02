@@ -630,9 +630,9 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
       (D11), κ (D13) and the formulation switch become `pfm-coupling.yml` or runtime-config fields.
       Each is echoed in the log and recorded in `pfm-phi-history.rds`. `phi-override.yml` is kept
       only for `v5` reproduction.
-- [ ] **F9 — The `psm*` → `pfm*` rename** (D21): the first step of Phase 0. One isolated commit
+- [x] **F9 — The `psm*` → `pfm*` rename** (D21): the first step of Phase 0. One isolated commit
       per repository, with read-aliases for `selected-models-psm.yml`, the `psm-*` step names and
-      the old exported functions.
+      the old exported functions. ✅ Done 2026-10-02; see Phase 0, step 1.
 
 ### G. Documentation and governance
 
@@ -701,6 +701,31 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
         hashes from `output/pfm/v5/`.
    5. One commit per repository, nothing else in it. Push. Then update `CLAUDE.md` ("Naming") and
       close `TODO.md` 7.
+
+   ✅ **Done 2026-10-02** (branch `rename-psm-pfm` in `pfm` and `remind_pfm`).
+   - **Inventory.** About 1 480 hits in `pfm`, 244 in the project repo, 4 in `preparePFM.R`.
+   - **Renamed:** 21 exported and about 65 internal functions, 31 source and test files, the 17
+     step names, `selected-models-pfm.yml`, the log tags (`[PFM-BOUND]` …) and the prose
+     (*Political Feasibility Model*).
+   - **Compatibility.** `.pfmSelectedModels()` reads either spec-file name, and writers use the
+     new one. `.pfmLegacySteps()` maps `psm-*` in `pfmRun`, `startRun`, `runModelGroup`,
+     `pfmStepArtifacts`/`pfmCleanSteps` and `runStatus`. `pfm-sweep` resumes on `sweep.rds`,
+     which old and new groups both have. 21 deprecated aliases warn and forward
+     (`R/pfmDeprecated.R`). `preparePFM.R` accepts either marker.
+   - **Kept on purpose:**
+     - cache identity: the fit-cache key `psm-<estimator>`, the bootstrap tag and `psmboot_`.
+       Renaming them would invalidate every cached fit;
+     - old Run-Group names, archived file names, the ADRs, `mrpfm`, `papers/pfm-paper-v5`.
+   - **Verified:**
+     - `devtools::test()`: 6 802 passed, 0 failed, including `test-pfmLegacyNames.R` (which reads
+       `v5`);
+     - `devtools::check()`: 0 errors, and warnings and notes identical to `v5-final`'s (the
+       vignette is skipped: no pandoc on the workstation);
+     - the `v5` downstream dry run resolves, and every `pfm-*` resume key exists in `v5`;
+     - `preparePFM()` stages both an old-name and a new-name export, and the replay of
+       `-PFMlevelBfix` gives the pre-rename result (max 0.0395, the known cluster-cache gap);
+     - the paper bundle reads `output/pfm/v5/` directly and calls no `pfm` function, so its
+       byte-identical rebuild of 2026-10-01 is unaffected.
 2. **Small fixes:** E5, E10, E13, E14, E20; E19 in the forge. Optionally E11 and E12 now; otherwise
    they go into the P3 GAMS pass.
 3. **Push everything** and reinstall `pfm` on the cluster. Verify the installed version from inside

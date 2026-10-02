@@ -134,11 +134,11 @@ band with its max and rank shift (not the median alone), and P4.4 cites C31 as e
 # Bulk per-sector optimum; the name must match sweep.rds EXACTLY (this one has no satAP suffix)
 Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-specalt Bulk "X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp"
 Rscript -e 'library(pfm); pfmRun(group = "v5-specalt",
-                        steps = c("psm-frontier","psm-temporal","psm-donor",
-                                  "psm-projection","psm-coupling-bound"),
+                        steps = c("pfm-frontier","pfm-temporal","pfm-donor",
+                                  "pfm-projection","pfm-coupling-bound"),
                         cluster = "slurm")'
 #    The log MUST list those five steps in that order, and the LAST line must not be
-#    "[PSM-BOUND] skipped - missing: ...".
+#    "[PFM-BOUND] skipped - missing: ...".
 Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-specalt
 ```
 
@@ -150,8 +150,8 @@ Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-specalt
 ## 6. 🟠 The USA's feasibility share is a range, not a point
 
 No covered country; pinned by `basisOverride = c(USA = "median")`; coupled φ **0.649** (EU21) /
-**0.567** (H12) in `-PFMlevelB`. **Can be done on the workstation:** re-run `psm-donor` and
-`psm-coupling-bound` offline with the USA on each basis rule (donor / lowBand / median) and report the
+**0.567** (H12) in `-PFMlevelB`. **Can be done on the workstation:** re-run `pfm-donor` and
+`pfm-coupling-bound` offline with the USA on each basis rule (donor / lowBand / median) and report the
 φ range. **Done when:** the range is in Methods and every figure carrying US φ shows it as a range.
 
 ## 11a. 🟡 The ceiling-fall gate is "better, not fixed"
@@ -163,7 +163,7 @@ a frozen trend is a no-op), clean up with item 7.
 
 ## 40. 🟡 NEW — nothing screens a corrupt frontier covariance automatically
 
-`vcovCheck` records a corrupt covariance on `frontier.rds`, but `runPSMSweep()` does not gate on it,
+`vcovCheck` records a corrupt covariance on `frontier.rds`, but `runPFMSweep()` does not gate on it,
 and one numerically dead spec sits in the ranked list (`../_archive/_wip/2026-10-01/docs/reference/spec-selection-2026-09-15/`).
 The deployed spec is clean (ratio 0.97 / 1.01). Add a severe flag in the sanity walk.
 
@@ -269,10 +269,6 @@ the bundle reads (listed with hashes in `papers/pfm-paper-v5/paper-data/output/m
 the extracted `coupled-runs.rds` plus the REMIND commit and scenario config), and the `pfm`/`mrpfm`
 versions. Use `paper-submission` when drafting is done.
 
-## 7. ⚪ Rename `psm*` → `pfm*` in code
-
-Deferred until after submission — renaming invalidates artifact paths the bundle's manifest traces to.
-
 ## 9. ⚪ Loose ends in the coupling
 
 - The per-run `.Rprofile` is hand-written and untracked (static paths only).
@@ -291,6 +287,7 @@ Pre-review files: `../_archive/_wip/2026-09-11/TODO-pre-cleanup-2026-09-11.md`,
 
 | item | status | where it went |
 |---|---|---|
+| **7** | ✅ done 2026-10-02 | `psm*` → `pfm*` renamed in `pfm`, `preparePFM.R`, `analysis/` and the governed docs, after the `v5-final` tags (`design-notes/0005` D21, F9). Legacy names are still read: `selected-models-psm.yml`, `psm-*` steps, and deprecated aliases for the old exported functions |
 | **33** | ✅ done 2026-09-18 | costs and abatement relocation adopted as claims **C36** (held budget relocates: net +3/+4 Gt against 72/81 Gt moved) and **C37** (where it lands, + the GDP caveat) — `SCENARIOS.md` §4.8, **Fig 5d**, P3.7b |
 | **37** | ✅ done 2026-09-18 | Fig 4b re-pointed to region rank intervals; Fig 2b carries both incumbency terms (opposite signs) — `MODEL.md` §2.3, claim C9 |
 | **28** | ✅ resolved 2026-09-17 | replay gate re-scoped to the rows where the ceiling acts (+0.001 Bulk / +0.064 Diffuse) — claim C29, `MODEL.md` §8.4 |
@@ -299,7 +296,7 @@ Pre-review files: `../_archive/_wip/2026-09-11/TODO-pre-cleanup-2026-09-11.md`,
 | **31** | ✅ closed 2026-09-17 | H12 `-PFMratioTh325` re-run: markup written = seen (0.340), 94 iterations |
 | **17** | ✅ closed 2026-09-17 | EU21 `-PFMlevelC` restarted from its own gdx for 57 more iterations: 1000.4 Gt, bind share 0.585, warn 0 — rule C holds in 6 of 6 (C34) |
 | **7a** | ✅ closed 2026-09-17 | specification band measured on `v5-specalt` — `MODEL.md` §5.3.0, claim C31 |
-| **1c** | ✅ decided 2026-09-17 | both λ estimates documented, full panel justified for projection — `MODEL.md` §4.3.1; log line fixed in `runPSMCouplingBound.R` |
+| **1c** | ✅ decided 2026-09-17 | both λ estimates documented, full panel justified for projection — `MODEL.md` §4.3.1; log line fixed in `runPFMCouplingBound.R` |
 | **1** | ✅ decided 2026-09-17 | θ in the main text, sources 2–8 of φ uncertainty in the SI — `MODEL.md` §5.3.2; the specification band (source 3) measured the same day, item 7a |
 | **26** | ✅ done 2026-09-17 | the `v5` coupled batch; checks and floor regions in `SCENARIOS.md` §3, §6.2 |
 | **27** | ✅ resolved 2026-09-17 | frontier and mean regression are different estimands; rule in `MODEL.md` §2.2 and the claims header |

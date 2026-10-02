@@ -11,9 +11,10 @@ in `docs/adr/`.
 ### PFM — Political Feasibility Model
 The whole system: the estimated frontier, the packages that build and fit it (`mrpfm`, `pfm`),
 the REMIND module that consumes it, and the coupling between them. **This is the only name
-used in current documents and in the paper.** Code and artifact paths still carry the older
-`psm*` prefix (`runPSMSweep()`, `selected-models-psm.yml`, `psm-sweep`); they denote the same
-object. The rename is deferred — `docs/TODO.md` item 8.
+used in current documents and in the paper.** Code and artifacts used the older `psm*`
+prefix until 2026-10-02 (`runPSMSweep()`, `selected-models-psm.yml`, `psm-sweep`); they denote
+the same object. Run-Groups written before the rename (`v5` and earlier) keep the old file
+names, and the code still reads them (`design-notes/0005` D21).
 
 ### Feasibility frontier
 The conditional *maximum* policy stringency associated with a country's drivers, estimated as

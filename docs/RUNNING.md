@@ -234,5 +234,3 @@ The `v5` test of 2026-10-01, with every result, is kept in
    upgrade, check that `pfmPrepareCache()` gives no warning.
 7. **`v5`'s coupled runs read PIK's shared cache, not their Run-Group's.** Fetch the 48 files
    they read (`records/v5/madrat-cache-used-runs.tsv`) before that cache is cleaned up.
-8. **The `psm` → `pfm` rename is still pending.** It was decided to come first, and it changes
-   step and file names used above (`psm-*` steps, `selected-models-psm.yml`).
