@@ -81,16 +81,37 @@ grep -vE '^\s*(#|$)' tools/repos.txt | while read -r name where path url branch;
 done
 
 # --- 4. install the R packages from models/ -----------------------------------------------
-# mrpfm first: pfm imports it, and a stale mrpfm has cost test errors before (COUPLING.md 6.2).
+# Two libraries, because a REMIND checkout sees only its own renv library (renv/library), never
+# yours (PITFALLS 23):
+#   1. your R library - what pfmRun() and the cache preparation load from the project root;
+#   2. each REMIND checkout's renv library - what the coupled runs load.
+# mrpfm first: pfm depends on it (mrpfm >= 0.4.0).
+#
+# R CMD INSTALL, not devtools::install(): devtools resolves the dependencies through `remotes`,
+# which fails on packages renv or pak installed ("can't convert package magclass with RemoteType
+# 'repository' to remote", the cluster, 2026-10-02). R CMD INSTALL resolves nothing: the
+# dependencies must already be in your library (they are on the cluster); a missing one is named
+# in its error - install it with install.packages() and re-run.
+# In a REMIND checkout renv::install() is the native way, and fetches what renv lacks itself. The
+# first R start in a freshly cloned checkout bootstraps its renv library (renv::hydrate in REMIND's
+# .Rprofile), which takes several minutes.
+RENV_INSTALL='renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE); cat("pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "\n")'
 if [ "$INSTALL" = 1 ]; then
   for p in mrpfm pfm; do
-    say "install models/$p"
-    run Rscript -e "devtools::install('models/$p', quick = TRUE, upgrade = 'never')"
+    say "install models/$p into your R library"
+    run R CMD INSTALL "models/$p" || { say "FAILED: R CMD INSTALL models/$p"; exit 1; }
   done
-  say "verify from inside each REMIND checkout (its R library is what the runs load, PITFALLS 23):"
   for r in models/remind_pfm*; do
-    if [ -d "$r" ]; then echo "  (cd $r && Rscript -e 'cat(format(packageVersion(\"pfm\")), \"\\n\")')"; fi
+    [ -d "$r" ] || continue
+    say "install mrpfm and pfm into the renv library of $r"
+    if [ "$DRY" = 1 ]; then
+      echo "  [dry-run] (cd $r && Rscript -e '$RENV_INSTALL')"
+    else
+      (cd "$r" && Rscript -e "$RENV_INSTALL") || { say "FAILED: renv::install in $r"; exit 1; }
+    fi
   done
+  say "check that every library holds the working tree's code:"
+  echo "  Rscript -e 'pfm::pfmPreflight(checks = c(\"repos\", \"installed\"))'"
 fi
 
 # --- 5. the madrat cache -------------------------------------------------------------------

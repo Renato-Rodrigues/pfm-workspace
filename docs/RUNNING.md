@@ -16,6 +16,18 @@ Read `PITFALLS.md` §1–§3 before the first cluster session.
 cd /p/projects/elevate
 git clone https://github.com/Renato-Rodrigues/pfm-workspace.git WP3.4-v6
 cd WP3.4-v6
+chmod 777 tools/*.sh       # only for a clone made before 2026-10-02, when the scripts were not executable in git
+```
+
+Make **only the scripts** executable. `chmod -R 777 ./` changes the mode of every tracked file, so
+git then sees the whole project as modified: the sparse checkout of Step 3 cannot drop `docs/`
+("paths are not up to date") and `pfmPreflight()`'s "clean" check fails. A clone that already went
+through it is repaired, without losing anything, by
+
+```bash
+git config core.fileMode false     # ignore the mode changes in this clone
+git pull                           # setup.sh with the fixed install step
+git sparse-checkout reapply        # now drops docs/
 ```
 
 ## Step 2 — Check `config.yml`
@@ -51,31 +63,71 @@ REMIND run, under `output/remind-runs/<group>/<res>/`. Step 5 puts them there.
 ## Step 3 — Set up the workspace
 
 ```bash
-./tools/setup.sh --cluster --install --group v6
+./tools/setup.sh --cluster --install --no-cache
 ```
 
 This does four things:
 - clones `models/mrpfm`, `models/pfm`, `models/remind_pfm-EU21` and `models/remind_pfm-H12`
-  (`papers/` and `docs/` are left out);
-- installs `mrpfm` and `pfm` into your R library;
-- fills the madrat cache `data/madrat/v6` as described in Step 2;
+  (`papers/` and `docs/` are left out). Repositories already there are left as they are, so the
+  script can be re-run after a failure;
+- installs `mrpfm` and `pfm` **once into your R library**, with `R CMD INSTALL` (what `pfmRun()`
+  and the cache preparation load from the project root);
+- installs them **into each REMIND checkout's renv library**, with `renv::install()` (Step 4);
 - writes the commit of every repository to `output/workspace-commits.txt`.
 
-**Locally:** `./tools/setup.sh --install --group v6`. This clones one REMIND checkout,
+`--no-cache` leaves the madrat cache to Step 3b: for `v6` it computes the IEA 2025 edition, which
+takes long and is better run where a disconnect does not stop it. Without `--no-cache`, add
+`--group v6` and the script prepares it at the end.
+
+**Why `R CMD INSTALL` and not `devtools::install()`.** `devtools` resolves dependencies through
+`remotes`, which fails on packages installed by renv or pak:
+`can't convert package magclass with RemoteType 'repository' to remote` (the cluster,
+2026-10-02). `R CMD INSTALL` resolves nothing. The dependencies are already in your library on the
+cluster; if one is missing, its error names it - `install.packages()` it and re-run the script.
+The PIK message listing the packages in your personal library is information, not an error.
+
+**Locally:** `./tools/setup.sh --install --no-cache`. This clones one REMIND checkout,
 `models/remind_pfm`, and uses the workstation paths in `config.yml`.
 
-## Step 4 — Install `pfm` in each REMIND checkout
+### Step 3b — Prepare the madrat cache of each Run-Group
 
-The coupling runs inside REMIND, which has its own R library. The first R start in a checkout
-builds that library, which takes a few minutes.
+In `screen` or `tmux`, or an interactive job:
 
 ```bash
-for r in models/remind_pfm-EU21 models/remind_pfm-H12; do
-  (cd $r && Rscript -e 'devtools::install("../mrpfm", quick=TRUE, upgrade="never");
-                        devtools::install("../pfm",   quick=TRUE, upgrade="never");
-                        cat("pfm", format(packageVersion("pfm")), "\n")')
+Rscript tools/prepareMadratCache.R --group v6
+Rscript tools/prepareMadratCache.R --group v6-annual
+```
+
+The first line of its report names the panel it prepares: for `v6`,
+`panel: 2000-2023, 5-year moving average, IEA 2025 edition, geothermal in the baseload control (config)`.
+The IEA 2025 edition can only be computed on the cluster (`DATA.md` §7).
+
+## Step 4 — `pfm` in each REMIND checkout, and the check
+
+The coupling runs inside REMIND, which loads **only its own renv library** (`renv/library`, set by
+REMIND's `.Rprofile`), never yours. So `pfm` is installed twice: once in your library for the
+estimation, and once into each checkout's renv for the coupled runs. Step 3 does both; by hand,
+after a change to `pfm` or `mrpfm` (pull first):
+
+```bash
+R CMD INSTALL models/mrpfm && R CMD INSTALL models/pfm          # your library
+for r in models/remind_pfm-EU21 models/remind_pfm-H12; do       # each REMIND renv
+  (cd $r && Rscript -e 'renv::install("../mrpfm", prompt = FALSE); renv::install("../pfm", prompt = FALSE)')
 done
 ```
+
+The first R start in a freshly cloned checkout bootstraps that library (REMIND's `.Rprofile` runs
+`renv::hydrate`), which takes several minutes.
+
+Then check, from the project root, with GAMS available as for a REMIND run:
+
+```bash
+Rscript -e 'pfm::pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))'
+```
+
+Every line must say `ok`. `installed` compares a fingerprint of every function in each checkout's
+renv with `models/pfm` and `models/mrpfm`: the version number alone no longer identifies the code,
+because commits land between releases.
 
 **Locally:** the same, for `models/remind_pfm` only.
 

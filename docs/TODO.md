@@ -44,11 +44,12 @@ listed here, in order.
      `models/remind_pfm-EU21/` and `-H12/`; delete each REMIND checkout's stale
      `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc` by hand (git-ignored,
      so the pull leaves it; E10).
-   - Install `mrpfm` and `pfm` from the pushed `main` into each checkout's own renv library.
-     The version number alone no longer proves the code (commits land under 0.8.0 / 0.4.0), so
-     check with `pfm::pfmPreflight(checks = c("repos", "installed", "replay"))` from the
-     project root: it compares a fingerprint of every function installed in each checkout's
-     library with the working tree, and runs the replay gate (`PITFALLS.md` §2, §23).
+   - Install `mrpfm` and `pfm` from the pushed `main`: once into your R library (`R CMD INSTALL`)
+     and into each REMIND checkout's renv (`renv::install`). `./tools/setup.sh --cluster --install
+     --no-cache` does both (`RUNNING.md` steps 3-4; `devtools::install` fails on the cluster).
+     Then `pfm::pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`: the
+     version number alone no longer proves the code (commits land under 0.8.0 / 0.4.0), so it
+     compares a fingerprint of every function, and runs the replay gate (`PITFALLS.md` §2, §23).
    - Prepare the `v6` cache: `Rscript tools/prepareMadratCache.R --group v6`, then the same for
      `--group v6-annual`. The first prints `panel: 2000-2023, 5-year moving average, IEA 2025
      edition, geothermal …`. **This must run on the cluster:** the IEA 2025 edition recomputes
