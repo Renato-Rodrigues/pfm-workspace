@@ -26,6 +26,15 @@ and `madrat::getConfig("mappingfolder")` is **not** this repo:
 kept using the old one for an entire session while every document claimed the bug was fixed.
 Every result produced before 2026-08-10 was pre-fix.
 
+**Found again 2026-10-02, the other way round.** `mrpfm`'s bundled H12/EU21 were a future update of
+the regions (15 countries elsewhere, Ukraine among them), and so is the workstation's REMIND input data
+(`C:/_data/work/remind_input_data/mappings`). The cluster read REMIND's version from its
+mappingfolder; the workstation read the future one either way - so local replays disagreed with
+cluster runs by 0.0395 in φ, long blamed on the madrat cache, and `v5`'s workstation-computed
+regional artifacts (the offline coupling bound) used other regions than its coupled runs (0005 E26). The bundled copies are now the
+REMIND fork's `config/` files, and `pfmPreflight()` checks the resolved mapping against them
+(`tools/compareMappings.R` shows all three copies side by side).
+
 **The rule:** verify through the resolver, never by reading the file you just edited —
 `toolGetMapping(..., returnPathOnly = TRUE)`. Because `data/` sits outside every package repo,
 `git pull` will never carry a mapping to the cluster; copy it explicitly and re-verify there.

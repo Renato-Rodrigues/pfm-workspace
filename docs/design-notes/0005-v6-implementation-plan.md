@@ -609,7 +609,8 @@ Latent defects (P0 unless noted):
       harmonisation's historical panel 9 s. The first two were element-wise magpie indexing; both now
       go through plain arrays (`mrpfm`, output `identical()`). The historical panel is cached in the
       run folder (F7). **Now 27 s for a run's first call, 11 s for every later one**; the replayed
-      shares are unchanged (max |replay − run| 0.0395 before and after, the known cluster-cache gap).
+      shares are unchanged (max |replay − run| 0.0395 before and after). That gap turned out to be
+      the region mapping, not the cache: see E26.
       Was: each PFM call takes 128–189 s (median 159 s, `TODO.md` 9).
 - [x] **E18** — **Done 2026-10-01.** Non-governed files left `docs/`:
       - `PFM-Methodology.docx` and `MODEL_NOTATION_TABLE.html` → `../communication/methodology/`;
@@ -652,6 +653,26 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
         folder, and `iterativePFM()` reads them;
       - replay test: all 11 staged files read, nothing else;
       - machine paths in `config.yml` `madrat:`; the environment variable is gone.
+- [x] **E26** — ✅ **Found and fixed 2026-10-02** (`pfmPreflight`, cluster). The H12 and EU21
+      mappings bundled with `mrpfm` are a **future update** of the region definitions: 15 countries
+      in other regions than REMIND solves on (Ukraine, Georgia, Moldova, Mongolia, North Korea,
+      Greenland, four Sahel states, five small territories). The workstation's REMIND input data
+      (`C:/_data/work/remind_input_data/mappings`) holds the same future version; the cluster's
+      (`/p/projects/rd3mod/inputdata/mappings`) is identical to the fork's `config/`
+      (`tools/compareMappings.R`).
+      - **What used which.** The `v5` **coupled runs** (cluster) aggregated with REMIND's regions.
+        The `v5` Run-Group's downstream steps were computed **on the workstation** (manifest: host
+        `LT1177`, local, 2026-09-15: frontier, temporal, sector speeds, donor, projection, coupling
+        bound, REMIND export), so those that aggregate to H12/EU21 - the offline coupling bound
+        (`coupling-summary.rds`) and the regional projections - used the future regions. The fitted
+        model is at country resolution and its fixed-effects mapping (`regionmapping_EU_OECDp`) is
+        not affected. `v5` is frozen: this is recorded, not repaired.
+      - **Fix (author: keep the regions consistent with REMIND).** The bundled copies are now the
+        fork's `config/` files; the future ones are kept as `regionmappingH12_future.csv` /
+        `regionmapping_21_EU11_future.csv`; `pfmPreflight()` checks the resolved mapping against
+        REMIND's `config/` (so a machine whose mappingfolder holds the future version fails it).
+      - **Effect.** The workstation replay of `v5` `-PFMlevelBfix` moved from max |replay − run|
+        **0.0395 to 0.00226** (tolerance 0.002): the "cluster-cache gap" was almost all mapping.
 - [ ] **E25** — Under `forcecache`, madrat reads the newest-timestamped file among those whose
       arguments match. **For new groups, solved by ADR 0047**: the prepared cache holds one
       version of each calculation, and its `cache-manifest.tsv` is the record. Deposit those
@@ -821,7 +842,8 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
        vignette is skipped: no pandoc on the workstation);
      - the `v5` downstream dry run resolves, and every `pfm-*` resume key exists in `v5`;
      - `preparePFM()` stages both an old-name and a new-name export, and the replay of
-       `-PFMlevelBfix` gives the pre-rename result (max 0.0395, the known cluster-cache gap);
+       `-PFMlevelBfix` gives the pre-rename result (max 0.0395, then thought a cluster-cache gap;
+       it was the region mapping, E26);
      - the paper bundle reads `output/pfm/v5/` directly and calls no `pfm` function, so its
        byte-identical rebuild of 2026-10-01 is unaffected.
 2. **Small fixes:** E5, E10, E13, E20. ✅ **All done 2026-10-02** (`pfm` 0.6.0). E11 and E12 go
