@@ -494,16 +494,16 @@ Each item names the phase that closes it (P0–P6) and its source.
 ### E. Fixes needed in the current code and structure
 
 Blocking for Phase 0:
-- [ ] **E1** — `pfm` has uncommitted work: the 0.4.1 `phi-override` hook (`R/psmPhiOverride.R`,
+- [x] **E1** — ✅ committed (`d6d5ac0`), in `v5-final`. Was: `pfm` had uncommitted work: the 0.4.1 `phi-override` hook (`R/psmPhiOverride.R`,
       `R/iterativePFM.R`, `DESCRIPTION`, test, man page). Commit it **as it stands, before the
       rename**, so the rename diff contains nothing else. It is the `v5` record of the prepared
       GP-23 / GP-24 instrument, and D15 supersedes it for v6.
-- [ ] **E2** — `remind_pfm` has uncommitted changes: `scripts/start/preparePFM.R` (copies the
+- [x] **E2** — ✅ committed and pushed, in `v5-final`. Was: `remind_pfm` had uncommitted changes: `scripts/start/preparePFM.R` (copies the
       override) and `config/scenario_config_PFM.csv` (18 GP-23 / GP-24 rows, now never to be run on
       `v5`). Commit them as they stand, before the rename, then push. The v6 config is generated
       (D22) and drops those rows.
 - [x] **E3** — `models/pfm-reports` was deprecated and archived on 2026-10-01 (`../_archive/_wip/2026-10-01/models/pfm-reports`); `pfm` no longer shells out to it.
-- [ ] **E4** — `analysis/`, `analysis/figures/`, `../communication/`, `papers/pfm-paper-v5/` and the governed docs are not
+- [ ] **E4** — partly done: `analysis/`, `analysis/figures/` (code) and the governed docs are in the project repo since 2026-10-01; still outside version control: `../communication/` and `papers/pfm-paper-v5/` (author: deferred to the v6 paper). Was: `analysis/`, `analysis/figures/`, `../communication/`, `papers/pfm-paper-v5/` and the governed docs are not
       under version control (`TODO.md` 39) → D20. (`paper/` was archived on 2026-10-01.)
 
 Latent defects (P0 unless noted):
@@ -671,6 +671,20 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
    - Create the project repository for `pfm-workspace/` (formerly `_wip/`; D20) with its first commit = today's tree. Its
      `.gitignore` excludes `data/`, `output/`, `output/remind-runs/`, `output/remind-inputs/`, `_archive/`, `_bckp/`, the
      sub-repos and the large binaries.
+
+   ✅ **Done 2026-10-01/02.** E1 and E2 committed; the project repo created and pushed; `pfm-reports`
+   archived (E3). `v5-final` is tagged and pushed in the project repo (`0a974c5`), `pfm` (`973ea5e`),
+   `mrpfm` (`0db350a`), `remind_pfm` (`a36c41495`) and `paper-forge` (`ab52f1e`), after a
+   reproduction check on a fresh clone of exactly those commits. The check matched the
+   2026-10-01 baseline (`../_archive/_wip/2026-10-01/docs/RUNNING.md` §6.3): 16 of 21 shared
+   artifacts reproduce with the 5 known differences, `pfmReplayInterface()` passes,
+   `start.R --test` gives 0 errors, and the paper bundle rebuilds byte-identical.
+   **Not covered by the tag:**
+   - `papers/pfm-paper-v5` has no version control (author's decision: a repository may come
+     only with the v6 paper);
+   - 8 of the 12 madrat files pinned in `records/v5/` exist only in this workstation's
+     `data/madrat/` (`RUNNING.md`, still to do 3);
+   - the 45 shared-cache files the coupled runs read are not fetched (still to do 7).
 1. **The `psm` → `pfm` rename (D21, F9)** — before anything else is changed.
    1. Inventory every `psm` / `PSM` occurrence per repository. Classify each as function, step,
       artifact file name, option, documentation or comment.
