@@ -16,18 +16,6 @@ Read `PITFALLS.md` §1–§3 before the first cluster session.
 cd /p/projects/elevate
 git clone https://github.com/Renato-Rodrigues/pfm-workspace.git WP3.4-v6
 cd WP3.4-v6
-chmod 777 tools/*.sh       # only for a clone made before 2026-10-02, when the scripts were not executable in git
-```
-
-Make **only the scripts** executable. `chmod -R 777 ./` changes the mode of every tracked file, so
-git then sees the whole project as modified: the sparse checkout of Step 3 cannot drop `docs/`
-("paths are not up to date") and `pfmPreflight()`'s "clean" check fails. A clone that already went
-through it is repaired, without losing anything, by
-
-```bash
-git config core.fileMode false     # ignore the mode changes in this clone
-git pull                           # setup.sh with the fixed install step
-git sparse-checkout reapply        # now drops docs/
 ```
 
 ## Step 2 — Check `config.yml`
