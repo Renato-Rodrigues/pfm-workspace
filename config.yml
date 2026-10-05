@@ -102,6 +102,12 @@ panel:
 #                         OR the reference projection. Saturating columns are guarded at their
 #                         physical domain and pass by construction. 0.275 is the tolerance of
 #                         the existing support-share gate (ADR 0045); both values are declared.
+#   softVifGate           within-band soft keys of the maximin order (ADR 0048): a number, or
+#   inferenceTGate        "off". Both off from v6: the VIF key demoted the designed collinearity
+#                         of incumbent share and baseload control, and decided the institutional
+#                         channels; the |t| key decided v6 on a 0.04 margin. The hard VIF gate
+#                         (10) stays. Quote "off": unquoted, YAML reads it as false (also off).
+#                         Omitted = runPFMSweep's defaults, 6 and 2.33 (every group up to v5).
 #   groups                per-Run-Group overrides, as for panel
 sweep:
   apTransforms: [linear, saturating, saturating-innovator, saturating-incumbent]
@@ -109,6 +115,8 @@ sweep:
   apExtrapolationGate: 0.275
   apExtrapolationSd: 1
   apExtrapolationWindow: [2025, 2100]
+  softVifGate: "off"
+  inferenceTGate: "off"
 
 # ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
 # The REMIND pathways the one shared Fitted Model is projected onto. Each entry:

@@ -64,6 +64,7 @@ and `steps = "pfm-coupling-bound"`.
 | script | what |
 |---|---|
 | `docFacts.R` | every estimation-side number the governed docs quote → `doc-facts/` |
+| `baseloadControl.R` | what the hydro/nuclear/geothermal control and the soft selection keys do (ADR 0048) |
 | `compareSpecVariantPhi.R` | the specification band (φ across spec variants) |
 | `computeThetaBounds.R`, `efficiencyRatioBand.R` | θ bounds; the efficiency-ratio band |
 | `frontierSECheck.R` | audit of the frontier standard errors |

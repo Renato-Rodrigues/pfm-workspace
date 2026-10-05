@@ -57,7 +57,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0034 | Bootstrap fit cache | **Active** |
 | 0035 | Multi-scenario policy projection | **Active** — the scenario registry in `config.yml` |
 | 0036 | Policy stringency model on CAPMF | **Active** — constitutes the current model |
-| 0037 | No selection on significance | **Active** |
+| 0037 | No selection on significance | **Active** — except item 2 (the within-band \|t\| preference), superseded from `v6` by 0048 |
 | 0038 | Von Dülong context controls, not channels | **Active** |
 | 0039 | Tournament v2 selection | **Active** — how `X-0370` was chosen |
 | 0040 | Saturating actor power + support gate | **Active** — the `satAP` transform |
@@ -68,6 +68,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0045 | Extrapolation gate at **0.275**; θ sweep **declared** `{0.325, 0.50, 0.675}`, not anchored | **Active** — deploys `X-2079 bothIncAP` in `v5`. Threshold moved *after* candidates were known; Bulk has no admissible θ anchor. Both disclosed in the ADR |
 | 0046 | γ-boundary gate **on at 0.999** | **Active** — completes ADR 0043, which asked for this and implemented nothing. Rejects 7 of 19 surveyed specs incl. maximin rank 3; the `v5` deployment is unaffected (γ 0.987/0.982) |
 | 0047 | One prepared madrat cache per Run-Group, staged into every coupled run | **Active** from `v6` — estimation and coupling read one set of data versions (`data/madrat/<group>/cache-manifest.tsv`); `v5`'s runs read the shared PIK cache |
+| 0048 | Soft fragility keys (`softVifGate`, `inferenceTGate`) leave the within-band order; the hydro/nuclear/geothermal control stays | **Active** from `v6` (2026-10-05) — supersedes ADR 0037 item 2 and the soft VIF preference; declared in `config.yml` `sweep:` and recorded per group in `manifest.json`; decided before the corrected `v6` sanity results were read |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043
 (how it was selected), 0044 (what actor power *is*), 0040 (actor-power transform), 0026 (response
