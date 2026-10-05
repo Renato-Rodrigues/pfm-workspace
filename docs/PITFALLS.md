@@ -173,6 +173,7 @@ Ranked by how long they went unnoticed:
 | the sector markup degrading to the old `min` | nothing — by design it falls back silently | `p45_pfmMarkupShare_iter`; the liveness abort (`COUPLING.md` §11.4) |
 | a unit mismatch between history and scenario | nothing until 2040 — the harmonisation offset hides it at the seam | compare both sides in physical units past 2040 (§28) |
 | a scenario gate whose input was never passed | `0 severe … PASS` — the gate simply is not there | `responsivenessGate` / `sanityGate` in `manifest.json` (§28) |
+| a cache key that misses a fit-changing field | twins silently share results; one of them "never wins" | the key function vs every spec field that differs between variants (§29) |
 
 When something looks fine, these are what to check first.
 
@@ -818,3 +819,34 @@ would have caught the unit defect was not there.
 
 (The historical energy intensity multiplies EJ by 31.536 as if it were TWa, the same class of
 defect. Only the retired model reads `Energy Intensity`, so it is left as it is.)
+
+## 29. A cache key must hold every field that changes the fit — the bootstrap's did not hold `apTransform`
+
+Found 2026-10-06 on Run-Group `v6`, whose selection bootstrap reported **0% wins and 0% gate passes**
+for the deployed `X-1791 … satAP`, while the same spec's resample refits all succeed.
+
+`.pfmBootCacheKey()` hashed the spec's drivers, controls, FE and trend, but not `apTransform`. The
+four actor-power twins of a spec (`linear`, `satAP`, `satInn`, `satInc`) differ **only** there, so
+they shared one cache file per sector. The first twin computed wrote its 200 resample rows,
+labelled with its own name. Each later twin found that file, counted it as a full hit, and fed
+those rows into the re-ranking. In every resample the table therefore held one twin's rows several
+times and the other twins not at all. The sweep's own Fit Cache keys the twins correctly: their
+full-sample results differ.
+
+What it invalidated (rankings across *different* specs are mostly unaffected; the comparison
+*between twins* is meaningless):
+- `v6` (both runs): every win share and gate-pass share of a spec whose twin was cached first,
+  the deployed one included, and the actor-power **transform** shares (e.g. "satInc 54% of wins").
+- ADR 0048's bootstrap figures for transforms and twins ("satInc 1.44×", "satAP 0.24×", the 6.5%
+  of `X-1791 satInc`). See the erratum there.
+- `v5` (`MODEL.md` §6): the linear vs `satAP` comparison ("satAP 45.9% vs 43.3%", the modal winner
+  `X-2010 satAP` at 12.2%). Channel-set and actor-power-form shares are approximately right.
+
+**The rules:**
+- The key includes `apTransform` (a spec without one is `linear`). This orphans every earlier
+  `pfmboot_` file, which is deliberate: any of them may hold a twin's rows.
+- Cached rows must carry the spec's own name. A file whose rows name another model is ignored and
+  refit, with a message, so a future key gap cannot relabel silently.
+- **Any new field that changes a fit goes into every cache key that covers that fit.** Grep for
+  the key functions when adding a spec field. The Fit Cache, the bootstrap cache and the panel
+  caches are separate keys.

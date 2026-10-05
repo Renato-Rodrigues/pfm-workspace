@@ -154,3 +154,17 @@ gate at 10 bounds it.
   - `runPFMSelectionBootstrap` reads the group's recorded keys when the caller does not pass them,
     so its resamples are re-ranked under the rule the group was selected under.
   - Code defaults unchanged (6 / 2.33).
+
+## Erratum (2026-10-06): the transform evidence came from a defective bootstrap cache
+
+The selection bootstrap's cache did not tell a spec from its actor-power transform twins
+(PITFALLS §29). Every statement above that compares **twins or transforms** is therefore void:
+"a favoured transform (`satInc`, 1.44×)", the 6.5% of `X-1791 satInc`, and the per-spec bootstrap
+shares in the soft-key table. The decision does not rest on them. It rests on what the soft keys
+do to the ordering (the table's band leaders), on the VIF sources, and on the baseload-control
+evidence, all of which come from `sweep.rds` and the panel, not from the bootstrap. The element-level
+reading (Government Effectiveness, Rule of Law, `bothIncAP`, vertical accountability) is
+approximately right. It is re-derived once the bootstrap is re-run with the fixed key.
+
+The re-run of `v6` under this rule deployed `X-1791 … satAP`: the walk rejected ranks 1–5, each
+with a linear innovator term, on the actor-power extrapolation gate (0005 D7).

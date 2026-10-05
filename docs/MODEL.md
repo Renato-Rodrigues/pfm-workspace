@@ -1070,6 +1070,11 @@ converging. Mode M is six to eight times mode L and does not corroborate it.
 
 ## 6. Selection stability (`selection-bootstrap.rds`, 200 resamples)
 
+> 🔴 **The `satAP` figures below are not valid (PITFALLS §29, found 2026-10-06).** The bootstrap
+> cache did not tell a spec from its `satAP` twin, so each linear/`satAP` pair was represented by
+> whichever was cached first. The `satAP` row of the table and the `X-2010 … satAP` modal-winner
+> share must not be quoted. Channel-set and actor-power-form shares are approximately right.
+
 Deployed spec `X-2079`. Top-**60** pool, 200 resamples, of which **196** produced a winner
 (`gateEmptyShare` 0.02); 11 pool members are rejected by the sanity walk and are never eligible.
 
