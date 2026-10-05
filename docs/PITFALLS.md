@@ -171,6 +171,8 @@ Ranked by how long they went unnoticed:
 | a normalised quantity quoted at the wrong resolution | nothing — a plausible number, wrong by ~50% | θ-anchor §15; check `resolution` on the artifact |
 | a cached fit reused after the spec moved | nothing — the run completes on the old model | cache keys must include the spec (§14) |
 | the sector markup degrading to the old `min` | nothing — by design it falls back silently | `p45_pfmMarkupShare_iter`; the liveness abort (`COUPLING.md` §11.4) |
+| a unit mismatch between history and scenario | nothing until 2040 — the harmonisation offset hides it at the seam | compare both sides in physical units past 2040 (§28) |
+| a scenario gate whose input was never passed | `0 severe … PASS` — the gate simply is not there | `responsivenessGate` / `sanityGate` in `manifest.json` (§28) |
 
 When something looks fine, these are what to check first.
 
@@ -755,3 +757,64 @@ same negative values are also the likely source of `toolAggregateWeighted`'s
 - Every exclusion is reported at fit time: `[preparePanelData] excluding <n> row(s) for EST`.
 - When upstream is fixed, set `options(pfm.excludeCountries = character(0))`, refit, and compare
   the deployed spec's coefficients with the current ones.
+
+## 28. History is EJ, a REMIND gdx is TWa — and a scenario gate that is not passed does not run
+
+Two defects, found together on 2026-10-05 while checking Run-Group `v6`. Each one hid the other.
+
+**The unit.** The per-capita actor-power drivers (`Innovator Power pc`, `Incumbent Power pc`) are
+share × total primary energy per person (`.energyPerCapita`). History reads `PE (EJ/yr)` from the
+IEA (`iamHistoricalData`); the scenario reads REMIND's `vm_prodPe`, which is **TWa**
+(`downscaleREMINDResults`). Nothing converted it. The shares are ratios, so they were unaffected.
+The per-capita series were not. The harmonisation offset (DATA.md §5.5) matched the two sides at
+the last panel year and faded to zero by 2040, so the error **appeared gradually and then stayed**:
+
+| median, 49 estimation countries, v6 panels | hist 2023 | scen 2030 | 2040 | 2050 |
+|---|---:|---:|---:|---:|
+| `Innovator Power pc|Bulk`, before the fix | 0.0206 | 0.0129 | **0.0021** | **0.0021** |
+| `Incumbent Power pc|Bulk`, before the fix | 0.0457 | 0.0272 | **0.0009** | **0.0005** |
+| `Innovator Power pc|Bulk`, after (PkBudg1000) | 0.0206 | 0.0429 | 0.0655 | 0.0672 |
+| `Incumbent Power pc|Bulk`, after (PkBudg1000 / NPi) | 0.0457 | 0.0416 / 0.0412 | 0.0280 / 0.0335 | 0.0166 / 0.0236 |
+
+Before the fix, innovator power per capita **fell** tenfold while the innovator share rose from 0.17
+to 0.65. The implied energy per capita fits the unit exactly: Germany is 0.14 EJ per million in
+2023 and 0.0033 in 2050, and 0.0033 × 31.536 = 0.10.
+
+What it broke (estimation, the frontier and the 2023 anchor read history only, so they are intact):
+- **every scenario panel since the per-capita forms entered (2026-08-24)**: `v5` and `v6`,
+  offline and inside the coupled REMIND runs (`iterativePFM` builds the same panel). After 2040
+  any per-capita term carried no scenario signal. `v5`'s deployed `X-2079` has `Incumbent Power pc`
+  in it;
+- **every scenario-side selection gate**, which scored projections built on those drivers. `v6`'s
+  deployed `X-1950 … splitAPpc` uses only per-capita actor power. Its ambitious and reference
+  projections differed by a median **0.004** (Bulk) and **0.001** (Diffuse) index points over
+  2040–2060, against `scenarioBlind`'s 0.05 (`v5`'s `X-2079`: 0.236 / 0.104). It passed
+  `ceilingCollapse` most likely *because* its actor-power drivers went flat in both scenarios;
+- **`v5`'s `scenarioBlind` rejections of `X-1746` and `X-1743` (splitAPpc, ~0.005)**: most likely
+  this defect, not the form.
+
+**The missing gate.** `scenarioBlind` (ADR 0039) needs a reference scenario panel. `runPFMSweep`
+takes `referenceGdxFile`, but **no caller ever passed it**, so in a `pfmRun` sweep the gate never ran.
+`v5` applied it by hand (`gate275v.R` in the 2026-09-15 spec-selection evidence); `v6` did not apply
+it at all. Nothing said so. The walk printed `0 severe / 21 warnings - PASS`, and the gate that
+would have caught the unit defect was not there.
+
+**The rules:**
+- `.energyPerCapita(…, peUnit = )` has **no default**: `"EJ"` for history, `"TWa"` for a gdx.
+  Any new quantity read from both sides is compared **in physical units, at a year past the
+  harmonisation fade (2040+)**: the seam diagnostics compare at the anchor year, where the offset
+  makes every scale error vanish.
+- `pfmRun` passes the registry's non-gating scenario (`scenarioReferenceEntry`, the rule
+  `runPFMCouplingBound` uses for P_ref) as `referenceGdxFile`. A sweep that has a gating panel
+  but no reference prints `WARNING: … scenarioBlind is NOT applied`. `manifest.json` records
+  `sanityGate` and `responsivenessGate` under the `sweep-pfm` step: **read them before trusting a
+  selection** (§18).
+- The coupling bound's scenario-panel cache is now `<group>-scen-ca-peEJ.rds`. The old
+  `*-scen-ca.rds` files hold the defective panel and are never read; delete them.
+- Run-Groups selected before 2026-10-05 (`v5`, `v6`, `v6-annual`) were selected on defective
+  scenario panels. Their **fits** stay valid (the history panel and its hash are unchanged, so
+  the Fit Cache is reused), but their **selections and every scenario-side artifact** must be
+  re-run.
+
+(The historical energy intensity multiplies EJ by 31.536 as if it were TWa, the same class of
+defect. Only the retired model reads `Energy Intensity`, so it is left as it is.)
