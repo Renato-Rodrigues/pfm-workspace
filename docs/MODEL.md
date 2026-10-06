@@ -95,7 +95,10 @@ $$
 $$
 
 $\mathbf{z}$ is three controls — GDP per capita (Q-centred), log Population, Hydro/Nuclear share.
-Fifteen slope terms. **No lags, no Mundlak, levels transform, no saturating transform.**
+Fifteen slope terms. **No lagged outcome, no Mundlak, levels transform, no saturating transform.**
+The drivers enter at $t-1$ (`preparePanelData(lag = 1)`). The lag counts years: on a scenario
+panel in REMIND's 5- to 20-year steps the driver at $t-1$ is interpolated (`PITFALLS.md` §31;
+before 2026-10-06 it counted rows, so scenarios read drivers 5 to 20 years old).
 
 Two estimators use this design and they are **different estimands** — never compare their
 coefficients as though one were a refit of the other:

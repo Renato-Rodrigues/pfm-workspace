@@ -948,6 +948,14 @@ the yml; nothing is re-estimated. Scenario rows: start tags `<res>GP24` (`-PFMle
 `-permuted1..3`, `-PFMlevelC-uniform`, `-permuted1`) and `<res>GP23` (`-PFMlevelC-allmedian`,
 `-alllow`, `-chinaseed`).
 
+The same script builds the **assignment-rule twins**. They are real Run-Groups, not overrides: the
+group is a copy of the base with only the donor step re-run. `-usadonor` and `-usalow` change the
+USA's basis; `-allmedian` and `-alllow` put every uncovered country on one band. `-nearest`
+(2026-10-06, design note 0005 §7a decision 3) matches every uncovered country to its nearest donors,
+with no "none" class (`runPFMDonorAssumptions(qualityQuantiles = c(0.5, Inf))`; the USA keeps its
+median override). The base defaults to `v5`; `PFM_VARIANT_BASE=v6` builds `v6-…` twins (the
+China-seed groups exist for `v5` only).
+
 **Caveats.** Under `uniform` there is no floor region and no least-constrained region: every region
 receives the same two sector shares, so the within-region split is identical everywhere and the
 markup is the same in every region (the gap between the two sector means). Under `permute` the energy-system feedback still moves the

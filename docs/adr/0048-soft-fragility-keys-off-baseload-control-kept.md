@@ -168,3 +168,14 @@ approximately right. It is re-derived once the bootstrap is re-run with the fixe
 
 The re-run of `v6` under this rule deployed `X-1791 … satAP`: the walk rejected ranks 1–5, each
 with a linear innovator term, on the actor-power extrapolation gate (0005 D7).
+
+**Re-derived (2026-10-06)** with the fixed key and a sanity verdict for every pool spec
+(`output/pfm/v6/sanity-pool.rds`, `selection-bootstrap.rds`, job 2420187). Of the 40 pool specs, 9
+pass the gates. All 9 are `bothIncAP` with a saturating innovator term; all linear and `satInc`
+specs fail the actor-power extrapolation gate. In 154 of 200 resamples one of the 9 passes the hard
+gates, and among those the deployed `X-1791 … satAP` wins 19.5%, level with its GDP-square twin
+`X-1794 … satAP` (19.5%; the family 39%), ahead of `X-2079 … satInn` (14.3%) and `X-2082 … satInn`
+(12.3%). Vertical accountability is in 82% of these wins, `RoL|VerAcc` in 49% (1.48× its share of the
+eligible specs), `satAP` in 49% (1.48×). The deployed spec passes the hard gates in 41% of resamples,
+at median rank 4 when it does. The transform comparison above that this erratum voids is replaced by
+these figures; the actor-power form is decided by the gates, not by the resampling.

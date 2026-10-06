@@ -174,6 +174,8 @@ Ranked by how long they went unnoticed:
 | a unit mismatch between history and scenario | nothing until 2040 — the harmonisation offset hides it at the seam | compare both sides in physical units past 2040 (§28) |
 | a scenario gate whose input was never passed | `0 severe … PASS` — the gate simply is not there | `responsivenessGate` / `sanityGate` in `manifest.json` (§28) |
 | a cache key that misses a fit-changing field | twins silently share results; one of them "never wins" | the key function vs every spec field that differs between variants (§29) |
+| a scenario series exempt from harmonisation | a seam at the anchor year, only for some countries | `.pfmHarmoniseScenario` covers every shared series (§30) |
+| a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
 
 When something looks fine, these are what to check first.
 
@@ -850,3 +852,64 @@ What it invalidated (rankings across *different* specs are mostly unaffected; th
 - **Any new field that changes a fit goes into every cache key that covers that fit.** Grep for
   the key functions when adding a spec field. The Fit Cache, the bootstrap cache and the panel
   caches are separate keys.
+
+## 30. "Anchored by its own projection" is not anchored on the panel — harmonise every shared series
+
+Found 2026-10-06 on Run-Group `v6`, in the Phase 1 seam test (design note 0005 C8).
+
+`panelDataScenario` harmonised every scenario series to the historical panel at the panel's last
+year **except** the institution-rule series (V-Dem Rule of Law, accountability and state capacity;
+WGI Voice and Accountability, Political Stability and Regulatory Quality). The reason given was that
+they were "already anchored by their own projection method". But that method starts from the last
+**raw** observation (V-Dem 2025, WGI 2024), while the panel holds a centred moving average at its
+last year. Where a country's institutions moved sharply around the anchor year (coups: Myanmar
+2021, Mali, Niger; Qatar's Vertical Accountability), the two differ by 0.1–0.4 on the normalised
+scale. That moved the country's frontier at the anchor seam by up to 6 index points.
+
+**The rule:** every series the scenario panel shares with history is harmonised
+(`.pfmHarmoniseScenario`). A country with no history value keeps its projection. Derived series
+(the state-capacity principal component) are computed from the harmonised inputs. Effect on `v6`
+(seam test with the lag in years, §31): band-rule countries' seam, Bulk 95th percentile 1.93 → 0.93
+index points, maximum 6.2 → 1.65; Bulk $k$ +0.02 to +0.05 (`output/pfm/v6/phase1/lag-seam.rds`).
+Scenario panels built before 2026-10-06 carry the seam. The coupling bound's panel cache is renamed
+`<group>-scen-ca-peEJ-harm.rds` so it can never read one.
+
+## 31. The driver lag was one ROW, not one year — on REMIND's time steps it was 5 to 20 years
+
+Found and fixed 2026-10-06 on Run-Group `v6`.
+
+`preparePanelData(lag = 1)` read the drivers at `yi - lag`, the previous **index** of the panel's
+year axis. The estimation panel is annual, so the fitted frontier is $S(t) = f(X_{t-1})$. Every
+scenario path (`projectFeasiblePath`, the sanity walk, the projection sanity check, the coupling
+bound, `computeAnchorGap`'s η) calls the same function on the REMIND-period panel (2020, 2025, …,
+2060, 2070, …, 2100, 2110, 2130, 2150). There the same "lag 1" was 5 years up to 2060, 10 years to
+2100, then 20 years. For example, η(2025) read the 2020 drivers, and η(2100) read 2090's. The
+EU-membership dummy alone already lagged in years.
+
+Nothing failed. The lagged driver was a plausible value, only an older one. What it moved (`v6`,
+EU21, institution-harmonised panels; `output/pfm/v6/phase1/strength.rds`; H12 within 0.003):
+
+| $k$ | row lag (before) | year lag (now) |
+|---|---|---|
+| Bulk PkBudg1000, 2050 / 2100 | 0.87 / 0.54 | 0.63 / 0.48 |
+| Bulk NPi, 2050 / 2100 | 1.37 / 1.10 | 1.09 / 0.92 |
+| Diffuse PkBudg1000, 2050 / 2100 | 0.78 / 0.71 | 0.91 / 0.73 |
+
+It also confounded the anchor-year seam test: the scenario side read another year than history.
+The C8 seam figures quoted before 2026-10-06 (Myanmar −6.6, Qatar +5.6) mix this lag with §30.
+
+**The fix:** `lag` counts years. A lagged year that is not on the axis is linearly interpolated
+between its neighbours (`.pfmLagLookup`), and one before the first year is NA, as before. On the
+annual training panel nothing changes: the prepared `v6` design is `identical()` before and after,
+for both sectors, so fits, frontier and the Fit Cache stay valid. The ECM recursion in
+`projectFeasiblePath` already compounds λ over the step length.
+
+**What must be re-run:** every scenario-side artifact built before 2026-10-06, i.e. the sanity walk's
+scenario gates (`extrapolationDominated`, `actorPowerExtrapolation`, `scenarioBlind`), and with
+them possibly the selection; the sanity pool and the bootstrap's sanity verdicts; projections; the
+coupling bound; the REMIND export. `v5`'s coupled bounds were computed with the row lag; `v5` is
+frozen, so this is a disclosed difference, not a re-run.
+
+**Check:** η on a scenario panel and on the same panel interpolated to annual steps
+(`magclass::time_interpolate`) should differ only by genuine within-period change
+(`tests/testthat/test-driverLagYears.R`).

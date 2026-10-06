@@ -180,16 +180,30 @@ offline). The author's choice (2026-10-02) is **(b) storyline as the headline, (
 
 The table is a declared assumption (`pfmInstitutionStorylines()`), from the SSP governance
 narratives (Andrijevic et al. 2020), not an estimate. In every rule a country already above its
-target keeps its value. The path starts from the last *observed* value of the source (V-Dem 2025,
-WGI 2024), which can be later than the panel's last year. Whether the storyline rule matters at all
-depends on whether the `v6` spec keeps an accountability or V-Dem Rule-of-Law term (0005 D10).
+target keeps its value. The rule's path starts from the last *observed* raw value of the source
+(V-Dem 2025, WGI 2024), which can be later than the panel's last year and differs from the panel's
+smoothed value there. Since 2026-10-06 (decision 2B) the path is then harmonised to the panel like
+every other series (§5.5), so the scenario starts where history ends. Under (d) `hold` this means the
+held value moves from the panel's anchor value to the raw last observation by 2040, not a flat line
+from 2023. The storyline rule is in the headline (0005 D10, decision 1A of 2026-10-06), with an
+"institutions held" twin for each headline cell.
 
 ### 5.5 Harmonisation to history
 
-Every scenario series except those projected by the institution rule is shifted by its offset to
-the historical panel at the panel's last year (2022 for `v5`, 2023 for `v6`): the full offset up to
-that year, fading linearly to zero by 2040 (`harmonizeScenarioYear`). If REMIND has no time step at
-the anchor year, the scenario is interpolated to it for the offset only. Normalisation bounds and
+Every scenario series shared with the historical panel is shifted by its offset to the historical
+panel at the panel's last year (2022 for `v5`, 2023 for `v6`): the full offset up to that year,
+fading linearly to zero by 2040 (`harmonizeScenarioYear`). If REMIND has no time step at the anchor
+year, the scenario is interpolated to it for the offset only. A country with no history value keeps
+its unshifted projection. The state-capacity principal component is computed from the harmonised
+inputs.
+
+**Since 2026-10-06 this includes the institution-rule series** (§5.4: V-Dem Rule of Law,
+accountability and state capacity; WGI Voice and Accountability, Political Stability and Regulatory
+Quality). Before that they were exempt, because they were "anchored by their own projection". But that
+projection starts from the raw last observation, not from the panel's smoothed anchor value, which
+opened a seam at the anchor year of up to 6.6 index points for some band-rule countries
+(`PITFALLS.md` §30). Scenario panels built before that date, and everything computed from them, carry
+the seam. Normalisation bounds and
 the GDP-per-capita quartile breaks are the historical panel's, so a scenario value outside the
 historical range is clamped (`MODEL.md` §7, design note 0005 D7).
 

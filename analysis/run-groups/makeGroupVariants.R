@@ -6,10 +6,12 @@
 #   cd /p/projects/elevate/WP3.4          # the project root: output/, models/pfm/, output/remind-inputs/ side by side
 #   Rscript analysis/run-groups/makeGroupVariants.R  # all six
 #   Rscript analysis/run-groups/makeGroupVariants.R v5-usadonor v5-usalow   # only some
+#   PFM_VARIANT_BASE=v6 Rscript analysis/run-groups/makeGroupVariants.R v6-nearest   # twins of another base
 #
 # What it does, per group:
-#   * twins of v5 (usadonor, usalow, allmedian, alllow): copies output/pfm/v5 -> output/pfm/<group> if absent,
-#     re-runs ONLY the donor step with the group's basisOverride, and VERIFIES the result - the donor
+#   * twins of v5 (usadonor, usalow, allmedian, alllow, nearest): copies output/pfm/v5 -> output/pfm/<group> if absent,
+#     re-runs ONLY the donor step with the group's basisOverride (or, for -nearest, its matching rule:
+#     every uncovered country on its nearest donors, design note 0005 §7a decision 3), and VERIFIES the result - the donor
 #     step returns without an error when it cannot find the panel, so a silent no-op is checked for;
 #   * all six: exports the REMIND inputs to output/remind-inputs/<group>/ (pfmRun stage "remind"), which is what
 #     preparePFM() copies into a run whose pfmGroup names that group;
@@ -21,7 +23,7 @@
 # The coupled run needs nothing else from the group - no projection, no offline bound.
 
 args <- commandArgs(trailingOnly = TRUE)
-base <- "v5"
+base <- Sys.getenv("PFM_VARIANT_BASE", "v5")   # the group names below follow the base: v5-allmedian, v6-allmedian ...
 remindDir <- "output/remind-inputs"          # beside models/remind_pfm/, i.e. cfg$pfm$source = "../../output/remind-inputs" seen from there
 if (!dir.exists(remindDir)) stop("no '", remindDir, "' here - run from the project root (", getwd(), ")")
 if (!dir.exists(file.path("output/pfm", base))) stop("no output/pfm/", base, " here - run from the project root")
@@ -30,17 +32,21 @@ source("analysis/_common/_loadPfm.R")      # the source tree, not a possibly sta
 
 unc <- readRDS(file.path("output/pfm", base, "donor-assignment-band-Bulk.rds"))$region
 twins <- list(
-  "v5-usadonor"  = c(USA = "donor"),
-  "v5-usalow"    = c(USA = "lowBand"),
-  "v5-allmedian" = stats::setNames(rep("median",  length(unc)), unc),
-  "v5-alllow"    = stats::setNames(rep("lowBand", length(unc)), unc))
-exportOnly <- c("v5-specalt", "v5-noinc")
+  usadonor  = c(USA = "donor"),
+  usalow    = c(USA = "lowBand"),
+  allmedian = stats::setNames(rep("median",  length(unc)), unc),
+  alllow    = stats::setNames(rep("lowBand", length(unc)), unc))
+names(twins) <- paste0(base, "-", names(twins))
+# Twins that change the matching rule rather than the bases: donor-step arguments, the USA override kept.
+ruleTwins <- list(nearest = list(qualityQuantiles = c(0.5, Inf)))
+names(ruleTwins) <- paste0(base, "-", names(ruleTwins))
+exportOnly <- paste0(base, c("-specalt", "-noinc"))
 
 # China's 2022-seed shares (headline frontier rung, equal country weights) from
 # output/pfm/v5/frontier-rung-phi.rds, recorded 2026-09-23; checked against the artifact when it is here.
 chinaSeed <- list(EU21 = c(Bulk = 0.8618, Diffuse = 0.5558), H12 = c(Bulk = 0.9339, Diffuse = 0.5558))
 frp <- file.path("output/pfm", base, "frontier-rung-phi.rds")
-if (file.exists(frp)) {
+if (base == "v5" && file.exists(frp)) {
   a <- readRDS(frp)
   for (r in names(chinaSeed)) for (s in c("Bulk", "Diffuse")) {
     v <- round(unname(a$bySector[[s]]$phi[[r]]$equal$headline["CHA"]), 4)
@@ -52,15 +58,18 @@ if (file.exists(frp)) {
 yamlSet <- function(v) c("mode: set", "regions:", "  CHA:", sprintf("    Bulk: %.4f", v[["Bulk"]]),
                          sprintf("    Diffuse: %.4f", v[["Diffuse"]]))
 overrides <- list(
-  "v5-uniform"        = c("mode: uniform", "value: mean"),
-  "v5-permuted1"      = c("mode: permute", "seed: 1"),
-  "v5-permuted2"      = c("mode: permute", "seed: 2"),
-  "v5-permuted3"      = c("mode: permute", "seed: 3"),
-  "v5-chinaseed-EU21" = yamlSet(chinaSeed$EU21),
-  "v5-chinaseed-H12"  = yamlSet(chinaSeed$H12))
+  uniform        = c("mode: uniform", "value: mean"),
+  permuted1      = c("mode: permute", "seed: 1"),
+  permuted2      = c("mode: permute", "seed: 2"),
+  permuted3      = c("mode: permute", "seed: 3"),
+  # China's seed shares are v5's (checked against the artifact above); another base has no recorded value
+  "chinaseed-EU21" = if (base == "v5") yamlSet(chinaSeed$EU21),
+  "chinaseed-H12"  = if (base == "v5") yamlSet(chinaSeed$H12))
+overrides <- Filter(Negate(is.null), overrides)
+names(overrides) <- paste0(base, "-", names(overrides))
 
-todo <- if (length(args)) args else c(exportOnly, names(twins), names(overrides))
-bad <- setdiff(todo, c(exportOnly, names(twins), names(overrides)))
+todo <- if (length(args)) args else c(exportOnly, names(twins), names(ruleTwins), names(overrides))
+bad <- setdiff(todo, c(exportOnly, names(twins), names(ruleTwins), names(overrides)))
 if (length(bad)) stop("unknown group(s): ", paste(bad, collapse = ", "))
 
 expectBasis <- function(ov, sec) {
@@ -95,7 +104,7 @@ todo <- setdiff(todo, names(overrides))
 
 for (g in todo) {
   cat("\n==================", g, "==================\n")
-  if (g %in% names(twins)) {
+  if (g %in% c(names(twins), names(ruleTwins))) {
     if (!dir.exists(file.path("output/pfm", g))) {
       cat("copying output/", base, " -> output/", g, "\n", sep = "")
       dir.create(file.path("output/pfm", g))
@@ -105,14 +114,26 @@ for (g in todo) {
     }
     f <- file.path("output/pfm", g, c("donor-assignment-band-Bulk.rds", "donor-assignment-band-Diffuse.rds"))
     t0 <- max(file.mtime(f))
-    runPFMDonorAssumptions(g, basisOverride = twins[[g]])
+    if (g %in% names(twins)) runPFMDonorAssumptions(g, basisOverride = twins[[g]]) else
+      do.call(runPFMDonorAssumptions, c(list(g), ruleTwins[[g]]))
     if (max(file.mtime(f)) <= t0) {
       stop("runPFMDonorAssumptions('", g, "') did not rewrite the band assignment - most likely it could ",
            "not find the historical panel (it returns quietly in that case). Nothing was exported.")
     }
-    chk <- rbind(expectBasis(twins[[g]], "Bulk"), expectBasis(twins[[g]], "Diffuse"))
-    print(chk, row.names = FALSE)
-    if (any(chk$mismatches > 0) || any(chk$missing > 0)) stop("the override did not take effect in ", g)
+    if (g %in% names(twins)) {
+      chk <- rbind(expectBasis(twins[[g]], "Bulk"), expectBasis(twins[[g]], "Diffuse"))
+      print(chk, row.names = FALSE)
+      if (any(chk$mismatches > 0) || any(chk$missing > 0)) stop("the override did not take effect in ", g)
+    } else {
+      # nearest donors: no recipient left without a donor; only the USA keeps its median override
+      chk <- do.call(rbind, lapply(c("Bulk", "Diffuse"), function(sec) {
+        a <- readRDS(file.path("output/pfm", g, sprintf("donor-assignment-band-%s.rds", sec)))
+        data.frame(sector = sec, recipients = nrow(a), none = sum(a$donorQuality == "none"),
+                   notDonor = paste(a$region[a$basis != "donor"], collapse = ","))
+      }))
+      print(chk, row.names = FALSE)
+      if (any(chk$none > 0) || any(chk$notDonor != "USA")) stop("the nearest-donors rule did not take effect in ", g)
+    }
   }
   pfmRun(group = g, stage = "remind", remindDir = remindDir)
   marker <- pfm:::.pfmSelectedModels(file.path(remindDir, g))

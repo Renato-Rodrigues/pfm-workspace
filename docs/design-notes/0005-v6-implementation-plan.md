@@ -193,7 +193,7 @@ here (D1).
   about 2050, so the 2060–2100 tail is not where most of the movement is.
 - **What it requires, and the plan now carries:**
   - **Revise `MODEL.md` §7.** Its prohibition of "scenario differences past ~2060" no longer holds
-    for the delivered share. ADR 0050 records the change and its reason. The rule is replaced by
+    for the delivered share. ADR 0052 records the change and its reason. The rule is replaced by
     a reporting duty: the out-of-support share per year travels with every $k_s(t)$ and φ(t).
   - **Saturating innovator power becomes necessary, not optional (D7).** Without a hold, $k_s$
     reads ceilings to 2100. By 2050, 56–65% of countries are above the innovator range on `v5`
@@ -420,7 +420,7 @@ Each item names the phase that closes it (P0–P6) and its source.
       $k_s$, φ(t) in R (P1 prototype, P3 coupling), with the checkpoint convergence rule and the
       all-period diagnostic (D5). Run held-price and held-budget at both resolutions (P5).
 - [ ] **A1a — time horizon:** no hold year in the central case; hold-2060 as the sensitivity (D6;
-      P5). Revise `MODEL.md` §7 through ADR 0050.
+      P5). Revise `MODEL.md` §7 through ADR 0052.
 - [ ] **A1b — stability and damping:** damping in R, logged, used only on oscillation (D5; P3).
 - [ ] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
       φ for ratio mode and the rule-C rebuild (D14; P3).
@@ -764,16 +764,18 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 ### G. Documentation and governance
 
-- [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates):
-  - 0047 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
-  - 0048 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ arm (D13);
-  - 0049 SSP-consistent scenario panel and accountability rule (D9, D10, D11);
-  - 0050 saturating innovator, clamp policy and hold year (D6, D7);
-  - 0051 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
-  - 0052 time-indexed φ interface and convergence on the φ path (D5, D14);
-  - 0053 the generated scenario config (D22).
-- [ ] **G2 — Close the design notes.** 0003 (λ in or out) → ADR 0048. 0004 → ADRs 0047 / 0050 /
-      0051. 0002 stays open, informed by the re-sweep. This note → closed when Phase 6 ends.
+- [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). *Renumbered 2026-10-06: 0047 went
+  to the prepared madrat cache (E24) and 0048 to the soft selection keys, so the planned records
+  start at 0049.*
+  - 0049 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
+  - 0050 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ arm (D13);
+  - 0051 SSP-consistent scenario panel and accountability rule (D9, D10, D11);
+  - 0052 saturating innovator, clamp policy and hold year (D6, D7);
+  - 0053 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
+  - 0054 time-indexed φ interface and convergence on the φ path (D5, D14);
+  - 0055 the generated scenario config (D22).
+- [ ] **G2 — Close the design notes.** 0003 (λ in or out) → ADR 0050. 0004 → ADRs 0049 / 0052 /
+      0053. 0002 stays open, informed by the re-sweep. This note → closed when Phase 6 ends.
 - [ ] **G3 — Archive the governed documents first** (`_archive/<date>/docs-pre-v6/`), then rewrite
       them for `v6`:
   - `MODEL.md` §4 shrinks to "diagnostic only"; §5 gets the v6 φ(t); §7 gets the hold-year rule;
@@ -892,6 +894,12 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    $k_{Diffuse} = 0.70 / 0.54 / 0.56$ and $k_{Bulk} = 1.08 / 1.18 / 1.21$ (2035 / 2050 / 2070). If
    they do not match, find out why before going further. This is the acceptance test for the code
    that later goes into REMIND.
+   ⚠️ **(2026-10-06) These numbers predate the PITFALLS §28 fix.** They were computed on a `v5`
+   scenario panel whose per-capita actor-power drivers fell to 1/31.5 of scale after 2040, and
+   `v5`'s `X-2079` carries `Incumbent Power pc`. Reproduce them on the **defective** panel (the
+   cached `output/pfm/panel-cache/v5-scen-ca.rds`, written before the fix) to accept the code,
+   then recompute with the fixed panel and on `v6`. Expect 2035 to move little and 2050 / 2070 to
+   move.
 4. **Compute $k_s(t)$ on every `v5` gdx:** NPi, PkBudg1000, `-PFMgate`, `-PFMlevelBfix`,
    `-PFMlevelC`. Answer: how much does REMIND's energy system move $k$ between pathways? That is the
    size of the v6 feedback.
@@ -913,11 +921,28 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    *direction* of the change against `v5` before any REMIND run. It is labelled offline, as GP-2
    requires.
 
+**Status 2026-10-06** (Run-Group `v6`; `analysis/v6/phase1.R` → `output/pfm/v6/phase1/`):
+- ✅ **Steps 1–2.** `pfm::computeAnchorGap()`, `computeStrengthPath()` and `computeSharePath()`, with unit
+  tests (`test-anchorGap.R`): $k(t_0) = 1$, θ = 0 gives φ ≡ 1, uniform $u$ gives one share, the
+  ranking is invariant under $d = k$. η is built through the coupling's own preparation and guard,
+  with the deployed frontier coefficients. No ECM, no λ. The covered countries' η matches
+  `frontier.rds` exactly.
+- ✅ **Step 3 (acceptance).** On `v5`'s pre-fix panel with the prototype's anchoring
+  (`anchorRule = "t0-ceiling"`): Bulk 1.076 / 1.180 / 1.206 exactly, Diffuse 0.699 / 0.542 / 0.561
+  against 0.700 / 0.544 / 0.563. The 0.002 is the prototype's ECM scaling against the frontier's own.
+  The §1 anchor-year rule gives practically the same on `v5`.
+- ✅ **Step 4** on `v6` (fixed panels, both resolutions; H12 within 0.003 of EU21). See `strength.rds`.
+- ✅ **Step 5** (`variants.rds`), **step 7** (C3, `decomposition.rds`), **step 8** (C8, `seam.rds`; since
+  2026-10-06 on the annual-interpolated panel, `PITFALLS.md` §31).
+- ⏳ **Step 6** needs SSP1 / SSP3 scenario panels, which the workstation cannot build (the cache
+  holds SSP2 only): a cluster task with `pfmPrepareCache` once the registry declares the SSPs.
+- ⏳ **Step 9** (offline headline with φ(t)) and the ADR drafts are open.
+
 **Gate, and the decision it feeds:**
 - **If the SSP spread of $k$ is small next to θ's range** (hypothesis H1 of the architecture note),
   the SSP axis goes to the SI as "measured and small". The main batch is SSP2 only, plus one SSP
   pair. Otherwise SSP1 / SSP3 become a main-text axis.
-- ADRs 0047–0052 drafted. Methodology document updated (G4).
+- ADRs 0049–0054 drafted. Methodology document updated (G4).
 
 ### Phase 2 — Data and estimation, Run-Group `v6` (two to three weeks; cluster for the sweep)
 
@@ -948,7 +973,8 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    $u$, floor regions. This becomes Methods and SI material for the new paper.
 
 **Gate:** deployed `v6` spec diagnostics at least as clean as `v5` (γ, gates, influence, sign
-stability). The 2023 coverage decision is recorded (`DATA.md` §4). D10 decided 2026-10-02; the
+stability). *Passed 2026-10-06 with one disclosed exception (decision 4 of §7a):* the Bulk γ of
+0.997 is accepted, below the 0.999 `gammaBoundary` gate but close to it, and is reported as such. The 2023 coverage decision is recorded (`DATA.md` §4). D10 decided 2026-10-02; the
 re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law term kept or dropped).
 
 ### Phase 3 — Coupling code (two to three weeks; workstation + test runs)
@@ -1011,8 +1037,9 @@ submit prints the expected rows, groups and commits.
 |---|---|---|---|---|
 | 1 | SSP2 nulls `-PFMgate`, `-PFMgateBfix` (+ NPi twin null if quoted) | EU21, H12 | 4–6 | D18 gate; anchors for rule B |
 | 1 | SSP2 `-PFMlevelBfix`, `-PFMlevelC` at θ 0.325 / 0.50 / 0.675 | EU21, H12 | 12 | the two horns with severity |
+| 1 | "institutions held" twin of each headline cell: `-PFMlevelBfix`, `-PFMlevelC` at θ 0.50 with `pfmInstitutions = hold` | EU21, H12 | 4 | D10, decision 1A of 2026-10-06: institutions carry about half of Bulk $k$'s 2100 fall on PkBudg1000 (Phase 1 C3), so the headline always travels with its held twin |
 | 2 | ordering tests: Bfix uniform, permuted 1–3, reversed; C uniform, permuted 1 | EU21 (H12 for Bfix uniform + 1 permuted) | 7 + 2 | D-M1 / GP-24 |
-| 2 | assignment rules: Bfix and C × all-median, all-low; USA donor / low (Bfix) | EU21 | 6 | D-M2 (ii), GP-3 / 10 |
+| 2 | assignment rules: Bfix and C × all-median, all-low, nearest donors always (no "none" class); USA donor / low (Bfix) | EU21 | 8 | D-M2 (ii), GP-3 / 10; the nearest-donors arm is decision 3 of 2026-10-06 (§7a): it moves LAM and SSA in the ranking, not $k$ |
 | 2 | markup off (`-Min`) for B and C; ratio mode for C | EU21, H12 | 6 | v5 continuity |
 | 2 | spec band and rungs: Bfix on `v6-specalt`, the other actor-power form, annual | EU21 | 3 | D7, D3 |
 | 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ (Bfix and C) | EU21 | 6 | D2, D6, D16, D13 |
@@ -1020,7 +1047,7 @@ submit prints the expected rows, groups and commits.
 | 3 | SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC` | EU21 | 12 | the SSP axis (if Phase 1 keeps it) |
 | 3 | declared spread arm per SSP | EU21 | 2 | D11 |
 
-About 70 runs in total, close to the `v5` batch (62 + 16 variants). Wave 3 depends on the Phase 1
+About 76 runs in total, close to the `v5` batch (62 + 16 variants). Wave 3 depends on the Phase 1
 gate.
 
 **SSP3 at 1000 Gt may be infeasible in REMIND regardless of politics** (architecture note, H6).
@@ -1108,3 +1135,34 @@ converge is handled in one of two ways:
    run on `v6` (wave 2).
 5. **The v6 paper replaces the `v5` paper.** `papers/pfm-paper-v5` is frozen at v18, not submitted, and kept
    reproducible as the `v5` record.
+
+## 7a. Author decisions (2026-10-06), after the Phase 1 results
+
+1. **D10 stays: the storyline institution rule in the headline (option A).** Each headline cell
+   gets an "institutions held" twin in wave 1 (rule B and rule C at θ = 0.5, EU21 and H12; four
+   runs, Phase 5 table). Reason: with institutions held, Bulk $k_{2100}$ on PkBudg1000 is 0.28
+   instead of 0.48 (Run-Group `v6`, lag in years, institution-harmonised panel). That is too large
+   to leave to the SI alone.
+2. **The institution-rule series are harmonised to history like every other series (option B).**
+   They start from the panel's anchor value and fade to the rule's path by 2040. $q$ stays anchored
+   on history. Implemented in `panelDataScenario` (`DATA.md` §5.4–§5.5, `PITFALLS.md` §30). On a
+   lag-consistent seam test, the band-rule seam goes from Bulk 95th percentile 1.93 / maximum 6.2 to
+   0.93 / 1.65 index points (`lag-seam.rds`, `v6`). Every scenario-side `v6` artifact built
+   before it (the sanity walk's scenario gates, the projection, the coupling bound, the Phase 1
+   outputs) is rebuilt.
+3. **Donor rule: the deployed rule stays** (9 base drivers weighted by $|eta|$; close ≤ q50,
+   far ≤ q90 of the covered nearest-neighbour distances). The alternatives were quantified
+   (`analysis/v6/donorAlternatives.R`, `output/pfm/v6/phase1/donor-alternatives.rds`). Fewer
+   drivers add few donors and match worse in the full space. Looser bounds add donors only by
+   matching countries further apart than 90% of covered pairs. No rule moves $k$ by more than 0.01.
+   What they move is the ranking: LAM's and SSA's $u$ rise when more of their weight gets donors.
+   That sensitivity is a wave 2 arm, "nearest donors always" (`qualityQuantiles = c(0.5, Inf)`),
+   for rule B and rule C.
+4. **The Bulk γ of 0.997 is accepted at the Phase 2 gate,** with disclosure in Methods and the SI.
+5. **The driver lag counts years (fixed, author's go-ahead the same day).** It used to count panel
+   rows, so on REMIND's time steps it was 5 to 20 years instead of the estimated 1 (`PITFALLS.md`
+   §31). The fit is unchanged. On the scenario side, Bulk $k_{2050}$ on PkBudg1000 is 0.63 instead
+   of 0.87, and on NPi 1.09 instead of 1.37. Every scenario-side `v6` artifact is re-run on the
+   cluster, together with decision 2: sweep (sanity walk scenario gates), sanity pool, bootstrap,
+   downstream and the REMIND export.
+

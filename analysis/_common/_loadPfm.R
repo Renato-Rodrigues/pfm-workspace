@@ -21,7 +21,11 @@
 # does readRDS("output/...") and source("models/pfm/R/...")). Run these scripts from there.
 
 local({
-  src <- "pfm"
+  # models/pfm since the 2026-10-01 regrouping (README "Layout"); ./pfm is the older layout. Until
+  # 2026-10-06 only ./pfm was tried, so every script silently fell back to the INSTALLED build.
+  cand <- c("models/pfm", "pfm")
+  src <- cand[dir.exists(cand) & file.exists(file.path(cand, "DESCRIPTION"))][1]
+  if (is.na(src)) src <- cand[1]
   hasTree <- dir.exists(src) && file.exists(file.path(src, "DESCRIPTION"))
 
   if (!hasTree) {
