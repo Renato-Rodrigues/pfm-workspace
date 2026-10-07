@@ -614,7 +614,7 @@ Latent defects (P0 unless noted):
   entries are added when their `v6` gdxs exist.
   Was: `config.yml` is stale (comments reference `psm-country-v4`; only the SSP2 pair; legacy
   hurdle keys).
-- [ ] **E16** — The scenario-config generator is out of sync with the hand-maintained CSV
+- [x] **E16** — ✅ **Done 2026-10-07** (F1, ADR 0055). Was: The scenario-config generator is out of sync with the hand-maintained CSV
       (`buildPFMScenarioConfig.R`, 🔴 note) → D22 (P4). *Waits for the Phase 3 switches the v6
       matrix is made of (formulation, hold year, κ).*
 - [x] **E17** — ✅ **Done 2026-10-02.** Profiled on a replay of `v5`'s EU21 `-PFMlevelBfix`
@@ -709,7 +709,12 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 ### F. Refactors to make model and scenario runs easier to create and submit
 
-- [ ] **F1 — Scenario matrix → generated config (D22).** *Waits for the Phase 3 switches (E16).* One YAML lists:
+- [x] **F1 — Scenario matrix → generated config (D22).** ✅ **Done 2026-10-07**:
+  `pfm::buildPFMScenarioConfig()` + `analysis/run-groups/scenario-matrix-v6.yml` →
+  `config/scenario_config_PFM_v6.csv`, 54 coupled runs (wave 1: 20, wave 2: 34), tags `V6W<wave><res>`;
+  the bases, `-PFMgateRef` and the gate rows come out identical to the hand-written ones. The v6
+  option columns are declared in the fork's `default.cfg` (REMIND's reader stops on unknown columns).
+  κ is a placeholder (0.02 a year) until declared. One YAML lists:
   - the canonical parents per SSP and resolution;
   - the arms (closure, θ, markup, ordering test, hold year, spread, κ);
   - the Run-Group per arm;
@@ -783,7 +788,8 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 ### G. Documentation and governance
 
 - [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). **Drafted 2026-10-07**, all seven, status
-  *Proposed*; 0052 and 0053 are ready to accept now, the others at the Phase 3 gate. *Renumbered 2026-10-06: 0047 went
+  *Proposed*. **0051, 0052 and 0053 accepted 2026-10-07** (author); 0049, 0050 and 0054 at the Phase 3
+  gate; 0055 when the generator is in use. *Renumbered 2026-10-06: 0047 went
   to the prepared madrat cache (E24) and 0048 to the soft selection keys, so the planned records
   start at 0049.*
   - 0049 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
@@ -1106,6 +1112,9 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
     0.629 / 0.481) in 25 s.
 - **Found on the way:** the coupling's nested IEA reads used the `v5` panel definition
   (`PITFALLS.md` §32), fixed before any v6 run.
+
+**After the gate**, the offline analyses move to the 3.7.1 bases with `analysis/v6/refreshBases.R`
+(`PITFALLS.md` §34).
 
 **Gate:**
 - 0. the uncoupled bases `SSP2-EU21-NPi2025`, `SSP2-EU21-PkBudg1000` and `-PFMgateRef` re-run on REMIND

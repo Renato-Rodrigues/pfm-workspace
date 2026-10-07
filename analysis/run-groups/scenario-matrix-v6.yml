@@ -1,0 +1,247 @@
+# The v6 coupled batch as a matrix (ADR 0055; design note 0005 F1 / E16, Phase 5 waves 1-2).
+#
+# Build:  Rscript analysis/run-groups/buildPFMScenarioConfig.R
+# It writes models/remind_pfm/config/scenario_config_PFM_v6.csv - a BUILD ARTIFACT: edit this file,
+# rebuild, commit both. config/scenario_config_PFM.csv stays the hand-maintained v5 record (plus the
+# 3.7.1 bases and the Phase 3 gate rows it was submitted with).
+#
+# Every row is its canonical REMIND parent (config/scenario_config.csv, "<ssp>-<from>") plus the
+# deltas named here, nothing else. "@key" = the title of run/parent `key` of the same SSP and
+# resolution. A theta list expands; the thetaDefault row carries no Th suffix and is what "@key"
+# points at. The generator never writes cm_iteration_max (author's rule, 2026-10-01).
+#
+# Start tags: V6W<wave><res> per wave and resolution (e.g. V6W1H12); <res>BASE for the parents.
+# The EU21 rows already run in the Phase 3 gate keep the gate's tag, so V6W1EU21 does not re-run them.
+# SSP axis (wave 3) is deferred (0005 section 7a decision 7): add SSP1/SSP3 to `ssps` when it comes.
+
+format: pfm-scenario-matrix/1
+output: config/scenario_config_PFM_v6.csv
+canonical: config/scenario_config.csv
+version: v6
+ssps: [SSP2]
+thetaDefault: "0.50"
+
+resolutions:
+  EU21:
+    infix: EU21
+    set:
+      regionmapping: ./config/regionmapping_21_EU11.csv
+      extramappings_historic: ./config/extramapping_EU27.csv
+    baseStart: [EU21BASE]            # the 3.7.1 EU21 bases ran with EU21V371 (2026-10-07)
+  H12:
+    infix: ""
+    set: {}
+    baseStart: [H12BASE, V6W1H12]    # not yet run on 3.7.1: wave 1 at H12 starts them first
+
+parents:
+  NPi2025:
+    from: NPi2025
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+  PkBudg1000:
+    from: PkBudg1000
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+      path_gdx_ref: "@NPi2025"
+      path_gdx_refpolicycost: "@NPi2025"
+
+coupled:                              # on every coupled row
+  cm_taxCO2_regiDiff: "11"
+  cm_pfmConvTol: "0.002"
+  cm_pfmSectorMarkup: "1"
+  cm_pfmGapClosure: "0"               # lambda is out of the coupling (ADR 0050)
+  cm_pfmPhiPath: "1"                  # the v6 share path (ADR 0054)
+  pfmGroup: v6
+
+rules:
+  gate:                               # theta = 0 null, budget forced, ratio mode
+    stem: PFMgate
+    set: {cm_pfmBindMode: "1", cm_pfmTheta: "0"}
+  gateBfix:                           # held-price null: anchor pinned from -PFMgate
+    stem: PFMgateBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "1", cm_pfmTheta: "0", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  Bfix:                               # rule B, held price, level mode
+    stem: PFMlevelBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "2", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  C:                                  # rule C, held budget, level mode with the GAMS rebuild
+    stem: PFMlevelC
+    set: {cm_pfmBindMode: "2", cm_pfmBoundRebuild: "1"}
+  ratio:                              # rule C in ratio mode (v5 continuity)
+    stem: PFMratio
+    set: {cm_pfmBindMode: "1"}
+
+runs:
+  # ---------------------------------------------------------------- wave 1
+  - key: gateRef
+    section: wave1_nulls
+    parent: PkBudg1000
+    stem: PFMgateRef
+    coupled: false
+    set: {cm_taxCO2_regiDiff: "0"}
+    description: >-
+      Uniform global price, uncoupled: the same-version comparator of the theta = 0 null
+      (SCENARIOS.md 3.1, PITFALLS.md 34).
+  - key: gate
+    wave: 1
+    section: wave1_nulls
+    parent: PkBudg1000
+    rule: gate
+    start: {EU21: [EU21V6GATE]}
+    warm: null
+    description: >-
+      The theta = 0 null (D18): must reproduce -PFMgateRef within SCENARIOS.md 3.1. Anchor and
+      price donor of every rule-B row.
+  - key: gateBfix
+    wave: 1
+    section: wave1_nulls
+    parent: PkBudg1000
+    rule: gateBfix
+    warm: "@gate"
+    start: {EU21: [EU21V6GATE]}
+    description: The held-price theta = 0 null, the comparator of every rule-B row.
+  - key: Bfix
+    wave: 1
+    section: wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: "0.50"
+    warm: "@gateBfix"
+    start: {EU21: [EU21V6GATE]}         # ran in the Phase 3 gate
+    description: Rule B (held price) with the v6 share path - the headline horn.
+  - key: Bfix
+    wave: 1
+    section: wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: ["0.325", "0.675"]
+    warm: "@Bfix"
+    description: Rule B at the other two declared severities.
+  - key: C
+    wave: 1
+    section: wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: "0.50"
+    start: {EU21: [EU21V6GATE]}         # ran in the Phase 3 gate
+    description: Rule C (held budget) with the GAMS rebuild from the share path - the other horn.
+  - key: C
+    wave: 1
+    section: wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: ["0.325", "0.675"]
+    warm: "@C"
+    description: Rule C at the other two declared severities.
+  - key: Bheld
+    wave: 1
+    section: wave1_institutionsHeld
+    parent: PkBudg1000
+    rule: Bfix
+    theta: "0.50"
+    variant: held
+    institutions: hold
+    warm: "@Bfix"
+    description: >-
+      Institutions-held twin of the rule-B headline (0005 section 7a decision 1A): institutions
+      carry about half of Bulk k's 2100 fall.
+  - key: Cheld
+    wave: 1
+    section: wave1_institutionsHeld
+    parent: PkBudg1000
+    rule: C
+    theta: "0.50"
+    variant: held
+    institutions: hold
+    warm: "@C"
+    description: Institutions-held twin of the rule-C headline (decision 1A).
+
+  # ---------------------------------------------------------------- wave 2
+  - {key: Buniform, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: uniform, options: {pfmPhiOrdering: uniform}, warm: "@gateBfix",
+     description: "Ordering test on u (D15): uniform shares - the size of the effect without its location."}
+  - {key: Bperm1, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: permuted1, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "1"}, warm: "@gateBfix",
+     description: "Ordering test on u (D15): regions' u permuted, seed 1."}
+  - {key: Bperm2, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: permuted2, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "2"}, warm: "@gateBfix",
+     description: "Ordering test on u (D15): permuted, seed 2."}
+  - {key: Bperm3, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: permuted3, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "3"}, warm: "@gateBfix",
+     description: "Ordering test on u (D15): permuted, seed 3."}
+  - {key: Brev, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: reversed, options: {pfmPhiOrdering: reversed}, warm: "@gateBfix",
+     description: "Ordering test on u (D15): ranking reversed."}
+  - {key: Cuniform, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: uniform, options: {pfmPhiOrdering: uniform},
+     description: "Ordering test on u (D15), rule C: uniform shares."}
+  - {key: Cperm1, wave: 2, section: wave2_ordering, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: permuted1, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "1"},
+     description: "Ordering test on u (D15), rule C: permuted, seed 1."}
+
+  - {key: Ballmedian, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: allmedian, group: v6-allmedian, warm: "@gateBfix",
+     description: "Assignment rule (D-M2 ii): every country at the median quality class."}
+  - {key: Balllow, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: alllow, group: v6-alllow, warm: "@gateBfix",
+     description: "Assignment rule: every country at the low quality class."}
+  - {key: Bnearest, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: nearest, group: v6-nearest, warm: "@gateBfix",
+     description: "Assignment rule: nearest donors always (0005 section 7a decision 3) - moves LAM and SSA in the ranking, not k."}
+  - {key: Busadonor, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: usadonor, group: v6-usadonor, warm: "@gateBfix",
+     description: "Assignment rule: the USA as a donor (GP-3 / 10)."}
+  - {key: Busalow, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: usalow, group: v6-usalow, warm: "@gateBfix",
+     description: "Assignment rule: the USA in the low class (GP-3 / 10)."}
+  - {key: Callmedian, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: allmedian, group: v6-allmedian, description: "Assignment rule, rule C: all at the median class."}
+  - {key: Calllow, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: alllow, group: v6-alllow, description: "Assignment rule, rule C: all at the low class."}
+  - {key: Cnearest, wave: 2, section: wave2_assignment, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: nearest, group: v6-nearest, description: "Assignment rule, rule C: nearest donors always."}
+
+  - {key: BMin, wave: 2, section: wave2_markupAndRatio, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     markup: 0, warm: "@Bfix", description: "Sector markup off (the old min()), rule B - v5 continuity."}
+  - {key: CMin, wave: 2, section: wave2_markupAndRatio, parent: PkBudg1000, rule: C, theta: "0.50",
+     markup: 0, warm: "@C", description: "Sector markup off, rule C - v5 continuity."}
+  - {key: ratio, wave: 2, section: wave2_markupAndRatio, parent: PkBudg1000, rule: ratio, theta: "0.50",
+     description: "Rule C in ratio mode (mode R) with the share path - v5 continuity."}
+
+  - {key: Bsat05, wave: 2, section: wave2_familyA_shape, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: sat05, group: v6-sat05, warm: "@gateBfix",
+     description: "Family A shape twin (decision 6): half-saturation at 0.5x the median."}
+  - {key: Bsat2, wave: 2, section: wave2_familyA_shape, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: sat2, group: v6-sat2, warm: "@gateBfix",
+     description: "Family A shape twin (decision 6): half-saturation at 2x the median."}
+
+  - {key: Bspecalt, wave: 2, section: wave2_familyB, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: specalt, group: v6-specalt, warm: "@gateBfix",
+     description: "Family B (SI): X-2079 satInn, the bootstrap's most frequent family-B winner."}
+  - {key: Cspecalt, wave: 2, section: wave2_familyB, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: specalt, group: v6-specalt, description: "Family B (SI), rule C."}
+  - {key: Bannual, wave: 2, section: wave2_familyB, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: annual, group: v6-annual, warm: "@gateBfix",
+     description: "The annual-data rung (D3, A6): the sibling Run-Group v6-annual."}
+
+  - {key: BEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix",
+     description: "E hold (D2, C5): the static-share bound, k close to 1."}
+  - {key: Bhold2060, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: hold2060, options: {pfmPhiHoldYear: "2060"}, warm: "@Bfix",
+     description: "Hold year 2060 (D6): drivers held after 2060."}
+  - {key: Chold2060, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: hold2060, options: {pfmPhiHoldYear: "2060"}, warm: "@C",
+     description: "Hold year 2060 (D6), rule C."}
+  - {key: Bregk, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: regk, options: {pfmPhiStrength: regional}, warm: "@Bfix",
+     description: "Regional strength k_r (D16, C4), SI."}
+  # kappa: NOT YET DECLARED. 0.02 a year (the strength halves in about 35 years) is a placeholder;
+  # declare the value (ADR 0050) before wave 2 is submitted.
+  - {key: Bkappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa, options: {pfmPhiKappa: "0.02"}, warm: "@Bfix",
+     description: "Declared closure on the strength, kappa = 0.02 a year (D13, C2) - replaces GAPCLOSE."}
+  - {key: Ckappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa, options: {pfmPhiKappa: "0.02"}, warm: "@C",
+     description: "Declared closure on the strength, kappa = 0.02 a year, rule C."}

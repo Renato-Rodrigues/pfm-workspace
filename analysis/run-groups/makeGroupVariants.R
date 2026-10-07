@@ -7,6 +7,10 @@
 #   Rscript analysis/run-groups/makeGroupVariants.R  # all six
 #   Rscript analysis/run-groups/makeGroupVariants.R v5-usadonor v5-usalow   # only some
 #   PFM_VARIANT_BASE=v6 Rscript analysis/run-groups/makeGroupVariants.R v6-nearest   # twins of another base
+# On a v6 base (one with phi-anchor.rds) only the assignment twins are built: each twin's anchor is
+# REBUILT from its own assignment (pfm-anchor) and checked to differ from the base's - a copied anchor
+# would make the twin couple exactly like the base. The phi-override groups do not exist for v6 (the
+# ordering tests are the pfmPhiOrdering columns, D15); spec variants come from makeSpecVariantGroup.R.
 #
 # What it does, per group:
 #   * twins of v5 (usadonor, usalow, allmedian, alllow, nearest): copies output/pfm/v5 -> output/pfm/<group> if absent,
@@ -66,7 +70,11 @@ overrides <- list(
   "chinaseed-EU21" = if (base == "v5") yamlSet(chinaSeed$EU21),
   "chinaseed-H12"  = if (base == "v5") yamlSet(chinaSeed$H12))
 overrides <- Filter(Negate(is.null), overrides)
-names(overrides) <- paste0(base, "-", names(overrides))
+# A v6 base couples through phi-anchor.rds, and the v6 coupling REFUSES phi-override.yml: its ordering
+# tests are the scenario columns pfmPhiOrdering / pfmPhiOrderingSeed (design note 0005 D15), not groups.
+# The spec variants (v6-specalt, v6-sat05, v6-sat2) come from makeSpecVariantGroup.R, not from here.
+if (file.exists(file.path("output/pfm", base, "phi-anchor.rds"))) { overrides <- list(); exportOnly <- character(0) }
+if (length(overrides)) names(overrides) <- paste0(base, "-", names(overrides))
 
 todo <- if (length(args)) args else c(exportOnly, names(twins), names(ruleTwins), names(overrides))
 bad <- setdiff(todo, c(exportOnly, names(twins), names(ruleTwins), names(overrides)))
@@ -112,6 +120,12 @@ for (g in todo) {
                       file.path("output/pfm", g), recursive = TRUE)
       if (!all(ok)) stop("copy to output/", g, " incomplete")
     }
+    # A v6 base carries phi-anchor.rds, which holds the ranking u built from the BASE's donor
+    # assignment. Copied as it is, the twin would export the base's anchor and couple exactly like the
+    # base, silently. Remove it here; it is rebuilt from the twin's own assignment below.
+    anchorBase <- file.path("output/pfm", base, "phi-anchor.rds")
+    v6base <- file.exists(anchorBase)
+    if (v6base) unlink(file.path("output/pfm", g, "phi-anchor.rds"))
     f <- file.path("output/pfm", g, c("donor-assignment-band-Bulk.rds", "donor-assignment-band-Diffuse.rds"))
     t0 <- max(file.mtime(f))
     if (g %in% names(twins)) runPFMDonorAssumptions(g, basisOverride = twins[[g]]) else
@@ -134,6 +148,17 @@ for (g in todo) {
       print(chk, row.names = FALSE)
       if (any(chk$none > 0) || any(chk$notDonor != "USA")) stop("the nearest-donors rule did not take effect in ", g)
     }
+  }
+  if (g %in% c(names(twins), names(ruleTwins)) && v6base) {
+    pfmRun(group = g, steps = "pfm-anchor")
+    af <- file.path("output/pfm", g, "phi-anchor.rds")
+    if (!file.exists(af)) stop("pfm-anchor did not write ", af, " - nothing exported")
+    a1 <- readRDS(af); a0 <- readRDS(anchorBase)
+    if (identical(a1$country, a0$country)) {
+      stop(g, ": the rebuilt anchor equals ", base, "'s - the twin's assignment did not reach it. Nothing exported.")
+    }
+    cat("anchor rebuilt from ", g, "'s own assignment (differs from ", base, "'s)
+", sep = "")
   }
   pfmRun(group = g, stage = "remind", remindDir = remindDir)
   marker <- pfm:::.pfmSelectedModels(file.path(remindDir, g))

@@ -76,15 +76,20 @@ outside it. IDs such as E13 or D17 refer to that note.
      rule-B run (`-PFMlevelBfix`) and one rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check
      the φ path and $k$ in the log and `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6
      on rule C. `analysis/v6/phase3Gate.R` checks all of it, versions included;
-   - **then re-point the v6 scenario registry** (`config.yml` `scenarios:`, still the `v5` 3.7.0.dev
-     bases) at the 3.7.1 bases, and re-run what read them offline: the Phase 1 panels and Bulk $k$
-     (0.629 / 0.481 on the v5 `PkBudg1000`), `offlineHeadline.R`, `sspGovernanceSwap.R`,
-     `ceilingGate.R` (§34). The coupled runs themselves read their own gdx and are unaffected.
+   - **submitted 2026-10-07** (batch `2026-10-07_12.30.39_EU21V371`, priority);
+   - **then move the offline analyses to the 3.7.1 bases**: sync the two bases
+     (`syncFromCluster.sh … v6 --runs 'SSP2-EU21-NPi2025_*'`, then `'SSP2-EU21-PkBudg1000_*'`) and
+     `Rscript analysis/v6/refreshBases.R --apply` (dry run without `--apply`). It snapshots `phase1/`,
+     re-points the registry, re-runs the Phase 1 panels, `couplingOffline.R`, `offlineHeadline.R`,
+     `sspGovernanceSwap.R`, `ceilingGate.R`, and prints old vs new (Bulk $k$ was 0.629 / 0.481 on the v5
+     `PkBudg1000`). The coupled runs read their own gdx and are unaffected (§34).
 4. **Phase 4, alongside:**
-   - **F1 / E16**, the generated scenario config (ADR 0055);
+   - ✅ **F1 / E16 done 2026-10-07**: `analysis/run-groups/scenario-matrix-v6.yml` →
+     `scenario_config_PFM_v6.csv` (54 runs; `RUNNING.md` step 7c). **Declare κ** before wave 2 (the matrix
+     carries 0.02 a year as a placeholder);
    - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;
    - **F5**, the reproduction scripts promoted into `pfm`.
-5. **Accept ADR 0052 and ADR 0053** (author): both record decisions already taken.
+5. ✅ **ADRs 0051, 0052 and 0053 accepted 2026-10-07.** 0049, 0050, 0054 follow at the Phase 3 gate.
 6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 has the numbers;
    the changed sections can be drafted as text to paste.
 

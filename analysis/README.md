@@ -56,8 +56,9 @@ and `steps = "pfm-coupling-bound"`.
 |---|---|
 | `makeGroupVariants.R` | twin Run-Groups with one assumption changed (assignment rule, USA branch, φ override), exported to `output/remind-inputs/` |
 | `makeSpecVariantGroup.R`, `pinSpecInGroup.R` | a Run-Group with one sector's specification pinned |
-| `buildPFMScenarioConfig.R` | scaffold for `models/remind_pfm/config/scenario_config_PFM.csv` (the deployed file is hand-maintained until `docs/design-notes/0005` F1) |
-| `validatePFMScenarioConfig.R` | checks the scenario config before a submission |
+| `scenario-matrix-v6.yml` | **the v6 coupled batch** (waves 1-2, 54 runs) as a matrix: parents, rules, arms, start tags (ADR 0055). Edit this, never the CSV |
+| `buildPFMScenarioConfig.R` | builds `models/remind_pfm/config/scenario_config_PFM_v6.csv` from the matrix (`pfm::buildPFMScenarioConfig`), then runs the validator and REMIND's reader. `scenario_config_PFM.csv` stays the hand-maintained `v5` record |
+| `validatePFMScenarioConfig.R` | checks the scenario config before a submission (since 2026-10-07 also the v6 option columns and `cm_pfmPhiPath` against the group) |
 
 ## `checks/` — each backs a claim or a governed-doc statement
 
@@ -92,7 +93,10 @@ those paths.
 `v6FormulationTests.R` runs the offline tests behind `docs/design-notes/0004` on `v5` artifacts.
 
 The Phase 1 scripts of design note 0005 run on a Run-Group's artifacts and write to
-`output/pfm/<group>/phase1/` (run `phase1.R` first: it builds the scenario panels the others read):
+`output/pfm/<group>/phase1/` (run `phase1.R` first: it builds the scenario panels the others read).
+Their REMIND energy systems are the `config.yml` registry's SSP2 pair, read through `bases.R`; each
+cached panel carries the gdx it was built from, and the scripts refuse a panel from another gdx.
+Move them to new REMIND bases only with `refreshBases.R` (`PITFALLS.md` §34):
 
 | script | what it answers |
 |---|---|
@@ -105,4 +109,6 @@ The Phase 1 scripts of design note 0005 run on a Run-Group's artifacts and write
 | `ceilingGate.R` | C9: the ceiling-fall gate on the v6 spec, and what it removes from the band (`specBand.R v6 ceilingRejected`) |
 | `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |
 | `couplingOffline.R` | Phase 3: the v6 coupling call offline on a REMIND gdx, against the Phase 1 numbers |
-| `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V6GATE` runs (null vs v5, rule B path and history, rule C rebuild) |
+| `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V371` runs (the 3.7.1 bases, the null vs the same-version `-PFMgateRef`, rule B path and history, rule C rebuild) |
+| `bases.R` | the registry's NPi / PkBudg1000 gdx (`v6Bases`), the REMIND version of a gdx, the stamped-panel reader (`v6ScenPanel`) |
+| `refreshBases.R` | moves every offline analysis to new REMIND bases in one call: snapshot `phase1/` as `phase1-remind-<version>/`, re-point the registry, re-run, print old vs new (dry run unless `--apply`) |

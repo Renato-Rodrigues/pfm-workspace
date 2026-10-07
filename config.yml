@@ -135,7 +135,11 @@ sweep:
 #                     convergence (default) | storyline | hold. pfm::pfmInstitutionProjection;
 #                     docs/DATA.md §5.
 #
-# Both runs below are the Run-Group v5 uncoupled baselines, EU21 (regionmapping_21_EU11.csv),
+# The SSP2 pair below (the gating entry = PkBudg1000, the other = NPi) is also what every offline
+# v6 analysis reads (analysis/v6/bases.R). Move it to new REMIND bases ONLY with
+# analysis/v6/refreshBases.R, which snapshots the old results and re-runs those analyses
+# (PITFALLS.md 34). Until then, both runs below are the Run-Group v5 uncoupled baselines
+# (REMIND 3.7.0.dev29), EU21 (regionmapping_21_EU11.csv),
 # stored under output/remind-runs/<Run-Group>/<resolution>/. NOTE the carbon budget
 # also changed when the runs moved to EU21 — 1000 Gt, not the 750 Gt of the earlier
 # H12 pair — so price levels are NOT comparable with anything quoted from H12 results.
@@ -183,7 +187,9 @@ resultsDir: "output/pfm"
 recordsDir: "records"
 
 # Default Run-Group. Override per call with pfmRun(group = "...").
-group: "v5"
+# v6 since 2026-10-07: a bare tools/setup.sh --install or pfmRun() must never touch the frozen v5
+# cache or its tracked record (records/v5/), which today's code would rewrite (PITFALLS.md §35).
+group: "v6"
 
 # Removed 2026-10-02 (design note 0005 E15), read by no code: outputDir and dashboardModelsDir
 # (the archived pfm-reports), couplingRegionMapping (the coupling delivers at the REMIND run's

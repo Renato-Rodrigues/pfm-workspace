@@ -1,6 +1,6 @@
 # ADR 0052 — Saturating actor power: family A in the main text, family B in the SI; the curve's shape; no hold year
 
-- **Status:** Proposed (draft, 2026-10-07); ready to accept — the decisions are the author's (0005 D6,
+- **Status:** **Accepted 2026-10-07** (author) — the decisions are the author's (0005 D6,
   2026-10-01; D7, 2026-10-02; §7a decisions 6 and 8, 2026-10-07) and the Phase 2 gate is passed.
 - **Extends:** [ADR 0040](0040-saturating-actor-power-and-support-gate.md) (the `satAP` transform and the support gate),
   [ADR 0045](0045-extrapolation-gate-at-0275-and-declared-theta-sweep.md) (the 0.275 tolerance).

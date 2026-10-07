@@ -11,6 +11,7 @@ suppressMessages({ library(madrat); library(magclass) })
 g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6" })
 GD <- file.path("output/pfm", g); P1 <- file.path(GD, "phase1")
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -20,7 +21,7 @@ dep <- pool$ceiling[[match(pool$deployed, pool$pool)]]
 
 rows <- list()
 for (run in c("NPi", "PkBudg1000")) {
-  cp <- computeStrengthPath(anc, readRDS(file.path(P1, paste0("scen-", run, ".rds"))), returnCountries = TRUE)$countries
+  cp <- computeStrengthPath(anc, v6ScenPanel(P1, run, BASES[[run]]), returnCountries = TRUE)$countries
   for (sec in c("Bulk", "Diffuse")) {
     d <- cp[cp$sector == sec, ]
     base <- stats::setNames(d$ceilingIndex[d$year == 2025], d$region[d$year == 2025])

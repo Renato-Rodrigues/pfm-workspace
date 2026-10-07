@@ -178,6 +178,7 @@ Ranked by how long they went unnoticed:
 | a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
 | a nested call reading the panel definition from a global option | nothing — the coupling uses another IEA edition than the estimation | `iterativePFM()` sets `pfm.panel` for the call (§32) |
 | a share path with missing periods, or `cm_pfmPhiPath` not matching the group | a constant or zero φ under a v6 label | the path covers every `ttot`; R and `pfmPreflight` check the switch (§33) |
+| a cache prepared for a frozen Run-Group with today's code | a modified `records/<group>/madrat-cache-manifest.tsv`; preflight fails `repos` | restore the record; prepare only the current group (§35) |
 | a comparison across REMIND versions, or a registry gdx from an older REMIND | a null that "fails" by model drift; offline numbers on another model than the runs | `c_model_version` in each gdx; one version per comparison and per Run-Group's registry (§34) |
 
 When something looks fine, these are what to check first.
@@ -947,6 +948,14 @@ these would run, converge and report a v6 result while GAMS used something else:
   scenario panel and weights would describe another world. The runtime file carries `ssp` and the R
   side stops.
 
+- **A variant Run-Group carrying its base's anchor.** An assignment twin is a copy of `output/pfm/v6`
+  with only the donor step re-run; the copy also holds v6's `phi-anchor.rds`, whose ranking $u$ was
+  built from v6's assignment. Exported as it is, the twin couples exactly like v6. Since 2026-10-07
+  `makeGroupVariants.R` deletes the copied anchor, rebuilds it (`pfm-anchor`) and stops if it equals
+  the base's; `makeSpecVariantGroup.R` copies no anchor and prints a step list with `pfm-anchor` (the
+  export refuses a manifest that records the step without the file). A shape twin keeps the spec's
+  name, so the spec check in the coupling would not have caught a stale anchor.
+
 And one for reading results: a `v6` φ and a `v5` φ at the same θ are not the same severity (θ means
 "severity at 2025" under v6, D12), so never compare them across the θ dial (`TODO.md` 7a's trap).
 
@@ -963,6 +972,10 @@ upstream commits; `v5-final` keeps the old state). Three consequences, all silen
   $k$, `analysis/v6/offlineHeadline.R`, `sspGovernanceSwap.R`, `ceilingGate.R`) describes 3.7.0.dev
   until it is re-pointed at the 3.7.1 bases. A coupled run reads its own gdx and `input_ref.gdx`, so
   it is consistent by construction; the offline numbers quoted beside it are not.
+  **Re-point only with `analysis/v6/refreshBases.R`**: it snapshots `phase1/`, edits the two registry
+  lines, re-runs the analyses and prints old vs new. The scripts read the registry (`bases.R`), and a
+  cached scenario panel built from another gdx is refused - before 2026-10-07 the scripts named the
+  v5 run folders themselves and `scen-<role>.rds` was reused whatever it had been built from.
 - **The renv moves.** 3.7.1 replaced `gdx` by `gdx2` in REMIND's own DESCRIPTION and raised
   `piamenv`. `pfm` still imports `gdx`, which `setup.sh --install` keeps in the run renv; run
   `make ensure-reqs` in each checkout before `setup.sh --install`.
@@ -970,3 +983,20 @@ upstream commits; `v5-final` keeps the old state). Three consequences, all silen
 A merge of upstream REMIND conflicts only in `not_used.txt` when the fork's GAMS changes stay inside
 `45_carbonprice/functionalForm`: resolve as the union, then `gms::codeCheck(strict = TRUE)`, which
 also lists every PFM switch a realization does not address.
+
+## 35. Preparing a frozen group's cache with today's code rewrites its record
+
+`setup.sh --install` and a bare `pfmRun()` prepare the madrat cache of the **default** Run-Group
+(`config.yml` `group:`). On 2026-10-07 the default was still `v5`, so the cluster install prepared
+`data/madrat/v5` with pfm 0.8.0 and rewrote the tracked `records/v5/madrat-cache-manifest.tsv`: a new
+key, new madrat fingerprints (`calcEmber-Fc06f7a5c…` → `-F345228d4…`, because mrpfm's code changed
+since v5), and new md5s for the two files without a fingerprint in their name (`calcCarbonPrice.rds`,
+`calcFAOLandArea.rds`), which were rebuilt in place. `pfmPreflight(checks = "repos")` then failed on
+the project checkout.
+- **The record of a frozen group describes its tagged code.** `v5` is reproduced from `v5-final`
+  (`setup.sh --ref v5-final`), never from the current packages. Restore the record
+  (`git checkout -- records/v5/madrat-cache-manifest.tsv`); do not commit the rewrite.
+- **The default group is `v6` since 2026-10-07**, and `setup.sh --group <g>` names it explicitly.
+- **Files without a fingerprint are overwritten in place.** After such a rewrite, `data/madrat/v5` on
+  that machine may no longer match the recorded md5s; `pfmPrepareCache(group = "v5", verify = "md5")`
+  under `v5-final` says which.

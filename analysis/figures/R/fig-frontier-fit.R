@@ -4,8 +4,10 @@
 # serve that one point: the ceiling is a boundary the points sit UNDER, and the vertical
 # distance to it is the quantity the rest of the model is built on.
 
-figFrontierFit <- function(group = "v5", year = 2022) {
+figFrontierFit <- function(group = "v5", year = NULL) {
   fr <- pfmArtifact(group, "frontier.rds")
+  # the Run-Group's anchor year, its last panel year (v5: 2022, v6: 2023)
+  year <- year %||% max(fr$bySector$Bulk$scores$year)
 
   d <- do.call(rbind, lapply(c("Bulk", "Diffuse"), function(sec) {
     s <- as.data.frame(fr$bySector[[sec]]$scores)

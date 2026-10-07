@@ -221,8 +221,12 @@ Each coupled row names its Run-Group in the scenario config's column `pfmGroup`.
 ```r
 library(pfm)
 submitPFM("EU21", remindDir = "models/remind_pfm-EU21")                # dry run: checks + plan
-submitPFM("EU21", remindDir = "models/remind_pfm-EU21", dry = FALSE)   # submits
+submitPFM("EU21", remindDir = "models/remind_pfm-EU21", dry = FALSE, slurmConfig = "priority")   # submits
 ```
+
+`slurmConfig` (`"priority"`, `"standby"`, a REMIND choice `"1"`-`"16"` or an sbatch string) is required
+when a row of the group sets none: `start.R` would otherwise ask on a terminal `submitPFM()`
+captures, and wait unseen (2026-10-07). Rows that set their own keep it.
 
 `submitPFM()` (design note 0005 F3) does in one call what this step did by hand, and refuses on
 any failure:
@@ -284,7 +288,7 @@ c("pfm-anchor", "pfm-remind-inputs"))`).
 ```r
 library(pfm)
 submitPFM("EU21V371", remindDir = "models/remind_pfm-EU21")               # dry run: checks + plan
-submitPFM("EU21V371", remindDir = "models/remind_pfm-EU21", dry = FALSE)  # submits
+submitPFM("EU21V371", remindDir = "models/remind_pfm-EU21", dry = FALSE, slurmConfig = "priority")  # submits
 ```
 
 The dry run lists only the four coupled rows; `start.R` starts all seven. Or directly in the
@@ -293,6 +297,33 @@ checkout: `Rscript start.R --test config/scenario_config_PFM.csv startgroup=EU21
 `Rscript analysis/v6/phase3Gate.R models/remind_pfm-EU21/output` prints a verdict per gate
 criterion (design note 0005 Phase 3), the REMIND version of every run (`c_model_version` in the
 gdx) included.
+
+### Step 7c — The v6 batch, from the scenario matrix (after the Phase 3 gate)
+
+The v6 batch is **generated** (ADR 0055): edit `analysis/run-groups/scenario-matrix-v6.yml`, never
+the CSV. On the workstation, from the project root:
+
+```bash
+Rscript analysis/run-groups/buildPFMScenarioConfig.R   # writes models/remind_pfm/config/scenario_config_PFM_v6.csv,
+                                                       # then the validator and REMIND's reader
+```
+
+Commit the matrix (project repo) and the CSV (`remind_pfm`), push, and on the cluster
+`tools/setup.sh --cluster --update`. Tags: `V6W<wave><res>` (`V6W1EU21`, `V6W1H12`, `V6W2EU21`,
+`V6W2H12`); `H12BASE` and `EU21BASE` for the parents. `V6W1H12` also starts the H12 3.7.1 bases and
+`-PFMgateRef`, chained. The EU21 rows already run in the gate keep `EU21V6GATE`, so `V6W1EU21` does not
+re-run them. Wave 2 needs the variant Run-Groups exported first (the preflight checks each).
+
+```r
+library(pfm)
+cfg <- "config/scenario_config_PFM_v6.csv"
+submitPFM("V6W1EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg)                     # dry run
+submitPFM("V6W1EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "priority")
+submitPFM("V6W1H12",  remindDir = "models/remind_pfm-H12",  scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
+```
+
+The H12 rows run from the `-H12` checkout, the EU21 rows from `-EU21`: a start group never mixes
+resolutions.
 
 ## Step 8 — Check that the runs used the Run-Group's cache
 

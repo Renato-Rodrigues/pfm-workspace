@@ -1,6 +1,6 @@
 # ADR 0053 — The `v6` panel: 2023 on the IEA 2025 edition, geothermal, one re-sweep
 
-- **Status:** Proposed (draft, 2026-10-07); ready to accept — D3 and D8 were decided by the author on
+- **Status:** **Accepted 2026-10-07** (author) — D3 and D8 were decided by the author on
   2026-10-02, and the Phase 2 gate passed on 2026-10-06 (with decision 4, Bulk γ).
 - **Run-Groups:** `v6` (5-year moving average) and its sibling rung `v6-annual`.
 - **Evidence:** `DATA.md` §3–§4, §7; `output/pfm/{v5,v6,v6-annual}/manifest.json`, `sweep.rds`,

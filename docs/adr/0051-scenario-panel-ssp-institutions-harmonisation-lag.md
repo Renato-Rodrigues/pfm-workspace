@@ -1,7 +1,7 @@
 # ADR 0051 — The scenario panel: one SSP per run, the institution rule, harmonisation of every series, and a driver lag in years
 
-- **Status:** Proposed (draft, 2026-10-07); items 1–4 are implemented and in the `v6` re-run of
-  2026-10-06. Records 0005 D9, D10, D11 (SSP part), and §7a decisions 1A, 2B and 7.
+- **Status:** **Accepted 2026-10-07** (author). Items 1–4 are implemented and in the `v6` re-run of
+  2026-10-06; item 5 is the author's decision 7; item 6 is the implemented default. Records 0005 D9, D10, D11 (SSP part), and §7a decisions 1A, 2B and 7.
 - **Run-Groups:** `v6`, `v6-annual` and later. `v5`'s scenario panels were built without items 3–4.
 - **Evidence:** `DATA.md` §5.4–§5.5; `PITFALLS.md` §30–§31; `output/pfm/v6/phase1/{lag-seam,decomposition,ssp-governance}.rds`;
   `analysis/checks/policlimInstitutions.R` → `output/checks/policlim-institutions.rds`; tests

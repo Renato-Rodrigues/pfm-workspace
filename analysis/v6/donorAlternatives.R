@@ -14,6 +14,7 @@ suppressMessages({ library(madrat); library(magclass) })
 g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6" })
 GD <- file.path("output/pfm", g); OUT <- file.path(GD, "phase1"); dir.create(OUT, showWarnings = FALSE)
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -25,7 +26,7 @@ panel <- loadTrainingPanel(jsonlite::read_json(file.path(GD, "manifest.json"))$p
 pAll <- panel[, , setdiff(getNames(panel), grep("Policy Stringency", getNames(panel), value = TRUE))]
 w <- pfmAssertSizeWeights(pfmCouplingWeights(year = 2025, scenario = "SSP2"), "donor alternatives")
 map <- pfm:::.pfmResolveCountryMap("regionmapping_21_EU11.csv")
-scen <- readRDS(file.path(OUT, "scen-PkBudg1000.rds"))   # built by analysis/v6/phase1.R
+scen <- v6ScenPanel(OUT, "PkBudg1000", BASES[["PkBudg1000"]])   # built by analysis/v6/phase1.R
 
 setup <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   cf <- pfm:::.pfmNormSpec(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]])

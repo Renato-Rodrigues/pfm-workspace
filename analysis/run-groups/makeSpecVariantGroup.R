@@ -122,9 +122,14 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
   say("  now: ", cfg$name)
   say("\nNext, on the cluster (pfm-sweep is EXCLUDED on purpose - it would re-select and ",
       "overwrite the pin):")
-  say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(\"pfm-frontier\",",
-      "\"pfm-temporal\",\"pfm-donor\",\"pfm-projection\",\"pfm-coupling-bound\",\"pfm-remind-inputs\"), ",
-      "cluster = \"slurm\")'")
+  # A v6 source couples through its anchor artifact, which this copy does not carry: pfm-anchor must
+  # rebuild it for the pinned spec (the export refuses a manifest that records the step without the
+  # file). pfm-coupling-bound is the v5 offline bound and is not needed for a v6 coupled run.
+  v6src <- file.exists(file.path(src, "phi-anchor.rds"))
+  steps <- if (v6src) c("pfm-frontier", "pfm-temporal", "pfm-donor", "pfm-anchor", "pfm-projection", "pfm-remind-inputs") else
+    c("pfm-frontier", "pfm-temporal", "pfm-donor", "pfm-projection", "pfm-coupling-bound", "pfm-remind-inputs")
+  say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(",
+      paste0("\"", steps, "\"", collapse = ","), "), cluster = \"slurm\")'")
   say("  pfm-temporal is REQUIRED: pfm-coupling-bound reads lambda from ",
       "temporal-validation.rds, and that ECM is fitted on the spec.")
   say("\nThen: Rscript analysis/checks/compareSpecVariantPhi.R ", from, " ", to)

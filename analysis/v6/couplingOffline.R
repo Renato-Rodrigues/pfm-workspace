@@ -9,9 +9,9 @@ suppressMessages({ library(magclass) })
 source("analysis/_common/_loadPfm.R")
 a <- commandArgs(trailingOnly = TRUE)
 g <- if (length(a) > 0) a[1] else "v6"; run <- if (length(a) > 1) a[2] else "PkBudg1000"
-gdxs <- c(NPi = "output/remind-runs/v5/EU21/SSP2-EU21-NPi2025_2026-08-26_16.51.07/fulldata.gdx",
-          PkBudg1000 = "output/remind-runs/v5/EU21/SSP2-EU21-PkBudg1000_2026-08-26_19.58.59/fulldata.gdx")
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
+gdxs <- BASES
 madrat::setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
 out <- file.path(tempdir(), "pfm-coupling-offline"); unlink(out, recursive = TRUE); dir.create(out)
 ok <- iterativePFM(gdx = gdxs[[run]], outputFile = file.path(out, "p45_regiDiff_phi.gdx"), group = g,
@@ -22,7 +22,7 @@ ok <- iterativePFM(gdx = gdxs[[run]], outputFile = file.path(out, "p45_regiDiff_
 stopifnot(isTRUE(ok))
 h <- readRDS(file.path(out, "pfm-phi-history.rds"))[[1]]
 ref <- pfmV6Shares(pfmAnchorFor(file.path("output/remind-inputs", g), "EU21"),
-                   readRDS(file.path("output/pfm", g, "phase1", paste0("scen-", run, ".rds"))), theta = 0.5)
+                   v6ScenPanel(file.path("output/pfm", g, "phase1"), run, BASES[[run]]), theta = 0.5)
 m <- merge(h$phiPath, ref$shares[, c("sector", "region", "year", "phi")], by = c("sector", "region", "year"))
 cat("share path vs Phase 1:", nrow(m), "values, max |diff|", signif(max(abs(m$phi.x - m$phi.y)), 3), "\n")
 k <- h$strength; print(k[k$year %in% c(2050, 2100), c("sector", "year", "k")], row.names = FALSE)

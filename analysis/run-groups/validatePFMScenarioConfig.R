@@ -191,6 +191,40 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
     }
   }
 
+  # --- 5b. the v6 coupling options (ADR 0054; pfm::pfmV6CouplingDefaults) ------
+  # A typo here is not caught by REMIND (the column is a free string) and only stops the run at
+  # its first PFM call, after hours of queueing and the warm start. And the author's rule of
+  # 2026-10-01: no cm_iteration_max column - a non-converging run is diagnosed or restarted.
+  if ("cm_iteration_max" %in% hdr) {
+    err("the file has a cm_iteration_max column - never raise the iteration cap (0005 Phase 5)")
+  }
+  allowed <- list(pfmFormulation = c("auto", "v6-anchor", "v5-tier"), pfmPhiHold = c("logit", "ratio"),
+                  pfmPhiSpread = c("k", "model"), pfmPhiOrdering = c("model", "uniform", "reversed", "permuted"),
+                  pfmPhiStrength = c("common", "regional"),
+                  pfmInstitutions = c("storyline", "convergence", "hold"))
+  for (i in seq_along(recs)) {
+    r <- recs[[i]]; t <- titles[i]
+    for (cl in intersect(names(allowed), hdr)) {
+      v <- trimws(r[[cl]] %||% "")
+      if (nzchar(v) && !v %in% allowed[[cl]]) err(t, ": ", cl, " = '", v, "' not in ", paste(allowed[[cl]], collapse = "/"))
+    }
+    k <- num(r$pfmPhiKappa); if (!is.na(k) && (k < 0 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside [0, 1)")
+    hy <- num(r$pfmPhiHoldYear); if (!is.na(hy) && (hy < 2030 || hy > 2150)) err(t, ": pfmPhiHoldYear = ", hy, " is not a year in 2030-2150")
+    sd <- trimws(r$pfmPhiOrderingSeed %||% "")
+    if (nzchar(sd) && !grepl("^[0-9]+$", sd)) err(t, ": pfmPhiOrderingSeed = '", sd, "' is not an integer")
+    if (identical(trimws(r$pfmPhiStrength %||% ""), "regional") && nzchar(trimws(r$pfmPhiOrdering %||% "")) &&
+        !identical(trimws(r$pfmPhiOrdering), "model")) {
+      err(t, ": the regional strength arm is not combined with an ordering test (D15, D16)")
+    }
+    g <- trimws(r$pfmGroup %||% ""); pp <- trimws(r$cm_pfmPhiPath %||% "")
+    if (cpl(r) && startsWith(g, "v6") && !identical(pp, "1")) {
+      err(t, ": pfmGroup '", g, "' is a v6 group but cm_pfmPhiPath = '", pp, "' - GAMS would use a constant share (PITFALLS 33)")
+    }
+    if (cpl(r) && nzchar(g) && !startsWith(g, "v6") && identical(pp, "1")) {
+      err(t, ": cm_pfmPhiPath = 1 on the pre-v6 group '", g, "' - GAMS would wait for a path that never comes")
+    }
+  }
+
   # --- 6. resolution consistency ---------------------------------------------
   # Mixing resolutions in ONE file is deliberate and fine - an H12 cross-check living
   # beside the EU21 set (SCENARIOS.md improvement 7). What is never fine is a run whose

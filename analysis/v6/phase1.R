@@ -1,7 +1,8 @@
 # Phase 1 of design note 0005: the v6 coupling formulation, offline, on Run-Group v6.
 #   Rscript analysis/v6/phase1.R [group]                       (from the repo root; default v6)
 # Uses pfm::computeAnchorGap / computeStrengthPath / computeSharePath. Nothing is re-optimised by
-# REMIND: every energy system is the final state of an existing run (the v5 batch's gdx files).
+# REMIND: every energy system is the final state of an existing run - the config.yml registry's NPi and
+# PkBudg1000 bases (analysis/v6/bases.R), plus the v5 coupled runs where present.
 #   1. anchors at EU21 and H12 (the ranking u, the provenance of each region's gap)
 #   2. k_s(t) on every energy system: NPi, PkBudg1000, and the coupled -PFMgate / -PFMlevelBfix /
 #      -PFMlevelC runs (how much REMIND's energy system moves k between pathways)
@@ -17,6 +18,7 @@ g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6
 ROOT <- normalizePath(".", winslash = "/")
 GD <- file.path("output/pfm", g); OUT <- file.path(GD, "phase1"); dir.create(OUT, showWarnings = FALSE)
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -25,18 +27,22 @@ THETA <- 0.5; T0 <- 2025; YRS <- c(2025, 2030, 2035, 2040, 2050, 2060, 2070, 208
 RES <- c(EU21 = "regionmapping_21_EU11.csv", H12 = "regionmappingH12.csv")
 
 # ── scenario panels (fixed code, the group's panel definition), cached ───────────────────────
-runs <- c(NPi = "SSP2-EU21-NPi2025_2026-08-26_16.51.07",
-          PkBudg1000 = "SSP2-EU21-PkBudg1000_2026-08-26_19.58.59",
-          PFMgate = "SSP2-EU21-PkBudg1000-PFMgate_2026-09-16_08.42.11",
-          PFMlevelBfix = "SSP2-EU21-PkBudg1000-PFMlevelBfix_2026-09-17_14.34.22",
-          PFMlevelC = "SSP2-EU21-PkBudg1000-PFMlevelC_2026-09-22_16.25.32")
+runs <- c(BASES, v5CoupledRuns())
+say("bases: ", paste(sprintf("%s = %s (REMIND %s)", names(BASES), basename(dirname(BASES)),
+                             vapply(BASES, remindVersion, "")), collapse = "; "))
 scen <- lapply(names(runs), function(k) {
   f <- file.path(OUT, paste0("scen-", k, ".rds"))
-  if (file.exists(f)) return(readRDS(f))
+  if (file.exists(f)) {
+    s <- readRDS(f)
+    if (identical(normalizePath(attr(s, "gdx") %||% "", winslash = "/", mustWork = FALSE),
+                  normalizePath(runs[[k]], winslash = "/", mustWork = FALSE))) return(s)
+    say("the cached panel of ", k, " was built from another gdx - rebuilding")
+  }
   say("building the scenario panel of ", k)
-  s <- panelDataScenario(gdxFile = file.path("output/remind-runs/v5/EU21", runs[[k]], "fulldata.gdx"),
+  s <- panelDataScenario(gdxFile = runs[[k]],
                          aggregate = TRUE, gdxRegionMappingFile = "regionmapping_21_EU11.csv",
                          outputRegionMappingFile = "country", ssp = "SSP2", institutions = "storyline")
+  attr(s, "gdx") <- normalizePath(runs[[k]], winslash = "/")
   saveRDS(s, f); s
 })
 names(scen) <- names(runs)

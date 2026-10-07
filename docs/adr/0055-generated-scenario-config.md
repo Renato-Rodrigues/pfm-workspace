@@ -1,7 +1,10 @@
 # ADR 0055 — The scenario config is generated from a compact matrix
 
-- **Status:** Proposed (draft, 2026-10-07). **Not implemented**: 0005 F1 / E16, Phase 4, after the
-  Phase 3 switches exist. Records 0005 D22.
+- **Status:** **Accepted and implemented 2026-10-07** (author's request). Records 0005 D22 (F1 / E16).
+  As built: `pfm::buildPFMScenarioConfig()`, the matrix `analysis/run-groups/scenario-matrix-v6.yml`,
+  the output `config/scenario_config_PFM_v6.csv` in the fork. It reproduces the hand-written bases,
+  `-PFMgateRef` and the four Phase 3 gate rows exactly. The `v5` rows stay hand-maintained in
+  `scenario_config_PFM.csv` (the `v5` record); the v6 batch is built only from the matrix.
 - **Run-Groups:** the `v6` coupled batch and later.
 
 ## Decision

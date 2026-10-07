@@ -18,6 +18,7 @@ suppressMessages({ library(madrat); library(magclass); library(mrpfm) })
 g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6" })
 GD <- file.path("output/pfm", g); P1 <- file.path(GD, "phase1")
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -27,7 +28,7 @@ GE <- "Government Effectiveness (WGI)"; ROL <- "Rule of Law (VDem)"; VA <- "Vert
 
 anc <- pfmAnchorFor(GD, "EU21")
 hist <- loadTrainingPanel(jsonlite::read_json(file.path(GD, "manifest.json"))$panel_hash, rc$modelDir %||% "output/pfm/fit-cache")
-scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) readRDS(file.path(P1, paste0("scen-", k, ".rds"))))
+scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) v6ScenPanel(P1, k, BASES[[k]]))
 y <- getYears(scen$NPi, as.integer = TRUE)
 cc <- getItems(scen$NPi, 1)
 

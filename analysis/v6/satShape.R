@@ -18,6 +18,7 @@ scales <- if (length(args) > 1) as.numeric(strsplit(args[2], ",")[[1]]) else c(0
 GD <- file.path("output/pfm", g); P1 <- file.path(GD, "phase1"); SD <- file.path("output/pfm", paste0("satshape-", g))
 dir.create(SD, showWarnings = FALSE, recursive = TRUE)
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -30,7 +31,7 @@ selDeployed <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 deployed <- selDeployed[[1]]$name
 rec <- pfm:::.pfmSweepOptionsForGroup(GD)
 w <- pfmAssertSizeWeights(pfmCouplingWeights(year = 2025, scenario = "SSP2"), "sat shape")
-scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) readRDS(file.path(P1, paste0("scen-", k, ".rds"))))
+scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) v6ScenPanel(P1, k, BASES[[k]]))
 sectors <- c("Bulk", "Diffuse")
 estKeys <- c("model_type", "estimator", "indexMax", "trendMidpoint", "trendSteepness")
 specOf <- function(s) { x <- pfm:::.pfmNormSpec(selDeployed[[1]]); x <- x[setdiff(names(x), c(estKeys, "description"))]

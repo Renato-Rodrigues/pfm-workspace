@@ -18,12 +18,12 @@ suppressMessages({ library(madrat); library(magclass) })
 g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6" })
 GD <- file.path("output/pfm", g); P1 <- file.path(GD, "phase1")
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
 THETAS <- c(0.325, 0.5, 0.675)
-RUNS <- c(NPi = "output/remind-runs/v5/EU21/SSP2-EU21-NPi2025_2026-08-26_16.51.07/fulldata.gdx",
-          PkBudg1000 = "output/remind-runs/v5/EU21/SSP2-EU21-PkBudg1000_2026-08-26_19.58.59/fulldata.gdx")
+RUNS <- BASES
 
 anc <- pfmAnchorFor(GD, "EU21")
 TCO2 <- 1000 / (44 / 12)   # T$/GtC -> US$/tCO2, as runPFMCouplingBound
@@ -33,7 +33,7 @@ yrs <- getYears(pOpt, as.integer = TRUE)
 cs <- readRDS(file.path(GD, "coupling/coupling-summary.rds")); lambdaG <- cs$lambda
 
 st <- lapply(c(PkBudg1000 = "PkBudg1000", NPi = "NPi"), function(k)
-  computeStrengthPath(anc, readRDS(file.path(P1, paste0("scen-", k, ".rds")))))
+  computeStrengthPath(anc, v6ScenPanel(P1, k, BASES[[k]])))
 feas <- function(s, theta, hold = FALSE) {
   if (hold) { s$strength$k <- 1; s$strength$d <- 1 }
   sh <- computeSharePath(anc, s, theta = theta)

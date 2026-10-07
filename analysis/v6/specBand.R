@@ -19,6 +19,7 @@ sfx <- if (set == "passing") "" else "-ceilingRejected"
 GD <- file.path("output/pfm", g); P1 <- file.path(GD, "phase1"); BAND <- file.path("output/pfm", paste0("specband-", g, sfx))
 dir.create(BAND, showWarnings = FALSE, recursive = TRUE)
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
+source("analysis/v6/bases.R"); BASES <- v6Bases(rc)   # the registry's SSP2 pair (PITFALLS.md 34)
 pd <- pfm:::.pfmPanelDefForGroup(GD, rc$panel)
 options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
 setConfig(cachefolder = rc$cachefolder, forcecache = TRUE, .verbose = FALSE)
@@ -36,7 +37,7 @@ manifest <- jsonlite::read_json(file.path(GD, "manifest.json"))
 panel <- loadTrainingPanel(manifest$panel_hash, modelDir)
 selDeployed <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 w <- pfmAssertSizeWeights(pfmCouplingWeights(year = 2025, scenario = "SSP2"), "spec band")
-scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) readRDS(file.path(P1, paste0("scen-", k, ".rds"))))
+scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) v6ScenPanel(P1, k, BASES[[k]]))
 say(length(passing), " sanity-passing spec(s); deployed ", deployed)
 
 ymlFor <- function(spec) lapply(selDeployed, function(e) {
