@@ -110,5 +110,6 @@ Move them to new REMIND bases only with `refreshBases.R` (`PITFALLS.md` §34):
 | `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |
 | `couplingOffline.R` | Phase 3: the v6 coupling call offline on a REMIND gdx, against the Phase 1 numbers |
 | `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V371` runs (the 3.7.1 bases, the null vs the same-version `-PFMgateRef`, rule B path and history, rule C rebuild) |
+| `variantGroups.R` | the wave-2 variant Run-Groups (spec, shape, assignment twins, annual rung) through the v6 formulation on the same scenario panels: k(t), the ranking u against v6, the floor region, Δφ at 2050 (offline) |
 | `bases.R` | the registry's NPi / PkBudg1000 gdx (`v6Bases`), the REMIND version of a gdx, the stamped-panel reader (`v6ScenPanel`) |
 | `refreshBases.R` | moves every offline analysis to new REMIND bases in one call: snapshot `phase1/` as `phase1-remind-<version>/`, re-point the registry, re-run, print old vs new (dry run unless `--apply`) |

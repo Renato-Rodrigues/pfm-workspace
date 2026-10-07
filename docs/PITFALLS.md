@@ -178,6 +178,7 @@ Ranked by how long they went unnoticed:
 | a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
 | a nested call reading the panel definition from a global option | nothing — the coupling uses another IEA edition than the estimation | `iterativePFM()` sets `pfm.panel` for the call (§32) |
 | a share path with missing periods, or `cm_pfmPhiPath` not matching the group | a constant or zero φ under a v6 label | the path covers every `ttot`; R and `pfmPreflight` check the switch (§33) |
+| a REMIND release that pins `cfg$UseThisRenvLock` | every check passes; the coupled run stops at its first PFM call: "there is no package called 'pfm'" | `UseThisRenvLock <- NULL` in the fork; `pfmPreflight` checks the pin (§37) |
 | REMIND's regenerated `core/sets.gms` in an EU21 checkout | `setup.sh` skips the checkout ("UNCOMMITTED CHANGES"); preflight `repos` fails | `setup.sh` marks the file skip-worktree (§36) |
 | a cache prepared for a frozen Run-Group with today's code | a modified `records/<group>/madrat-cache-manifest.tsv`; preflight fails `repos` | restore the record; prepare only the current group (§35) |
 | a comparison across REMIND versions, or a registry gdx from an older REMIND | a null that "fails" by model drift; offline numbers on another model than the runs | `c_model_version` in each gdx; one version per comparison and per Run-Group's registry (§34) |
@@ -1019,3 +1020,24 @@ REMIND" instead of DIRTY, so the provenance record still says the file differs f
 By hand: `git -C models/remind_pfm-EU21 update-index --skip-worktree core/sets.gms` (undo with
 `--no-skip-worktree`; list flagged files with `git ls-files -v | grep '^S'`). Do not run
 `setup.sh --update` while a REMIND batch is still starting chained runs from that checkout.
+
+## 37. A coupled run loads `pfm` from its own renv, not from the checkout's
+
+REMIND builds a separate renv in every run folder (`scripts/start/submit.R`): from the lockfile
+`cfg$UseThisRenvLock` when it is set, else from a snapshot of the checkout's renv. A chained run takes
+its parent run's lockfile (`run.R`). `tools/setup.sh --install` installs `pfm` and `mrpfm` into the
+checkout's renv, so only the snapshot carries them.
+
+REMIND's release script sets `cfg$UseThisRenvLock <- "renv/archive/<version>_renv.lock"` in a release
+and `postRelease.R` resets it to `NULL` on develop. The fork moved to the 3.7.1 **release**, so on
+2026-10-07 every run restored REMIND's package list. The uncoupled runs were fine; the two coupled gate
+runs stopped after 2.5 hours at iteration 15: `Error in library(pfm) : there is no package called 'pfm'`
+in `log.txt`, then GDX "Open read failed" for `p45_regiDiff_phi.gdx` in `full.lst` (the symptom, not
+the cause). Every preflight check had passed: they all inspect the checkout's library.
+
+- **The fork sets `cfg$UseThisRenvLock <- NULL`** (`config/default.cfg`), as before 3.7.1. Re-check it
+  after every merge of a REMIND release.
+- **`pfmPreflight(checks = "installed")` checks the pin**: a lockfile that does not list `pfm` and
+  `mrpfm` fails the preflight, so `submitPFM()` refuses.
+- Installing `pfm` into the checkout again (`renv::install`, `setup.sh --install`) does not help while a
+  lockfile is pinned.
