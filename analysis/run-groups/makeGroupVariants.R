@@ -33,6 +33,17 @@ if (!dir.exists(remindDir)) stop("no '", remindDir, "' here - run from the proje
 if (!dir.exists(file.path("output/pfm", base))) stop("no output/pfm/", base, " here - run from the project root")
 
 source("analysis/_common/_loadPfm.R")      # the source tree, not a possibly stale install (PITFALLS 23)
+# Where the Run-Groups and the Fit Cache are: config.yml (output/pfm, output/pfm/fit-cache). The donor
+# step's own defaults are the pre-2026-10-01 layout (output/), so without this every twin failed with
+# "Run-Group 'output/<group>' does not exist" after copying the base (2026-10-07).
+local({
+  `%||%` <- function(a, b) if (is.null(a)) b else a   # not in base R 4.3
+  rc <- pfmResolveConfig("config.yml", group = base, verbose = FALSE)
+  options(pfm.resultsDir = rc$resultsDir %||% "output/pfm", pfm.modelDir = rc$modelDir %||% "output/pfm/fit-cache")
+})
+if (!identical(normalizePath(getOption("pfm.resultsDir"), winslash = "/"), normalizePath("output/pfm", winslash = "/"))) {
+  stop("config.yml resultsDir is ", getOption("pfm.resultsDir"), ", but this script copies Run-Groups in output/pfm")
+}
 
 unc <- readRDS(file.path("output/pfm", base, "donor-assignment-band-Bulk.rds"))$region
 twins <- list(
