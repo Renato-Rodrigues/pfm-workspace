@@ -1,7 +1,9 @@
 # ADR 0054 — A time-indexed φ interface, and convergence on the φ path
 
-- **Status:** Proposed (draft, 2026-10-07). **Not implemented**: this is the design of 0005 Phase 3.
-  Accept at the Phase 3 gate. Records 0005 D5 and D14, and the R side of Phase 3.
+- **Status:** Proposed (draft, 2026-10-07). **Implemented 2026-10-07** on both sides and verified
+  offline (`COUPLING.md` §14); accept at the Phase 3 gate (the first v6 test runs). Records 0005 D5
+  and D14. As built: `cm_pfmPhiPath` is the switch; the path covers every `ttot` of the REMIND gdx;
+  the oscillation test is the cosine of two successive moves (below −0.5).
 - **Run-Groups:** `v6` and later. `v5` runs with the existing symbols (the reproduction switch).
 
 ## Decision

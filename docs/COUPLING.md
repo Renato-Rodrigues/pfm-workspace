@@ -964,3 +964,73 @@ receives the same two sector shares, so the within-region split is identical eve
 markup is the same in every region (the gap between the two sector means). Under `permute` the energy-system feedback still moves the
 underlying shares between calls; the permutation is applied to each call's shares, so a region
 follows its donor's feedback, not its own.
+
+## 14. The v6 coupling — the share path φ(t) (added 2026-10-07; ADR 0049, 0050, 0054)
+
+> **Status:** implemented on both sides and verified offline (below). **Not yet run in REMIND**:
+> the Phase 3 gate of design note 0005 (θ = 0 null on the fork, one EU21 rule-B and one rule-C test
+> run) is the next cluster task. Until then, sections 1–13 describe what every existing run does.
+
+**Which formulation a run uses.** `iterativePFM(formulation = "auto")`: a Run-Group whose export
+carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v5**, unchanged.
+`pfm-coupling.yml` `formulation:` can force either (`v6-anchor`, `v5-tier`).
+
+**What a v6 call does.**
+1. Builds the scenario panel of the current solution for the run's SSP (`weightScenario`, from
+   `cm_GDPpopScen`) and institution rule, exactly as v5 does. The group's panel definition is set for
+   the duration of the call, so the nested calls that read IEA data use the group's edition
+   (`PITFALLS.md` §32).
+2. Reads the anchor ($q$, $u$, lean frontier design) for the delivery mapping's resolution, then
+   computes $k_s(t)$ and $\varphi_{r,s}(t)$ (`pfm::pfmV6Shares`). **No ECM, no
+   `temporal-validation.rds`, no λ** (ADR 0050): both λ symbols are exported as 0.
+3. Region weights: the anchor's, unless the run's SSP or weight year differs, in which case they
+   are recomputed for the run. $u$ and $q$ come from history and are the same in every SSP.
+4. Exports, besides the existing symbols (which carry the **t₀ = 2025 value**):
+
+   | symbol | domain | content |
+   |---|---|---|
+   | `p45_pfmPhiPath` | `(ttot, all_regi)` | the floor share path, min over sectors |
+   | `p45_pfmPhiMktPath` | `(ttot, all_regi, all_emiMkt)` | each market's share path, never below the floor |
+
+   Both cover **every** `ttot` of the REMIND gdx (1900–2150): before 2025 the 2025 value, after the
+   scenario's last year the last value. A missing record would load as a zero share.
+   `p45_pfmPriceBound(Mkt)` are built from φ(t) with no speed limit (`exportFeasibilityBound`, λ = 0).
+5. Convergence (D5): `p45_pfmDelta` is the largest change in φ over regions, sectors (hence markets)
+   and the floor **at the checkpoint years** 2035 / 2050 / 2070 / 2100 (2035 / 2050 / 2060 under the
+   hold-2060 option); the all-period change is logged beside it. Damping (α = 0.5) only when the path
+   oscillates. `pfm-phi-history.rds` stores per call φ(t), $k_s(t)$, δ, the all-period δ, α and the
+   options.
+
+**GAMS side.** `cm_pfmPhiPath` (main.gms, default 0 = every earlier run bit-identical). With 1:
+- presolve loads both paths, gated on the freshness stamp and on the symbol being present;
+- mode 1: the ratio **is** the path, $\varphi(t)$ · anchor, and each market's price is its own path
+  · anchor (presolve and the postsolve Step III.3 mirror);
+- mode 2 rebuild (`cm_pfmBoundRebuild = 1`, rule C): the target of each period uses that period's
+  share (presolve and the postsolve Step IV.4 mirror);
+- mode 3 is retired from v6: the R side stops a v6 call in mode 3;
+- the runtime file carries `ssp` and `phiPath`, so the R side stops on an SSP mismatch (D9) and on a
+  v6 group told `cm_pfmPhiPath = 0`.
+
+**Options** (`pfm::pfmV6CouplingDefaults()`; scenario columns, written into `pfm-coupling.yml` by
+`preparePFM.R` only when set): `pfmFormulation`, `pfmPhiHoldYear` (2100 | 2060), `pfmPhiHold`
+(logit | ratio = E-hold), `pfmPhiSpread` (k | model), `pfmPhiOrdering` (model | uniform | reversed |
+permuted), `pfmPhiOrderingSeed`, `pfmPhiKappa` (closure on the strength), `pfmPhiStrength`
+(common | regional). Each is echoed in the log. `phi-override.yml` is refused for v6 groups: the
+ordering tests are the `pfmPhiOrdering` option, which keeps $k(t)$.
+
+**Before submission.** `pfmPreflight(checks = "groups")` fails a row whose `cm_pfmPhiPath` does not
+match its group (1 for a v6 group, 0 for a v5 group); `pfmReplayInterface()` replays the two path
+symbols with the module's own declarations, cell values and totals, next to the negative control.
+
+**Also in this pass** (0005 E11, E12): `p45_pfmBudgetPeak_iter`, `p45_pfmBudgetPeakYr_iter`,
+`p45_pfmBudgetNoPeak_iter` record the peak of cumulative CO2 and warn at the iteration cap when it
+never peaked (`PITFALLS.md` §26); mode 1 now records `p45_pfmBindShare_iter` (the share of region-periods
+whose price the ratio holds below the anchor).
+
+**Verified offline (2026-10-07).**
+- A v6 call on the v6 export and the `v5` EU21 PkBudg1000 gdx (`analysis/v6/couplingOffline.R`, 25 s) gives
+  a share path identical to Phase 1's (756 values, difference 0) and Bulk $k$ 0.629 / 0.481 in 2050 /
+  2100.
+- A GAMS harness loading that gdx: the mode-1 ratio equals the path exactly, and the rebuild target
+  uses each period's share.
+- `pfmReplayInterface()` with the path symbols: positive replay OK, negative control caught.

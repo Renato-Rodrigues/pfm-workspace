@@ -63,14 +63,14 @@ outside it. IDs such as E13 or D17 refer to that note.
    (no `clean`: nothing else changes). Then bring `output/remind-inputs/v6` to the workstation
    (`syncFromCluster.sh … v6 --estimation --remind-inputs`); the local copy is still the
    2026-10-05 export.
-3. **Phase 3 — the coupling code** (ADR 0049, 0050, 0054; 0005 Phase 3):
-   - a `formulation` switch in `iterativePFM()` that reads `phi-anchor.rds` and computes φ(t) through
-     `computeStrengthPath` / `computeSharePath`, with no ECM and no λ;
-   - the time-indexed symbols `p45_pfmPhiPath` / `p45_pfmPhiMktPath` behind `cm_pfmPhiPath`;
-     convergence on the φ path;
-   - the GAMS pass with **E11** (peak-budget check, was item 32) and **E12** (mode-R bind share, was
-     item 21);
-   - `pfmReplayInterface()` with the negative control on the new symbols; the Phase 3 gate.
+3. **Phase 3 — the coupling code: written and verified offline (2026-10-07)**, `COUPLING.md` §14.
+   E11 and E12 are done. **Next is the Phase 3 gate on the cluster** (0005 Phase 3):
+   - commit and push `pfm` and `remind_pfm`; `setup.sh --cluster --update --install`;
+     `pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`;
+   - add `cm_pfmPhiPath = 1` to the v6 rows of the scenario config (and `pfmGroup = v6`);
+   - the θ = 0 null on the fork against the `v5` null; one EU21 rule-B run (`-PFMlevelBfix`) and one
+     rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check the φ path and $k$ in the log and
+     `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6 on rule C.
 4. **Phase 4, alongside:**
    - **F1 / E16**, the generated scenario config (ADR 0055);
    - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;

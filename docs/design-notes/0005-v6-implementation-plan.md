@@ -421,9 +421,10 @@ Each item names the phase that closes it (P0–P6) and its source.
       all-period diagnostic (D5). Run held-price and held-budget at both resolutions (P5).
 - [ ] **A1a — time horizon:** no hold year in the central case; hold-2060 as the sensitivity (D6;
       P5). Revise `MODEL.md` §7 through ADR 0052.
-- [ ] **A1b — stability and damping:** damping in R, logged, used only on oscillation (D5; P3).
-- [ ] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
-      φ for ratio mode and the rule-C rebuild (D14; P3).
+- [x] **A1b — stability and damping:** damping in R, logged, used only on oscillation (D5; P3).
+      ✅ Code 2026-10-07 (`.pfmV6Damp`), awaiting the Phase 3 gate runs.
+- [x] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
+      φ for ratio mode and the rule-C rebuild (D14; P3). ✅ Code 2026-10-07 (`COUPLING.md` §14).
 - [ ] **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI arm (D11; P5).
       **Deferred beyond this paper version** (decision 7 of §7a): the SSP machinery stays, the
       `v6` paper is SSP2 only.
@@ -593,10 +594,10 @@ Latent defects (P0 unless noted):
       checkouts may hold their own copy: delete it there by hand.**
       Was: the stale seed `input/p45_regiDiff_feasibility.inc`, an H12-shaped export from
       2026-08-10 (`TODO.md` 20).
-- [ ] **E11** — No GAMS peak-budget check next to `pm_pfmBudgetWarn` (`TODO.md` 32, `PITFALLS.md`
+- [x] **E11** — ✅ **Done 2026-10-07** (`p45_pfmBudgetPeak*_iter`, warning at the cap). Was: No GAMS peak-budget check next to `pm_pfmBudgetWarn` (`TODO.md` 32, `PITFALLS.md`
       §26). Add it in the P3 GAMS pass. *Analysis side in place: `extractCoupledResults` reports a
       budget-forced run that never peaks, and `runCoupledStage.R` prints it (F4).*
-- [ ] **E12** — No bind-share diagnostic for mode R (`TODO.md` 21). Needed if ratio mode stays as
+- [x] **E12** — ✅ **Done 2026-10-07** (`p45_pfmBindShare_iter` in mode 1). Was: No bind-share diagnostic for mode R (`TODO.md` 21). Needed if ratio mode stays as
       rule C's sensitivity (P3). Mode M is retired (D13).
 - [x] **E13** — ✅ **Done 2026-10-02** (`pfm` 0.6.0). The sanity walk raises a severe
       `frontierVcov` flag for the statuses in `vcovGate` (default `likelihood-mismatch`, `flat`).
@@ -1074,6 +1075,37 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
 - a rule-C run with `cm_pfmPhiPath = 0` on a `v6` group silently rebuilds from the $t_0$ value;
 - an SSP mismatch between the row and `output/remind-inputs`;
 - comparing a `v6` φ with a `v5` φ across the θ dial (`TODO.md` 7a's θ-dial trap applies unchanged).
+
+**Status 2026-10-07: code done, verified offline; the gate below is the next cluster task.**
+`COUPLING.md` §14 is the reference.
+- **R (`pfm`):**
+  - `iterativePFM(formulation = "auto")`: a group with `phi-anchor.rds` couples by v6
+    (`pfmV6Shares`, `R/pfmCouplingV6.R`), any other by v5, unchanged.
+  - λ is 0 and mode 3 is refused; the one-dimensional symbols carry the t0 value.
+  - `p45_pfmPhiPath` / `p45_pfmPhiMktPath` cover every `ttot`.
+  - Convergence on the path at the checkpoints; damping only on oscillation (cosine of successive
+    moves below −0.5).
+  - The history stores φ(t), $k(t)$, δ, the all-period δ and α.
+  - Typed options: hold year, hold rule, spread, ordering, seed, κ, regional strength
+    (`pfmV6CouplingDefaults`; scenario columns `pfmPhi*`, written by `preparePFM.R`).
+  - **SSP:** the run's SSP drives the scenario panel; the weights are recomputed when it, or the
+    weight year, differs from the anchor's; a runtime `ssp` must match `weightScenario`.
+- **GAMS (`remind_pfm`):**
+  - `cm_pfmPhiPath` (default 0, so earlier runs are bit-identical) and the path loads;
+  - mode 1: ratio = path, per-market price = market path · anchor (presolve and the postsolve
+    Step III.3 mirror);
+  - the mode-2 rebuild targets per period (presolve and the Step IV.4 mirror);
+  - the runtime file carries `ssp` and `phiPath`;
+  - **E11** (peak-budget record and warning) and **E12** (mode-1 bind share) done.
+- **Checks:**
+  - `pfmPreflight` fails a row whose `cm_pfmPhiPath` does not match its group;
+  - `pfmReplayInterface()` covers the path symbols (positive and negative control pass, GAMS 51);
+  - a GAMS harness on a real v6 gdx: the ratio equals the path, and the rebuild uses each period's
+    share;
+  - `analysis/v6/couplingOffline.R`: the coupling call reproduces Phase 1's shares exactly (Bulk $k$
+    0.629 / 0.481) in 25 s.
+- **Found on the way:** the coupling's nested IEA reads used the `v5` panel definition
+  (`PITFALLS.md` §32), fixed before any v6 run.
 
 **Gate:**
 - the θ = 0 null on the v6 fork reproduces the `v5` null within the `SCENARIOS.md` §3.1 tolerance;

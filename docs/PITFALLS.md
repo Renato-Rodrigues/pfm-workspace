@@ -176,6 +176,8 @@ Ranked by how long they went unnoticed:
 | a cache key that misses a fit-changing field | twins silently share results; one of them "never wins" | the key function vs every spec field that differs between variants (§29) |
 | a scenario series exempt from harmonisation | a seam at the anchor year, only for some countries | `.pfmHarmoniseScenario` covers every shared series (§30) |
 | a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
+| a nested call reading the panel definition from a global option | nothing — the coupling uses another IEA edition than the estimation | `iterativePFM()` sets `pfm.panel` for the call (§32) |
+| a share path with missing periods, or `cm_pfmPhiPath` not matching the group | a constant or zero φ under a v6 label | the path covers every `ttot`; R and `pfmPreflight` check the switch (§33) |
 
 When something looks fine, these are what to check first.
 
@@ -913,3 +915,36 @@ frozen, so this is a disclosed difference, not a re-run.
 **Check:** η on a scenario panel and on the same panel interpolated to annual steps
 (`magclass::time_interpolate`) should differ only by genuine within-period change
 (`tests/testthat/test-driverLagYears.R`).
+
+## 32. Inside a coupled run, nested calls read the panel definition from a global option
+
+Found 2026-10-07 while testing the v6 coupling offline, before any v6 coupled run.
+
+`pfmCouplingWeights()` and the downscaling of REMIND results (`iamHistoricalData()`) take the IEA
+edition and the geothermal setting from `pfmPanelDef()`, i.e. the `pfm.panel` option. A REMIND run
+never sets it, so for a `v6` group those calls read the **`v5` definition** (2024 edition, no
+geothermal) while the estimation read the 2025 edition. On the cluster the 2024 files exist, so
+nothing fails: the weights and the downscaled drivers silently come from another data version.
+
+**The rule:** `iterativePFM()` sets `options(pfm.panel = <the group's panel definition>)` for the
+duration of the call (restored on exit). Any new function that reads IEA data must take the edition
+as an argument or read `pfmPanelDef()` *inside* such a scope, never a hard default.
+
+## 33. The v6 share path: three ways to deliver a constant φ under a v6 label
+
+The v6 coupling (`COUPLING.md` §14) exports φ(t) as `p45_pfmPhiPath` / `p45_pfmPhiMktPath`. Each of
+these would run, converge and report a v6 result while GAMS used something else:
+- **A period without a record loads as zero.** The scenario panel starts in 2010; REMIND's `ttot`
+  starts in 1900. The R side completes the path over every `ttot` of the gdx (2025 value before,
+  last value after). Do not filter the export to the scenario's years.
+- **`cm_pfmPhiPath = 0` on a v6 group.** Mode 1 and the rule-C rebuild then use the one-dimensional
+  symbols, which carry the 2025 value: a constant share. The R side stops such a call (the runtime
+  file carries `phiPath`), and `pfmPreflight(checks = "groups")` fails the row before submission.
+  The reverse (a v5 group with 1) fails there too: GAMS would wait for a path that never comes and
+  keep φ = 1.
+- **An SSP mismatch** between GAMS (`cm_GDPpopScen`) and `pfm-coupling.yml` (`weightScenario`): the
+  scenario panel and weights would describe another world. The runtime file carries `ssp` and the R
+  side stops.
+
+And one for reading results: a `v6` φ and a `v5` φ at the same θ are not the same severity (θ means
+"severity at 2025" under v6, D12), so never compare them across the θ dial (`TODO.md` 7a's trap).
