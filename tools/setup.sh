@@ -131,6 +131,24 @@ done
 # REMIND's .Rprofile), which takes several minutes.
 RENV_DEPS='src <- strsplit(Sys.getenv("PFM_SOURCE_LIBS"), .Platform$path.sep, fixed = TRUE)[[1]]; renv::hydrate(packages = c("mrpfm", "pfm"), sources = src, prompt = FALSE, report = FALSE); lib <- .libPaths()[1]; old <- intersect(c("pfm", "mrpfm"), rownames(utils::installed.packages(lib.loc = lib))); if (length(old)) renv::remove(old, library = lib); cat("RLIB=", lib, "\n", sep = "")'
 RENV_CHECK='cat("[setup]", basename(getwd()), "loads pfm", format(packageVersion("pfm")), "| mrpfm", format(packageVersion("mrpfm")), "| mrremind", format(packageVersion("mrremind")), "\n")'
+# A coupled run loads pfm from its own run-folder renv, which REMIND restores from a snapshot of the
+# checkout's renv (cfg$UseThisRenvLock = NULL, PITFALLS.md section 37). renv refuses to snapshot packages
+# "installed from an unknown source", which an R CMD INSTALL from models/ is (2026-10-07: every coupled
+# submission stopped at "Generating lockfile"). So after installing, the installed DESCRIPTION gets the
+# Remote* fields renv::install("<user>/<repo>") would write: the package's GitHub repository at the
+# commit models/<pkg> has checked out. The snapshot then records it as a GitHub package, and the run
+# folder's restore installs that commit from GitHub (at submission, on the login node). The commit must
+# be pushed - pfmPreflight's repos check already requires it.
+stampRemote() {  # $1 installed package directory, $2 the source checkout
+  url=$(git -C "$2" remote get-url origin 2>/dev/null); sha=$(git -C "$2" rev-parse HEAD)
+  ref=$(git -C "$2" rev-parse --abbrev-ref HEAD)
+  case "$url" in *github.com[:/]*) ;; *) say "FAILED: $2 has no GitHub origin ($url) - renv cannot record its source"; return 1 ;; esac
+  slug=${url#*github.com[:/]}; slug=${slug%.git}; user=${slug%%/*}; repo=${slug#*/}
+  desc="$1/DESCRIPTION"
+  grep -v '^Remote\(Type\|Host\|Username\|Repo\|Ref\|Sha\|Url\):' "$desc" > "$desc.tmp" && mv "$desc.tmp" "$desc"
+  printf 'RemoteType: github\nRemoteHost: api.github.com\nRemoteUsername: %s\nRemoteRepo: %s\nRemoteRef: %s\nRemoteSha: %s\n' \
+    "$user" "$repo" "$ref" "$sha" >> "$desc"
+}
 if [ "$INSTALL" = 1 ]; then
   for p in mrpfm pfm; do
     say "install models/$p into your R library"
@@ -151,7 +169,9 @@ if [ "$INSTALL" = 1 ]; then
     [ -n "$RLIB" ] || { say "FAILED: renv::hydrate in $r"; exit 1; }
     for p in mrpfm pfm; do
       R CMD INSTALL -l "$RLIB" "models/$p" > /dev/null || { say "FAILED: R CMD INSTALL -l $RLIB models/$p"; exit 1; }
+      stampRemote "$RLIB/$p" "models/$p" || exit 1
     done
+    say "$r: mrpfm and pfm recorded as GitHub packages at $(git -C models/mrpfm rev-parse --short HEAD) / $(git -C models/pfm rev-parse --short HEAD)"
     (cd "$r" && Rscript -e "$RENV_CHECK") || { say "FAILED: pfm does not load in $r"; exit 1; }
   done
   say "check that every library holds the working tree's code:"

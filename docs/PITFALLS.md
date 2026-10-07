@@ -1041,3 +1041,11 @@ the cause). Every preflight check had passed: they all inspect the checkout's li
   `mrpfm` fails the preflight, so `submitPFM()` refuses.
 - Installing `pfm` into the checkout again (`renv::install`, `setup.sh --install`) does not help while a
   lockfile is pinned.
+- **With `NULL`, the snapshot needs a known source.** renv's snapshot aborts on packages "installed from
+  an unknown source" ("aborting snapshot due to pre-flight validation failure"), and REMIND shows only
+  `Generating lockfile ... Error in submit(cfg) :` with no reason (2026-10-07). An `R CMD INSTALL` from
+  `models/` is such a package. `setup.sh --install` therefore writes the `Remote*` fields of the
+  package's GitHub repository at the checked-out commit into the installed DESCRIPTION; renv records a
+  GitHub package and the run's restore installs that commit from GitHub (public repositories, at
+  submission). `pfmPreflight` checks that both packages carry a source at `models/<pkg>`'s HEAD. By hand:
+  `Rscript -e 'renv::snapshot(lockfile = tempfile(), prompt = FALSE)'` in the checkout shows the reason.
