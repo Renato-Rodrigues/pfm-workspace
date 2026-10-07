@@ -33,6 +33,9 @@ if (!dir.exists(remindDir)) stop("no '", remindDir, "' here - run from the proje
 if (!dir.exists(file.path("output/pfm", base))) stop("no output/pfm/", base, " here - run from the project root")
 
 source("analysis/_common/_loadPfm.R")      # the source tree, not a possibly stale install (PITFALLS 23)
+# Every pfmRun() below runs IN THIS SESSION (cluster = "local"): each step is light, and the script checks
+# the files a step writes right after it. On the cluster pfmRun() otherwise submits to SLURM and returns
+# at once, so the check failed before the job had started (2026-10-07).
 # Where the Run-Groups and the Fit Cache are: config.yml (output/pfm, output/pfm/fit-cache). The donor
 # step's own defaults are the pre-2026-10-01 layout (output/), so without this every twin failed with
 # "Run-Group 'output/<group>' does not exist" after copying the base (2026-10-07).
@@ -106,7 +109,7 @@ for (g in intersect(todo, names(overrides))) {
   srcDir <- file.path(remindDir, base)
   if (!file.exists(pfm:::.pfmSelectedModels(srcDir))) {
     cat("no exported ", base, " in ", remindDir, " - exporting it first\n", sep = "")
-    pfmRun(group = base, stage = "remind", remindDir = remindDir)
+    pfmRun(group = base, stage = "remind", remindDir = remindDir, cluster = "local")
   }
   if (file.exists(file.path(srcDir, "phi-override.yml"))) stop(srcDir, " itself carries a phi-override.yml - refusing")
   dst <- file.path(remindDir, g)
@@ -161,7 +164,7 @@ for (g in todo) {
     }
   }
   if (g %in% c(names(twins), names(ruleTwins)) && v6base) {
-    pfmRun(group = g, steps = "pfm-anchor")
+    pfmRun(group = g, steps = "pfm-anchor", cluster = "local")
     af <- file.path("output/pfm", g, "phi-anchor.rds")
     if (!file.exists(af)) stop("pfm-anchor did not write ", af, " - nothing exported")
     a1 <- readRDS(af); a0 <- readRDS(anchorBase)
@@ -171,7 +174,7 @@ for (g in todo) {
     cat("anchor rebuilt from ", g, "'s own assignment (differs from ", base, "'s)
 ", sep = "")
   }
-  pfmRun(group = g, stage = "remind", remindDir = remindDir)
+  pfmRun(group = g, stage = "remind", remindDir = remindDir, cluster = "local")
   marker <- pfm:::.pfmSelectedModels(file.path(remindDir, g))
   if (!file.exists(marker)) stop("export of ", g, " did not produce ", marker)
   cat("exported: ", normalizePath(file.path(remindDir, g)), "\n", sep = "")
