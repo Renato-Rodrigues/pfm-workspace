@@ -425,6 +425,8 @@ Each item names the phase that closes it (P0–P6) and its source.
 - [ ] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
       φ for ratio mode and the rule-C rebuild (D14; P3).
 - [ ] **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI arm (D11; P5).
+      **Deferred beyond this paper version** (decision 7 of §7a): the SSP machinery stays, the
+      `v6` paper is SSP2 only.
 - [ ] **A2 — Next step 2a: panel to 2023.** Verify that CAPMF, WGI, V-Dem and the energy data
       cover 2023 without imputation (CAPMF is in the vintages through 2023: GP-19 /
       `input-vintages.rds`). Move the anchor and the trend freeze year to 2023 (D8; P2).
@@ -475,7 +477,9 @@ Each item names the phase that closes it (P0–P6) and its source.
       and the v6 form of `TODO.md` 4 (P1 prototype, P6 figure).
 - [ ] **C4** — Regional strength $k_{r,s}$ as one SI arm (D16; P5).
 - [ ] **C5** — $E$-hold (static-share) bound as one SI arm (D2; P5).
-- [ ] **C6** — A precomputed **anchor artifact** per Run-Group (`phi-anchor.rds`: $q_{c,s}$,
+- [x] **C6** — ✅ **Done 2026-10-07** (`pfm::runPFMAnchor`, step `pfm-anchor` after `pfm-donor`;
+      `pfmAnchorFor()` reads it). 28 KB on `v6`; $k(t)$ from the artifact alone equals Phase 1's
+      exactly, at both resolutions. Was: a precomputed **anchor artifact** per Run-Group (`phi-anchor.rds`: $q_{c,s}$,
       $u_{r,s}$ per resolution, weights, provenance shares). It is written by a new step after
       `psm-donor`, so the in-REMIND call no longer needs the ECM, `temporal-validation.rds` or the
       seed panel (P2/P3).
@@ -485,7 +489,16 @@ Each item names the phase that closes it (P0–P6) and its source.
 - [ ] **C8** — Seam test at the anchor: $\eta^{scen}_{c,s,t_a} = \eta^{hist}_{c,s,t_a}$ per country,
       after `panelDataScenario()`'s harmonisation. A seam would enter $k$ directly (P1 acceptance
       test, `PITFALLS.md` §21).
-- [ ] **C9** — Re-examine the ceiling-fall gate (`TODO.md` 11a). Under v6 the ceiling trajectory
+- [x] **C9** — ✅ **Re-examined 2026-10-07** (`analysis/v6/ceilingGate.R`, `phase1/ceiling-gate.rds`).
+      The deployed spec passes by a wide margin: 1.21 (Bulk) and 1.27 (Diffuse) against 0.90 (v5:
+      0.003). 12.5% of covered Bulk ceilings fall by 2100 on PkBudg1000 (v5: 75%). **But under v6
+      the gate decides the sign of Bulk $k$:** the 4 pool specs it alone rejects are all family A
+      (satAP; three `splitAPpc`, plus X-1860 satAP), with Bulk ceilings at 0.64–0.72 and Bulk
+      $k_{2050}$ on PkBudg1000 of 1.31–1.54 (`phase1/spec-band-ceilingRejected.rds`). The gate is
+      ADR 0043's (2026-08-23, before any `v6` result), and it targets the same thing as decision 6:
+      incumbent interactions extrapolated below the observed incumbency. **Kept for `v6`, flagged
+      for revision** (§7a decision 8): its consequence is reported in the SI with family B. Was:
+      re-examine the ceiling-fall gate (`TODO.md` 11a). Under v6 the ceiling trajectory
       *is* the driver of $k$: 75% of Bulk ceilings fall by 2100 on `v5`, and the gate passes by
       0.003. Re-check it on the `v6` spec (P2).
 - [ ] **C10** — Report the out-of-support share per year beside every $k_s(t)$ (P3/P6).
@@ -744,7 +757,11 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
       `buildPFMScenarioConfig.R`, `validatePFMScenarioConfig.R`) into `pfm` (compute: extraction,
       facts) or `analysis/figures/` (rendering), with tests. One-off scripts stay in `analysis/`. This is
       the code half of the deposit (D-M3).
-- [ ] **F6 — The anchor artifact as a pipeline step** (C6). *Waits for Phase 1 (C6).* `pfmRun(stage = "remind")` exports it
+- [x] **F6 — The anchor artifact as a pipeline step** (C6). ✅ **Done 2026-10-07:** in the
+      `downstream` stage; `runPFMExportREMINDInputs` ships it, and refuses when a completed
+      `pfm-anchor` step left no file; `preparePFM.R` copies it into the run folder (and removes a
+      stale one); `pfmPreflight` fails an export whose manifest records the step without the file.
+      `pfmRun(stage = "remind")` exports it
       with the rest. The in-REMIND call then reads one small file instead of re-deriving the ranking.
 - [x] **F7 — Cache the exogenous scenario panel per SSP** (E17). ✅ **Done 2026-10-02**, measured:
       the harmonisation's historical panel, with the state it leaves for the scenario panel, is built
@@ -764,13 +781,14 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 ### G. Documentation and governance
 
-- [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). *Renumbered 2026-10-06: 0047 went
+- [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). **Drafted 2026-10-07**, all seven, status
+  *Proposed*; 0052 and 0053 are ready to accept now, the others at the Phase 3 gate. *Renumbered 2026-10-06: 0047 went
   to the prepared madrat cache (E24) and 0048 to the soft selection keys, so the planned records
   start at 0049.*
   - 0049 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
   - 0050 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ arm (D13);
   - 0051 SSP-consistent scenario panel and accountability rule (D9, D10, D11);
-  - 0052 saturating innovator, clamp policy and hold year (D6, D7);
+  - 0052 saturating actor power (family A in the main text, family B in the SI, the shape sensitivity), clamp policy and hold year (D6, D7, decision 6 of §7a);
   - 0053 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
   - 0054 time-indexed φ interface and convergence on the φ path (D5, D14);
   - 0055 the generated scenario config (D22).
@@ -934,14 +952,53 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
 - ✅ **Step 4** on `v6` (fixed panels, both resolutions; H12 within 0.003 of EU21). See `strength.rds`.
 - ✅ **Step 5** (`variants.rds`), **step 7** (C3, `decomposition.rds`), **step 8** (C8, `seam.rds`; since
   2026-10-06 on the annual-interpolated panel, `PITFALLS.md` §31).
-- ⏳ **Step 6** needs SSP1 / SSP3 scenario panels, which the workstation cannot build (the cache
-  holds SSP2 only): a cluster task with `pfmPrepareCache` once the registry declares the SSPs.
-- ⏳ **Step 9** (offline headline with φ(t)) and the ADR drafts are open.
+- ✅ **Cluster re-run, 2026-10-06** (lag in years, institution series harmonised; `v6` and `v6-annual`,
+  `clean = "group"`). The fit side is unchanged: same selection (`v6`: X-1791 satAP; `v6-annual`:
+  X-1860 satInn), frontier coefficients identical, replay identical. `v6-annual`'s Bulk replay fails
+  by 4e-5 in RMSE (the ceiling binds in 1 of 1104 rows), exactly as before the fixes. Sanity pool: 9 of
+  40 pass, the same set as before; bootstrap unchanged. The offline coupling bound moved: median 2050
+  price at θ = 0.5 went from 182 to 173. Phase 1 on the new artifacts reproduces the workstation
+  numbers.
+- ⚠️ **The spec band (`analysis/v6/specBand.R`, `phase1/spec-band.rds`) splits on the actor-power
+  transform.** All 9 sanity-passing specs on the `v6` panel; Bulk $k_{2050}$ on PkBudg1000:
+  - satAP specs (bootstrap conditional wins 49%): 0.63 (deployed), 0.72, 0.90;
+  - satInn specs (51%): 0.86–1.22.
+
+  The deployed spec gives the strongest fall in the band. `v6-annual`'s opposite result is the spec
+  (X-1860 satInn gives 1.22 on the `v6` panel too), not the panel. The Bulk institution main effects
+  behind part of the fall are not identified: satP wild-cluster p = 0.6–0.9, and their signs differ
+  between satP and the frontier. **The Bulk mechanism must be reported as a band, not as the deployed
+  spec.** That makes the satInn rung of wave 2 (D7) a headline companion.
+- ✅ **Step 6, governance part, 2026-10-07** (`analysis/v6/sspGovernanceSwap.R`, `phase1/ssp-governance.rds`).
+  SSP1 and SSP3 institutions go on the SSP2 energy system: the storyline V-Dem series and the
+  SSP-extension GE, rebuilt as `panelDataScenario` builds them (the SSP2 rebuild matches the panel to
+  1e-16). Measure: the floor region's φ range across SSP1–3 (θ = 0.5) against θ's range
+  (0.325–0.675).
+  - **Diffuse:** small at all horizons (ratio ≤ 0.46).
+  - **Bulk:** small to 2050 (ratio 0.15–0.25), then large (PkBudg1000: 1.2 in 2070, 1.9 in 2100).
+    SSP1 institutions *raise* Bulk $k$ (0.98 in 2100 against 0.48 under SSP2). That runs through the
+    Bulk institution terms, which are not identified (Phase 1 status above).
+
+  The full version, with SSP GDP and population (SSP1 / SSP3 scenario panels, cluster,
+  `pfmPrepareCache`), is **deferred with the SSP axis** (§7a decision 7).
+- ✅ **Step 9, 2026-10-07** (`analysis/v6/offlineHeadline.R`, `phase1/offline-headline.rds`). OFFLINE,
+  first round, EU21; v5 reference and optimal price paths; median 2050 bound at θ = 0.5, optimal $355:
+  | case | bound | shortfall |
+  |---|---|---|
+  | v5 formulation, v6 spec | $173 | 51% |
+  | v6 φ(t) with the v5-style λ speed limit | $182 | 49% |
+  | v6 φ held at $t_0$ | $270 | 24% |
+  | **v6 φ(t)** | **$291** | **18%** |
+
+  The change from v5 is almost all the removal of λ (D13). The moving strength adds about 6 points.
+- ✅ **ADR drafts 0049–0055, 2026-10-07** (`docs/adr/`), status *Proposed*.
 
 **Gate, and the decision it feeds:**
-- **If the SSP spread of $k$ is small next to θ's range** (hypothesis H1 of the architecture note),
+- ~~**If the SSP spread of $k$ is small next to θ's range** (hypothesis H1 of the architecture note),
   the SSP axis goes to the SI as "measured and small". The main batch is SSP2 only, plus one SSP
-  pair. Otherwise SSP1 / SSP3 become a main-text axis.
+  pair. Otherwise SSP1 / SSP3 become a main-text axis.~~ **Decided 2026-10-07 (§7a decision 7):
+  the `v6` paper is SSP2 only;** the SSP axis is not reported in this version. The governance-only
+  measurement above stays on record for the next one.
 - ADRs 0049–0054 drafted. Methodology document updated (G4).
 
 ### Phase 2 — Data and estimation, Run-Group `v6` (two to three weeks; cluster for the sweep)
@@ -968,9 +1025,11 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    - the annual-data rung (A6);
    - the selected spec's other actor-power forms as rungs (D7).
 5. **Donor assignment at the anchor year,** then the **anchor artifact** (C6, F6). Then
-   `pfmRun(group = "v6", stage = "remind")`.
+   `pfmRun(group = "v6", stage = "remind")`. ✅ Code done 2026-10-07 (`pfm-anchor`); on the cluster
+   it runs with the next `downstream` stage, and the next export ships it.
 6. **Write the `v5` → `v6` comparison:** spec, coefficients, $E$ ordering at the anchor, regional
-   $u$, floor regions. This becomes Methods and SI material for the new paper.
+   $u$, floor regions. This becomes Methods and SI material for the new paper. ✅ **Done 2026-10-07:
+   §8** (`analysis/v6/v5v6Comparison.R`).
 
 **Gate:** deployed `v6` spec diagnostics at least as clean as `v5` (γ, gates, influence, sign
 stability). *Passed 2026-10-06 with one disclosed exception (decision 4 of §7a):* the Bulk γ of
@@ -1041,16 +1100,17 @@ submit prints the expected rows, groups and commits.
 | 2 | ordering tests: Bfix uniform, permuted 1–3, reversed; C uniform, permuted 1 | EU21 (H12 for Bfix uniform + 1 permuted) | 7 + 2 | D-M1 / GP-24 |
 | 2 | assignment rules: Bfix and C × all-median, all-low, nearest donors always (no "none" class); USA donor / low (Bfix) | EU21 | 8 | D-M2 (ii), GP-3 / 10; the nearest-donors arm is decision 3 of 2026-10-06 (§7a): it moves LAM and SSA in the ranking, not $k$ |
 | 2 | markup off (`-Min`) for B and C; ratio mode for C | EU21, H12 | 6 | v5 continuity |
-| 2 | spec band and rungs: Bfix on `v6-specalt`, the other actor-power form, annual | EU21 | 3 | D7, D3 |
+| 2 | family A shape twins (main-text robustness): Bfix at θ 0.50 on `v6-sat05` and `v6-sat2` (deployed spec, half-saturation 0.5× and 2× the median) | EU21 | 2 | D7, decision 6 of §7a |
+| 2 | family B (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
 | 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ (Bfix and C) | EU21 | 6 | D2, D6, D16, D13 |
-| 3 | hold-2060 twin of each SSP's `-PFMlevelBfix` | EU21 | 2 | D6: SSP results always travel with their hold-2060 twin |
-| 3 | SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC` | EU21 | 12 | the SSP axis (if Phase 1 keeps it) |
-| 3 | declared spread arm per SSP | EU21 | 2 | D11 |
+| ~~3~~ | ~~hold-2060 twin of each SSP's `-PFMlevelBfix`~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
+| ~~3~~ | ~~SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC`~~ | EU21 | ~~12~~ | deferred (§7a decision 7) |
+| ~~3~~ | ~~declared spread arm per SSP~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
 
-About 76 runs in total, close to the `v5` batch (62 + 16 variants). Wave 3 depends on the Phase 1
-gate.
+About 62 runs in total (waves 1–2), the size of the `v5` core batch. Wave 3, the SSP axis, is
+deferred to a later paper version (§7a decision 7).
 
-**SSP3 at 1000 Gt may be infeasible in REMIND regardless of politics** (architecture note, H6).
+*(For the deferred SSP wave.)* **SSP3 at 1000 Gt may be infeasible in REMIND regardless of politics** (architecture note, H6).
 Test the uncoupled SSP3 PkBudg1000 first. If it fails, use a budget that SSP3 can meet and say so;
 do not reuse the SSP2 budget.
 
@@ -1165,4 +1225,124 @@ converge is handled in one of two ways:
    of 0.87, and on NPi 1.09 instead of 1.37. Every scenario-side `v6` artifact is re-run on the
    cluster, together with decision 2: sweep (sanity walk scenario gates), sanity pool, bootstrap,
    downstream and the REMIND export.
+6. **Family A in the main text, family B in the SI (2026-10-07).** The sanity-passing specs split on
+   the actor-power transform (Phase 1 status, `spec-band.rds`):
+   - family A, satAP: the saturating curve on innovators *and* incumbents. Bulk $k$ falls strongly on
+     PkBudg1000;
+   - family B, satInn: innovators only. Bulk $k$ flat or rising.
+
+   The families differ only below the observed range: in PkBudg1000 2050, 56% of countries sit below
+   the training 5th percentile of the Bulk incumbent share, and 59% above its innovator maximum. No
+   re-sweep on 2000–2023 data can decide between them.
+
+   The main text uses family A (the deployed X-1791 satAP), for three reasons:
+   - the joint fit of the shared spec: the best family-A specs beat the best family-B ones by about 50
+     BIC, from Diffuse; in Bulk alone family B is 14 BIC better;
+   - treating both groups symmetrically;
+   - ADR 0040's own rationale: no linear extrapolation of a share into a range no country occupied.
+
+   Disclosed: the bootstrap splits about 49 / 51 between the families.
+
+   **The shape check** (`analysis/v6/satShape.R`, `phase1/sat-shape.rds`; `pfm` option `apSatScale`)
+   sets the half-saturation point to 0.5×, 1× and 2× the median. All three pass the sanity walk, and
+   the ranking is stable (Spearman ≥ 0.97 with 1×):
+
+   | half-saturation | Bulk $k$ on PkBudg1000, 2050 / 2100 | ΔBIC vs 1×, Bulk / Diffuse |
+   |---|---|---|
+   | 0.5× median | 0.57 / 0.40 | +16 / −14 |
+   | 1× (deployed) | 0.63 / 0.48 | 0 / 0 |
+   | 2× | 0.75 / 0.63 | −14 / +19 |
+
+   The direction holds at every shape; the size is the band to quote. The sectors pull in opposite
+   directions, so the median is close to the joint optimum. Coupled runs: the two shape twins in wave
+   2 (main text), and family B's X-2079 as `v6-specalt` (SI). Both are built with
+   `analysis/run-groups/makeSpecVariantGroup.R` (sector `both`, `apSatScale=` for the twins). The main
+   text says in one sentence that the size of the Bulk loosening rests on how incumbent power behaves
+   below anything observed, and points to the SI.
+7. **The `v6` paper is SSP2 only (2026-10-07).** The SSP workflow stays: `ssp` arguments, the
+   institution storyline rule, `calcSSPextensions(drivers_SSPx)`, `analysis/v6/sspGovernanceSwap.R`.
+   It is not used for this paper version. Consequences:
+   - Phase 1 step 6 and the gate's SSP clause are closed for `v6`; the governance-only measurement
+     stays on record (`phase1/ssp-governance.rds`);
+   - wave 3 of Phase 5 (16 runs) is deferred, so the batch is about 62 runs;
+   - A1d (SSP level and spread) is deferred;
+   - nothing in the code is removed. The registry keeps `ssp: SSP2` explicit.
+8. **The ceiling-fall gate stays for `v6`, flagged for revision (2026-10-07).** ADR 0043's
+   `ceilingFallGate = 0.90` is kept as set before any `v6` result. Its four sole rejections (family
+   A, Bulk $k$ rising) are reported in the SI with family B (C9). **Revisit it** when the future
+   projections are revised, above all the institution projections in the light of the PoliClim
+   forecasts (`analysis/checks/policlimInstitutions.R`). Under v6 the ceiling path drives $k$, and
+   the institution paths move the ceiling: Bulk $k$ rises with better institutions under the
+   deployed frontier. So a new projection can move specs across the gate, and the gate's premise
+   (a ceiling must not collapse as the transition succeeds) has to be re-argued for the projection
+   actually used, not carried over.
+
+## 8. The `v5` → `v6` comparison (Phase 2, step 6)
+
+Methods / SI material for the `v6` paper. Every number is from `analysis/v6/v5v6Comparison.R`
+(`output/pfm/v6/phase1/v5-v6-comparison.rds`), read from Run-Groups `v5` and `v6`. The regional
+ranking $u$ is computed **by the v6 rule for both groups** (each at its own anchor year, the same 2025
+final-energy weights, the REMIND-consistent EU21 mapping), so it compares the models, not the
+formulations.
+
+**Panel and spec.**
+
+| | `v5` | `v6` |
+|---|---|---|
+| panel | 2000–2022, 5-year MA, IEA default edition, no geothermal (`f8845f66fb39d316`) | 2000–2023, 5-year MA, IEA 2025 edition, geothermal in the baseload control (`7aaa8f84eb630326`) |
+| covered countries | 48 | 48 |
+| deployed spec | X-2079 `WGIge|noRoL|VerAcc bothIncAP … linear` | X-1791 `WGIge|RoL|VerAcc bothIncAP … satAP` |
+| institutions | GovEff (WGI), Vertical Accountability | GovEff (WGI), **V-Dem Rule of Law**, Vertical Accountability |
+| actor power | innovator and incumbent shares, incumbent per capita, linear | the same, **saturating** (ADR 0040; decision 6) |
+| controls, FE | GDP pc (Q-centred), log population, hydro/nuclear; EU / OECD / other | the same; hydro/nuclear **+ geothermal** |
+
+**Selection statistics** (deployed spec; Bulk / Diffuse):
+- ΔR²(theory): `v5` 0.112 / 0.166; `v6` 0.131 / 0.175. Both Green.
+- max VIF: `v5` 3.4 / 2.9; `v6` 7.7 / 7.9. Rule of Law enters next to GovEff (r = 0.82); ADR 0048 keeps the
+  soft VIF key off.
+- frontier γ: `v5` 0.987 / 0.982; `v6` 0.997 / 0.972. Bulk is accepted with disclosure, decision 4.
+- bootstrap: `v6` wins 2.5% of 200 resamples, 15% among sanity-passing winners. `v5`'s 8.5% / 10% are
+  affected by PITFALLS §29 (twin cache) and are not comparable.
+
+**Coefficients** (main effects; frontier = what the coupling uses, satP with wild-cluster p =
+what is quotable):
+- **Bulk incumbency is stronger and now significant:** incumbent share satP −0.64 (p = 0.03; `v5`
+  −0.19, p = 0.42); per capita +0.48 (p = 0.007), unchanged in sign and size.
+- **Bulk GovEff changes sign in the frontier** (+0.06 → −0.31), while the satP estimate stays
+  positive and loses significance (+0.24, p = 0.05 → +0.11, p = 0.61). Bulk Vertical Accountability
+  does the same (frontier +0.03 → −0.29; satP p = 0.70). The new Rule of Law term is +0.39 in the
+  Bulk frontier, satP p = 0.89. **The Bulk institution terms are not identified in `v6`** (Phase 1
+  status); they are what makes better institutions raise Bulk $k$.
+- **Diffuse is stable and better identified:** GovEff +0.25 → +0.24 (p = 0.006 → < 0.001),
+  incumbency −0.13 → −0.15 (p = 0.03 → 0.006), Vertical Accountability changes sign to +0.23
+  (p = 0.08).
+
+**The efficiency ordering at the anchor year** (covered countries, `v5` 2022, `v6` 2023): Spearman
+0.82 (Bulk) and 0.87 (Diffuse) over the same 48 countries. The median $E$ rises slightly, 0.71 →
+0.74 and 0.75 → 0.78. The five least efficient: Bulk `v5` RUS, PER, ISL, IDN, ARG → `v6` IDN, PER,
+ISL, ARG, NZL; Diffuse PER, ISR, RUS, ROU, BGR → PER, ISR, LTU, ROU, CRI.
+
+**The regional ranking $u$ (EU21) changes more in Bulk than in Diffuse.** Spearman 0.58 (Bulk),
+0.82 (Diffuse).
+
+| | Bulk | Diffuse |
+|---|---|---|
+| most constrained, `v5` | REF, MEA, JPN | REF, NES, CHA |
+| most constrained, `v6` | **IND**, ECE, OAS | CHA, ECS, ECE |
+| least constrained, `v5` | UKI, NEN, IND | UKI, NEN, CAZ |
+| least constrained, `v6` | CHA, NEN, UKI | NEN, UKI, CAZ |
+| largest move | IND, Δu = 0.86 | NES, Δu = 0.48 |
+
+India moves from among the least to the most constrained Bulk region. China is the most constrained
+Diffuse region in `v6` and the least constrained Bulk one.
+
+**Floor regions** (the share's minimum over sectors at θ = 0.5): `v6` at $t_0$, CHA and IND at 0.50,
+then ECE 0.52, OAS 0.54, MEA 0.54. `v5`'s operational shares (v5 formulation, `coupling-summary.rds`,
+future mapping, E26): CHA and REF at 0.50, LAM 0.54, NES 0.55, USA 0.58. **China is the floor in
+both.** India, REF, NES and USA change most.
+
+**What changes for the paper.** The `v5` spine's "China absorbs" composition and its ~160 Gt
+(`v5` coupled) must be re-derived: the floor is now China *and* India, and the size changes with the
+removal of λ (offline first round: the 2050 shortfall at θ = 0.5 goes from 51% to 18%, Phase 1 step
+9). Both are coupled results to come (Phase 5).
 

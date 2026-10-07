@@ -63,12 +63,19 @@ read `docs/MODEL.md`, not the archived copy.
 | 0040 | Saturating actor power + support gate | **Active** — the `satAP` transform |
 | 0041 | Relative feasibility coupling instead of κ | **Active** — supersedes the κ mechanism of 0024 |
 | 0042 | Sector-differentiated price via emission markets | **Active** — refines 0041's delivery step; `min` survives only when `cm_pfmSectorMarkup = 0` |
-| 0043 | Ceiling-collapse selection gate | **Active** — extends 0036/0039/0040; `ceilingFallGate = 0.90` by default, unsafe without 0040's support gate |
+| 0043 | Ceiling-collapse selection gate | **Active, flagged for review (2026-10-07)** — extends 0036/0039/0040; `ceilingFallGate = 0.90` by default, unsafe without 0040's support gate. Under v6 it decides the sign of Bulk $k$ for the specs it alone rejects; revisit with the revised (PoliClim-informed) projections (0005 §7a decision 8) |
 | 0044 | Actor power = incumbent share **and** per-capita level (`bothIncAP`) | **Active** — deployed as `X-2367` in `v3`, and again as `X-2079` in **`v5`** via ADR 0045. `MODEL.md` §2 still describes the old share form |
 | 0045 | Extrapolation gate at **0.275**; θ sweep **declared** `{0.325, 0.50, 0.675}`, not anchored | **Active** — deploys `X-2079 bothIncAP` in `v5`. Threshold moved *after* candidates were known; Bulk has no admissible θ anchor. Both disclosed in the ADR |
 | 0046 | γ-boundary gate **on at 0.999** | **Active** — completes ADR 0043, which asked for this and implemented nothing. Rejects 7 of 19 surveyed specs incl. maximin rank 3; the `v5` deployment is unaffected (γ 0.987/0.982) |
 | 0047 | One prepared madrat cache per Run-Group, staged into every coupled run | **Active** from `v6` — estimation and coupling read one set of data versions (`data/madrat/<group>/cache-manifest.tsv`); `v5`'s runs read the shared PIK cache |
 | 0048 | Soft fragility keys (`softVifGate`, `inferenceTGate`) leave the within-band order; the hydro/nuclear/geothermal control stays | **Active** from `v6` (2026-10-05) — supersedes ADR 0037 item 2 and the soft VIF preference; declared in `config.yml` `sweep:` and recorded per group in `manifest.json`; decided before the corrected `v6` sanity results were read |
+| 0049 | The v6 coupling: anchored gap, logit hold, mean-gap strength, anchor artifact | **Proposed** (draft 2026-10-07) — refines 0041 (φ becomes a path); accept at the 0005 Phase 3 gate |
+| 0050 | λ leaves the coupling; mode M and `GAPCLOSE` retire; κ arm | **Proposed** (draft 2026-10-07) — closes design note 0003; offline, most of the v5 → v6 change in the bound |
+| 0051 | Scenario panel: one SSP per run, institution rule, every series harmonised, driver lag in years | **Proposed** (draft 2026-10-07); items 1–4 implemented and in the `v6` re-run; the `v6` paper is SSP2 only |
+| 0052 | Saturating actor power: family A main text, family B SI, curve-shape check, no hold year | **Proposed**, ready to accept (author's decisions D6, D7, 0005 §7a 6 and 8); keeps 0043, flagged |
+| 0053 | The `v6` panel: 2023 (IEA 2025), geothermal, one re-sweep; Bulk γ 0.997 accepted | **Proposed**, ready to accept (D3, D8 decided; Phase 2 gate passed) |
+| 0054 | Time-indexed φ interface; convergence on the φ path | **Proposed** (draft 2026-10-07) — not implemented; the design of 0005 Phase 3 |
+| 0055 | Generated scenario config | **Proposed** (draft 2026-10-07) — not implemented; 0005 Phase 4 (F1 / E16) |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043
 (how it was selected), 0044 (what actor power *is*), 0040 (actor-power transform), 0026 (response

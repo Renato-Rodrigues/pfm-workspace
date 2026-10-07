@@ -196,6 +196,23 @@ for (g in c("v6", "v6-specalt")) pfmRun(group = g, stage = c("sweep", "diagnosti
 Locally, run the later stages only:
 `stage = c("diagnostics", "downstream", "remind")`.
 
+### Step 6b — Re-running Run-Groups after a code change, in one call
+
+```bash
+tools/clusterRun.sh --priority v6 --standby v6-annual --dry-run   # plans only
+tools/clusterRun.sh --priority v6 --standby v6-annual
+```
+
+It does Step 4 (`git pull`, `setup.sh --cluster --update --install --no-cache`) and the
+`repos`/`installed` preflight. It deletes what `pfmRun(clean = "group")` leaves behind: the REMIND
+export `output/remind-inputs/<group>` and the coupling bound's scenario-panel cache. Then it submits
+each group on its queue: `--priority` uses the auto-sized priority QOS, `--standby` uses
+`qos=standby` on the `priority` partition, sized by `prioritySizing()`. `--require f1,f2` fails
+unless the installed `pfm` has those functions, which proves the new code is in. The Fit Cache,
+panels, boot-cache and madrat cache are never touched: `clean` re-runs the steps, not the fits.
+`tools/clusterSubmit.R` refuses when `sbatch` is missing, because `pfmRun` would silently run
+locally. Bring everything back with `syncFromCluster.sh … --estimation --remind-inputs` (Step 9).
+
 ## Step 7 — Run the coupled REMIND batch
 
 Each coupled row names its Run-Group in the scenario config's column `pfmGroup`. It still says
@@ -249,7 +266,7 @@ On the workstation, in the project folder:
 
 ```bash
 tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4-v6 v6 --dry-run
-tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4-v6 v6 --estimation --panels
+tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4-v6 v6 --estimation --panels --remind-inputs
 tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4-v6 v6 --runs '*PFM*'
 ```
 

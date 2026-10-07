@@ -19,12 +19,17 @@
 #
 # Usage, from the project root:
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v1 v1-specalt Diffuse "X-0102 WGIge|RoL|HorAcc splitAP lev ctl:GDPq fe:OECDp satAP"
+#   sector "both" pins the spec in both sectors (v6 deploys one shared spec); key=value arguments after
+#   the spec name override fields of the pinned spec, e.g. the shape of the saturating curve:
+#   Rscript analysis/run-groups/makeSpecVariantGroup.R v6 v6-specalt both "X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn"
+#   Rscript analysis/run-groups/makeSpecVariantGroup.R v6 v6-sat05 both "X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP" apSatScale=0.5
 #
 # then on the cluster:
 #   Rscript -e 'library(pfm); pfmRun(group = "v1-specalt",
 #                           steps = c("pfm-frontier","pfm-temporal","pfm-donor",
-#                                     "pfm-projection","pfm-coupling-bound"),
+#                                     "pfm-projection","pfm-coupling-bound","pfm-remind-inputs"),
 #                           cluster = "slurm")'
+# (pfm-remind-inputs exports output/remind-inputs/<to> for coupled runs whose pfmGroup names the variant.)
 #
 # pfm-temporal is NOT optional. pfm-coupling-bound reads the political closure rate lambda from
 # temporal-validation.rds$bySector$<s>$ecm$metrics$adjustmentSpeed, and that ECM is fitted on
@@ -47,7 +52,8 @@
 #   Rscript analysis/checks/compareSpecVariantPhi.R v1 v1-specalt
 
 makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffuse",
-                                 specName = NULL, resultsDir = "output/pfm", verbose = TRUE) {
+                                 specName = NULL, overrides = list(), resultsDir = "output/pfm",
+                                 verbose = TRUE) {
   if (is.null(specName)) stop("makeSpecVariantGroup: specName is required.")
   say <- function(...) if (isTRUE(verbose)) cat(..., "\n", sep = "")
 
@@ -72,6 +78,12 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
          "/sweep.rds$specs. Names are matched EXACTLY, including the satAP suffix.")
   }
   cfg <- sweep$specs[[hit[1]]]
+  # Field overrides (e.g. apSatScale): recorded in the spec and its name, so the variant is never
+  # mistaken for the swept spec.
+  if (length(overrides)) {
+    for (k in names(overrides)) cfg[[k]] <- overrides[[k]]
+    cfg$name <- paste0(cfg$name, " [", paste(names(overrides), unlist(overrides), sep = "=", collapse = ","), "]")
+  }
 
   dir.create(dst, recursive = TRUE)
   # Copy the inputs the downstream steps read; do NOT copy the artifacts they will rewrite,
@@ -90,33 +102,42 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
 
   selFile <- pfm:::.pfmSelectedModels(dst)   # the copy keeps the source group's file name
   sel <- yaml::read_yaml(selFile)
-  tag <- paste0("PolicyStringency: ", sector)
-  idx <- which(vapply(sel, function(x) identical(x$model_type, tag), logical(1)))
-  if (!length(idx)) stop("makeSpecVariantGroup: no '", tag, "' entry in selected-models-pfm.yml")
-
-  old <- sel[[idx[1]]]$name
-  cfg$model_type <- tag
-  sel[[idx[1]]] <- cfg
+  secs <- if (identical(sector, "both")) c("Bulk", "Diffuse") else sector
+  old <- character(0)
+  for (sec in secs) {
+    tag <- paste0("PolicyStringency: ", sec)
+    idx <- which(vapply(sel, function(x) identical(x$model_type, tag), logical(1)))
+    if (!length(idx)) stop("makeSpecVariantGroup: no '", tag, "' entry in selected-models-pfm.yml")
+    old <- c(old, sel[[idx[1]]]$name)
+    # keep the deployed entry's estimation settings (estimator, index bound, trend shape)
+    keep <- sel[[idx[1]]][intersect(c("estimator", "indexMax", "trendMidpoint", "trendSteepness"), names(sel[[idx[1]]]))]
+    cfg$model_type <- tag
+    sel[[idx[1]]] <- c(cfg[setdiff(names(cfg), names(keep))], keep)
+  }
+  old <- unique(old)
   yaml::write_yaml(sel, selFile)
 
   say("pinned ", sector, ":")
   say("  was: ", old)
-  say("  now: ", specName)
+  say("  now: ", cfg$name)
   say("\nNext, on the cluster (pfm-sweep is EXCLUDED on purpose - it would re-select and ",
       "overwrite the pin):")
   say("  Rscript -e 'library(pfm); pfmRun(group = \"", to, "\", steps = c(\"pfm-frontier\",",
-      "\"pfm-temporal\",\"pfm-donor\",\"pfm-projection\",\"pfm-coupling-bound\"), ",
+      "\"pfm-temporal\",\"pfm-donor\",\"pfm-projection\",\"pfm-coupling-bound\",\"pfm-remind-inputs\"), ",
       "cluster = \"slurm\")'")
   say("  pfm-temporal is REQUIRED: pfm-coupling-bound reads lambda from ",
       "temporal-validation.rds, and that ECM is fitted on the spec.")
   say("\nThen: Rscript analysis/checks/compareSpecVariantPhi.R ", from, " ", to)
-  invisible(list(from = from, to = to, sector = sector, was = old, now = specName))
+  invisible(list(from = from, to = to, sector = sector, was = old, now = cfg$name))
 }
 
 if (!interactive() && identical(environment(), globalenv())) {
   a <- commandArgs(trailingOnly = TRUE)
   if (length(a) < 4) {
-    stop("usage: Rscript analysis/run-groups/makeSpecVariantGroup.R <from> <to> <sector> <specName>")
+    stop("usage: Rscript analysis/run-groups/makeSpecVariantGroup.R <from> <to> <sector|both> <specName> [key=value ...]")
   }
-  makeSpecVariantGroup(from = a[1], to = a[2], sector = a[3], specName = a[4])
+  kv <- a[-(1:4)]
+  ov <- lapply(sub("^[^=]+=", "", kv), function(v) { n <- suppressWarnings(as.numeric(v)); if (is.na(n)) v else n })
+  names(ov) <- sub("=.*$", "", kv)
+  makeSpecVariantGroup(from = a[1], to = a[2], sector = a[3], specName = a[4], overrides = ov)
 }

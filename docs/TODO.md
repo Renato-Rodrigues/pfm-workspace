@@ -4,7 +4,7 @@
 
 **Legend:** 🔴 blocking · 🟠 required for submission · 🟢 improves the work · ⚪ optional
 
-Last reviewed **2026-10-02**.
+Last reviewed **2026-10-07**.
 
 **`v5` is frozen.** `v5-final` is tagged in the project repo, `pfm`, `mrpfm`, `remind_pfm` and
 `paper-forge`, after a reproduction check on a fresh clone of those commits. The tag covers:
@@ -12,7 +12,8 @@ Last reviewed **2026-10-02**.
 - its 62-run coupled batch;
 - the evidence bundle of `papers/pfm-paper-v5`, which is frozen at v18 and will not be submitted.
 
-The `psm` → `pfm` rename is done and released as `pfm` 0.5.0; the current release is **`pfm` 0.6.0**.
+The current release is **`pfm` 0.8.0** / **`mrpfm` 0.4.0**. Everything since is commits under
+those versions; the version moves when the author decides.
 
 **The work plan is `docs/design-notes/0005-v6-implementation-plan.md`** (Phases 0–6). This list
 orders its next steps; every open item is a step of that plan, placed below, or marked as
@@ -21,61 +22,80 @@ outside it. IDs such as E13 or D17 refer to that note.
 > **Item numbers are stable identifiers.** `MODEL.md`, `SCENARIOS.md`, `COUPLING.md`,
 > `PITFALLS.md`, design note 0005 and `papers/pfm-paper-v5/docs/*` cite them, so a surviving item
 > keeps its number and §22 maps every retired one. The file before this review is
-> `../_archive/_wip/2026-10-02/TODO-pre-v6-review-2026-10-02.md`.
+> `../_archive/_wip/2026-10-07/TODO-pre-review-2026-10-07.md`.
 
 ---
 
 ## 🧭 What to do next
 
-Phase 0 of the v6 plan is almost done. Steps 0 (snapshot and tags), 1 (the rename) and 2 (the
-small fixes E5, E10, E13) are finished. The **data side of Phase 2 is done in code** (2026-10-02):
-the panel definition (2023 on the IEA 2025 edition, the annual sibling `v6-annual`, geothermal),
-SSP-dependent scenario panels and the institution rule (A2 coverage, A3, A4, E9, E14, D10;
-`DATA.md`), with D7 (the actor-power form) — the last releases are **`mrpfm` 0.4.0** and **`pfm`
-0.8.0**. Also done 2026-10-02 (0005 E/F): a run with gaps now fails (E23); the coupling call
-went from 99 s to 11 s after its first call (E17/F7); convergence covers the market shares (E8);
-`pfmPreflight()` and `submitPFM()` (F2/F3); the post-batch chain as one command (F4); the
-`paper-forge` data check (E19); `config.yml` cleaned (E15). These are commits after 0.8.0 /
-0.4.0, not released (the version moves when the author decides). Only what the `v6` run needs is
-listed here, in order.
+**Where it stands (2026-10-07).**
+- **Phases 0 and 2 are done.** Run-Groups `v6` (X-1791 satAP) and `v6-annual` (X-1860 satInn) were
+  re-run on the cluster on 2026-10-06 with the scenario-panel fixes (`PITFALLS.md` §30–§31). The
+  Phase 2 gate passed (Bulk γ 0.997 accepted). The `v5` → `v6` comparison is 0005 §8.
+- **Phase 1 is done except G4** (the methodology document). Its results:
+  - the anchor artifact `phi-anchor.rds` and the step `pfm-anchor` (C6 / F6);
+  - the offline headline (step 9);
+  - the spec band, the curve-shape check and the ceiling-gate re-check (C9);
+  - the ADR drafts 0049–0055.
+- **Author decisions of 2026-10-06/07** are in 0005 §7a:
+  1. institutions-held twins;
+  2. harmonise the institution series;
+  3. keep the donor rule, plus a nearest-donors arm;
+  4. accept Bulk γ;
+  5. the driver lag counts years;
+  6. family A in the main text, family B in the SI;
+  7. **the `v6` paper is SSP2 only**;
+  8. keep the ceiling gate, flagged for revision.
 
-1. 🔴 **On the cluster: Phase 0, step 3, and the `v6` cache.** Nothing else needs the workstation.
-   - Pull the project repo, `pfm`, `mrpfm` and `remind_pfm` (branch `pfm`) in
-     `models/remind_pfm-EU21/` and `-H12/`; delete each REMIND checkout's stale
-     `modules/45_carbonprice/functionalForm/input/p45_regiDiff_feasibility.inc` by hand (git-ignored,
-     so the pull leaves it; E10).
-   - Install `mrpfm` and `pfm` from the pushed `main`: once into your R library (`R CMD INSTALL`)
-     and into each REMIND checkout's renv (dependencies hydrated from your library, `pfm`/`mrpfm` installed directly). `./tools/setup.sh --cluster --update --install
-     --no-cache` does both (`RUNNING.md` steps 3-4; `devtools::install` fails on the cluster).
-     Then `pfm::pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`: the
-     version number alone no longer proves the code (commits land under 0.8.0 / 0.4.0), so it
-     compares a fingerprint of every function, and runs the replay gate (`PITFALLS.md` §2, §23).
-   - Prepare the `v6` cache: `Rscript tools/prepareMadratCache.R --group v6`, then the same for
-     `--group v6-annual`. The first prints `panel: 2000-2023, 5-year moving average, IEA 2025
-     edition, geothermal …`. **This must run on the cluster:** the IEA 2025 edition recomputes
-     mrremind's `calcIO`, whose raw sources (GCAM, FAO, IMF, PEAP) the workstation lacks
-     (`DATA.md` §7). Then check the 2023 sample (countries with both outcomes in 2023, NA drivers).
-2. 🔴 **Then the `v6` and `v6-annual` sweeps** (0005 Phase 2, step 4). D7 is decided (2026-10-02,
-   options 1C/2C/3A) and in `config.yml` `sweep:`: all four actor-power forms, no composite specs,
-   the actor-power extrapolation gate. `pfmRun(group = "v6", stage = "sweep", dryRun = TRUE)`
-   prints both the `panel` and the `sweep` line; check them before submitting. The grid is
-   about twice the `v5` one in split specs, so size the job accordingly. Later, the coupled
-   batch goes through `submitPFM()` (`RUNNING.md` step 7) and `runCoupledStage.R` (step 10).
-3. **Workstation, in parallel: Phase 1, the offline prototype on `v5`** (0005 Phase 1).
-   - Write `computeAnchorGap()` and `computeStrengthPath()`.
-   - The acceptance test: reproduce the methodology's $k_{Diffuse}$ = 0.70 / 0.54 / 0.56 and
-     $k_{Bulk}$ = 1.08 / 1.18 / 1.21 (2035 / 2050 / 2070) on the `-PFMlevelBfix` energy system.
-     These are offline numbers on Run-Group `v5`, from `../communication/methodology/PFM-Methodology.docx`
-     (2026-09-30), as quoted in 0005 Phase 1, step 3.
+**Next, in order:**
 
-Phases 2–6 follow 0005 §4 in order: the `v6` re-sweep, the coupling code, the run tooling, the
-`v6` batch and the new paper. Small items already placed in that order:
-- **E11** (the GAMS peak-budget check, was item 32) and **E12** (the mode-R bind share, was item
-  21): the Phase 3 GAMS pass.
-- **E23** (a failed step still lets `pfmRun()` exit 0): with the preflight, F2, in Phase 4. Until
-  then, read the last lines of every run log (`DONE WITH GAPS` names the steps).
-- **E19** (`paper-check` run inside a paper workspace reports every source as missing): fix it in
-  `paper-forge` before the `v6` paper workspace is built, Phase 6.
+1. 🔴 **Commit and push** the work of 2026-10-06/07. In `pfm`:
+   - the lag in years and the institution harmonisation (`preparePanelData`, `panelDataScenario`);
+   - `apSatScale`, the donor-rule options, `computeAnchorGap` and `runPFMAnchor`, with their tests.
+
+   In `remind_pfm`: `preparePFM.R` copies `phi-anchor.rds`. In the project repo:
+   - docs: 0005 §7a and §8, the ADRs, `DATA.md`, `PITFALLS.md` §30–§31, `COUPLING.md`;
+   - scripts: `analysis/v6/*`, `analysis/checks/policlimInstitutions.R`;
+   - tools: `tools/clusterRun.sh`, `tools/clusterSubmit.R`, `syncFromCluster.sh --remind-inputs`.
+2. 🔴 **On the cluster: the anchor artifact and a fresh export for `v6`.** After `setup.sh --cluster
+   --update --install --no-cache`:
+   `pfmRun(group = "v6", steps = c("pfm-anchor", "pfm-remind-inputs"), cluster = "slurm")`
+   (no `clean`: nothing else changes). Then bring `output/remind-inputs/v6` to the workstation
+   (`syncFromCluster.sh … v6 --estimation --remind-inputs`); the local copy is still the
+   2026-10-05 export.
+3. **Phase 3 — the coupling code** (ADR 0049, 0050, 0054; 0005 Phase 3):
+   - a `formulation` switch in `iterativePFM()` that reads `phi-anchor.rds` and computes φ(t) through
+     `computeStrengthPath` / `computeSharePath`, with no ECM and no λ;
+   - the time-indexed symbols `p45_pfmPhiPath` / `p45_pfmPhiMktPath` behind `cm_pfmPhiPath`;
+     convergence on the φ path;
+   - the GAMS pass with **E11** (peak-budget check, was item 32) and **E12** (mode-R bind share, was
+     item 21);
+   - `pfmReplayInterface()` with the negative control on the new symbols; the Phase 3 gate.
+4. **Phase 4, alongside:**
+   - **F1 / E16**, the generated scenario config (ADR 0055);
+   - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;
+   - **F5**, the reproduction scripts promoted into `pfm`.
+5. **Accept ADR 0052 and ADR 0053** (author): both record decisions already taken.
+6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 has the numbers;
+   the changed sections can be drafted as text to paste.
+
+**Prepared for Phase 5, not to run yet** (0005 Phase 5, about 62 runs): the variant Run-Groups are
+built with `analysis/run-groups/makeSpecVariantGroup.R` and `makeGroupVariants.R` once the v6 export
+format is final:
+- `v6-specalt` (family B, X-2079 satInn);
+- `v6-sat05` and `v6-sat2` (the curve shape);
+- the assignment twins, `v6-nearest` included.
+
+Never run them with `clean = "group"`: it deletes the pinned spec file.
+
+**Deferred beyond the `v6` paper (author, 2026-10-07):**
+- 🟢 **The SSP axis** (0005 A1d, wave 3; decision 7). The machinery stays. The governance-only
+  measurement is on record (`output/pfm/v6/phase1/ssp-governance.rds`).
+- 🟢 **Revised institution projections informed by the PoliClim forecasts**
+  (`analysis/checks/policlimInstitutions.R`). PoliClim uses the same sources, but `v2xcl_rol` for
+  "Rule of Law" and overall accountability. Its projections allow backsliding. **When this is done,
+  revisit the ceiling-fall gate** (ADR 0043, review flag; decision 8): a new projection can move specs
+  across it.
 
 **Not needed for the `v6` run: your call, and time-sensitive if you want it.**
 - 🟢 **E25: keep `v5` rebuildable from scratch.** The `v5` artifacts themselves are on disk, and the
@@ -95,7 +115,12 @@ Phases 2–6 follow 0005 §4 in order: the `v6` re-sweep, the coupling code, the
 
 ## 22. Where the retired items went
 
-Pre-review files: `../_archive/_wip/2026-09-11/TODO-pre-cleanup-2026-09-11.md`,
+The next steps of the 2026-10-02 review are done: the cluster setup and the `v6` cache (2026-10-03;
+E27 found there), the `v6` and `v6-annual` sweeps (2026-10-05, re-run 2026-10-06 with `PITFALLS.md`
+§28–§31 fixed), and Phase 1 (2026-10-06/07). E23 and E19 are done (0005 §3 E).
+
+Pre-review files: `../_archive/_wip/2026-10-07/TODO-pre-review-2026-10-07.md`,
+`../_archive/_wip/2026-09-11/TODO-pre-cleanup-2026-09-11.md`,
 `../_archive/_wip/2026-09-14/TODO-pre-cleanup-2026-09-14.md`, `../_archive/_wip/2026-09-16/docs-pre-v5-sweep/TODO.md`,
 `../_archive/_wip/2026-09-17/TODO-pre-review-2026-09-17.md`,
 `../_archive/_wip/2026-10-02/TODO-pre-v6-review-2026-10-02.md` (the full text of every item retired

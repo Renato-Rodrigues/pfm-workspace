@@ -65,6 +65,7 @@ and `steps = "pfm-coupling-bound"`.
 |---|---|
 | `docFacts.R` | every estimation-side number the governed docs quote → `doc-facts/` |
 | `baseloadControl.R` | what the hydro/nuclear/geothermal control and the soft selection keys do (ADR 0048) |
+| `policlimInstitutions.R` | PFM's institution drivers (history, storyline rule, SSP-extension GE) against the PoliClim institution forecasts |
 | `compareSpecVariantPhi.R` | the specification band (φ across spec variants) |
 | `computeThetaBounds.R`, `efficiencyRatioBand.R` | θ bounds; the efficiency-ratio band |
 | `frontierSECheck.R` | audit of the frontier standard errors |
@@ -89,3 +90,17 @@ those paths.
 ## `v6/`
 
 `v6FormulationTests.R` runs the offline tests behind `docs/design-notes/0004` on `v5` artifacts.
+
+The Phase 1 scripts of design note 0005 run on a Run-Group's artifacts and write to
+`output/pfm/<group>/phase1/` (run `phase1.R` first: it builds the scenario panels the others read):
+
+| script | what it answers |
+|---|---|
+| `phase1.R` | anchors, $k_s(t)$ on every energy system, the formulation variants, the driver-group decomposition (C3), the anchor-year seam (C8) |
+| `donorAlternatives.R` | how many uncovered countries each donor-matching rule can match, how well, and what it does to $u$ and $k$ |
+| `specBand.R` | every sanity-passing spec through the same formulation: is the result the deployed spec's or the band's? Scratch Run-Groups in `output/pfm/specband-<group>/` |
+| `satShape.R` | family A's robustness: the deployed spec with the saturating curve's half-saturation point at 0.5x / 1x / 2x the median (sanity walk, fit, k, ranking). Scratch Run-Groups in `output/pfm/satshape-<group>/` |
+| `offlineHeadline.R` | step 9: the first-round bound with the v6 φ(t) from the anchor artifact against the v5 formulation, OFFLINE |
+| `sspGovernanceSwap.R` | step 6, governance part: SSP1 / SSP3 institutions on the SSP2 energy system; the SSP spread of $k$ against θ's range |
+| `ceilingGate.R` | C9: the ceiling-fall gate on the v6 spec, and what it removes from the band (`specBand.R v6 ceilingRejected`) |
+| `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |

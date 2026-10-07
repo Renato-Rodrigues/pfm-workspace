@@ -36,7 +36,9 @@ tools/               OPERATING A WORKSPACE (not evidence)
   setup.sh             create or update a workspace, on the workstation or the cluster
   repos.txt            the model and paper repositories and where they go (read by setup.sh)
   prepareMadratCache.R, listMadratCacheUsed.R   the madrat cache and its records (ADR 0047)
-  syncFromCluster.sh   cluster → workstation: runs, Run-Groups, panels
+  clusterRun.sh        cluster: update, install, verify, clean and submit Run-Groups (priority / standby) in one call
+  clusterSubmit.R      cluster: submit one Run-Group on a chosen queue (called by clusterRun.sh)
+  syncFromCluster.sh   cluster → workstation: runs, Run-Groups, panels, REMIND exports
   compareRunGroups.R, replayCouplingCall.R      did a version reproduce? one coupling call, replayed
 
 models/              MODEL CODE — each folder is its own git repository (not in the project repo)

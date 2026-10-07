@@ -12,6 +12,7 @@
 #   --res 'EU21 H12'    which resolutions (default both); each comes from models/remind_pfm-<res>/output/
 #   --estimation        also fetch output/pfm/<group>* (the Run-Group and its variants, e.g. v6-specalt)
 #   --panels            also fetch the fitted panels and index of the Fit Cache (output/pfm/fit-cache/{panels,index.json})
+#   --remind-inputs     also fetch the REMIND export output/remind-inputs/<group>* (pfmRun stage "remind")
 #   --dry-run           list what would be fetched, fetch nothing
 #
 # From each run folder only what the analysis reads is fetched: fulldata.gdx and log.txt
@@ -28,13 +29,14 @@ cd "$(dirname "$0")/.."
 
 [ $# -ge 3 ] || { sed -n '2,25p' "$0"; exit 2; }
 HOST="$1"; PROJ="$2"; GROUP="$3"; shift 3
-RUNS='*'; RES="EU21 H12"; EST=0; PANELS=0; DRY=0
+RUNS='*'; RES="EU21 H12"; EST=0; PANELS=0; RINP=0; DRY=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --runs) RUNS="$2"; shift ;;
     --res) RES="$2"; shift ;;
     --estimation) EST=1 ;;
     --panels) PANELS=1 ;;
+    --remind-inputs) RINP=1 ;;
     --dry-run) DRY=1 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
@@ -67,4 +69,10 @@ if [ "$PANELS" = 1 ]; then
   echo "[sync] $HOST:$PROJ/output/pfm/fit-cache/{panels,index.json} -> output/pfm/fit-cache/"
   if [ "$DRY" = 1 ]; then ssh "$HOST" "cd '$PROJ/output/pfm/fit-cache' && ls panels index.json"
   else mkdir -p output/pfm/fit-cache; ssh "$HOST" "cd '$PROJ/output/pfm/fit-cache' && tar -cf - panels index.json" | tar -xf - -C output/pfm/fit-cache; fi
+fi
+
+if [ "$RINP" = 1 ]; then
+  echo "[sync] $HOST:$PROJ/output/remind-inputs/$GROUP* -> output/remind-inputs/"
+  if [ "$DRY" = 1 ]; then ssh "$HOST" "cd '$PROJ/output/remind-inputs' && ls -d $GROUP*"
+  else mkdir -p output/remind-inputs; ssh "$HOST" "cd '$PROJ/output/remind-inputs' && tar -cf - $GROUP*" | tar -xf - -C output/remind-inputs; fi
 fi

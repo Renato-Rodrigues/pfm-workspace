@@ -7,6 +7,11 @@ Date: 2026-08-23
 Accepted. Implemented in `pfm` (2026-08-23, `ceilingFallGate = 0.90` by default); pending the
 Run-Group re-sweep of TODO item 0b.
 
+**Review flag (2026-10-07).** Kept for `v6`, but under the v6 coupling the ceiling path drives the
+strength factor, so this gate now decides the sign of Bulk $k$ for the specs it alone rejects (design
+note 0005 C9, §7a decision 8). Revisit it when the future projections are revised, in particular the
+institution projections informed by the PoliClim forecasts.
+
 Extends ADR 0036 (PSM), ADR 0039 (Tournament v2) and ADR 0040 (saturating actor power and the
 support-share gate). Supersedes nothing.
 

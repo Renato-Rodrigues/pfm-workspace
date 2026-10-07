@@ -115,7 +115,10 @@ copies into `<run>/pfm/` exactly what the coupling opens:
   donor-band files;
 - the panel named by `panel_hash`;
 - the staged madrat cache (ADR 0047);
-- `phi-override.yml`, if the Run-Group carries one.
+- `phi-override.yml`, if the Run-Group carries one;
+- `phi-anchor.rds`, the v6 anchor artifact (step `pfm-anchor`, design note 0005 C6), if the
+  Run-Group carries one. A stale copy in a reused run folder is removed. Nothing reads it yet: the
+  v6 coupling path (0005 Phase 3) will.
 
 The `pfm-coupling.yml` mechanism dates from 2026-08-11. It replaced setting PFM options in
 REMIND's `.Rprofile`, a file shared by every run, not per-scenario, and carrying absolute
