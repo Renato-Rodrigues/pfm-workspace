@@ -65,12 +65,21 @@ outside it. IDs such as E13 or D17 refer to that note.
    2026-10-05 export.
 3. **Phase 3 — the coupling code: written and verified offline (2026-10-07)**, `COUPLING.md` §14.
    E11 and E12 are done. **Next is the Phase 3 gate on the cluster** (0005 Phase 3):
-   - commit and push `pfm` and `remind_pfm`; `setup.sh --cluster --update --install`;
-     `pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`;
-   - the gate rows are in the scenario config, tag `EU21V6GATE` (`RUNNING.md` step 7b);
-   - the θ = 0 null on the fork against the `v5` null; one EU21 rule-B run (`-PFMlevelBfix`) and one
-     rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check the φ path and $k$ in the log and
-     `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6 on rule C.
+   - **the fork is on REMIND 3.7.1** (merge `41f21ec3b` on branch `pfm-v3.7.1`, 2026-10-07; codeCheck
+     strict and `pfmReplayInterface` pass; GAMS compile untested locally - no input data). Fast-forward
+     `pfm` to it and push; `v5-final` keeps the old fork state;
+   - on the cluster: `setup.sh --cluster --update`, `make ensure-reqs` in `remind_pfm-EU21`, then
+     `setup.sh --cluster --install`; `pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`;
+   - **one start tag, `EU21V371`** (`RUNNING.md` step 7b): the uncoupled bases `SSP2-EU21-NPi2025`,
+     `SSP2-EU21-PkBudg1000`, `-PFMgateRef`, then the four gate rows, chained by REMIND;
+   - the θ = 0 null against `-PFMgateRef` on the same version (no longer the `v5` null, §34); one EU21
+     rule-B run (`-PFMlevelBfix`) and one rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check
+     the φ path and $k$ in the log and `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6
+     on rule C. `analysis/v6/phase3Gate.R` checks all of it, versions included;
+   - **then re-point the v6 scenario registry** (`config.yml` `scenarios:`, still the `v5` 3.7.0.dev
+     bases) at the 3.7.1 bases, and re-run what read them offline: the Phase 1 panels and Bulk $k$
+     (0.629 / 0.481 on the v5 `PkBudg1000`), `offlineHeadline.R`, `sspGovernanceSwap.R`,
+     `ceilingGate.R` (§34). The coupled runs themselves read their own gdx and are unaffected.
 4. **Phase 4, alongside:**
    - **F1 / E16**, the generated scenario config (ADR 0055);
    - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;

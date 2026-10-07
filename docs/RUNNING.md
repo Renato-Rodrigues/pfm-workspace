@@ -252,30 +252,47 @@ checkout.
 **Locally:** REMIND cannot run, because its input data is not on the workstation. Run only the
 `--test` line, in `models/remind_pfm`.
 
-### Step 7b — The v6 Phase 3 gate (start tag `EU21V6GATE`)
+### Step 7b — The v6 Phase 3 gate on REMIND 3.7.1 (start tag `EU21V371`)
 
-Four EU21 rows in `config/scenario_config_PFM.csv` (section `v6_phase3_gate_EU21`), all
-`pfmGroup = v6`, `cm_pfmPhiPath = 1`. REMIND chains them by their `path_gdx*` columns, so one tag
-starts them all:
-- `SSP2-EU21-PkBudg1000-PFMgate-v6`: the θ = 0 null; must reproduce `v5`'s `-PFMgate`;
+The fork moved to REMIND 3.7.1 on 2026-10-07, so the uncoupled bases are re-run first (`PITFALLS.md`
+§34). Once per cluster checkout, after `pfm` carries the merge:
+
+```bash
+tools/setup.sh --cluster --update                  # every repo; remind_pfm-* move to 3.7.1
+(cd models/remind_pfm-EU21 && make ensure-reqs)    # 3.7.1's new R requirements (gdx2, piamenv >= 0.8.1, ...)
+tools/setup.sh --cluster --install                 # mrpfm and pfm back into the renv
+```
+
+Three tags in `config/scenario_config_PFM.csv`:
+
+| tag | starts |
+|---|---|
+| `EU21V371` | everything below, in one call: REMIND chains the rows by their `path_gdx*` columns |
+| `EU21BASE` | the uncoupled bases `SSP2-EU21-NPi2025`, `SSP2-EU21-PkBudg1000` and `-PFMgateRef` |
+| `EU21V6GATE` | the four gate rows alone, once the 3.7.1 bases exist in the output folder |
+
+The gate rows (section `v6_phase3_gate_EU21`), all `pfmGroup = v6`, `cm_pfmPhiPath = 1`:
+- `SSP2-EU21-PkBudg1000-PFMgate-v6`: the θ = 0 null; must reproduce `-PFMgateRef` on the same
+  REMIND version (no longer `v5`'s `-PFMgate`);
 - `SSP2-EU21-PkBudg1000-PFMgateBfix-v6`: the held-price null; starts after it;
 - `SSP2-EU21-PkBudg1000-PFMlevelBfix-v6`: rule B, θ = 0.5; starts after the held-price null;
 - `SSP2-EU21-PkBudg1000-PFMlevelC-v6`: rule C, θ = 0.5, with the GAMS rebuild.
 
 Needs `output/remind-inputs/v6` with `phi-anchor.rds` (`pfmRun(group = "v6", steps =
-c("pfm-anchor", "pfm-remind-inputs"))`), and the reference runs `SSP2-EU21-NPi2025` and
-`SSP2-EU21-PkBudg1000` in `models/remind_pfm-EU21/output/` (Step 5).
+c("pfm-anchor", "pfm-remind-inputs"))`).
 
 ```r
 library(pfm)
-submitPFM("EU21V6GATE", remindDir = "models/remind_pfm-EU21")               # dry run: checks + plan
-submitPFM("EU21V6GATE", remindDir = "models/remind_pfm-EU21", dry = FALSE)  # submits
+submitPFM("EU21V371", remindDir = "models/remind_pfm-EU21")               # dry run: checks + plan
+submitPFM("EU21V371", remindDir = "models/remind_pfm-EU21", dry = FALSE)  # submits
 ```
 
-or directly in the checkout: `Rscript start.R --test config/scenario_config_PFM.csv
-startgroup=EU21V6GATE`, then without `--test`. When the four runs have finished:
+The dry run lists only the four coupled rows; `start.R` starts all seven. Or directly in the
+checkout: `Rscript start.R --test config/scenario_config_PFM.csv startgroup=EU21V371`, then without
+`--test`. When the seven runs have finished:
 `Rscript analysis/v6/phase3Gate.R models/remind_pfm-EU21/output` prints a verdict per gate
-criterion (design note 0005 Phase 3).
+criterion (design note 0005 Phase 3), the REMIND version of every run (`c_model_version` in the
+gdx) included.
 
 ## Step 8 — Check that the runs used the Run-Group's cache
 

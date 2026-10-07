@@ -178,6 +178,7 @@ Ranked by how long they went unnoticed:
 | a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
 | a nested call reading the panel definition from a global option | nothing — the coupling uses another IEA edition than the estimation | `iterativePFM()` sets `pfm.panel` for the call (§32) |
 | a share path with missing periods, or `cm_pfmPhiPath` not matching the group | a constant or zero φ under a v6 label | the path covers every `ttot`; R and `pfmPreflight` check the switch (§33) |
+| a comparison across REMIND versions, or a registry gdx from an older REMIND | a null that "fails" by model drift; offline numbers on another model than the runs | `c_model_version` in each gdx; one version per comparison and per Run-Group's registry (§34) |
 
 When something looks fine, these are what to check first.
 
@@ -948,3 +949,24 @@ these would run, converge and report a v6 result while GAMS used something else:
 
 And one for reading results: a `v6` φ and a `v5` φ at the same θ are not the same severity (θ means
 "severity at 2025" under v6, D12), so never compare them across the θ dial (`TODO.md` 7a's trap).
+
+## 34. A REMIND version change: compare within one version, and move the registry with it
+
+On 2026-10-07 the fork moved from REMIND 3.7.0.dev29 to 3.7.1 (`remind_pfm` merge `41f21ec3b`; 343
+upstream commits; `v5-final` keeps the old state). Three consequences, all silent:
+- **Nulls compare within one version.** A θ = 0 run on 3.7.1 against a θ = 0 run on 3.7.0.dev measures
+  REMIND's drift, not the coupling. The Phase 3 null is gated against `-PFMgateRef` re-run on 3.7.1;
+  `phase3Gate.R` reads `c_model_version` from every gdx and fails a mixed pair. For scale, the
+  same-version `v5` pair `-PFMgate` / `-PFMgateRef` differs by at most $0.71 per `pm_taxCO2eq` cell.
+- **The scenario registry is a model version too.** `config.yml` `scenarios:` points at the `v5`
+  bases. Everything that reads it offline (the projection, the coupling bound, the Phase 1 panels and
+  $k$, `analysis/v6/offlineHeadline.R`, `sspGovernanceSwap.R`, `ceilingGate.R`) describes 3.7.0.dev
+  until it is re-pointed at the 3.7.1 bases. A coupled run reads its own gdx and `input_ref.gdx`, so
+  it is consistent by construction; the offline numbers quoted beside it are not.
+- **The renv moves.** 3.7.1 replaced `gdx` by `gdx2` in REMIND's own DESCRIPTION and raised
+  `piamenv`. `pfm` still imports `gdx`, which `setup.sh --install` keeps in the run renv; run
+  `make ensure-reqs` in each checkout before `setup.sh --install`.
+
+A merge of upstream REMIND conflicts only in `not_used.txt` when the fork's GAMS changes stay inside
+`45_carbonprice/functionalForm`: resolve as the union, then `gms::codeCheck(strict = TRUE)`, which
+also lists every PFM switch a realization does not address.

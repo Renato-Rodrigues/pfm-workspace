@@ -36,7 +36,8 @@
 - New pitfalls to document with the code: a φ path loaded with the wrong year labels loads as zeros;
   a rule-C run with `cm_pfmPhiPath = 0` on a `v6` group rebuilds from the $t_0$ value; an SSP mismatch
   between the row and the export.
-- Gate (Phase 3): the θ = 0 null on the v6 fork reproduces `v5`'s within tolerance; one EU21 rule-B run
+- Gate (Phase 3): the θ = 0 null on the v6 fork reproduces `-PFMgateRef` on the same REMIND version
+  (3.7.1) within tolerance (the `v5` null ran on an older REMIND, `PITFALLS.md` §34); one EU21 rule-B run
   converges with the path and $k$ logged; one rule-C run shows a rebuild error near 1e-6.
 
 ## Alternatives rejected

@@ -113,7 +113,7 @@ here (D1).
 | D15 | Ordering tests (uniform, permuted, reversed, set) become a ranking option on **$u$**, composing with $k(t)$. This replaces `phi-override.yml` for v6 | keep overriding φ after the fact | recommended |
 | D16 | Region-specific strength $k_{r,s}(t)$ only as an SI sensitivity | deploy it | recommended |
 | D17 | **Hold fixed** in v6: one shared spec for both sectors, min–max normalisation, final-energy weights, the USA override, the θ grid {0.325, 0.50, 0.675} | change any of these too | recommended |
-| D18 | Re-run the θ = 0 nulls once on the v6 fork and gate them against `v5` | reuse the `v5` nulls | recommended |
+| D18 | Re-run the θ = 0 nulls once on the v6 fork and gate them against `v5`. **Amended 2026-10-07:** the fork moved to REMIND 3.7.1, so the null is gated against `-PFMgateRef` on the same version, and the uncoupled bases are re-run on 3.7.1 first (`PITFALLS.md` §34) | reuse the `v5` nulls | recommended; amended |
 | D19 | **New paper workspace** on Run-Group `v6`, built the way `papers/pfm-paper-v5` was built from `paper`. `papers/pfm-paper-v5` v18 is the draft; `papers/pfm-paper-v5`'s design, claims and literature are the seed. `papers/pfm-paper-v5` is frozen at v18 as the `v5` record and **is not submitted**: the v6 paper replaces it | continue `papers/pfm-paper-v5` and switch its Run-Group; submit `papers/pfm-paper-v5` on `v5` in parallel | **decided by the author, 2026-10-01** |
 | D20 | Put the project layer (`analysis/`, `analysis/figures/`, `docs/`, `docs/design-notes/`, `config.yml`, paper workspaces) under git, excluding data, output and gdx | keep it workstation-only | agreed |
 | D21 | The `psm*` → `pfm*` rename is **the first step of v6, before anything else**, with read-aliases so the frozen `v5` artifacts and the `papers/pfm-paper-v5` bundle stay readable | defer to after submission | **decided by the author, 2026-10-01** |
@@ -1108,7 +1108,9 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
   (`PITFALLS.md` §32), fixed before any v6 run.
 
 **Gate:**
-- the θ = 0 null on the v6 fork reproduces the `v5` null within the `SCENARIOS.md` §3.1 tolerance;
+- 0. the uncoupled bases `SSP2-EU21-NPi2025`, `SSP2-EU21-PkBudg1000` and `-PFMgateRef` re-run on REMIND
+  3.7.1 (start tag `EU21V371`, which also starts the four gate rows, chained);
+- the θ = 0 null on the v6 fork reproduces `-PFMgateRef` (uncoupled, uniform price) run on the **same REMIND version** within the `SCENARIOS.md` §3.1 tolerance. Since the fork moved to REMIND 3.7.1 (2026-10-07) the `v5` null (3.7.0.dev29) is a different model and is shown for information only; for scale, the `v5` pair `-PFMgate` / `-PFMgateRef` differs by at most $0.71 per cell (`PITFALLS.md` §34);
 - one EU21 rule-B test run converges, with the φ path and $k$ in its log and history;
 - one EU21 rule-C test run shows a rebuild error of about 1e-6 (`p45_pfmBoundCheck_iter`) with the
   path loaded;

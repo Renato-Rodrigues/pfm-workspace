@@ -1,14 +1,17 @@
 # The Phase 3 gate of design note 0005 on the EU21V6GATE runs (COUPLING.md 14):
-#   1. the theta = 0 null on the v6 fork reproduces the v5 null within SCENARIOS.md 3.1 (max |dP| < $1
-#      per pm_taxCO2eq cell, cumulative CO2 within 0.2 Gt), with phi and the share path exactly 1;
+#   0. the REMIND 3.7.1 bases (-NPi2025, -PkBudg1000, -PFMgateRef) finished;
+#   1. the theta = 0 null on the v6 fork reproduces the uncoupled uniform-price run -PFMgateRef on the
+#      SAME REMIND version within SCENARIOS.md 3.1 (max |dP| < $1 per pm_taxCO2eq cell, cumulative CO2
+#      within 0.2 Gt), with phi and the share path exactly 1. Since the fork moved to REMIND 3.7.1
+#      (2026-10-07) the v5 null (3.7.0.dev) is no longer a valid comparator; it is shown for information;
 #   2. one EU21 rule-B run (-PFMlevelBfix-v6) converges, with the share path loaded and k in its history;
 #   3. one EU21 rule-C run (-PFMlevelC-v6) converges with a rebuild error near 1e-6 on call iterations;
 #   plus, for every run: no infeasibility code, the peak-budget record (E11), the mode bind share (E12).
 #   Rscript analysis/v6/phase3Gate.R <REMIND output folder>
 #   e.g. on the cluster:  Rscript analysis/v6/phase3Gate.R models/remind_pfm-EU21/output
 #        on the workstation, after syncing:  Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/EU21
-# The v5 null (SSP2-EU21-PkBudg1000-PFMgate) is looked for in the same folder, then in
-# output/remind-runs/v5/EU21. The latest folder of each title is used.
+# The seven runs of the start group EU21V371 are looked for in this folder; the v5 null
+# (SSP2-EU21-PkBudg1000-PFMgate) also in output/remind-runs/v5/EU21. The latest folder of each title is used.
 a <- commandArgs(trailingOnly = TRUE)
 outDir <- if (length(a)) a[1] else "models/remind_pfm-EU21/output"
 TCO2 <- 1000 / (44 / 12)
@@ -26,10 +29,33 @@ say <- function(...) cat(..., "\n", sep = "")
 pass <- function(name, ok, detail) { verdict[[name]] <<- ok; say(sprintf("  [%s] %s: %s", if (isTRUE(ok)) "PASS" else "FAIL", name, detail)) }
 
 runs <- c(null = "SSP2-EU21-PkBudg1000-PFMgate-v6", nullB = "SSP2-EU21-PkBudg1000-PFMgateBfix-v6",
-          ruleB = "SSP2-EU21-PkBudg1000-PFMlevelBfix-v6", ruleC = "SSP2-EU21-PkBudg1000-PFMlevelC-v6")
+          ruleB = "SSP2-EU21-PkBudg1000-PFMlevelBfix-v6", ruleC = "SSP2-EU21-PkBudg1000-PFMlevelC-v6",
+          ref = "SSP2-EU21-PkBudg1000-PFMgateRef", npi = "SSP2-EU21-NPi2025", base = "SSP2-EU21-PkBudg1000")
 path <- vapply(runs, function(t) latest(outDir, t), character(1))
 v5null <- latest(c(outDir, "output/remind-runs/v5/EU21"), "SSP2-EU21-PkBudg1000-PFMgate")
-say("== runs"); for (k in names(path)) say(sprintf("  %-6s %s", k, path[[k]])); say(sprintf("  v5null %s", v5null))
+version <- function(run) {   # the set c_model_version in fulldata.gdx, e.g. "3-7-0-dev29"
+  if (is.na(run)) return(NA_character_)
+  v <- tryCatch({ g <- gamstransfer::Container$new(); g$read(file.path(run, "fulldata.gdx"), "c_model_version")
+                  as.character(g["c_model_version"]$records[[1]][1]) }, error = function(e) NA_character_)
+  if (length(v) && !is.na(v)) v else NA_character_
+}
+ver <- vapply(c(path, v5null = v5null), version, character(1))
+say("== runs (REMIND version)")
+for (k in names(ver)) say(sprintf("  %-6s %-10s %s", k, ver[[k]], c(path, v5null = v5null)[[k]]))
+
+compareNull <- function(a, b, label, gate) {
+  pa <- rd(a, "pm_taxCO2eq") * TCO2; pb <- rd(b, "pm_taxCO2eq") * TCO2
+  y <- intersect(magclass::getYears(pa), magclass::getYears(pb))
+  y <- y[as.integer(sub("y", "", y)) >= 2030 & as.integer(sub("y", "", y)) <= 2100]
+  dP <- abs(as.numeric(pa[, y, ]) - as.numeric(pb[, y, ]))
+  ca <- num(rd(a, "pm_actualbudgetco2")[, "y2100", ]); cb <- num(rd(b, "pm_actualbudgetco2")[, "y2100", ])
+  dPrice <- sprintf("%d cells 2030-2100, %d differ, max |dP| $%.2f, mean $%.2f", length(dP), sum(dP > 1e-6), max(dP), mean(dP))
+  dCum <- sprintf("%.2f vs %.2f Gt", ca, cb)
+  if (gate) {
+    pass(paste(label, "prices"), max(dP) < 1, dPrice)
+    pass(paste(label, "cumulative CO2 2100"), abs(ca - cb) < 0.2, dCum)
+  } else say(sprintf("  [info] %s: prices %s; cumulative CO2 2100 %s", label, dPrice, dCum))
+}
 
 common <- function(run, label) {
   if (is.na(run)) { pass(paste(label, "present"), FALSE, "no finished run (fulldata.gdx) found"); return(invisible()) }
@@ -49,18 +75,18 @@ common <- function(run, label) {
     if (length(bs)) say(sprintf("  [info] %s bind share (last iteration) %.3f (E12)", label, utils::tail(bs, 1))) }
 }
 
+say("\n== 0. the REMIND 3.7.1 bases")
+for (k in c("npi", "base", "ref")) {
+  pass(paste(k, "finished on REMIND 3.7.1"), !is.na(path[[k]]) && grepl("^3-7-1", ver[[k]]),
+       if (is.na(path[[k]])) "no finished run (fulldata.gdx) found" else sprintf("REMIND %s", ver[[k]]))
+}
+pass("null and -PFMgateRef on the same REMIND version", !is.na(ver[["null"]]) && identical(ver[["null"]], ver[["ref"]]),
+     sprintf("%s vs %s", ver[["null"]], ver[["ref"]]))
+
 say("\n== 1. the theta = 0 null on the v6 fork")
 common(path[["null"]], "null")
-if (!is.na(path[["null"]]) && !is.na(v5null)) {
-  p6 <- rd(path[["null"]], "pm_taxCO2eq") * TCO2; p5 <- rd(v5null, "pm_taxCO2eq") * TCO2
-  y <- intersect(magclass::getYears(p6), magclass::getYears(p5)); y <- y[as.integer(sub("y", "", y)) >= 2030 & as.integer(sub("y", "", y)) <= 2100]
-  dP <- abs(as.numeric(p6[, y, ]) - as.numeric(p5[, y, ]))
-  b6 <- rd(path[["null"]], "pm_actualbudgetco2"); b5 <- rd(v5null, "pm_actualbudgetco2")
-  c6 <- num(b6[, "y2100", ]); c5 <- num(b5[, "y2100", ])
-  pass("null vs v5 null: prices", max(dP) < 1, sprintf("%d cells 2030-2100, %d differ, max |dP| $%.2f, mean $%.2f",
-                                                       length(dP), sum(dP > 1e-6), max(dP), mean(dP)))
-  pass("null vs v5 null: cumulative CO2 2100", abs(c6 - c5) < 0.2, sprintf("%.2f vs %.2f Gt", c6, c5))
-}
+if (!is.na(path[["null"]]) && !is.na(path[["ref"]])) compareNull(path[["null"]], path[["ref"]], "null vs -PFMgateRef:", TRUE)
+if (!is.na(path[["null"]]) && !is.na(v5null)) compareNull(path[["null"]], v5null, "null vs the v5 null (older REMIND, not gated)", FALSE)
 if (!is.na(path[["null"]])) {
   phi <- num(rd(path[["null"]], "p45_regiDiff_phi")); pp <- num(rd(path[["null"]], "p45_pfmPhiPath"))
   pass("null: phi and the path are 1", isTRUE(all(abs(phi - 1) < 1e-12)) && isTRUE(all(abs(pp[pp != 0] - 1) < 1e-12)),
