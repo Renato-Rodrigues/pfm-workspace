@@ -252,6 +252,31 @@ checkout.
 **Locally:** REMIND cannot run, because its input data is not on the workstation. Run only the
 `--test` line, in `models/remind_pfm`.
 
+### Step 7b — The v6 Phase 3 gate (start tag `EU21V6GATE`)
+
+Four EU21 rows in `config/scenario_config_PFM.csv` (section `v6_phase3_gate_EU21`), all
+`pfmGroup = v6`, `cm_pfmPhiPath = 1`. REMIND chains them by their `path_gdx*` columns, so one tag
+starts them all:
+- `SSP2-EU21-PkBudg1000-PFMgate-v6`: the θ = 0 null; must reproduce `v5`'s `-PFMgate`;
+- `SSP2-EU21-PkBudg1000-PFMgateBfix-v6`: the held-price null; starts after it;
+- `SSP2-EU21-PkBudg1000-PFMlevelBfix-v6`: rule B, θ = 0.5; starts after the held-price null;
+- `SSP2-EU21-PkBudg1000-PFMlevelC-v6`: rule C, θ = 0.5, with the GAMS rebuild.
+
+Needs `output/remind-inputs/v6` with `phi-anchor.rds` (`pfmRun(group = "v6", steps =
+c("pfm-anchor", "pfm-remind-inputs"))`), and the reference runs `SSP2-EU21-NPi2025` and
+`SSP2-EU21-PkBudg1000` in `models/remind_pfm-EU21/output/` (Step 5).
+
+```r
+library(pfm)
+submitPFM("EU21V6GATE", remindDir = "models/remind_pfm-EU21")               # dry run: checks + plan
+submitPFM("EU21V6GATE", remindDir = "models/remind_pfm-EU21", dry = FALSE)  # submits
+```
+
+or directly in the checkout: `Rscript start.R --test config/scenario_config_PFM.csv
+startgroup=EU21V6GATE`, then without `--test`. When the four runs have finished:
+`Rscript analysis/v6/phase3Gate.R models/remind_pfm-EU21/output` prints a verdict per gate
+criterion (design note 0005 Phase 3).
+
 ## Step 8 — Check that the runs used the Run-Group's cache
 
 ```bash

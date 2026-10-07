@@ -104,3 +104,5 @@ The Phase 1 scripts of design note 0005 run on a Run-Group's artifacts and write
 | `sspGovernanceSwap.R` | step 6, governance part: SSP1 / SSP3 institutions on the SSP2 energy system; the SSP spread of $k$ against θ's range |
 | `ceilingGate.R` | C9: the ceiling-fall gate on the v6 spec, and what it removes from the band (`specBand.R v6 ceilingRejected`) |
 | `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |
+| `couplingOffline.R` | Phase 3: the v6 coupling call offline on a REMIND gdx, against the Phase 1 numbers |
+| `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V6GATE` runs (null vs v5, rule B path and history, rule C rebuild) |

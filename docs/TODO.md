@@ -67,7 +67,7 @@ outside it. IDs such as E13 or D17 refer to that note.
    E11 and E12 are done. **Next is the Phase 3 gate on the cluster** (0005 Phase 3):
    - commit and push `pfm` and `remind_pfm`; `setup.sh --cluster --update --install`;
      `pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`;
-   - add `cm_pfmPhiPath = 1` to the v6 rows of the scenario config (and `pfmGroup = v6`);
+   - the gate rows are in the scenario config, tag `EU21V6GATE` (`RUNNING.md` step 7b);
    - the θ = 0 null on the fork against the `v5` null; one EU21 rule-B run (`-PFMlevelBfix`) and one
      rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check the φ path and $k$ in the log and
      `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6 on rule C.
