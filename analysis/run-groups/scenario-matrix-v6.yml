@@ -237,11 +237,24 @@ runs:
   - {key: Bregk, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: regk, options: {pfmPhiStrength: regional}, warm: "@Bfix",
      description: "Regional strength k_r (D16, C4), SI."}
-  # kappa: NOT YET DECLARED. 0.02 a year (the strength halves in about 35 years) is a placeholder;
-  # declare the value (ADR 0050) before wave 2 is submitted.
+  # kappa: DECLARED 2026-10-08 (author; ADR 0050), before any wave-2 run. Central 0.027 a year = "beyond
+  # what the drivers already do, the political drag halves by mid-century" (half-life 25 years); the
+  # sensitivities 0.02 (half-life ~35 years) and 0.05 (~14 years) bracket it. Rule B and rule C each.
   - {key: Bkappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
-     variant: kappa, options: {pfmPhiKappa: "0.02"}, warm: "@Bfix",
-     description: "Declared closure on the strength, kappa = 0.02 a year (D13, C2) - replaces GAPCLOSE."}
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@Bfix",
+     description: "Declared closure on the strength, kappa = 0.027 a year, the central case (D13, C2) - replaces GAPCLOSE."}
   - {key: Ckappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
-     variant: kappa, options: {pfmPhiKappa: "0.02"}, warm: "@C",
-     description: "Declared closure on the strength, kappa = 0.02 a year, rule C."}
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@C",
+     description: "Declared closure on the strength, kappa = 0.027 a year, the central case, rule C."}
+  - {key: Bkappa02, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@Bfix",
+     description: "Kappa sensitivity, slow erosion: 0.02 a year (half-life about 35 years)."}
+  - {key: Ckappa02, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@C",
+     description: "Kappa sensitivity, slow erosion: 0.02 a year, rule C."}
+  - {key: Bkappa05, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@Bfix",
+     description: "Kappa sensitivity, fast erosion: 0.05 a year (half-life about 14 years)."}
+  - {key: Ckappa05, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@C",
+     description: "Kappa sensitivity, fast erosion: 0.05 a year, rule C."}

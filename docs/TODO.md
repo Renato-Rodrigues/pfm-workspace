@@ -76,8 +76,8 @@ outside it. IDs such as E13 or D17 refer to that note.
      scripts now read `-v6` titles and skip comparisons whose runs are not there yet.
 4. **Phase 4, alongside:**
    - ✅ **F1 / E16 done 2026-10-07**: `analysis/run-groups/scenario-matrix-v6.yml` →
-     `scenario_config_PFM_v6.csv` (54 runs; `RUNNING.md` step 7c). **Declare κ** before wave 2 (the matrix
-     carries 0.02 a year as a placeholder);
+     `scenario_config_PFM_v6.csv` (58 runs since κ; `RUNNING.md` step 7c). ✅ **κ declared 2026-10-08**:
+     0.027 a year, sensitivities 0.02 and 0.05, rule B and C each (ADR 0050 decision 5);
    - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;
    - **F5**, the reproduction scripts promoted into `pfm`.
 5. ✅ **ADRs 0049–0055 all accepted**: 0051, 0052, 0053, 0055 on 2026-10-07; 0049, 0050, 0054 on

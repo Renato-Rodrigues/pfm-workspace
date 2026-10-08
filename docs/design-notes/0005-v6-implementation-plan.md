@@ -473,6 +473,8 @@ Each item names the phase that closes it (P0–P6) and its source.
 - [ ] **C1** — Built-in ordering tests on $u$ (uniform, permuted ×3, reversed) at both closures (D15;
       P3/P5). This is the v6 form of GP-24.
 - [ ] **C2** — A declared closure arm on the strength, $\kappa$ (D13; P5), replacing `GAPCLOSE`.
+      **κ declared 2026-10-08:** 0.027 a year (the drag halves by mid-century), sensitivities 0.02 and
+      0.05, rule B and C each (ADR 0050 decision 5). Open: the six wave-2 runs.
 - [ ] **C3** — Decompose $k_s(t)$ by driver group: actor power (the REMIND feedback), institutions
       (SSP), controls (income, population), plus a composition term. This is the mechanism figure,
       and the v6 form of `TODO.md` 4 (P1 prototype, P6 figure).
@@ -714,7 +716,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   `config/scenario_config_PFM_v6.csv`, 54 coupled runs (wave 1: 20, wave 2: 34), tags `V6W<wave><res>`;
   the bases, `-PFMgateRef` and the gate rows come out identical to the hand-written ones. The v6
   option columns are declared in the fork's `default.cfg` (REMIND's reader stops on unknown columns).
-  κ is a placeholder (0.02 a year) until declared. One YAML lists:
+  κ was declared on 2026-10-08 (0.027, with 0.02 and 0.05; ADR 0050). One YAML lists:
   - the canonical parents per SSP and resolution;
   - the arms (closure, θ, markup, ordering test, hold year, spread, κ);
   - the Run-Group per arm;
@@ -1194,7 +1196,7 @@ submit prints the expected rows, groups and commits.
 | 2 | markup off (`-Min`) for B and C; ratio mode for C | EU21, H12 | 6 | v5 continuity |
 | 2 | family A shape twins (main-text robustness): Bfix at θ 0.50 on `v6-sat05` and `v6-sat2` (deployed spec, half-saturation 0.5× and 2× the median) | EU21 | 2 | D7, decision 6 of §7a |
 | 2 | family B (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
-| 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ (Bfix and C) | EU21 | 6 | D2, D6, D16, D13 |
+| 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ at 0.027, 0.02 and 0.05 (Bfix and C each) | EU21 | 10 | D2, D6, D16, D13 |
 | ~~3~~ | ~~hold-2060 twin of each SSP's `-PFMlevelBfix`~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
 | ~~3~~ | ~~SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC`~~ | EU21 | ~~12~~ | deferred (§7a decision 7) |
 | ~~3~~ | ~~declared spread arm per SSP~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
