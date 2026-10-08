@@ -1131,7 +1131,7 @@ output/remind-runs/v6/EU21`, 18 of 18 checks):
 - the null `-PFMgate-v6` against `-PFMgateRef`: 0 of 231 `pm_taxCO2eq` cells differ (2030–2100),
   cumulative CO2 2100 1000.91 Gt both, φ and the path exactly 1. Against the `v5` null (information
   only, REMIND drift): max |dP| $68.81, 1000.91 vs 991.61 Gt;
-- the held-price null `-PFMgateBfix-v6`: 1003.2 Gt at 2100, +2.3 Gt on `-PFMgate-v6` (0.23%; `v5`
+- the held-price null `-PFMgateBfix-v6`: 1003.2 Gt at 2100, +2.2 Gt on `-PFMgate-v6` (0.22%; `v5`
   +2.1 Gt) — the pinning holds (`SCENARIOS.md` §4.2a);
 - rule B `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.00024 (all-period 0.0016), one damped call;
   Bulk $k$ 0.686 / 0.525 and Diffuse 0.846 / 0.723 at 2050 / 2100; 2050 path min 0.577, median

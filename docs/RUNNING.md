@@ -368,7 +368,8 @@ Rscript analysis/coupled/runCoupledStage.R v6                # the whole post-ba
 `runCoupledStage.R` (design note 0005 F4) runs `extractCoupledResults`, then **stops** if a run
 is still in flight and fails the early-market test (`PITFALLS.md` §25) or a finished run has an
 early-period market over tolerance (§25a), and otherwise runs the facts scripts in order
-(`coupledBatchFacts` → `coupled-facts.json`, costs, held-budget prices, rule-C freeze,
+(`coupledBatchFacts` → `coupled-facts.json`; for any group after `v5`, `coupledBatchFactsV6`, which reads
+each run's φ path and $k$ from its history and accepts a batch that lands in waves; then costs, held-budget prices, rule-C freeze,
 convergence, provenance), stopping on the first that fails. `--allow-skipped` goes on without the
 in-flight runs, listing them.
 

@@ -64,7 +64,16 @@ outside it. IDs such as E13 or D17 refer to that note.
      old vs new in `output/pfm/v6/phase1/base-refresh.rds`. Every change is small (largest: Diffuse
      $k_{2050}$ on PkBudg1000 −0.054); `couplingOffline.R` still reproduces the Phase 1 shares exactly.
      Numbers quoted before 2026-10-08 from `phase1/` describe 3.7.0.dev29.
-   - ✅ ADRs 0049, 0050, 0054 accepted 2026-10-08. **Next: wave 1** (0005 Phase 5).
+   - ✅ ADRs 0049, 0050, 0054 accepted 2026-10-08.
+4a. **Wave 1 submitted 2026-10-08 (standby)**: `V6W1EU21` (6 runs, batch `2026-10-08_21.55.29`) and
+   `V6W1H12` (3 H12 3.7.1 bases, then 10 coupled rows, chained; batch `2026-10-08_22.09.48`). When they land:
+   sync (`syncFromCluster.sh … v6 --runs …`), then
+   - `Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/H12 --res H12`: the H12 null against its
+     `-PFMgateRef`, the held-price pinning (within 5 Gt), rule B and rule C, as at EU21;
+   - `Rscript analysis/coupled/runCoupledStage.R v6`: admission, then the v6 facts
+     (`coupledBatchFactsV6.R`: θ sweep and slope, the institutions-held twins, rule C's price relocation,
+     $k$ per run, every option arm with the options its last call ran with). The cost and held-budget
+     scripts now read `-v6` titles and skip comparisons whose runs are not there yet.
 4. **Phase 4, alongside:**
    - ✅ **F1 / E16 done 2026-10-07**: `analysis/run-groups/scenario-matrix-v6.yml` →
      `scenario_config_PFM_v6.csv` (54 runs; `RUNNING.md` step 7c). **Declare κ** before wave 2 (the matrix

@@ -33,7 +33,7 @@ sym <- function(gdx, s) {
 }
 
 cr <- readRDS(file.path("output/pfm", group, "coupling", "coupled-runs.rds"))
-R <- cr$runs[!cr$runs$superseded, ]; R$key <- sub("^SSP2-(EU21-)?", "", R$scenario)
+R <- cr$runs[!cr$runs$superseded, ]; R$key <- sub("-v6$", "", sub("^SSP2-(EU21-)?", "", R$scenario))   # v6 titles end in -v6
 P <- cr$prices
 YEAR <- 2050
 
@@ -41,7 +41,9 @@ res <- list(); tabs <- list()
 for (rs in c("EU21", "H12")) {
   rr <- R[R$resolution == rs & R$key == runKey, ]
   rg <- R[R$resolution == rs & R$key == "PkBudg1000-PFMgate", ]
-  stopifnot(nrow(rr) == 1, nrow(rg) == 1)
+  if (nrow(rr) > 1 || nrow(rg) > 1) stop(rs, ": more than one live run for ", runKey, " or -PFMgate")
+  # a batch that lands in parts (v6 waves): a resolution without both runs is skipped, not an error
+  if (!nrow(rr) || !nrow(rg)) { message(rs, ": ", runKey, " or -PFMgate not present - skipped"); next }
   pr <- P[P$scenario == rr$scenario & P$resolution == rs & P$year == YEAR, c("region", "es", "ets")]
   pg <- P[P$scenario == rg$scenario & P$resolution == rs & P$year == YEAR, c("region", "es", "ets")]
   names(pg)[2:3] <- c("esNull", "etsNull")
@@ -76,6 +78,7 @@ for (rs in c("EU21", "H12")) {
               wMean, wMeanNull, wMean / wMeanNull, 1 / wPhi, res[[rs]]$marketsAboveNull, res[[rs]]$marketsBelowNull,
               res[[rs]]$markets, res[[rs]]$minRatio, res[[rs]]$maxRatio))
 }
+if (!length(res)) { message("no resolution has both ", runKey, " and -PFMgate - nothing written"); quit(save = "no") }
 f <- file.path("output/pfm", group, "coupling",
                if (isRatio) "held-budget-prices.rds" else paste0("held-budget-prices-", sub("^PkBudg1000-PFM", "", runKey), ".rds"))
 saveRDS(list(summary = res, byRegion = do.call(rbind, tabs), year = YEAR, group = group, run = runKey,

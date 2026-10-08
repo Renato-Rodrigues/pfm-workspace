@@ -13,6 +13,9 @@ art <- readRDS(file.path("output/pfm", GROUP, "coupling", "coupled-runs.rds"))
 # scenario with two directories hands series() two gdx paths at once (2026-09-23: EU21 -PFMlevelC exists
 # twice in the RULECFIX batch; no earlier batch had a duplicate, so no published number was affected).
 R <- art$runs[!art$runs$superseded, ]; R$key <- sub("^SSP2-(EU21-)?", "", R$scenario)
+# v6 titles end in -v6 (the generated scenario config, ADR 0055): drop it so the keys below are shared
+R$key <- sub("-v6$", "", R$key)
+isV5 <- grepl("^v5", GROUP)
 C2C <- 44 / 12; YEARS <- 2020:2100; DISC <- 0.05
 
 series <- function(res, key, symb, filt = NULL) {
@@ -58,13 +61,29 @@ contrasts <- list(
   `levelBfix-alllow` = c("PkBudg1000-PFMlevelBfix-alllow", "PkBudg1000-PFMgateBfix"),
   # the pinning gate, as a cost contrast: -PFMgateBfix against the budget-forced -PFMgate
   gateBfix = c("PkBudg1000-PFMgateBfix", "PkBudg1000-PFMgate"))
+# v6: every -PFMlevel(Bfix|C)-<suffix> row (held twins, option and group arms) against its rule's null,
+# picked up from the titles. Not for v5, whose artifact the frozen paper quotes as it is.
+if (!isV5) {
+  # rows the v6 batch does not have (ADR 0050 retired GapC and mode M; no unforced rule B, no ratioBfix, no noinc)
+  contrasts <- contrasts[!grepl("GapC|^levelB($|Th)|^mildProg$|^ratioBfix$|^ratioTh|^ratioMin$|-noinc$", names(contrasts))]
+  arms <-unique(R$key[grepl("^PkBudg1000-PFMlevel(Bfix|C)-[A-Za-z0-9]+$", R$key)])
+  for (k in arms) { nm <- sub("^PkBudg1000-PFM", "", k)
+    if (is.null(contrasts[[nm]])) contrasts[[nm]] <- c(k, if (grepl("Bfix-", k)) "PkBudg1000-PFMgateBfix" else "PkBudg1000-PFMgate") }
+}
+have <- function(res, key) sum(R$resolution == res & R$key == key) == 1
 out <- list(group = GROUP, generated = format(Sys.time()), units = list(
   emissions = "GtCO2eq, vm_co2eq summed 2020-2100 (annual interpolation)",
   gdp = "% change of GDP (vm_cesIO inco) discounted at 5%/yr, 2020-2100, vs matched theta = 0 null",
   consumption = "% change of consumption (vm_cons) discounted at 5%/yr, 2020-2100, vs matched null"))
 for (res in c("EU21", "H12")) {
+  # a batch that lands in parts (v6 waves): measure the contrasts whose two runs are there, list the rest
+  ok <- vapply(contrasts, function(k) have(res, k[1]) && have(res, k[2]), TRUE)
+  if (!all(ok)) message(res, ": ", sum(!ok), " contrast(s) skipped, a run is missing: ", paste(names(contrasts)[!ok], collapse = ", "))
+  if (!any(ok)) next
   phi <- art$phi[art$phi$resolution == res & art$phi$scenario == R$scenario[R$resolution == res & R$key == "PkBudg1000-PFMratio"], ]
-  out[[res]] <- lapply(contrasts, function(k) {
+  out[[res]] <- lapply(contrasts[ok], function(k) {
+    # v5: the shares of the ratio-mode run for every contrast (as published); v6: the contrast's own run (t0 value)
+    if (!isV5) phi <- art$phi[art$phi$resolution == res & art$phi$scenario == R$scenario[R$resolution == res & R$key == k[1]], ]
     e1 <- integrate(series(res, k[1], "vm_co2eq")); e0 <- integrate(series(res, k[2], "vm_co2eq"))
     m <- merge(e1, e0, by = "region"); m$d <- C2C * (m$total.x - m$total.y); m$base <- C2C * m$total.y
     g1 <- integrate(series(res, k[1], "vm_cesIO", "inco"), DISC); g0 <- integrate(series(res, k[2], "vm_cesIO", "inco"), DISC)
@@ -84,7 +103,7 @@ for (res in c("EU21", "H12")) {
 }
 o <- file.path("output/pfm", GROUP, "coupling", "coupled-costs.json")
 write(toJSON(out, auto_unbox = TRUE, pretty = TRUE, digits = NA), o)
-for (res in c("EU21", "H12")) for (k in names(contrasts)) { x <- out[[res]][[k]]
+for (res in intersect(c("EU21", "H12"), names(out))) for (k in names(out[[res]])) { x <- out[[res]][[k]]
   cat(sprintf("%-4s %-11s global dCO2eq %+7.1f  relocated %6.1f  more/less %2d/%2d  rho(phi, rel) %+.2f  GDP %+.3f%%  cons %+.3f%%\n",
               res, k, x$globalDeltaEmissions, x$grossRelocated, x$regionsEmittingMore, x$regionsEmittingLess,
               x$spearmanPhiVsRelativeChange, x$gdpChangePct, x$consumptionChangePct)) }

@@ -74,14 +74,20 @@ say("  admitted: ", nrow(art$runs %||% data.frame()), " run(s)",
 
 say("3/3 facts")
 rs <- file.path(R.home("bin"), "Rscript")
-steps <- list(
-  c("analysis/coupled/coupledBatchFacts.R", group, runsDir),
+# v5 keeps its own facts script (the frozen record); later groups use the v6 one, which reads the phi path
+# and k from each run's history and tolerates a batch that lands in waves
+v5 <- grepl("^v5", group)
+steps <- c(list(
+  c(if (v5) "analysis/coupled/coupledBatchFacts.R" else "analysis/coupled/coupledBatchFactsV6.R", group, runsDir),
   c("analysis/coupled/coupledCostsAndAbatement.R", group, runsDir),
-  c("analysis/coupled/heldBudgetPrices.R", group, runsDir),
+  c("analysis/coupled/heldBudgetPrices.R", group, runsDir)),
+  # v6: the held-budget horn is rule C (level cap, rebuilt); ratio mode is a wave-2 continuity arm
+  if (!v5) list(c("analysis/coupled/heldBudgetPrices.R", group, runsDir, "PkBudg1000-PFMlevelC")),
+  list(
   c("analysis/coupled/ruleCBoundFreeze.R", group, runsDir),
   c("analysis/coupled/coupledRunConvergence.R", group, runsDir),
   c("analysis/coupled/runProvenance.R", group, runsDir)
-)
+))
 for (s in steps) {
   say("  ", basename(s[1]))
   st <- system2(rs, shQuote(s))
