@@ -1,7 +1,8 @@
 # ADR 0050 — λ leaves the coupling; mode M and `GAPCLOSE` retire; a declared closure arm κ
 
-- **Status:** Proposed (draft, 2026-10-07). Accept at the Phase 3 gate of design note 0005. Records
-  0005 D13 and closes design note 0003 (λ in or out).
+- **Status:** **Accepted 2026-10-08** (author), at the Phase 3 gate of design note 0005 (passed
+  2026-10-08, batch `EU21V371`). Drafted 2026-10-07. Records 0005 D13 and closes design note 0003 (λ
+  in or out). κ itself is still to be declared before wave 2.
 - **Supersedes:** the λ speed limit inside the coupled price (the ECM adjustment speed from
   `temporal-validation.rds`); mode M and the `GAPCLOSE` arm in the batch. Their code stays for `v5`
   reproduction.

@@ -146,14 +146,14 @@ sweep:
 scenarios:
   - id: SSP2-NPi2025-PFMbase
     name: "Current Policies (P_ref)"
-    gdx: "output/remind-runs/v5/EU21/SSP2-EU21-NPi2025_2026-08-26_16.51.07/fulldata.gdx"
+    gdx: "output/remind-runs/v6/EU21/SSP2-EU21-NPi2025_2026-10-07_12.36.43/fulldata.gdx"
     gdxRegionMapping: "regionmapping_21_EU11.csv"
     ssp: SSP2
     aliases: ["national-policies"]
 
   - id: SSP2-PkBudg1000-PFMref
     name: "Climate Ambition (reference twin)"
-    gdx: "output/remind-runs/v5/EU21/SSP2-EU21-PkBudg1000_2026-08-26_19.58.59/fulldata.gdx"
+    gdx: "output/remind-runs/v6/EU21/SSP2-EU21-PkBudg1000_2026-10-07_19.04.46/fulldata.gdx"
     gdxRegionMapping: "regionmapping_21_EU11.csv"
     ssp: SSP2
     aliases: ["climate-ambition", "SSP2-PkBudg1000-PFMref"]

@@ -787,9 +787,9 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 ### G. Documentation and governance
 
-- [ ] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). **Drafted 2026-10-07**, all seven, status
-  *Proposed*. **0051, 0052 and 0053 accepted 2026-10-07** (author); 0049, 0050 and 0054 at the Phase 3
-  gate; 0055 when the generator is in use. *Renumbered 2026-10-06: 0047 went
+- [x] **G1 — ADRs** (P1 drafts, accepted at the P2/P3 gates). **Drafted 2026-10-07**, all seven, status
+  *Proposed*. **0051, 0052, 0053 and 0055 accepted 2026-10-07** (author); **0049, 0050 and 0054 accepted
+  2026-10-08** (author) at the Phase 3 gate. *Renumbered 2026-10-06: 0047 went
   to the prepared madrat cache (E24) and 0048 to the soft selection keys, so the planned records
   start at 0049.*
   - 0049 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
@@ -1124,6 +1124,55 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
 - one EU21 rule-C test run shows a rebuild error of about 1e-6 (`p45_pfmBoundCheck_iter`) with the
   path loaded;
 - the call time is measured (E17).
+
+**Gate result: ✅ passed 2026-10-08** (batch `2026-10-07_12.30.39_EU21V371`, all seven runs on REMIND
+3-7-1; synced to `output/remind-runs/v6/EU21`; `Rscript analysis/v6/phase3Gate.R
+output/remind-runs/v6/EU21`, 18 of 18 checks):
+- the null `-PFMgate-v6` against `-PFMgateRef`: 0 of 231 `pm_taxCO2eq` cells differ (2030–2100),
+  cumulative CO2 2100 1000.91 Gt both, φ and the path exactly 1. Against the `v5` null (information
+  only, REMIND drift): max |dP| $68.81, 1000.91 vs 991.61 Gt;
+- the held-price null `-PFMgateBfix-v6`: 1003.2 Gt at 2100, +2.3 Gt on `-PFMgate-v6` (0.23%; `v5`
+  +2.1 Gt) — the pinning holds (`SCENARIOS.md` §4.2a);
+- rule B `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.00024 (all-period 0.0016), one damped call;
+  Bulk $k$ 0.686 / 0.525 and Diffuse 0.846 / 0.723 at 2050 / 2100; 2050 path min 0.577, median
+  0.699; bind share 0.986. Cumulative CO2 1121.4 Gt at 2100 (**+118.2 Gt** on `-PFMgateBfix-v6`;
+  the `v5` quantity headline was +159.3) and still rising, 1183.5 Gt at 2150 — the E11 "never peaked"
+  flag, expected for a held price, not budget-forced;
+- rule C `-PFMlevelC-v6` (θ 0.50): 8 calls, last δ 0.0012, two damped calls; Bulk $k$ 0.619 / 0.500,
+  Diffuse 0.871 / 0.725; rebuild check max 9.1e-7; budget held (997.7 Gt at 2100, peak 1001.6 in
+  2090); bind share 0.997;
+- call time on the cluster: 56–59 s for a run's first call, about 30 s for each later one (the
+  workstation profile of E17 was 27 / 11 s).
+
+These are single test runs; the wave-1 batch supersedes their numbers.
+
+**Offline analyses moved to the 3.7.1 bases (2026-10-08,** `Rscript analysis/v6/refreshBases.R
+--apply`; `PITFALLS.md` §34). `config.yml` now points the SSP2 pair at
+`output/remind-runs/v6/EU21/SSP2-EU21-{NPi2025_2026-10-07_12.36.43, PkBudg1000_2026-10-07_19.04.46}`.
+The 3.7.0.dev29 results are kept in `output/pfm/v6/phase1-remind-3-7-0-dev29/`; old vs new is
+`output/pfm/v6/phase1/base-refresh.rds`. Run-Group `v6`, EU21:
+
+| quantity | 3.7.0.dev29 | 3.7.1 | change |
+|---|---:|---:|---:|
+| $k$ NPi Bulk 2050 / 2100 | 1.092 / 0.919 | 1.091 / 0.924 | −0.001 / +0.005 |
+| $k$ NPi Diffuse 2050 / 2100 | 0.665 / 0.706 | 0.656 / 0.701 | −0.009 / −0.005 |
+| $k$ PkBudg1000 Bulk 2050 / 2100 | 0.629 / 0.481 | 0.629 / 0.488 | 0.000 / +0.007 |
+| $k$ PkBudg1000 Diffuse 2050 / 2100 | 0.914 / 0.727 | 0.860 / 0.716 | −0.054 / −0.011 |
+| shortfall 2050, θ 0.5: φ(t), $k$ on PkBudg1000 | 18.0% | 17.8% | −0.2 |
+| shortfall 2050, θ 0.5: φ(t), $k$ on NPi | 22.7% | 22.5% | −0.2 |
+| shortfall 2050, θ 0.5: φ held at t₀ | 23.8% | 23.7% | −0.1 |
+| shortfall 2050, θ 0.5: φ(t) + `v5`-style λ | 48.6% | 47.9% | −0.7 |
+| ceiling gate Bulk / Diffuse | 1.215 / 1.271 | 1.215 / 1.271 | 0 |
+
+The REMIND version moves nothing that a Phase 1 conclusion rests on. `couplingOffline.R` still
+reproduces the Phase 1 share path exactly (756 values, difference 0). Numbers quoted in §7a, §8 and the
+ADRs from `phase1/` before 2026-10-08 describe 3.7.0.dev29 and are left as written.
+
+**Offline against coupled $k$** (all 3.7.1, θ 0.50, Bulk 2050 / 2100): uncoupled PkBudg1000 0.629 /
+0.488; rule C 0.619 / 0.500; rule B 0.686 / 0.525. Rule C holds the budget and stays within 0.012 of
+the offline value. Rule B, whose energy system departs further from the base (+118 Gt), is 0.057
+higher in 2050. The gap is the feedback of the coupled energy system on $k$. Its mechanism is not
+decomposed here.
 
 ### Phase 4 — Run tooling (in parallel with Phase 3; about a week)
 

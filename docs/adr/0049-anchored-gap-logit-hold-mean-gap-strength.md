@@ -1,8 +1,8 @@
 # ADR 0049 — The v6 coupling: an anchored gap, held on the logit scale, with a mean-gap strength
 
-- **Status:** Proposed (draft, 2026-10-07). Accept at the Phase 3 gate of design note 0005, when the
-  coupled code exists. The decisions it records are 0005 D1, D2, D4, D11 (headline part), D12, and
-  §7a decision 3 (donor rule).
+- **Status:** **Accepted 2026-10-08** (author), at the Phase 3 gate of design note 0005 (passed
+  2026-10-08, batch `EU21V371`; 0005 Phase 3, "Gate result"). Drafted 2026-10-07. The decisions it
+  records are 0005 D1, D2, D4, D11 (headline part), D12, and §7a decision 3 (donor rule).
 - **Refines:** [ADR 0041](0041-relative-feasibility-coupling-instead-of-kappa.md) (relative feasibility coupling): the
   share becomes a path $\varphi_{r,s}(t)$ instead of a value fixed at a tier year. ADR 0042's delivery
   (the floor over sectors, ETS ← Bulk, ES and other ← Diffuse) is unchanged.

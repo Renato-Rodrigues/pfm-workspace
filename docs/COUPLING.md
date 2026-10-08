@@ -967,9 +967,12 @@ follows its donor's feedback, not its own.
 
 ## 14. The v6 coupling — the share path φ(t) (added 2026-10-07; ADR 0049, 0050, 0054)
 
-> **Status:** implemented on both sides and verified offline (below). **Not yet run in REMIND**:
-> the Phase 3 gate of design note 0005 (θ = 0 null on the fork, one EU21 rule-B and one rule-C test
-> run) is the next cluster task. Until then, sections 1–13 describe what every existing run does.
+> **Status:** implemented on both sides, verified offline, and **run in REMIND: the Phase 3 gate of
+> design note 0005 passed on 2026-10-08** (batch `EU21V371`, REMIND 3.7.1; `analysis/v6/phase3Gate.R
+> output/remind-runs/v6/EU21`, 18 of 18 checks). The θ = 0 null reproduces `-PFMgateRef` exactly (0
+> of 231 price cells differ; 1000.91 Gt both); rule B (`-PFMlevelBfix-v6`) converges in 7 calls, rule
+> C (`-PFMlevelC-v6`) in 8 with `p45_pfmBoundCheck_iter` at most 9.1e-7. A call takes 56–59 s first and
+> about 30 s after on the cluster (E17). Sections 1–13 still describe every `v5` run.
 
 **Which formulation a run uses.** `iterativePFM(formulation = "auto")`: a Run-Group whose export
 carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v5**, unchanged.
@@ -1030,7 +1033,8 @@ whose price the ratio holds below the anchor).
 **Verified offline (2026-10-07).**
 - A v6 call on the v6 export and the `v5` EU21 PkBudg1000 gdx (`analysis/v6/couplingOffline.R`, 25 s) gives
   a share path identical to Phase 1's (756 values, difference 0) and Bulk $k$ 0.629 / 0.481 in 2050 /
-  2100.
+  2100. Re-run on the REMIND 3.7.1 PkBudg1000 base (2026-10-08, `refreshBases.R`): difference 0
+  again, Bulk $k$ 0.629 / 0.488.
 - A GAMS harness loading that gdx: the mode-1 ratio equals the path exactly, and the rebuild target
   uses each period's share.
 - `pfmReplayInterface()` with the path symbols: positive replay OK, negative control caught.

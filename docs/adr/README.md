@@ -69,12 +69,12 @@ read `docs/MODEL.md`, not the archived copy.
 | 0046 | γ-boundary gate **on at 0.999** | **Active** — completes ADR 0043, which asked for this and implemented nothing. Rejects 7 of 19 surveyed specs incl. maximin rank 3; the `v5` deployment is unaffected (γ 0.987/0.982) |
 | 0047 | One prepared madrat cache per Run-Group, staged into every coupled run | **Active** from `v6` — estimation and coupling read one set of data versions (`data/madrat/<group>/cache-manifest.tsv`); `v5`'s runs read the shared PIK cache |
 | 0048 | Soft fragility keys (`softVifGate`, `inferenceTGate`) leave the within-band order; the hydro/nuclear/geothermal control stays | **Active** from `v6` (2026-10-05) — supersedes ADR 0037 item 2 and the soft VIF preference; declared in `config.yml` `sweep:` and recorded per group in `manifest.json`; decided before the corrected `v6` sanity results were read |
-| 0049 | The v6 coupling: anchored gap, logit hold, mean-gap strength, anchor artifact | **Proposed** (draft 2026-10-07) — refines 0041 (φ becomes a path); accept at the 0005 Phase 3 gate |
-| 0050 | λ leaves the coupling; mode M and `GAPCLOSE` retire; κ arm | **Proposed** (draft 2026-10-07) — closes design note 0003; offline, most of the v5 → v6 change in the bound |
+| 0049 | The v6 coupling: anchored gap, logit hold, mean-gap strength, anchor artifact | **Accepted** (2026-10-08, at the 0005 Phase 3 gate) — refines 0041 (φ becomes a path) |
+| 0050 | λ leaves the coupling; mode M and `GAPCLOSE` retire; κ arm | **Accepted** (2026-10-08, at the 0005 Phase 3 gate) — closes design note 0003; offline, most of the v5 → v6 change in the bound; κ still to be declared |
 | 0051 | Scenario panel: one SSP per run, institution rule, every series harmonised, driver lag in years | **Accepted** (2026-10-07); items 1–4 implemented and in the `v6` re-run; the `v6` paper is SSP2 only |
 | 0052 | Saturating actor power: family A main text, family B SI, curve-shape check, no hold year | **Accepted** (2026-10-07; author's decisions D6, D7, 0005 §7a 6 and 8); keeps 0043, flagged |
 | 0053 | The `v6` panel: 2023 (IEA 2025), geothermal, one re-sweep; Bulk γ 0.997 accepted | **Accepted** (2026-10-07; D3, D8 decided; Phase 2 gate passed) |
-| 0054 | Time-indexed φ interface; convergence on the φ path | **Proposed** (draft 2026-10-07) — implemented and verified offline; accept at the 0005 Phase 3 gate (runs `EU21V371`) |
+| 0054 | Time-indexed φ interface; convergence on the φ path | **Accepted** (2026-10-08, at the 0005 Phase 3 gate, runs `EU21V371`) — implemented 2026-10-07 |
 | 0055 | Generated scenario config | **Accepted** (2026-10-07), implemented: `pfm::buildPFMScenarioConfig()`, `analysis/run-groups/scenario-matrix-v6.yml` |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043

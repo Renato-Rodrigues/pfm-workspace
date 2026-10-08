@@ -1,7 +1,8 @@
 # 0003. Does λ belong in the paper?
 
 Date: 2026-09-18, on Run-Group `v5` (62 coupled runs, `v5-specalt` specification variant)
-Status: **Open.** Written to support a decision, not to record one. Everything below is
+Status: **Closed 2026-10-08** by [ADR 0050](../adr/0050-lambda-removed-from-the-coupling.md) (accepted): λ leaves
+the coupling from `v6`. Written to support a decision, not to record one. Everything below is
 re-derivable from `output/pfm/v5/`; nothing here may be quoted in the paper without re-reading it
 from an artifact (`docs/design-notes/README.md`).
 Related: `docs/MODEL.md` §4 (the dynamics) and §4.3.1 (two estimates), `docs/TODO.md` item 12,

@@ -4,7 +4,7 @@
 
 **Legend:** 🔴 blocking · 🟠 required for submission · 🟢 improves the work · ⚪ optional
 
-Last reviewed **2026-10-07**.
+Last reviewed **2026-10-08** (Phase 3 gate passed; offline analyses moved to REMIND 3.7.1).
 
 **`v5` is frozen.** `v5-final` is tagged in the project repo, `pfm`, `mrpfm`, `remind_pfm` and
 `paper-forge`, after a reproduction check on a fresh clone of those commits. The tag covers:
@@ -28,7 +28,7 @@ outside it. IDs such as E13 or D17 refer to that note.
 
 ## 🧭 What to do next
 
-**Where it stands (2026-10-07).**
+**Where it stands (2026-10-08).**
 - **Phases 0 and 2 are done.** Run-Groups `v6` (X-1791 satAP) and `v6-annual` (X-1860 satInn) were
   re-run on the cluster on 2026-10-06 with the scenario-panel fixes (`PITFALLS.md` §30–§31). The
   Phase 2 gate passed (Bulk γ 0.997 accepted). The `v5` → `v6` comparison is 0005 §8.
@@ -37,6 +37,8 @@ outside it. IDs such as E13 or D17 refer to that note.
   - the offline headline (step 9);
   - the spec band, the curve-shape check and the ceiling-gate re-check (C9);
   - the ADR drafts 0049–0055.
+- **Phase 3 is done (2026-10-08):** the gate passed on REMIND 3.7.1, and the Phase 1 results were
+  re-run on the 3.7.1 bases. Wave 1 of Phase 5 is next.
 - **Author decisions of 2026-10-06/07** are in 0005 §7a:
   1. institutions-held twins;
   2. harmonise the institution series;
@@ -49,47 +51,28 @@ outside it. IDs such as E13 or D17 refer to that note.
 
 **Next, in order:**
 
-1. 🔴 **Commit and push** the work of 2026-10-06/07. In `pfm`:
-   - the lag in years and the institution harmonisation (`preparePanelData`, `panelDataScenario`);
-   - `apSatScale`, the donor-rule options, `computeAnchorGap` and `runPFMAnchor`, with their tests.
-
-   In `remind_pfm`: `preparePFM.R` copies `phi-anchor.rds`. In the project repo:
-   - docs: 0005 §7a and §8, the ADRs, `DATA.md`, `PITFALLS.md` §30–§31, `COUPLING.md`;
-   - scripts: `analysis/v6/*`, `analysis/checks/policlimInstitutions.R`;
-   - tools: `tools/clusterRun.sh`, `tools/clusterSubmit.R`, `syncFromCluster.sh --remind-inputs`.
-2. 🔴 **On the cluster: the anchor artifact and a fresh export for `v6`.** After `setup.sh --cluster
-   --update --install --no-cache`:
-   `pfmRun(group = "v6", steps = c("pfm-anchor", "pfm-remind-inputs"), cluster = "slurm")`
-   (no `clean`: nothing else changes). Then bring `output/remind-inputs/v6` to the workstation
-   (`syncFromCluster.sh … v6 --estimation --remind-inputs`); the local copy is still the
-   2026-10-05 export.
-3. **Phase 3 — the coupling code: written and verified offline (2026-10-07)**, `COUPLING.md` §14.
-   E11 and E12 are done. **Next is the Phase 3 gate on the cluster** (0005 Phase 3):
-   - **the fork is on REMIND 3.7.1** (merge `41f21ec3b` on branch `pfm-v3.7.1`, 2026-10-07; codeCheck
-     strict and `pfmReplayInterface` pass; GAMS compile untested locally - no input data). Fast-forward
-     `pfm` to it and push; `v5-final` keeps the old fork state;
-   - on the cluster: `setup.sh --cluster --update`, `make ensure-reqs` in `remind_pfm-EU21`, then
-     `setup.sh --cluster --install`; `pfmPreflight(checks = c("repos", "installed", "mappings", "replay"))`;
-   - **one start tag, `EU21V371`** (`RUNNING.md` step 7b): the uncoupled bases `SSP2-EU21-NPi2025`,
-     `SSP2-EU21-PkBudg1000`, `-PFMgateRef`, then the four gate rows, chained by REMIND;
-   - the θ = 0 null against `-PFMgateRef` on the same version (no longer the `v5` null, §34); one EU21
-     rule-B run (`-PFMlevelBfix`) and one rule-C run (`-PFMlevelC`, `cm_pfmBoundRebuild = 1`); check
-     the φ path and $k$ in the log and `pfm-phi-history.rds`, and `p45_pfmBoundCheck_iter` near 1e-6
-     on rule C. `analysis/v6/phase3Gate.R` checks all of it, versions included;
-   - **submitted 2026-10-07** (batch `2026-10-07_12.30.39_EU21V371`, priority);
-   - **then move the offline analyses to the 3.7.1 bases**: sync the two bases
-     (`syncFromCluster.sh … v6 --runs 'SSP2-EU21-NPi2025_*'`, then `'SSP2-EU21-PkBudg1000_*'`) and
-     `Rscript analysis/v6/refreshBases.R --apply` (dry run without `--apply`). It snapshots `phase1/`,
-     re-points the registry, re-runs the Phase 1 panels, `couplingOffline.R`, `offlineHeadline.R`,
-     `sspGovernanceSwap.R`, `ceilingGate.R`, and prints old vs new (Bulk $k$ was 0.629 / 0.481 on the v5
-     `PkBudg1000`). The coupled runs read their own gdx and are unaffected (§34).
+1. ✅ **Committed and pushed** (2026-10-07/08): the work of 2026-10-06/07 in `pfm`, `remind_pfm` and
+   the project repo; all three in sync with their remotes on 2026-10-08.
+2. ✅ **The anchor artifact and the `v6` export on the cluster**: the gate runs coupled by
+   `v6-anchor` (their `pfm-phi-history.rds`), so `phi-anchor.rds` was in the cluster export. The
+   workstation's `output/remind-inputs/v6` is the 2026-10-07 09:05 export (with `phi-anchor.rds`).
+3. ✅ **Phase 3 — the gate passed 2026-10-08** (0005 Phase 3, "Gate result"; `COUPLING.md` §14). Batch
+   `2026-10-07_12.30.39_EU21V371`, all seven runs on REMIND 3-7-1, synced to
+   `output/remind-runs/v6/EU21`; `Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/EU21`, 18 of 18.
+   - ✅ **The offline analyses are on the 3.7.1 bases** (`refreshBases.R --apply`, 2026-10-08):
+     `config.yml` re-pointed; the 3.7.0.dev results are in `output/pfm/v6/phase1-remind-3-7-0-dev29/`;
+     old vs new in `output/pfm/v6/phase1/base-refresh.rds`. Every change is small (largest: Diffuse
+     $k_{2050}$ on PkBudg1000 −0.054); `couplingOffline.R` still reproduces the Phase 1 shares exactly.
+     Numbers quoted before 2026-10-08 from `phase1/` describe 3.7.0.dev29.
+   - ✅ ADRs 0049, 0050, 0054 accepted 2026-10-08. **Next: wave 1** (0005 Phase 5).
 4. **Phase 4, alongside:**
    - ✅ **F1 / E16 done 2026-10-07**: `analysis/run-groups/scenario-matrix-v6.yml` →
      `scenario_config_PFM_v6.csv` (54 runs; `RUNNING.md` step 7c). **Declare κ** before wave 2 (the matrix
      carries 0.02 a year as a placeholder);
    - **F8**, typed options: ordering tests on $u$, hold year, κ, institution rule;
    - **F5**, the reproduction scripts promoted into `pfm`.
-5. ✅ **ADRs 0051, 0052 and 0053 accepted 2026-10-07.** 0049, 0050, 0054 follow at the Phase 3 gate.
+5. ✅ **ADRs 0049–0055 all accepted**: 0051, 0052, 0053, 0055 on 2026-10-07; 0049, 0050, 0054 on
+   2026-10-08 at the Phase 3 gate.
 6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 has the numbers;
    the changed sections can be drafted as text to paste.
 
