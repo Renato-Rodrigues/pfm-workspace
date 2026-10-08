@@ -1021,6 +1021,14 @@ By hand: `git -C models/remind_pfm-EU21 update-index --skip-worktree core/sets.g
 `--no-skip-worktree`; list flagged files with `git ls-files -v | grep '^S'`). Do not run
 `setup.sh --update` while a REMIND batch is still starting chained runs from that checkout.
 
+**`renv/activate.R` is handled the same way (2026-10-08).** The REMIND 3.7.1 lockfile asks for renv
+1.2.4, but the cluster checkouts' renv libraries hold 1.1.7. Every R start in the checkout prints
+"renv 1.1.7 was loaded from project library, but this project is configured to use renv 1.2.4" and
+rewrites `renv/activate.R` to the 1.1.7 script. The warning is harmless: the Phase 3 gate ran on
+it. Do not `renv::record("renv@1.1.7")`, and do not upgrade one checkout alone. The rewrite left EU21
+dirty after the `V6W1EU21` submission, so `submitPFM("V6W1H12")` was refused on the EU21 repos
+check. `setup.sh` now marks `renv/activate.R` skip-worktree next to `core/sets.gms`.
+
 ## 37. A coupled run loads `pfm` from its own renv, not from the checkout's
 
 REMIND builds a separate renv in every run folder (`scripts/start/submit.R`): from the lockfile

@@ -61,7 +61,10 @@ fi
 # update, pfmPreflight's repos check) and the file is never restored. Only when the commit being
 # checked out itself changes core/sets.gms (a REMIND version merge) is the flag lifted and the
 # committed file taken - REMIND regenerates it at its next start. PITFALLS.md section 36.
-REMIND_GENERATED="core/sets.gms"
+# renv/activate.R is treated the same way: the checkout's renv (1.1.7) rewrites the committed 3.7.1
+# script (renv 1.2.4) to its own version at every R start in the checkout, so EU21 was dirty after each
+# submission and the next submitPFM() was refused (2026-10-08).
+REMIND_GENERATED="core/sets.gms renv/activate.R"
 isRemind() { case "$1" in remind_pfm*) return 0 ;; *) return 1 ;; esac; }
 markGenerated() { for f in $REMIND_GENERATED; do run git -C "$1" update-index --skip-worktree "$f"; done; }
 grep -vE '^\s*(#|$)' tools/repos.txt | while read -r name where path url branch; do
