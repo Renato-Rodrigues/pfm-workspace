@@ -346,6 +346,16 @@ tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4-v6 v6 --runs '*
 Per run, this fetches `fulldata.gdx`, `log.txt` and a few small records into
 `output/remind-runs/v6/<res>/<run>/`: about 70 MB a run, not the whole folder.
 
+**Without ssh from the workstation** (copy by hand, e.g. WinSCP): stage the same files on the cluster,
+in the workstation's layout, then copy that one folder:
+
+```bash
+bash tools/stageRunsForCopy.sh v6 --res EU21 --runs 'SSP2-EU21-*_2026-10-0[78]_*' --dry-run   # list
+bash tools/stageRunsForCopy.sh v6 --res EU21 --runs 'SSP2-EU21-*_2026-10-0[78]_*'
+```
+
+Then copy the cluster's `output/remind-runs/v6/` to the workstation's `output/remind-runs/v6/`.
+
 ## Step 10 — Analyse
 
 ```bash
