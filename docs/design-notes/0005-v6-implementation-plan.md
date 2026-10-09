@@ -1208,6 +1208,22 @@ deferred to a later paper version (§7a decision 7).
 Test the uncoupled SSP3 PkBudg1000 first. If it fails, use a budget that SSP3 can meet and say so;
 do not reuse the SSP2 budget.
 
+**Results as they land** (Run-Group `v6`, EU21, REMIND 3.7.1, θ = 0.50, κ = 0; read from
+`output/pfm/v6/coupling/coupled-facts.json` `$arms`, `coupled-costs.json` and `convergence-audit.rds`,
+2026-10-09). The deployed references are the Phase 3 gate runs: rule B +118.2 Gt against
+`-PFMgateBfix` (1003.2 Gt), rule C 997.7 Gt with 2050 regional prices at a median ×1.153 of the
+θ = 0 run.
+
+| run (wave 2) | iterations | cumulative CO₂ 2100 | against its null | Bulk $k$ 2050 / 2100 | reading |
+|---|---|---|---|---|---|
+| `-PFMlevelBfix-specalt-v6` (family B, `v6-specalt`) | 44 | 1110.7 Gt | **+107.5 Gt** (−10.7 vs deployed) | 1.038 / 0.888 | family B moves the rule-B headline by about a tenth; its Bulk $k$ stays near 1 and its Diffuse $k$ is lower (0.583 / 0.652, deployed 0.846 / 0.723 in rule B) |
+| `-PFMlevelC-uniform-v6` (every region at the mean rank) | 40 | 996.0 Gt | budget held | 0.607 / 0.504 | with the ranking removed, 2050 prices sit at a median ×1.043 of the θ = 0 run (deployed ×1.153), and the gross relocation of CO₂eq halves (11.7 vs 22.7 Gt) |
+
+The uniform run converged, but its last ten iterations still moved more than the deployed rule-C run's
+(budget miss up to 16.8 Gt, realised maximum price range 15%, against 3.2 Gt and 0.6%); it ended 1.1 Gt
+from the budget. Quote it with that disclosure. These are single arms: the ordering test needs its permuted twins,
+and the family-B row its rule-C twin, before either becomes a claim.
+
 **Admission:** every run is judged by the F4 stage against `PITFALLS.md` §25 / §25a. A run at the
 iteration cap is admitted only by the written rule.
 

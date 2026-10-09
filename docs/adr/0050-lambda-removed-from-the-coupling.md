@@ -22,7 +22,10 @@
    (about 14 years). Each runs for rule B and rule C at θ = 0.50, EU21, wave 2: `-PFMlevelBfix-kappa`,
    `-kappa02`, `-kappa05` and the three `-PFMlevelC-` twins (`scenario-matrix-v6.yml`, option
    `pfmPhiKappa`). κ is a declared assumption like θ, never an estimate: the rate it stands in for, λ,
-   is not identified (Context).
+   is not identified (Context). **Start (decided 2026-10-09):** the fade is counted from $t_0$ = 2025,
+   $(1-\kappa)^{t-2025}$, so κ has no effect in 2025 and acts from 2030, REMIND's first free period,
+   which already carries five years of it (13% less drag at 0.027). Counting from 2030 was considered
+   and not taken: it would have left 2030 untouched too.
 
 ## Context
 

@@ -74,6 +74,14 @@ outside it. IDs such as E13 or D17 refer to that note.
      (`coupledBatchFactsV6.R`: θ sweep and slope, the institutions-held twins, rule C's price relocation,
      $k$ per run, every option arm with the options its last call ran with). The cost and held-budget
      scripts now read `-v6` titles and skip comparisons whose runs are not there yet.
+   - **2026-10-09, first sync:** only two runs came over, both from wave 2 (`V6W2EU21`, started
+     2026-10-08 23:19, fork `b79dc2d9c`): `-PFMlevelBfix-specalt-v6` and `-PFMlevelC-uniform-v6`. Both
+     finished (44 and 40 iterations) and are admitted; `runCoupledStage.R v6` ran clean on the 9 EU21 runs.
+     Results in 0005 Phase 5, "Results as they land". **The six wave-1 EU21 runs (θ 0.325 / 0.675, the
+     held twins) were not staged**: they started at 21:55, outside the time pattern used. Stage them with
+     `--runs 'SSP2-EU21-*_2026-10-08_21*'`.
+   - ✅ **κ start decided 2026-10-09 (author): no effect in 2025, an effect from 2030 onwards**, i.e. the
+     fade counted from $t_0$ = 2025 as committed (ADR 0050 decision 5). The wave-2 κ runs stand as submitted.
 4. **Phase 4, alongside:**
    - ✅ **F1 / E16 done 2026-10-07**: `analysis/run-groups/scenario-matrix-v6.yml` →
      `scenario_config_PFM_v6.csv` (58 runs since κ; `RUNNING.md` step 7c). ✅ **κ declared 2026-10-08**:

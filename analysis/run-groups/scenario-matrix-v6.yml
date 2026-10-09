@@ -240,6 +240,7 @@ runs:
   # kappa: DECLARED 2026-10-08 (author; ADR 0050), before any wave-2 run. Central 0.027 a year = "beyond
   # what the drivers already do, the political drag halves by mid-century" (half-life 25 years); the
   # sensitivities 0.02 (half-life ~35 years) and 0.05 (~14 years) bracket it. Rule B and rule C each.
+  # Counted from t0 = 2025 (decided 2026-10-09): no effect in 2025, an effect from 2030, REMIND's first free period.
   - {key: Bkappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@Bfix",
      description: "Declared closure on the strength, kappa = 0.027 a year, the central case (D13, C2) - replaces GAPCLOSE."}
