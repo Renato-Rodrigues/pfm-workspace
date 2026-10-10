@@ -93,7 +93,9 @@ buildFigure <- function(id, group = "v5", media = NULL, write = TRUE, quiet = FA
     ext <- sub("^cairo_", "", s$device)
     out <- file.path(figuresOutputDir(m), paste0(id, ".", ext))
     dev <- if (identical(s$device, "cairo_pdf")) grDevices::cairo_pdf else s$device
-    ggplot2::ggsave(out, pm, width = s$width_mm, height = s$height_mm, units = "mm",
+    # a builder whose content is taller than the medium's frame (a long dot chart) may set
+    # attr(p, "pfmHeightScale"); every other figure keeps the medium's height
+    ggplot2::ggsave(out, pm, width = s$width_mm, height = s$height_mm * (attr(p, "pfmHeightScale") %||% 1), units = "mm",
                     dpi = s$dpi, device = dev, bg = "white")
     if (!quiet) message("  [", m, "] ", out)
   }

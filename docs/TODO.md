@@ -123,7 +123,11 @@ outside it. IDs such as E13 or D17 refer to that note.
      European price (11 of 21 regions); with Europe counted once it is ×1.037 against H12's ×1.075, and
      the abatement moved agrees (22.7 vs 19.9 Gt, same sign in 11 of 12 regions). Rule C is quoted by
      gross relocation or the emissions-weighted price, not the regional median (0005 Phase 5, "H12");
-   - step 2, the figures; step 3, the offline re-runs on `v6`; step 4, the governed documents
+   - ✅ step 2, the coupled figures (2026-10-10): `v6-coupled-theta`, `v6-coupled-arms`,
+     `v6-rulec-relocation`, `v6-price-catchup` in `analysis/figures/` (`build-figures.R --group=v6`), also
+     in the methodology document. Still open from 0005's list: φ(t) fans by SSP (deferred with the SSP
+     axis) and the sector-binding diagnostic (D-M4);
+   - step 3, the offline re-runs on `v6`; step 4, the governed documents
      (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper
      workspace; step 6, the deposit.
 

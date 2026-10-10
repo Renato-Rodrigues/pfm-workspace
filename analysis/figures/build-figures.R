@@ -302,6 +302,15 @@ if (!"--guide" %in% args) {
   if (run("markup-counterfactual")) {
     message("[markup-counterfactual]"); buildFigure("markup-counterfactual", GROUP, MEDIA)
   }
+
+  # ── v6 coupled (Phase 5 / 6) — only for a v6 group: they read the v6 coupling artifacts
+  # and the v5 ones beside them. Rails: theta and kappa are declared; the v5 -> v6 drop is
+  # mostly lambda's removal; rule C relocates, it does not add emissions.
+  if (grepl("^v6", GROUP)) {
+    for (id in c("v6-coupled-theta", "v6-coupled-arms", "v6-rulec-relocation", "v6-price-catchup")) {
+      if (run(id)) { message("[", id, "]"); buildFigure(id, GROUP, MEDIA) }
+    }
+  }
 }
 
 # ── the figure guide ──────────────────────────────────────────────────────────
