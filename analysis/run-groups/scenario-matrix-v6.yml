@@ -228,6 +228,12 @@ runs:
   - {key: BEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix",
      description: "E hold (D2, C5): the static-share bound, k close to 1."}
+  # Added 2026-10-10 after the batch (0005 Phase 6 step 1): rule C's relocated abatement falls from 76.7 (v5)
+  # to 22.7 Gt (v6), almost all after 2050. This twin of BEhold separates the fading strength from the new
+  # ranking. Its own start tag, so it never re-runs wave 2.
+  - {key: CEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@C", start: {EU21: V6CEHOLD},
+     description: "E hold (D2, C5), rule C: the static-share bound with the budget held, strength vs ranking (0005 Phase 6)."}
   - {key: Bhold2060, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: hold2060, options: {pfmPhiHoldYear: "2060"}, warm: "@Bfix",
      description: "Hold year 2060 (D6): drivers held after 2060."}

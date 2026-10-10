@@ -1368,7 +1368,8 @@ converge is handled in one of two ways:
         2060; the one market that does (CHA's Diffuse, 0.71 of the null's in 2070) sits in the region
         whose power sector pays most, so its extra emissions largely net out inside CHA (part 3). This is the moving strength k(t) of ADR 0049 at work (`v5` held φ fixed
         after 2035). The κ arms show it dose by dose: a faster-fading strength relocates less, 22.7 Gt
-        deployed against 9.5 / 8.4 / 5.3 Gt at κ = 0.02 / 0.027 / 0.05. Under rule B the static-share
+        deployed against 9.5 / 8.4 / 5.3 Gt at κ = 0.02 / 0.027 / 0.05, and the
+        post-2050 part goes 16.7 → 9.4 / 8.9 / 5.7 Gt as the 2070 price wedge narrows 0.117 → 0.037 / 0.026 / 0.008. Under rule B the static-share
         arm (`-Ehold`, k ≈ 1) relocates 120.7 Gt, back at `v5`'s 114.3 (rule-B relocation mixes in the
         overshoot, so this is support, not a measure).
      3. **The ranking moved, and part of the relocation now nets out inside a region.** (φ as
@@ -1383,7 +1384,8 @@ converge is handled in one of two ways:
      Region by region, CHA (−22.0), SSA (−13.2), MEA (−8.7) and REF (−5.5) carry 49.4 of the 53.9 Gt
      fall in gross relocation. **What is not separated yet:** how much of part 1 is the moving strength
      and how much is the new ranking. The clean test is one EU21 run, rule C with the static share
-     (`-PFMlevelC-Ehold`, the twin of the rule-B arm); it is not in the batch;
+     (`-PFMlevelC-Ehold-v6`, the twin of the rule-B arm). Added 2026-10-10 as matrix row `CEhold`, start tag
+     `V6CEHOLD` (`remind_pfm` `73e4cf550`);
    - rule B's relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
      small (+0.21 → +0.19% / +0.22 → +0.16%).
 2. Figures in the shared layer:

@@ -310,7 +310,8 @@ Rscript analysis/run-groups/buildPFMScenarioConfig.R   # writes models/remind_pf
 
 Commit the matrix (project repo) and the CSV (`remind_pfm`), push, and on the cluster
 `tools/setup.sh --cluster --update`. Tags: `V6W<wave><res>` (`V6W1EU21`, `V6W1H12`, `V6W2EU21`,
-`V6W2H12`); `H12BASE` and `EU21BASE` for the parents. `V6W1H12` also starts the H12 3.7.1 bases and
+`V6W2H12`); `H12BASE` and `EU21BASE` for the parents. A row added after its wave carries its own tag
+(`start:` in the matrix), so a re-submission never re-runs the wave: `V6CEHOLD` (rule C static share, 2026-10-10). `V6W1H12` also starts the H12 3.7.1 bases and
 `-PFMgateRef`, chained. The EU21 rows already run in the gate keep `EU21V6GATE`, so `V6W1EU21` does not
 re-run them. Wave 2 needs the variant Run-Groups exported first (the preflight checks each).
 

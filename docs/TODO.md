@@ -111,8 +111,11 @@ outside it. IDs such as E13 or D17 refer to that note.
      return to the null's as the strength fades (`v5` held them below it to 2100); the κ arms confirm
      it dose by dose. The new ranking (CHA Diffuse, IND Bulk at u = 1) makes part of it net out inside
      regions (16.1 Gt);
-   - 🟠 **one EU21 run to separate the fading strength from the new ranking**: rule C with the static
-     share, `-PFMlevelC-Ehold` (twin of the rule-B arm; not in the batch). Author's call;
+   - ⏳ **one EU21 run to separate the fading strength from the new ranking**: rule C with the static
+     share, `SSP2-EU21-PkBudg1000-PFMlevelC-Ehold-v6` (twin of the rule-B arm). In the matrix since
+     2026-10-10 (row `CEhold`, start tag `V6CEHOLD`, `remind_pfm` `73e4cf550`); to submit (`RUNNING.md`
+     step 7c). When it lands: `runCoupledStage.R v6`, then `ruleCRelocationDecomp.R`. Reading: if it
+     relocates near `v5`'s 76.7 Gt, the fading strength explains the drop; if near 22.7, the ranking does;
    - 🟠 **why H12's rule-C relocation is half EU21's** (median 2050 ×1.075 vs ×1.153, anchors alike);
    - step 2, the figures; step 3, the offline re-runs on `v6`; step 4, the governed documents
      (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper

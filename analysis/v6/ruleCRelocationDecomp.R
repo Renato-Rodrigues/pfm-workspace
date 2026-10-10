@@ -9,6 +9,8 @@
 #      dispersion across region-markets weighted by the null's emissions (relocation needs the price to
 #      differ BETWEEN places; a uniform rise moves nothing);
 #   4. the change between the groups, region by region: 1/2 (|d_new| - |d_old|).
+# Also, when present in <new>: the rule-C arms that test the cause (-PFMlevelC-Ehold, the static share,
+# k close to 1: strength vs ranking; the kappa arms: a faster-fading strength), reported beside the rest.
 # Emissions as coupledCostsAndAbatement.R: GtCeq x 44/12, annual interpolation, summed 2020-2100.
 # Prices as the facts: the coupled-runs.rds market prices (ets, es; "other" pays the ES price).
 # Output: output/pfm/<new>/coupling/rulec-relocation-decomp.rds and a printed summary.
@@ -22,10 +24,11 @@ RES <- c("EU21", "H12")
 suf <- c(OLD = "", NEW = "-v6"); names(suf) <- c(OLD, NEW)
 
 art <- lapply(stats::setNames(c(OLD, NEW), c(OLD, NEW)), function(g) readRDS(file.path("output/pfm", g, "coupling/coupled-runs.rds")))
-runOf <- function(g, res, key) {
+runOf <- function(g, res, key, optional = FALSE) {
   R <- art[[g]]$runs; R <- R[!R$superseded & R$resolution == res, ]
   t <- paste0(if (res == "EU21") "SSP2-EU21-" else "SSP2-", key, suf[[g]])
-  r <- R[R$scenario == t, ]; if (nrow(r) != 1) stop(g, " ", res, " ", t, ": ", nrow(r), " live runs")
+  r <- R[R$scenario == t, ]
+  if (nrow(r) != 1) { if (optional && !nrow(r)) return(NULL); stop(g, " ", res, " ", t, ": ", nrow(r), " live runs") }
   list(title = t, gdx = file.path("output/remind-runs", g, res, r$dir, "fulldata.gdx"))
 }
 annual <- function(d) {   # d: year, region, [market], v -> annual series 2020-2100 per group
@@ -54,9 +57,15 @@ prices <- function(g, res, title) {
 }
 gross <- function(d) round(sum(abs(d)) / 2, 1)
 
+ARMS <- c("Ehold", "kappa02", "kappa", "kappa05")   # rule-C arms of <new>, used when present
+cases <- c(lapply(c(OLD, NEW), function(g) list(g = g, arm = "")),
+           lapply(ARMS, function(x) list(g = NEW, arm = x)))
 out <- list(); summ <- list()
-for (g in c(OLD, NEW)) for (res in RES) {
-  c1 <- runOf(g, res, "PkBudg1000-PFMlevelC"); c0 <- runOf(g, res, "PkBudg1000-PFMgate")
+for (cs in cases) for (res in RES) {
+  g <- cs$g; arm <- cs$arm; lab <- if (nzchar(arm)) paste0(g, " C-", arm) else g
+  c1 <- runOf(g, res, paste0("PkBudg1000-PFMlevelC", if (nzchar(arm)) paste0("-", arm)), optional = nzchar(arm))
+  if (is.null(c1)) next
+  c0 <- runOf(g, res, "PkBudg1000-PFMgate")
   e1 <- emissions(c1$gdx); e0 <- emissions(c0$gdx)
   e <- merge(e1, e0, by = c("region", "market", "year"), suffixes = c("", "0")); e$d <- e$v - e$v0
   per <- lapply(PERIODS, function(y) {
@@ -75,9 +84,9 @@ for (g in c(OLD, NEW)) for (res in RES) {
     data.frame(year = x$year[1], meanRatio = round(exp(mu), 3),
                sdLogRatio = round(sqrt(sum(x$v0 * (x$lr - mu)^2) / sum(x$v0)), 3))
   }))
-  out[[g]][[res]] <- list(byRegionMarket = all, byRegion = reg, byPeriod = per, wedge = wedge,
+  out[[lab]][[res]] <- list(byRegionMarket = all, byRegion = reg, byPeriod = per, wedge = wedge,
                           runs = c(levelC = c1$title, null = c0$title))
-  summ[[length(summ) + 1]] <- data.frame(group = g, res = res,
+  summ[[length(summ) + 1]] <- data.frame(group = lab, res = res,
     netGlobal = round(sum(all$d), 1),
     grossRegion = gross(reg$d), grossRegionMarket = gross(all$d),
     grossMarketsOnly = gross(all$d[all$market != "non-market"]),
