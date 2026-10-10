@@ -6,7 +6,7 @@ paper's data section and SI, and for reproducing a Run-Group.*
 
 **Provenance.** Coverage counts in §2 are read from the madrat cache Run-Group **`v5`** was fitted
 on (`data/madrat/v5/`); `v6` uses the same sources and the same 48 estimation countries at the
-editions of §3, and the counts have not been re-read from `data/madrat/v6/`. For each cache file: for each cache file, the countries with any finite, non-zero value in
+editions of §3, and the counts have not been re-read from `data/madrat/v6/`. For each cache file, the countries with any finite, non-zero value in
 that year. The 2022/2023 completeness figures
 in §4 are read from the IEA World Energy Balances 2025 edition raw files
 (`<madrat sources>/IEA/IEA-Energy-Balances-2025/WBIG{1,2,3}.zip`), not from any Run-Group. SSP
