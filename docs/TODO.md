@@ -131,9 +131,12 @@ outside it. IDs such as E13 or D17 refer to that note.
      rewritten for `v6`, `COUPLING.md` and `README.md` made current; the `v5` versions archived in
      `../_archive/_wip/2026-10-10/docs/`. `PRESENTATION.md` is marked as the `v5` deck: its spine waits
      for step 5;
-   - step 3, the offline re-runs on `v6` — the analyses `MODEL.md` still quotes as "measured on `v5`":
-     the trend-shape grid (§2.3.1), the frontier rungs propagated to φ (§3.4.1), the re-scoped replay
-     (§8.4), the θ bounds (§5.3.1);
+   - ✅ step 3, the offline re-runs on `v6` (2026-10-10), now in `MODEL.md`: the trend-shape grid
+     (deployed 8.0 / 25.7 logLik behind the best Bulk / Diffuse shape; 2010 / 0.30 is a candidate for the
+     next Run-Group), the frontier rungs propagated to φ (still first-order: decay rung median |Δφ|
+     0.164, panel Spearman 0.47), the re-scoped replay (+0.036 Bulk, +0.009 Diffuse), the θ bounds
+     ([0.134, 0.164] for the multiplicative cap, non-empty on `v6`). Only the λ placebo stays a `v5`
+     measurement; `trendShapePhi.R` does not test `v6`'s best Bulk shape and fixes the seed at 2022;
    - 🟠 step 5, the `v6` paper workspace — **first an author decision: the spine**, now that both
      headlines changed (§1 of `PRESENTATION.md`); step 6, the deposit.
 

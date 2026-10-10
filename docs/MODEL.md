@@ -16,10 +16,10 @@ never from this page.
 > 2026-10-10), in `output/pfm/v6/coupling/coupled-facts.json`. This document quotes only what the
 > model definition needs; the full reading is `SCENARIOS.md`.
 
-> **Some analyses were measured on `v5` and not re-run on `v6`**: the trend-shape grid (§2.3.1), the
-> frontier rungs propagated to φ (§3.4.1), the λ placebo audit (§4.3.2) and the θ bounds (§5.3.1).
-> They are kept, labelled "measured on `v5`", because their conclusions are about the method; their
-> numbers are not `v6` numbers. The `v5` version of this document is
+> **One analysis was measured on `v5` and not re-run on `v6`**: the λ placebo audit (§4.3.2). λ is no
+> longer in the coupling (ADR 0050).
+> It is kept, labelled "measured on `v5`", because its conclusion is about the method; its numbers are
+> not `v6` numbers. The `v5` version of this document is
 > `../_archive/_wip/2026-10-10/docs/MODEL-v5.md`.
 
 **Scope.** The model *as deployed*. How the spec was selected is ADR 0036/0039/0045/0046/0052; the
@@ -195,15 +195,51 @@ Read the shape from the artifact, never from here: `manifest.json$trend` and
 **Fixed effects.** `regionmapping_EU_OECDp.csv` → three blocks: **EU** (reference), **OECD**
 non-EU, **other**. Country dummies are an agreement rung only.
 
-#### 2.3.1 The trend shape is DECLARED, not selected (measured on `v5`)
+#### 2.3.1 The trend shape is DECLARED, not selected
 
-The trend shape is not a selection dimension: `createChannelConfigs()` hard-codes one $(m,k)$. On
-`v5` (`analysis/checks/trendShapeGrid.R v5`) the deployed 2010 / 0.20 was within 4.1 logLik of the
-best shape in Bulk and 21.2 worse in Diffuse at equal parameter count, and the best-fitting shapes
-moved φ by a median 0.006–0.027 — the smallest φ uncertainty measured. It is kept for the reasons
-recorded there: interior and near-best in Bulk, one shape for both sectors (the Shared
-Specification rule), and a better-fitting trend absorbs more of the variance the selection rule
-penalises. **Not re-measured on `v6`.** Describe it as a declared choice.
+The trend shape is not a selection dimension: `createChannelConfigs()` hard-codes one $(m,k)$, so the
+selected specification is conditional on that constant. Holding the deployed specification fixed and
+varying only the trend (`analysis/checks/trendShapeGrid.R v6` → `output/pfm/v6/trend-shape-grid.rds`;
+one subprocess per fit, 120 s cap). Frontier logLik at **identical parameter count**:
+
+| $(m,k)$ | Bulk logLik | Δ vs deployed | Bulk $\gamma$ | Diffuse logLik | Δ vs deployed | Diffuse $\gamma$ |
+|---|---:|---:|---:|---:|---:|---:|
+| 2005 / 0.20 | **−1248.2** | **+8.0** | 0.9928 | −487.2 | +16.6 | 0.9820 |
+| 2010 / 0.30 | −1255.0 | +1.2 | 0.9943 | **−478.1** | **+25.7** | 0.9823 |
+| **2010 / 0.20 — deployed** | −1256.2 | — | 0.9968 | −503.8 | — | 0.9715 |
+| 2010 / 0.10 | −1270.5 | −14.4 | 0.9989 | −534.8 | −31.0 | 0.9641 |
+| linear | −1279.7 | −23.5 | 0.9994 ⚠️ | −550.6 | −46.7 | 0.9625 |
+| 2005 / 0.10 | −1325.7 | −69.5 | vcov corrupt | −514.9 | −11.0 | 0.9668 |
+| 2015–2020 | −1299.9 to −1502.4 | −44 to −246 | **≥ 0.999** ⚠️ | −563.2 to −749.5 | −59 to −246 | 0.962–0.981 |
+| no trend | −1619.5 | −363.3 | 1.0000 ⚠️ | −847.3 | −343.5 | 0.9973 |
+
+Later midpoints are monotonically worse, and in Bulk every 2015–2020 setting and the linear trend reach
+the γ boundary (ADR 0046: a setting with γ ≥ 0.999 must not be selected however well it fits).
+
+**Why the declared shape is kept.**
+
+1. **It is interior and close to the best in Bulk** (8.0 logLik behind 2005 / 0.20, 1.2 behind
+   2010 / 0.30).
+2. **Likelihood and the selection rule pull against each other.** The better-fitting Bulk shape carries a
+   larger trend share (0.781 against 0.733); sweeping the trend would add a selection dimension on which
+   the trend-dominance gate and the likelihood disagree.
+3. **One shape for both sectors.** The Diffuse optimum (2010 / 0.30) and the Bulk optimum (2005 / 0.20)
+   differ, and the Shared Specification rule (§2.2) requires one.
+
+> **The cost, stated plainly.** The deployed trend is **25.7 logLik worse in Diffuse** than the best shape
+> at equal parameter count, and 8.0 worse in Bulk (`v5`: 21.2 and 4.1). It is a declared choice, not a
+> fitted one, and should be described in those words.
+>
+> **It barely moves φ where it was tested** (`analysis/checks/trendShapePhi.R v6` →
+> `trend-shape-phi.rds`; delivered φ, EU21, GDP weights, θ = 0.50, seed year 2022 as the script fixes
+> it): the Diffuse-best 2010 / 0.30 Spearman 0.976, median |Δφ| **0.009**; linear 0.945, 0.018. The
+> script's fixed alternative 2005 / 0.10 (now a worse fit than the deployed shape) moves it more,
+> Spearman 0.780. The Bulk-best 2005 / 0.20 is not in that script's set and is untested.
+
+**What would change this.** If a sector-common shape beats the deployed one in both sectors at an
+interior γ with `trendShare` clear of the 0.90 gate, the trend should go into the sweep. 2010 / 0.30 is
+close to that on `v6` (+1.2 Bulk, +25.7 Diffuse, γ interior): a candidate for the next Run-Group, not a
+change to this one.
 
 ### 2.4 Fit of the deployed spec (`sweep.rds`)
 
@@ -421,9 +457,9 @@ clustered alternative):
 > capability raises the Bulk *ceiling*" is **not** a supported sentence, and nor is its negation. In
 > Diffuse both estimators agree on GovEff (+0.279 mean, +0.241 frontier).
 >
-> ⚠️ **Frontier $p$-values are ML and understate uncertainty.** On `v5` the design effect of country
-> clustering on the same design ran 2.2× (Bulk) and 3.1× (Diffuse) in the mean regression (§5.3.1).
-> Quote frontier signs; quote mean-regression $p$.
+> ⚠️ **Frontier $p$-values are ML and understate uncertainty.** The design effect of country clustering
+> on the same design is **2.20×** (Bulk) and **2.37×** (Diffuse) in the mean regression
+> (`efficiency-ratio-band.rds`, §5.3.1). Quote frontier signs; quote mean-regression $p$.
 
 ### 3.4 ⚠️ The $\gamma$ caveat — read before using any ceiling
 
@@ -445,15 +481,45 @@ error structures; $\rho$ is the Spearman correlation of country slack ranks agai
 > three (0.78 / 0.63) and weakens on the panel rung (0.35). **Report tiers, never named country
 > rankings of slack, in both sectors.**
 
-#### 3.4.1 Propagated to what the coupling consumes (measured on `v5`)
+#### 3.4.1 Propagated to what the coupling consumes (`frontier-rung-phi.rds`)
 
 `slackRankCor` ranks countries on absolute slack, which the coupling never sees; it consumes $E$,
-then $\varphi$. On `v5` (`analysis/checks/propagateFrontierRungsToPhi.R v5`) the truncated-normal rung
-barely moved φ (Spearman 0.96, median |Δφ| 0.024 at EU21), but the panel rung reordered it (0.53)
-and the decay rung moved it by a median 0.171 — the size of a θ step — and the sector that binds
-changed in 11 of 20 regions across rungs. **The frontier error structure is a first-order uncertainty
-in φ**, and rank intervals across rungs (`rankInterval`) are a range over fitted models, not a
-sampling interval. **Not re-run on `v6`**; until it is, quote this as the `v5` measurement.
+then $\varphi$. Rebuilt per rung (`analysis/checks/propagateFrontierRungsToPhi.R v6 2023`, the anchor
+year, 48 covered countries, θ = 0.50; offline, not through the coupling's anchor artifact):
+
+**Country $E$ versus the headline:**
+
+| Rung | Bulk $\rho$ | median $\lvert\Delta E\rvert$ | Diffuse $\rho$ | median $\lvert\Delta E\rvert$ |
+|---|---:|---:|---:|---:|
+| truncated-normal | **0.985** | 0.054 | **0.987** | 0.046 |
+| panel (BC92) | 0.655 | 0.145 | 0.355 | 0.194 |
+| time-decay | 0.644 | 0.167 | 0.623 | 0.125 |
+
+**Delivered $\varphi = \min(\varphi^{\text{Bulk}},\varphi^{\text{Diffuse}})$, GDP weights, the regions
+with a covered country (20 at EU21, 11 at H12):**
+
+| Rung | EU21 Spearman | median / max $\lvert\Delta\varphi\rvert$ | H12 Spearman | median / max $\lvert\Delta\varphi\rvert$ |
+|---|---:|---|---:|---|
+| truncated-normal | **0.962** | 0.009 / 0.042 (IND) | 0.906 | 0.028 / 0.080 (SSA) |
+| panel (BC92) | 0.473 | 0.082 / 0.287 (SSA) | 0.574 | 0.078 / 0.308 (SSA) |
+| time-decay | 0.488 | **0.164** / 0.388 (SSA) | 0.110 | 0.106 / 0.388 (SSA) |
+
+> 🔴 **The γ band is NOT small, on `v6` as on `v5`.** The truncated-normal rung barely moves
+> $\varphi$, but the panel rung reorders it (Spearman 0.47) and the decay rung moves it by a median
+> 0.164 — the size of a θ step — with SSA moving most. The frontier error structure is a first-order
+> uncertainty in $\varphi$ and belongs beside θ in any φ band.
+
+**Rank intervals** across the four rungs (`rankInterval`): EU21 max width **18.5 of 20**, 50%
+separable; H12 max width 9.5 of 11, 36% separable. **A range over four fitted models, not a sampling
+confidence interval.**
+
+**Which sector binds is not robust.** In this offline reconstruction Bulk binds in 8 / 8 / 3 / 12 of
+20 EU21 regions across headline / truncated-normal / panel / decay, 16 of 20 regions change binding
+sector, and only four are always-Diffuse (ENC, ESW, EWN, FRA). At country level Bulk binds in 32 / 29
+/ 26 / 21 of 48, and 24 countries flip. The coupled anchor, with final-energy weights, has Bulk
+binding in 15 of 21 EU21 regions (`SCENARIOS.md` §6.2a): the attribution moves with the weights as
+well as the rung. **Any sentence of the form "the constraint binds on sector X" is a statement about
+one rung and one weighting.**
 
 #### 3.4.2 The sector ordering in the estimation sample
 
@@ -671,15 +737,31 @@ point moves Bulk $k$ to 0.57 / 0.40 (0.5×) and 0.75 / 0.63 (2×) in 2050 / 2100
 | **2. Efficiency analogy** | median $E$ and median $u$ | one point | admissible on `v6`, resolution-dependent (§5.3) |
 | **3. Price–efficiency elasticity** | a carbon-price panel + the stringency panel | an *empirical* θ range | the most promising; open |
 | **4. Calibration** | observed regional price dispersion | θ that best reproduces history | feasible, circular risk |
-| **5. Partial identification (bounds)** | revealed-preference restrictions | an interval | computed on `v5` (below) |
+| **5. Partial identification (bounds)** | revealed-preference restrictions | an interval | [0.134, 0.164] on `v6`, for the multiplicative cap only (below) |
 | **6. Expert elicitation** | a structured protocol | a documented prior | out of scope |
 
-**Route 5, measured on `v5`** (`computeThetaBounds.R v5`, `efficiencyRatioBand.R v5`). The
-revealed-preference upper bound under a *multiplicative* level cap was θ ≤ 0.159; the resolution
-lower bound (cluster-scaled 95% CI width on $E$) 0.183; the interval was empty. That result concerns
-the multiplicative cap. **The deployed cap is relative** (§5.1): $P^{*}\ge P^{\text{ref}}$ by
-construction wherever $A \ge P^{\text{ref}}$, so the revealed-preference bound does not bind it. Not
-re-computed on `v6`.
+**Route 5 — bounds** (`analysis/checks/computeThetaBounds.R`, `analysis/checks/efficiencyRatioBand.R v6`
+→ `coupling/theta-bounds.rds`, `efficiency-ratio-band.rds`). These bound θ for a **multiplicative**
+level cap, $\varphi_r P^{\circ}$, read on the offline bound's price paths.
+
+*Upper bound — revealed preference.* A region cannot credibly be modelled below the price it has
+already legislated: $\theta \le (1-P^{\text{ref}}_{r,t}/P^{\circ}_{r,t})/u_r$, minimised over
+region-years with $P^{\circ}>P^{\text{ref}}$ and $t\ge2030$: $\theta_{\max} = $ **0.164**, binding at
+ECS in 2040. At θ = 0.50 eight regions violate it (DEU, ECE, ECS, ENC, ESC, ESW, EWN, FRA).
+
+*Lower bound — resolution.* $u$ is min–max normalised, so the spread θ induces in $\varphi$ is exactly
+θ; below the width at which $E$ itself is resolved the differentiation is inside its own noise. A CI on
+$\eta_F$ maps to $E$ by transforming the endpoints. Median 95% CI width on $E$ at 2023: ML band 0.061
+(Bulk) / 0.057 (Diffuse); **cluster-scaled 0.134 / 0.134**, pooled 0.134 (design effect 2.20× / 2.37×).
+
+$$\boxed{\;\theta \in [0.134,\ 0.164]\;}\qquad\text{non-empty on `v6` (on `v5` it was empty, }[0.183,\ 0.159])$$
+
+> **What it says, and what it does not.** Every declared θ (0.325 / 0.50 / 0.675) is above the upper
+> bound: **the multiplicative level cap is incompatible with revealed preference over the whole declared
+> range.** The deployed cap is **relative** (§5.1) — it caps the increment over current policy, so
+> $P^{*}\ge P^{\text{ref}}$ by construction wherever $A \ge P^{\text{ref}}$ — and the revealed-preference
+> bound does not bind it. The resolution floor (0.134) does apply to the deployed share: a θ below it would
+> differentiate regions inside the noise of $E$. Every declared θ is above it.
 
 #### 5.3.2 Sources of uncertainty in $\varphi$, and where each is reported
 
@@ -689,7 +771,7 @@ re-computed on `v6`.
 | **2. Declared erosion κ** | 0.02 / 0.027 / 0.05 | rule B +54 / +41 / +22 Gt against +118 | **main text** (the largest single sensitivity) |
 | 3. Specification family | A (deployed) vs B | Bulk $k_{2050}$ 0.63–0.90 vs 0.86–1.22; rule B −11 Gt for B | main text robustness (family A), SI (family B) |
 | 4. Curve shape | half-saturation 0.5× / 2× | rule B −3 / +12 Gt | main text robustness |
-| 5. Frontier error structure | four frontier variants | `v5`: median \|Δφ\| up to 0.171 (§3.4.1) | SI |
+| 5. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.164, Spearman down to 0.47 (EU21, offline, §3.4.1) | SI — rank intervals |
 | 6. Out-of-coverage assignment | donor / low band / median; nearest donors; USA | rule B 110–155 Gt | SI (the widest data-side band) |
 | 7. Institution projections | harmonised vs held | rule B −0.9 Gt (EU21), but $k$ moves a lot | main text (held twins) |
 | 8. Hold rule and horizon | logit hold vs E-hold; hold 2060 | rule B +71 / +7 Gt | SI |
@@ -883,10 +965,14 @@ the uncoupled ECM (`historical-replay.rds`, `$pass = TRUE`):
 | Diffuse | 0.525 | 0.526 | +0.0014 | +0.766 | 2.63% of rows |
 
 > **Read the margin before the verdict.** The ceiling binds in under 3% of rows, so the coupled and
-> uncoupled systems are almost the same model on history and the "pass" is a tie. On `v5` the replay
-> re-scoped to the rows where the ceiling acts improved the Diffuse fit (skill +0.064) and was neutral
-> in Bulk (`replayRescoped.R v5`); not re-run on `v6`. In the coupled `v6` runs the rule-B cap binds in
-> 99% of region-periods — a regime this gate says nothing about.
+> uncoupled systems are almost the same model on history and the "pass" is a tie. In the coupled `v6`
+> runs the rule-B cap binds in 99% of region-periods — a regime this gate says nothing about.
+
+**Re-scoped to where it can discriminate** (`analysis/checks/replayRescoped.R v6`): on the rows where
+the coupled path differs from the uncoupled one — 84 Bulk country-years in 5 countries (7.6%) and 177
+Diffuse in 9 (16.0%) — RMSE is 0.396 against 0.411 (skill **+0.036**) in Bulk and 0.521 against 0.526
+(skill **+0.009**) in Diffuse. Where the ceiling acts on history it improves the fit a little in both
+sectors (on `v5`: +0.001 Bulk, +0.064 Diffuse). Quote this, not the diluted full-sample figure.
 
 **8.5 The time trend does most of the explanatory work.**
 
