@@ -101,8 +101,10 @@ outside it. IDs such as E13 or D17 refer to that note.
    - **F5**, the reproduction scripts promoted into `pfm`.
 5. ✅ **ADRs 0049–0055 all accepted**: 0051, 0052, 0053, 0055 on 2026-10-07; 0049, 0050, 0054 on
    2026-10-08 at the Phase 3 gate.
-6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 and Phase 5
-   now have the numbers; the changed sections can be drafted as text to paste.
+6. **G4 — `../communication/methodology/PFM-Methodology-v6.docx`** (B1–B7). ✅ 2026-10-10: a *Coupled
+   results* section (rule B and its arms, rule C, the v5 contrast and its decomposition, H12), every
+   number a placeholder filled from `output/pfm/v6/coupling/` by `build-methodology.R`. Still to do: the
+   figures for it (with Phase 6 step 2), and the `-PFMlevelC-Ehold` result when it lands.
 7. **Phase 6 (0005 Phase 6), in order:**
    - ✅ step 1, the `v5` → `v6` coupled contrast (2026-10-10, `analysis/v6/coupledV5V6Contrast.R`). The
      quantity headline shrinks by a quarter to a third; rule C's price relocation barely moves, but the
