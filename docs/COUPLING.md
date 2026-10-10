@@ -4,35 +4,33 @@
 mathematics is `MODEL.md`; the traps that cost whole runs are `PITFALLS.md`.*
 
 **Current state.** Both sides are built and the interface is verified against GAMS itself (§12).
-The Run-Group is **`v5`** (deployed spec `X-2079 WGIge|noRoL|VerAcc bothIncAP lev
-ctl:GDPq.Pop.Hyd fe:OECDp`, `output/remind-inputs/v5/`, `panel_f8845f66fb39d316`). The scenario set is
-**48 scenarios, 24 per resolution** (§3), at the deployed `cm_pfmGapClosure = 0` with `THETA`
-(0.325 / 0.675) and `GAPCLOSE` sensitivities.
+The Run-Group is **`v6`** (deployed spec `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
+fe:OECDp satAP`, `output/remind-inputs/v6/`), coupled through the **share path φ(t)** (§14; ADR 0049,
+0050, 0054) on REMIND 3.7.1. The `v6` batch is complete: 64 runs (46 EU21, 18 H12), all finished and
+admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v6/coupling/`. The `v5` version of this
+document is archived at `../_archive/_wip/2026-10-10/docs/COUPLING-v5.md`.
 
-> ✅ **The `v5` batch is in**: `output/remind-runs/v5/{EU21,H12}/*_2026-09-16_*`, 48 of 48 finished, every log reading
-> `group v5`, tier year 2035. Results are read through `SCENARIOS.md` §3–§8 and
-> `output/pfm/v5/coupling/coupled-facts.json`. Before another submission,
-> `../_archive/_wip/2026-10-01/docs/reference/spec-selection-2026-09-15/CLUSTER-PREFLIGHT.md` and `PITFALLS.md` §1–§3.
+**How to read this document.** §1–§13 are the interface mechanics, shared by both formulations;
+where a part is `v5`-only (the λ closure rates, mode M, the tier year) it says so. **§14 is the `v6`
+formulation**: what a call does, the path symbols, the options. Before a submission, `RUNNING.md`
+step 7c and `PITFALLS.md` §1–§3.
 
-What the `v5` batch established about the **interface** (`SCENARIOS.md` §3):
+What the `v6` batch established about the **interface** (`SCENARIOS.md` §3):
 
-- **The markup arithmetic is live**: `p45_pfmMarkupWritten` = `p45_pfmMarkupSeen` in 47 of 48 runs
-  (the exception is H12 `-PFMratioTh325`, at its iteration cap); `p45_pfmPhiMktSpread` is 1.3–2.9
-  (EU21) / 0.9–2.0 (H12) in markup-on runs and exactly 0 in all six `-Min` twins and both gates.
-- **λ reaches GAMS as configured**: every `cm_pfmGapClosure = 0` log exports
-  `Bulk 0.0000 | Diffuse 0.0000`, and the scoping control passes (`-PFMmildProgGapC` ≡
-  `-PFMmildProg`).
-- **φ is a genuine fixed point**: 3–8 PFM calls per θ > 0 run, 30 of 36 δ sequences contracting
-  strictly, every final δ below `cm_pfmConvTol` = 0.002.
-- **The θ = 0 gate matches its reference to a tolerance, not bit-for-bit** — 294 of 358 cells differ
-  by at most \$0.71 at EU21, 168 of 196 by at most \$0.89 at H12, because the budget loop stops at a
-  different iteration (φ is exactly 1 in both). §6.6.
-- **The detectors are operative**: `pm_pfmInfesCode = 0` in every coupled run;
-  `pm_pfmBudgetWarn` fired on the one budget miss at the iteration cap (EU21 `-PFMlevelC`,
-  deviation −14.2). ⚠️ It did **not** fire on H12 `-PFMratioMin`, whose emissions keep rising to
-  1068 Gt at 2150 — the warning does not see a post-2100 overshoot of a peak budget (`TODO.md`
-  item 32).
-- **λ does opposite things in bind modes 1 and 2**, now measured (§11.2b).
+- **The share path reaches GAMS and converges**: every θ > 0 run loads the path with formulation
+  `v6-anchor` and converges on it in 2–15 calls, final change ≤ 0.0019 over the checkpoint years.
+- **Rule C's rebuild reproduces the R-side cap** to 9.1e-7 (`p45_pfmBoundCheck_iter`) at both
+  resolutions.
+- **The θ = 0 gate**: EU21 reproduces `-PFMgateRef` exactly (0 of 231 cells); H12 differs by at most
+  \$1.57, identically in every region (the budget loop stopping elsewhere; waived and disclosed,
+  `SCENARIOS.md` §3.1). The held-price pinning holds within 2.2 Gt.
+- **Markup written vs seen** differ only where the markup moved in the final iteration: the two are
+  read in different iterations (`PITFALLS.md` §16).
+- **The detectors are operative**: `pm_pfmInfesCode = 0` in every coupled run. The extractor's
+  never-peaked check flags the one budget-forced run whose cumulative CO₂ is still rising at 2150 (EU21
+  `-PFMlevelCMin-v6`, 1011.6 Gt); `pm_pfmBudgetWarn` fired for no run (`PITFALLS.md` §26).
+- **Every option reached the coupling**: all 32 arm-resolution pairs recorded the options and group
+  they were declared with (`coupled-facts.json` `arms`).
 
 ---
 
@@ -79,13 +77,16 @@ before every call and R overrides its own settings from it — no hand-kept copy
 
 | switch | meaning |
 |---|---|
-| `cm_pfmBindMode` | 1 ratio · 2 absolute cap · 3 mild progression (§4) |
+| `cm_pfmBindMode` | 1 ratio · 2 absolute cap · 3 mild progression (§4; **`v5` only**, retired in `v6`) |
 | `cm_pfmTheta` | coupling severity $\theta$; **0 is the uncoupled null** |
 | `cm_pfmConvTol` | convergence tolerance on $\varphi$. **0.002** since 2026-08-18; the 2026-08-17 batch used 0.01, at which the 2-call runs cross tolerance on their first comparison and can only *assert* convergence. Governs the PFM loop ONLY — it has no bearing on REMIND's budget-adjustment loop, which is what caps a rule-C run that does not converge (`SCENARIOS.md` §4.3, `TODO.md` item 17) |
 | `cm_pfmMaxPrice` | price-explosion guard, **US$/tCO2**. Until 2026-09-11 it was compared against a T$/GtC quantity, i.e. 272x too lax to ever fire (`TODO.md` item 16) |
 | `c_pfmIter` | which Nash iterations call PFM — disjoint from `c_edgeTransportIter` |
 | `cm_pfmSectorMarkup` | 1 = deliver Bulk/Diffuse as floor + per-market markups (§11) · **0 = collapse with `min`**, bit-identical to pre-ADR-0042 |
-| `cm_pfmGapClosure` | **0 (deployed since 2026-09-11)** = the political gap PERSISTS, every gap-closure rate forced to zero · 1 = it closes at the frontier's estimated rates, the declared sensitivity (`startgroup=GAPCLOSE`). Reaches bind modes 1 and 2 **only** — §11.2b |
+| `cm_pfmPhiPath` | **1 on every `v6` row**: load and apply the share path φ(t) (§14); 0 = the `v5` single share. The preflight fails a row whose value does not match its group |
+| `cm_pfmBoundRebuild` | 1 = rule C: rebuild the mode-2 cap every iteration from the live anchor and that period's share (§14) |
+| `cm_pfmAnchorFromGdx` | on = rule B: pin the anchor to another run's converged anchor (`path_gdx_carbonprice`, §11.7) |
+| `cm_pfmGapClosure` | **`v6`: always 0** — λ is out of the coupling (ADR 0050); a `v6` call exports λ = 0 whatever is set. In `v5`: **0 (deployed since 2026-09-11)** = the political gap PERSISTS, every gap-closure rate forced to zero · 1 = it closes at the frontier's estimated rates, the declared sensitivity (`startgroup=GAPCLOSE`). Reaches bind modes 1 and 2 **only** — §11.2b |
 
 **What GAMS reports back** (read these, not only `o_modelstat`):
 
@@ -117,8 +118,7 @@ copies into `<run>/pfm/` exactly what the coupling opens:
 - the staged madrat cache (ADR 0047);
 - `phi-override.yml`, if the Run-Group carries one;
 - `phi-anchor.rds`, the v6 anchor artifact (step `pfm-anchor`, design note 0005 C6), if the
-  Run-Group carries one. A stale copy in a reused run folder is removed. Nothing reads it yet: the
-  v6 coupling path (0005 Phase 3) will.
+  Run-Group carries one; a v6 call reads it (§14). A stale copy in a reused run folder is removed.
 
 The `pfm-coupling.yml` mechanism dates from 2026-08-11. It replaced setting PFM options in
 REMIND's `.Rprofile`, a file shared by every run, not per-scenario, and carrying absolute
@@ -164,22 +164,20 @@ arguments, whose defaults read these R options. None of them plays any part in a
 **`SCENARIOS.md` is the long-form guide** to what every run is for, what it currently says, and
 what may not be concluded from it. This section is the short version.
 
-**`models/remind_pfm/config/scenario_config_PFM.csv` is GENERATED**, by
-`analysis/run-groups/buildPFMScenarioConfig.R`, from REMIND's own `config/scenario_config.csv`.
-Every row is *its canonical parent plus a named delta* — nothing else may differ.
-
-Both scripts live in **`analysis/`**, deliberately: they are project tooling and are not
-committed to the REMIND fork. Run them from the project root, not from `models/remind_pfm/`.
+**The `v6` scenario config is generated from a matrix** (ADR 0055): edit
+`analysis/run-groups/scenario-matrix-v6.yml`, never the CSV. Every row is REMIND's canonical
+scenario plus named deltas, nothing else.
 
 ```bash
-Rscript analysis/run-groups/buildPFMScenarioConfig.R
-Rscript analysis/run-groups/validatePFMScenarioConfig.R models/remind_pfm/config/scenario_config_PFM.csv
+Rscript analysis/run-groups/buildPFMScenarioConfig.R   # -> models/remind_pfm/config/scenario_config_PFM_v6.csv,
+                                                       #    then validatePFMScenarioConfig.R and REMIND's own reader
 ```
 
-The validator exits 1 on any error, so it can gate a submission. Every check in it
-corresponds to a defect that shipped and produced a run that looked fine — most importantly
-`carbonprice` not being `functionalForm`, which makes `cm_taxCO2_regiDiff = 11` **inert** and
-the run silently uncoupled.
+Commit the matrix (project repo) and the CSV (`remind_pfm`), push, and update the cluster checkouts
+(`RUNNING.md` step 7c). `config/scenario_config_PFM.csv` stays the hand-maintained `v5` record. The
+validator exits 1 on any error, so it gates a submission: every check corresponds to a defect that
+shipped and produced a run that looked fine, most importantly `carbonprice` not being
+`functionalForm`, which makes `cm_taxCO2_regiDiff = 11` **inert** and the run silently uncoupled.
 
 > **Why generated.** Hand-copying did not hold. Until 2026-08-17 every coupled PkBudg1000 row
 > was a copy of the canonical **PkBudg750** with `cm_budgetCO2from2020` set to 1000: all seven
@@ -190,48 +188,22 @@ the run silently uncoupled.
 > scenario's climate target, transport pathway and industry markup while being compared
 > against a genuinely-1000 Gt baseline.
 
-**The delta, in full.** Budget parents already use `carbonprice = functionalForm` with a
-`path_gdx_ref`, so a coupled budget row changes only `cm_taxCO2_regiDiff` (7 → 11, or 0 for the
-gate reference), adds `cm_pfmBindMode`/`cm_pfmTheta`/`cm_pfmConvTol`, and sets
-`cm_iterative_target_adj → 0` for the variants that drop the budget forcing. NPi parents carry
-no carbon price, so their twins additionally need `carbonprice`, an anchor (taken from the same
-resolution's PkBudg1000 parent), `cm_startyear = 2030` and a `path_gdx_ref`.
+**The `v6` batch** (`SCENARIOS.md` §2 has every row and what it is for): the uncoupled 3.7.1 bases
+(`NPi2025`, `PkBudg1000`, `-PFMgateRef`), two nulls (`-PFMgate-v6` budget-held, `-PFMgateBfix-v6`
+price-held), rules B and C at θ 0.325 / 0.50 / 0.675 with institutions-held twins (wave 1, both
+resolutions), and the wave-2 arms (ranking, assignment, markup, shape, family B, formulation, κ),
+mostly EU21. Start tags `V6W<wave><res>`, `<res>BASE`, and one tag per row added after its wave
+(`V6CEHOLD`); `submitPFM()` submits a tag after a preflight (`RUNNING.md` step 7c).
 
-**24 scenarios per resolution, 48 in total**, identical in structure at H12 and EU21
-(`models/remind_pfm/config/scenario_config_PFM.csv`):
-
-| group | scenarios (prefix `SSP2-` at H12, `SSP2-EU21-` at EU21) |
-|---|---|
-| baselines | `NPi2025`, `PkBudg1000` — verbatim canonical copies |
-| nulls | `PkBudg1000-PFM{gateRef,gate,gateB}`, `NPi2025-PFMgate` |
-| science | `PkBudg1000-PFM{ratio,levelB,levelC,mildProg}` |
-| NPi twins | `NPi2025-PFM{ratio,level,mildProg}` |
-| markup-off twins | `PkBudg1000-PFM{ratioMin,levelBMin,levelCMin}` |
-| `<res>THETA` | `PkBudg1000-PFM{ratio,levelB}Th{325,675}` |
-| `<res>GAPCLOSE` | `PkBudg1000-PFM{ratio,levelB,levelC,mildProg}GapC` |
-
-There is no `-PFMref`/`-PFMbase` — after alignment those are the baselines run twice — and no
-750 Gt rows, which nothing referenced.
-
-**Running them.** The two resolutions are separated by the `start` column, not by separate files. The start groups and the commands are listed once, in `SCENARIOS.md` §2.5. No row carries REMIND's default tag `1`, so a bare `start.R` starts nothing.
-
-The config file is a **positional** argument — `start.R:74` strips anything beginning with `-`
-or containing `=`, so a `--scenario_config=…` form is silently discarded and you land in the
-interactive chooser. `start.R` chains on `path_gdx_ref` (`RunsUsingTHISgdxAsInput`), so one
-submission per family is enough: the NPi baseline runs first and the rest follow.
-
-**Four different runs are called a "null" and they are not interchangeable.** Naming the wrong
-one makes a difference unattributable:
+**Three nulls, and they are not interchangeable**:
 
 | null | what it holds fixed | what a difference against it means |
 |---|---|---|
 | `-PkBudg1000-PFMgateRef` | `regiDiff = 0`, uniform price | the *interface* is wrong (§6.6) — not a finding |
-| `-PkBudg1000-PFMgate` | `regiDiff = 11`, θ = 0, `adj = 9` | the effect of φ under a **held budget** |
-| `-PkBudg1000-PFMgateB` | `regiDiff = 11`, θ = 0, `adj = 0`, **bind mode 1** | the effect of the political **cap** — the control for headline B |
-| `-NPi2025-PFMgate` | `regiDiff = 11`, θ = 0, current policies | the effect of φ on **any** price path |
+| `-PkBudg1000-PFMgate-v6` | `regiDiff = 11`, θ = 0, `adj = 9` | the effect of φ under a **held budget** (rule C, ratio mode) |
+| `-PkBudg1000-PFMgateBfix-v6` | `regiDiff = 11`, θ = 0, `adj = 0`, anchor pinned to `-PFMgate-v6` | the effect of the political **cap** on the budget path (rule B) |
 
-> ⚠️ **A bind mode 2 run at θ = 0 is not an uncoupled null.** The cap $\varphi P^{\circ}$ still
-> binds through the speed limit $\lambda$ — §9. That is why `-PFMgateB` is bind mode 1.
+The `v5` nulls `-PFMgateB` (unforced anchor) and `-NPi2025-PFMgate` have no `v6` counterpart.
 
 **Mixing resolutions in one model folder is safe**, for three reasons:
 
@@ -253,7 +225,10 @@ earlier H12 / 750 Gt pair.
 
 ## 4. The three bind modes
 
-Run as alternatives because they make different claims.
+Run as alternatives because they make different claims. **In `v6`** φ is the path φ(t) and there is
+no λ (§14): mode R pays φ(t) · A; mode L caps at
+$\min\big(A_t,\ P^{\text{ref}}_{t,r} + \varphi_r(t)\max(A_t - P^{\text{ref}}_{t,r}, 0)\big)$; **mode M is
+retired** (its mechanism was λ, ADR 0050). The formulas below are the `v5` ones.
 
 **Mode R — $\varphi$ bounds the price *ratio*** (`cm_pfmBindMode = 1`)
 
@@ -302,6 +277,9 @@ B and C are the same experiment read from opposite ends.
 ---
 
 ## 5. Convergence
+
+> **`v6`:** convergence is measured on the whole share path, at the checkpoint years 2035 / 2050 /
+> 2070 / 2100, with damping on oscillation (§14, item 5). The text below is the `v5` single-share rule.
 
 The coupling is a fixed point: the energy system moves the gaps, which move $\varphi$, which
 moves the price, which moves the energy system. Converged when
@@ -671,6 +649,9 @@ block that rebuilds `p_priceCO2` from `pm_taxemiMkt` (`core/presolve.gms:255-270
 it is gated on `cm_emiMktTarget`, which §11.5 aborts on. **It is unreachable from a
 coupled run**, which is why module 47 can take that route and the PFM cannot.
 
+> **`v6`:** §11.2–§11.2b describe λ, which is out of the `v6` coupling (ADR 0050): a `v6` call exports
+> every λ as 0. They stay for `v5` reproduction.
+
 ### 11.2 Each sector's own closure rate (fixed 2026-08-17)
 
 Modes 2 and 3 receive finished **per-sector price paths** from R, built with
@@ -972,7 +953,8 @@ follows its donor's feedback, not its own.
 > output/remind-runs/v6/EU21`, 18 of 18 checks). The θ = 0 null reproduces `-PFMgateRef` exactly (0
 > of 231 price cells differ; 1000.91 Gt both); rule B (`-PFMlevelBfix-v6`) converges in 7 calls, rule
 > C (`-PFMlevelC-v6`) in 8 with `p45_pfmBoundCheck_iter` at most 9.1e-7. A call takes 56–59 s first and
-> about 30 s after on the cluster (E17). Sections 1–13 still describe every `v5` run.
+> about 30 s after on the cluster (E17). **The full `v6` batch ran on it (2026-10-10)**: 64 runs at EU21
+> and H12, all admitted (`SCENARIOS.md`).
 
 **Which formulation a run uses.** `iterativePFM(formulation = "auto")`: a Run-Group whose export
 carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v5**, unchanged.
