@@ -140,7 +140,13 @@ wave 2. Never re-run them with `clean = "group"`: it deletes the pinned spec fil
   across it.
 
 **Not needed for the `v6` run: your call, and time-sensitive if you want it.**
-- 🟢 **E25: keep `v5` rebuildable from scratch.** The `v5` artifacts themselves are on disk, and the
+- ✅ **`v6` inputs archived (2026-10-10)**: `tools/archiveRunGroupInputs.sh v6` on the cluster →
+  `/p/projects/elevate/WP3.4/archive/v6-inputs-2026-10-10/` (876 MB): the 26 shared-cache files the runs
+  read, the prepared caches of `v6` and its nine variant groups, the 5 REMIND input archives; nothing
+  missing, every recorded md5 matches. Copy that folder off the cluster for the deposit (D-M3).
+- 🟢 **E25: keep `v5` rebuildable from scratch.** The same script does most of it:
+  `bash tools/archiveRunGroupInputs.sh v5 /p/projects/elevate/WP3.4/archive` (the cache files; the `v5`
+  REMIND input archives are not recorded, see below). The `v5` artifacts themselves are on disk, and the
   `v6` paper's `v5` → `v6` contrasts read those. What the `v5-final` tags cannot give is a rebuild
   of `v5`'s inputs on a new machine. For that:
   - fetch the 45 shared-cache files the `v5` coupled runs read from
