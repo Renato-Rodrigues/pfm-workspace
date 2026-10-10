@@ -9,9 +9,17 @@ spec. **Do not put a number here that is not in one of those** — re-read it fr
 and cite the source file, per the Run-Group rule. Numbers here are Run-Group **`v5`**, deployed
 spec `X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp`.
 
+> ⚠️ **This is the `v5` deck, and `v6` is now current (2026-10-10).** The spine below (§1) rests on
+> two `v5` results that changed in `v6`: the quantity headline is +118 / +113 Gt, not +159 / +164, and
+> the held-budget relocation ("China absorbs") is about 20 Gt, not 72–81 (`SCENARIOS.md` §4.10). The
+> `v6` spine is to be re-decided with the results (0005 Phase 6 step 5); until then, do not build a
+> `v6` deck from this page. `v6` numbers: `SCENARIOS.md` and `MODEL.md`; `v6` coupled figures:
+> `v6-coupled-theta`, `v6-coupled-arms`, `v6-rulec-relocation`, `v6-price-catchup`
+> (`build-figures.R --group=v6`). The `v5` section references below (`SCENARIOS.md` §x, `MODEL.md` §x)
+> point at the archived `v5` versions (`../_archive/_wip/2026-10-10/docs/`).
+>
 > Coupled numbers are from the `v5` batch (`output/remind-runs/v5/{EU21,H12}/*_2026-09-16_*`), collected in
-> `output/pfm/v5/coupling/coupled-facts.json` and read in `SCENARIOS.md` §3–§8. Re-render the coupled
-> figures on `v5` before building the deck.
+> `output/pfm/v5/coupling/coupled-facts.json`.
 
 **Audience assumed:** modellers and climate-policy researchers who know what an IAM is and
 have not seen this model. A 20-minute talk is 12 content slides; a 45-minute seminar is the
