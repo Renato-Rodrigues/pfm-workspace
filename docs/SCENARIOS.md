@@ -322,6 +322,13 @@ the two runs' budget loops stop at different iterations. The same cell counts ha
 every batch; the size stays below \$1 and cumulative CO₂ agrees to 0.2 Gt. **Do not write
 "bit-identical".** `TODO.md` item 19.
 
+**`v6` (REMIND 3.7.1):** EU21 reproduces exactly (0 of 231 cells). H12 does not stay inside the
+tolerance: all 132 cells differ, by at most \$1.57 (0.13% in 2030 rising to 0.32% in 2090), and
+cumulative CO₂ is 1000.07 vs 1000.81 Gt. The difference is identical across all 12 regions in every
+year, so it is a uniformly lower global path from the budget loop stopping elsewhere, not the
+coupling. Both runs are inside REMIND's 2 Gt budget tolerance. Waived and disclosed, 0005 Phase 3,
+"H12 gate check".
+
 > ⚠️ The gate is **structurally blind** to defects that only exist at θ > 0. It proves the
 > plumbing, nothing else; §3.3 is the real test.
 

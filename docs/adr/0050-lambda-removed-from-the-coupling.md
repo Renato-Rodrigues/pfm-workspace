@@ -66,6 +66,12 @@
   | **0.027** | **25 y** | **0.32 / 0.06** | **0.84 / 0.97** | **0.78 / 0.95** |
   | 0.05 | 14 y | 0.17 / 0.01 | 0.91 / 0.99 | 0.88 / 0.99 |
 
+- **What κ does, coupled** (Run-Group `v6`, EU21, wave 2, θ = 0.50; `output/pfm/v6/coupling/coupled-facts.json`
+  `$arms`, 2026-10-09). Rule B, extra cumulative CO₂ by 2100 against `-PFMgateBfix` (deployed +118.2 Gt):
+  κ = 0.02 → +53.5, 0.027 → **+41.2**, 0.05 → +22.1 Gt. Rule C holds the budget in all three, and the 2050
+  regional prices sit at a median ×1.069 / 1.055 / 1.031 of the θ = 0 run (deployed ×1.153). The central κ
+  removes about two thirds of the quantity headline: the result depends on whether politics improves by itself.
+
 ## Alternatives rejected
 
 - Keep λ for the 2022 → 2035 step (D13): that step no longer exists.

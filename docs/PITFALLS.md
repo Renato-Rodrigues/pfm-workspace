@@ -256,7 +256,7 @@ resolution wherever it is quoted. `computeEfficiencyAnchor()` returns `resolutio
 Run-Group pins *which fit*; the resolution pins *which population the normalisation ran over*.
 Both are needed before a normalised number is checkable.
 
-## 16. Reading a coupled `fulldata.gdx` — four traps that all fail silently
+## 16. Reading a coupled `fulldata.gdx` — five traps that all fail silently
 
 `gdxdump` is the tool; it ships with every GAMS system and needs no licence.
 
@@ -286,6 +286,16 @@ indistinguishable from "the markup is switched off", the precise thing you are u
 This cost a wrong conclusion on 2026-08-18 before `p45_pfmMarkupWritten` contradicted it. When a
 markup looks identically zero, verify against `p45_pfmMarkupWritten` / `p45_pfmMarkupSeen` and
 `p45_pfmPhiMktSpread` before believing it.
+
+**In a finished run's gdx, `p45_pfmMarkupWritten` and `p45_pfmMarkupSeen` come from different
+iterations.** `Seen` is read at the *start* of the last presolve, so it holds what the presolve
+before wrote; `Written` is set at the *end* of the last presolve. They differ whenever the markup
+moved in the final iteration, which is legitimate (the budget loop or a last PFM call moved the
+prices). The check exists for erasure: `Seen` ≈ 0 while `Written` > 0, on which GAMS aborts anyway
+(`presolve.gms`). Measured on the `v6` batch (2026-10-10, all 54 runs with a markup, both
+resolutions): every run where the two differ had its mean markup (`p45_pfmMarkupMean_iter`) move
+in the last iteration (0.05–0.6%), and no run with an unmoved markup shows a difference. The
+`markupMismatch` list in `coupled-facts.json` is therefore a "markup still moving" flag, not a fault.
 
 **`pm_actualbudgetco2` runs to 2150, not 2100.** The last element is *not* the cumulative-to-2100
 figure, and for budget runs it is materially lower (EU21 `-PFMgate`: 992.5 Gt at 2100, 917.1 at

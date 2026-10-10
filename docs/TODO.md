@@ -4,7 +4,7 @@
 
 **Legend:** 🔴 blocking · 🟠 required for submission · 🟢 improves the work · ⚪ optional
 
-Last reviewed **2026-10-08** (Phase 3 gate passed; offline analyses moved to REMIND 3.7.1).
+Last reviewed **2026-10-10** (Phase 5 complete at both resolutions; Phase 6 started).
 
 **`v5` is frozen.** `v5-final` is tagged in the project repo, `pfm`, `mrpfm`, `remind_pfm` and
 `paper-forge`, after a reproduction check on a fresh clone of those commits. The tag covers:
@@ -28,7 +28,7 @@ outside it. IDs such as E13 or D17 refer to that note.
 
 ## 🧭 What to do next
 
-**Where it stands (2026-10-08).**
+**Where it stands (2026-10-10).**
 - **Phases 0 and 2 are done.** Run-Groups `v6` (X-1791 satAP) and `v6-annual` (X-1860 satInn) were
   re-run on the cluster on 2026-10-06 with the scenario-panel fixes (`PITFALLS.md` §30–§31). The
   Phase 2 gate passed (Bulk γ 0.997 accepted). The `v5` → `v6` comparison is 0005 §8.
@@ -38,7 +38,11 @@ outside it. IDs such as E13 or D17 refer to that note.
   - the spec band, the curve-shape check and the ceiling-gate re-check (C9);
   - the ADR drafts 0049–0055.
 - **Phase 3 is done (2026-10-08):** the gate passed on REMIND 3.7.1, and the Phase 1 results were
-  re-run on the 3.7.1 bases. Wave 1 of Phase 5 is next.
+  re-run on the 3.7.1 bases.
+- **Phase 5 is done (2026-10-10):** waves 1 and 2 at EU21 (39 coupled runs) and H12 (15), all admitted;
+  64 runs with the bases and nulls (0005 Phase 5, "Results as they land", with an EU21-vs-H12 table).
+  The quantity headline is +118.2 Gt (EU21) / +112.8 Gt (H12).
+- **Phase 6 has started:** step 1, the `v5` → `v6` coupled contrast, is done (0005 Phase 6).
 - **Author decisions of 2026-10-06/07** are in 0005 §7a:
   1. institutions-held twins;
   2. harmonise the institution series;
@@ -65,7 +69,7 @@ outside it. IDs such as E13 or D17 refer to that note.
      $k_{2050}$ on PkBudg1000 −0.054); `couplingOffline.R` still reproduces the Phase 1 shares exactly.
      Numbers quoted before 2026-10-08 from `phase1/` describe 3.7.0.dev29.
    - ✅ ADRs 0049, 0050, 0054 accepted 2026-10-08.
-4a. **Wave 1 submitted 2026-10-08 (standby)**: `V6W1EU21` (6 runs, batch `2026-10-08_21.55.29`) and
+4a. **Wave 1 submitted 2026-10-08 (standby); EU21 wave 2 submitted 2026-10-08 23:17**: `V6W1EU21` (6 runs, batch `2026-10-08_21.55.29`) and
    `V6W1H12` (3 H12 3.7.1 bases, then 10 coupled rows, chained; batch `2026-10-08_22.09.48`). When they land:
    sync (`syncFromCluster.sh … v6 --runs …`), then
    - `Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/H12 --res H12`: the H12 null against its
@@ -74,12 +78,18 @@ outside it. IDs such as E13 or D17 refer to that note.
      (`coupledBatchFactsV6.R`: θ sweep and slope, the institutions-held twins, rule C's price relocation,
      $k$ per run, every option arm with the options its last call ran with). The cost and held-budget
      scripts now read `-v6` titles and skip comparisons whose runs are not there yet.
-   - **2026-10-09, first sync:** only two runs came over, both from wave 2 (`V6W2EU21`, started
-     2026-10-08 23:19, fork `b79dc2d9c`): `-PFMlevelBfix-specalt-v6` and `-PFMlevelC-uniform-v6`. Both
-     finished (44 and 40 iterations) and are admitted; `runCoupledStage.R v6` ran clean on the 9 EU21 runs.
-     Results in 0005 Phase 5, "Results as they land". **The six wave-1 EU21 runs (θ 0.325 / 0.675, the
-     held twins) were not staged**: they started at 21:55, outside the time pattern used. Stage them with
-     `--runs 'SSP2-EU21-*_2026-10-08_21*'`.
+   - ✅ **EU21 waves 1 and 2 complete and admitted (2026-10-09)**: all 39 coupled runs (6 wave 1, 33
+     wave 2) finished, none at the iteration cap; `runCoupledStage.R v6` ran on 46 EU21 runs. Results in
+     0005 Phase 5, "Results as they land". Disclose: `-PFMlevelCMin`'s peak in 2150 (`PITFALLS.md` §26);
+     four short rule-C runs that still moved in their last ten iterations (κ 0.05, `specalt`, uniform,
+     θ 0.325). ✅ The 0.2–0.4% markup written/seen difference is explained (2026-10-10): the two come from
+     different iterations, and differ exactly when the markup moved in the last one (`PITFALLS.md` §16).
+   - ✅ **H12 waves 1 and 2 complete and admitted (2026-10-10)**: 15 coupled runs (`V6W1H12` 10,
+     `V6W2H12` 5) and the three 3.7.1 bases, none at the cap, every rule-C run settled;
+     `runCoupledStage.R v6` on all 64 runs. Gate check 17 of 19: the null misses `-PFMgateRef` by up to
+     $1.57 / 0.74 Gt, uniform across regions (budget loop, not the coupling); waived and disclosed (0005
+     Phase 3, "H12 gate check"; `SCENARIOS.md` §3.1). Rule B agrees with EU21 within about 10%; rule C's
+     price relocation is about half the EU21 size (0005 Phase 5, "H12").
    - ✅ **κ start decided 2026-10-09 (author): no effect in 2025, an effect from 2030 onwards**, i.e. the
      fade counted from $t_0$ = 2025 as committed (ADR 0050 decision 5). The wave-2 κ runs stand as submitted.
 4. **Phase 4, alongside:**
@@ -90,17 +100,22 @@ outside it. IDs such as E13 or D17 refer to that note.
    - **F5**, the reproduction scripts promoted into `pfm`.
 5. ✅ **ADRs 0049–0055 all accepted**: 0051, 0052, 0053, 0055 on 2026-10-07; 0049, 0050, 0054 on
    2026-10-08 at the Phase 3 gate.
-6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 has the numbers;
-   the changed sections can be drafted as text to paste.
+6. **G4 — `../communication/methodology/PFM-Methodology.docx` to v6** (B1–B7). Phase 1 and Phase 5
+   now have the numbers; the changed sections can be drafted as text to paste.
+7. **Phase 6 (0005 Phase 6), in order:**
+   - ✅ step 1, the `v5` → `v6` coupled contrast (2026-10-10, `analysis/v6/coupledV5V6Contrast.R`). The
+     quantity headline shrinks by a quarter to a third; rule C's price relocation barely moves, but the
+     abatement it moves falls by about three quarters (76.7 → 22.7 Gt CO₂eq at EU21);
+   - 🟠 **decompose that rule-C change by sector and region** before the spine is re-decided. First look:
+     CHA's Diffuse market and IND's Bulk market are now the most constrained (u = 1), so less abatement
+     moves to them (0005 Phase 6 step 1);
+   - 🟠 **why H12's rule-C relocation is half EU21's** (median 2050 ×1.075 vs ×1.153, anchors alike);
+   - step 2, the figures; step 3, the offline re-runs on `v6`; step 4, the governed documents
+     (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper
+     workspace; step 6, the deposit.
 
-**Prepared for Phase 5, not to run yet** (0005 Phase 5, about 62 runs): the variant Run-Groups are
-built with `analysis/run-groups/makeSpecVariantGroup.R` and `makeGroupVariants.R` once the v6 export
-format is final:
-- `v6-specalt` (family B, X-2079 satInn);
-- `v6-sat05` and `v6-sat2` (the curve shape);
-- the assignment twins, `v6-nearest` included.
-
-Never run them with `clean = "group"`: it deletes the pinned spec file.
+The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment twins) were built and ran in
+wave 2. Never re-run them with `clean = "group"`: it deletes the pinned spec file.
 
 **Deferred beyond the `v6` paper (author, 2026-10-07):**
 - 🟢 **The SSP axis** (0005 A1d, wave 3; decision 7). The machinery stays. The governance-only

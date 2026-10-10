@@ -1148,6 +1148,25 @@ output/remind-runs/v6/EU21`, 18 of 18 checks):
 
 These are single test runs; the wave-1 batch supersedes their numbers.
 
+**H12 gate check (2026-10-09; `V6W1H12`, batch `2026-10-08_22.09.48`, all runs on REMIND 3-7-1;
+`Rscript analysis/v6/phase3Gate.R models/remind_pfm-H12/output --res H12`): 17 of 19, the two misses
+waived and disclosed.**
+- The null `-PFMgate-v6` against `-PFMgateRef`: **outside the §3.1 tolerance** ($1 / 0.2 Gt). All 132
+  `pm_taxCO2eq` cells differ, by at most $1.57 (mean $0.81); cumulative CO2 2100 1000.07 vs 1000.81 Gt.
+  **Waived:** the difference is the same in every region in every year (a spread of 0 across the 12
+  regions). The null's price is lower by 0.13% in 2030, rising to 0.32% in 2090, $0.121 more every
+  five years. That is one global, linear path drawn a little lower, i.e. REMIND's budget loop stopping
+  at another point (35 vs 38 Nash iterations), not the political layer: φ and the path are exactly 1.
+  Both runs meet the budget inside REMIND's own `cm_budgetCO2_absDevTol` (2 Gt). The lower price comes
+  with *lower* cumulative CO2, so this is noise in where the solution stopped, not a price response.
+  The limits in `phase3Gate.R` stay as they are; this is disclosed, not re-tuned.
+- The held-price null `-PFMgateBfix-v6`: 998.6 Gt at 2100, −1.5 Gt on the null (`v5` H12 +3.5).
+- Rule B `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.0019, one damped call; Bulk $k$ 0.684 / 0.516,
+  Diffuse 0.841 / 0.724 at 2050 / 2100; 2050 path min 0.579, median 0.733; bind share 0.994; never
+  peaks (1183.0 Gt in 2150, as at EU21).
+- Rule C `-PFMlevelC-v6` (θ 0.50): 6 calls, last δ 0.0012, one damped call; Bulk $k$ 0.621 / 0.489,
+  Diffuse 0.867 / 0.726; rebuild check max 9.1e-7; budget held (peak 998.8 Gt in 2090); bind share 1.000.
+
 **Offline analyses moved to the 3.7.1 bases (2026-10-08,** `Rscript analysis/v6/refreshBases.R
 --apply`; `PITFALLS.md` §34). `config.yml` now points the SSP2 pair at
 `output/remind-runs/v6/EU21/SSP2-EU21-{NPi2025_2026-10-07_12.36.43, PkBudg1000_2026-10-07_19.04.46}`.
@@ -1208,21 +1227,102 @@ deferred to a later paper version (§7a decision 7).
 Test the uncoupled SSP3 PkBudg1000 first. If it fails, use a budget that SSP3 can meet and say so;
 do not reuse the SSP2 budget.
 
-**Results as they land** (Run-Group `v6`, EU21, REMIND 3.7.1, θ = 0.50, κ = 0; read from
-`output/pfm/v6/coupling/coupled-facts.json` `$arms`, `coupled-costs.json` and `convergence-audit.rds`,
-2026-10-09). The deployed references are the Phase 3 gate runs: rule B +118.2 Gt against
-`-PFMgateBfix` (1003.2 Gt), rule C 997.7 Gt with 2050 regional prices at a median ×1.153 of the
-θ = 0 run.
+**Results as they land.** **Phase 5 is complete (2026-10-10): EU21 waves 1 and 2 (39 coupled runs,
+2026-10-09) and H12 waves 1 and 2 (15 coupled runs, 2026-10-10), all admitted.** Run-Group `v6`, REMIND
+3.7.1, read from `output/pfm/v6/coupling/coupled-facts.json` (64 runs with the bases and nulls: 46 EU21,
+18 H12), `coupled-costs.json` and `convergence-audit.rds`. The EU21 tables follow; H12 is under "H12"
+below.
 
-| run (wave 2) | iterations | cumulative CO₂ 2100 | against its null | Bulk $k$ 2050 / 2100 | reading |
-|---|---|---|---|---|---|
-| `-PFMlevelBfix-specalt-v6` (family B, `v6-specalt`) | 44 | 1110.7 Gt | **+107.5 Gt** (−10.7 vs deployed) | 1.038 / 0.888 | family B moves the rule-B headline by about a tenth; its Bulk $k$ stays near 1 and its Diffuse $k$ is lower (0.583 / 0.652, deployed 0.846 / 0.723 in rule B) |
-| `-PFMlevelC-uniform-v6` (every region at the mean rank) | 40 | 996.0 Gt | budget held | 0.607 / 0.504 | with the ranking removed, 2050 prices sit at a median ×1.043 of the θ = 0 run (deployed ×1.153), and the gross relocation of CO₂eq halves (11.7 vs 22.7 Gt) |
+*Quality.* Every run finished (modelstat 2); none at the iteration cap; 2–15 PFM calls, final δ ≤
+0.0019; no early-period (≤ 2060) market cell over tolerance (worst exactly 1.00×, `-PFMlevelC-permuted1`).
+One disclosure: `-PFMlevelCMin` never peaks before 2150 (1011.6 Gt there, `PITFALLS.md` §26). The
+markup written/seen difference in three runs (`-PFMlevelBfixTh675`, `-PFMlevelC-allmedian`,
+`-PFMlevelC-specalt`, 0.2–0.4%) is **explained, not a fault** (2026-10-10): the gdx keeps `Seen` from
+the start of the last presolve and `Written` from its end, so they differ when the markup moved in
+the final iteration, and in every such run it did (`PITFALLS.md` §16).
 
-The uniform run converged, but its last ten iterations still moved more than the deployed rule-C run's
-(budget miss up to 16.8 Gt, realised maximum price range 15%, against 3.2 Gt and 0.6%); it ended 1.1 Gt
-from the budget. Quote it with that disclosure. These are single arms: the ordering test needs its permuted twins,
-and the family-B row its rule-C twin, before either becomes a claim.
+*Rule B (held price), cumulative CO₂ 2100 against `-PFMgateBfix` (1003.2 Gt).* Deployed, θ = 0.50:
+**+118.2 Gt**.
+
+| arm | Δ Gt | vs deployed | reading |
+|---|---|---|---|
+| θ = 0.325 / 0.675 | +73.0 / +181.5 | | 264 Gt per unit θ, steeper above 0.50 |
+| institutions held | +117.3 | −0.9 | holding institutions moves Bulk $k_{2100}$ 0.525 → 0.417 and Diffuse 0.723 → 1.001, and the two cancel in the headline |
+| markup off (`Min`) | +159.7 | +41.5 | the sector markup buys back 26% |
+| κ = 0.02 / 0.027 / 0.05 | +53.5 / +41.2 / +22.1 | −64.7 / −77.1 / −96.1 | the central κ removes 65% of the headline |
+| $E$ hold (static share) | +189.1 | +70.9 | $k \approx 1$: the moving strength removes 37% of the static-share result |
+| hold 2060 / regional $k$ | +125.6 / +121.5 | +7.4 / +3.3 | small |
+| ordering: uniform / permuted 1–3 / reversed | +105.8 / +102.1, +126.4, +89.3 / +67.9 | −12.5 / −28.9 to +8.2 / −50.4 | size alone (uniform) gives 106 Gt; the model's ranking adds 12, within the range of random orders (89–126); reversing it costs 50 |
+| assignment: all-median / all-low / nearest / USA donor / USA low | +109.5 / +154.6 / +133.6 / +117.4 / +134.8 | −8.7 / +36.4 / +15.4 / −0.8 / +16.5 | the assignment of uncovered countries is the largest data-side band (110–155) |
+| saturation 0.5× / 2× | +115.2 / +130.0 | −3.0 / +11.8 | |
+| family B (`specalt`) / annual panel | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps Bulk $k$ above 1 (1.19 / 1.12) |
+
+*Rule C (held budget).* Every run holds the budget (cumulative CO₂ 2100: 989–1001 Gt). 2050 regional
+prices against the θ = 0 run, median (anchor):
+
+| arm | median ×, 2050 | anchor × | reading |
+|---|---|---|---|
+| θ = 0.325 / 0.50 / 0.675 | 1.089 / 1.153 / 1.232 | 1.152 / 1.259 / 1.417 | monotone in θ; θ = 0.675 took 73 iterations and ends 11 Gt under |
+| institutions held | 1.158 | 1.261 | as deployed |
+| markup off / ratio mode | 1.120 / 1.060 | 1.351 / 1.287 | `Min` never peaks (above) |
+| κ = 0.02 / 0.027 / 0.05 | 1.069 / 1.055 / 1.031 | | κ removes most of the price relocation |
+| uniform / permuted 1 | 1.043 / 1.114 | | without the ranking, half the relocation goes (gross CO₂eq relocated 11.7 vs 22.7 Gt) |
+| all-median / all-low / nearest | 1.137 / 1.217 / 1.178 | | |
+| family B / hold 2060 | 1.136 / 1.163 | | |
+
+*Settling.* Four short rule-C runs were still moving in their last ten iterations, which overlap the
+budget loop's final adjustment: `-PFMlevelC-kappa05` (34 iterations; maximum price range 16.7%, budget
+miss up to 28.5 Gt), `-PFMlevelC-specalt` (29; 16.5%, 13.0 Gt), `-PFMlevelC-uniform` (40; 14.9%, 16.8 Gt) and
+`-PFMlevelCTh325` (38; 3.5%, 28.0 Gt). All ended within 1.6 Gt of the budget. The deployed rule-C run moved
+0.6% and 3.2 Gt. Quote those four with that disclosure (`convergence-audit.rds`).
+
+*Costs and relocation* (`coupled-costs.json`; GHG in CO₂eq 2020–2100 against the matched null; GDP and
+consumption discounted at 5%):
+
+- **Rule B**, deployed: **+127.9 Gt CO₂eq**, 66.7 Gt relocated between regions, GDP +0.19%, consumption
+  +0.20% (the cap lowers mitigation cost). Across the arms GDP moves from +0.06% (κ = 0.05) to +0.27%
+  (θ = 0.675).
+- **Rule C**: net CO₂eq between −6.8 and +2.1 Gt, so the budget is met by moving abatement. Gross
+  relocation 22.7 Gt deployed; 15.0 / 45.0 at θ = 0.325 / 0.675; 11.7 with every region at the mean rank;
+  5.3–9.5 under κ. GDP +0.02% to +0.04%. Ratio mode relocates 19.7 Gt.
+
+**H12 (waves 1 and 2, landed 2026-10-10).** 15 coupled runs plus the three 3.7.1 bases, all finished
+(modelstat 2), none at the cap, all admitted. The gate check is 17 of 19 with the null-vs-`-PFMgateRef`
+miss waived (Phase 3, "H12 gate check"). No early-period market cell over tolerance. Every rule-C run
+settled: in the last ten iterations the anchor moved at most 1.4% and the budget miss at most 5.5 Gt
+(`-PFMlevelCTh325`), so H12 needs no settling disclosure. **The two resolutions agree on rule B** (every
+H12 number within about 10% of its EU21 twin) and on every sign and ordering; **rule C's price relocation
+is about half as large at H12**.
+
+| | EU21 | H12 |
+|---|---|---|
+| rule B, deployed: Δ cumulative CO₂ 2100 vs `-PFMgateBfix` | +118.2 (null 1003.2) | **+112.8** (null 998.6) |
+| rule B, θ = 0.325 / 0.675; slope per unit θ | +73.0 / +181.5; 264 | +69.6 / +169.6; 247 |
+| rule B, institutions held | +117.3 (−0.9) | +107.8 (−5.0) |
+| rule B, markup off: buys back | +159.7: 41.5 (26%) | +154.2: 41.3 (27%) |
+| rule B, ordering: uniform / permuted 1 | +105.8 / +102.1 | +96.2 / +108.5 |
+| rule B, Bulk $k$ 2050 / 2100 | 0.686 / 0.525 | 0.684 / 0.516 |
+| rule C, cumulative CO₂ 2100 (peak) | 989–1001 | 989.7–998.2 (998.3–1000.7) |
+| rule C, median 2050 price × θ = 0: θ 0.325 / 0.50 / 0.675 | 1.089 / 1.153 / 1.232 | 1.039 / 1.075 / 1.115 |
+| rule C, anchor ×: θ 0.325 / 0.50 / 0.675 | 1.152 / 1.259 / 1.417 | 1.141 / 1.251 / 1.383 |
+| rule C, held / markup off / ratio: median (anchor) | 1.158 (1.261) / 1.120 (1.351) / 1.060 (1.287) | 1.068 (1.245) / 1.046 (1.343) / 1.048 (1.264) |
+| costs, rule B deployed: CO₂eq, relocated, GDP | +127.9, 66.7, +0.19% | +121.5, 60.7, +0.16% |
+| costs, rule C deployed: net CO₂eq, relocated | −0.1, 22.7 | −3.0, 19.9 |
+
+Reading:
+- **The quantity headline holds at both resolutions:** +118 (EU21) and +113 Gt (H12). The θ slope, the
+  markup's buy-back (about 41 Gt) and the near-zero effect of holding institutions all repeat.
+- **The held-budget relocation is weaker at H12:** the median 2050 price moves ×1.075 against ×1.153,
+  although the anchor rises about as much (×1.251 against ×1.259). The median is taken over 12 regions
+  at H12 and 21 at EU21, so the two are not the same statistic; why the H12 median sits lower is not yet
+  decomposed. The cheapest region is REF at both resolutions (×0.91); the dearest is CHA at H12 and NEN at
+  EU21. Gross abatement relocated: 19.9 Gt (H12) against 22.7 (EU21). Emissions-weighted, the realised
+  price is ×1.037 the null at H12 and ×0.984 at EU21 (`held-budget-prices-levelC.rds`).
+- **The ranking adds less at H12 than at EU21, and is again within the random-order range.** Uniform
+  gives +96.2 and the model's ranking +112.8. Permuted 1 gives +108.5. EU21 has three permutations
+  (89–126); H12 has one, so H12 alone cannot place the ranking in a distribution.
+- H12 costs: rule B across the arms from +74.5 (θ 0.325) to +184.1 Gt CO₂eq (θ 0.675), GDP +0.10% to
+  +0.23%; rule C net −6.1 to −0.5 Gt, relocated 11.2–37.0 Gt (θ 0.325–0.675), GDP +0.02% to +0.03%.
 
 **Admission:** every run is judged by the F4 stage against `PITFALLS.md` §25 / §25a. A run at the
 iteration cap is admitted only by the written rule.
@@ -1239,6 +1339,29 @@ converge is handled in one of two ways:
 ### Phase 6 — Analysis, documents, paper (three to six weeks)
 
 1. `pfmRun(stage = "coupled")` per wave (F4). The `v5` → `v6` contrasts for every headline.
+   **Done 2026-10-10:** `Rscript analysis/v6/coupledV5V6Contrast.R` →
+   `output/pfm/v6/coupling/v5-v6-coupled-contrast.rds` / `.json` (each headline against its own group's
+   θ = 0 null, so the REMIND drift between 3.7.0.dev29 and 3.7.1, +9 to +11 Gt on the nulls, cancels to
+   first order). What changes, EU21 / H12:
+   - **the quantity headline shrinks by a quarter to a third**: +159.3 → +118.2 Gt / +163.8 → +112.8 Gt;
+     the θ slope 330 → 264 / 346 → 247 Gt per unit θ. ADR 0050 attributes the drop to removing λ offline;
+     the coupled contrast shows its size, not its cause;
+   - **the markup still buys back about 41 Gt** (46.2 → 41.5 / 58.6 → 41.3);
+   - **rule C's price relocation barely moves**: median 2050 price ×1.173 → 1.153 / 1.123 → 1.075, anchor
+     ×1.305 → 1.259 / 1.326 → 1.251;
+   - **but the abatement it moves between regions falls by about three quarters**: 76.7 → 22.7 / 84.5 →
+     19.9 Gt CO₂eq. This is the "China absorbs" composition named in step 5: in `v5` CHA alone took
+     −54.2 Gt of it (`v5` `coupled-costs.json`); in `v6` CHA takes −10.2 Gt (EU21) / −8.9 (H12), and
+     IND turns from −5.4 to +8.1 Gt. **First look (2026-10-10, EU21 `-PFMlevelC`, `coupled-runs.rds`):
+     the ranking moved.** (φ as `p45_regiDiff_phi` records it; in `v6` 0.50 at θ = 0.50 means u = 1.)
+     CHA's Bulk market is unconstrained in both versions (φ_ETS = 1, 2050 ETS price
+     $331 `v5` / $286 `v6`), but its Diffuse market went from φ 0.78 to 0.50, the most constrained, and its
+     2050 ES price from $262 to $166. IND's Bulk went from 0.78 to 0.50. The two regions that absorbed
+     the abatement in `v5` are now the most constrained in at least one sector, so less is moved to
+     them. A full decomposition (by sector and region) is still to do before the paper's spine is
+     re-decided;
+   - rule B's relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
+     small (+0.21 → +0.19% / +0.22 → +0.16%).
 2. Figures in the shared layer:
    - $k_s(t)$ with its decomposition (C3) and the out-of-support share;
    - φ(t) fans by SSP;
