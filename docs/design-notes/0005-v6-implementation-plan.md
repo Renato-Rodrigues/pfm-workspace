@@ -1291,8 +1291,9 @@ consumption discounted at 5%):
 miss waived (Phase 3, "H12 gate check"). No early-period market cell over tolerance. Every rule-C run
 settled: in the last ten iterations the anchor moved at most 1.4% and the budget miss at most 5.5 Gt
 (`-PFMlevelCTh325`), so H12 needs no settling disclosure. **The two resolutions agree on rule B** (every
-H12 number within about 10% of its EU21 twin) and on every sign and ordering; **rule C's price relocation
-is about half as large at H12**.
+H12 number within about 10% of its EU21 twin) and on every sign and ordering. **Rule C agrees too**: the
+abatement it moves is 19.9 Gt (H12) against 22.7 (EU21). Its median 2050 price looked half as far from the
+null at H12, but that is the statistic, not the model (below).
 
 | | EU21 | H12 |
 |---|---|---|
@@ -1312,12 +1313,17 @@ is about half as large at H12**.
 Reading:
 - **The quantity headline holds at both resolutions:** +118 (EU21) and +113 Gt (H12). The θ slope, the
   markup's buy-back (about 41 Gt) and the near-zero effect of holding institutions all repeat.
-- **The held-budget relocation is weaker at H12:** the median 2050 price moves ×1.075 against ×1.153,
-  although the anchor rises about as much (×1.251 against ×1.259). The median is taken over 12 regions
-  at H12 and 21 at EU21, so the two are not the same statistic; why the H12 median sits lower is not yet
-  decomposed. The cheapest region is REF at both resolutions (×0.91); the dearest is CHA at H12 and NEN at
-  EU21. Gross abatement relocated: 19.9 Gt (H12) against 22.7 (EU21). Emissions-weighted, the realised
-  price is ×1.037 the null at H12 and ×0.984 at EU21 (`held-budget-prices-levelC.rds`).
+- **The held-budget relocation is the same at both resolutions; the median 2050 price is not a fair
+  comparison** (checked 2026-10-10). The median moves ×1.075 (H12) against ×1.153 (EU21), but 11 of
+  EU21's 21 regions are European and all sit at ×1.12–1.26, so the EU21 median is a European price.
+  Counting Europe once, as H12 does (one value each for EUR and NEU), the EU21 median is ×1.037, below
+  H12's. What moves agrees: gross relocation 22.7 Gt (EU21; the same aggregated to the H12 regions, since
+  the European regions all move the same way) against 19.9 (H12), with the same sign in every H12 region
+  but USA (−0.7 vs +1.6 Gt). Largest movers, EU21 / H12: CHA −10.2 / −8.9, IND +8.1 / +7.0, MEA +7.9 /
+  +5.1, EUR −6.0 / −3.8, SSA −3.7 / −5.9, REF +3.7 / +3.8. The cheapest region is REF at both (×0.91);
+  the dearest CHA (×1.25–1.26). **For rule C, quote the gross relocated abatement or the emissions-weighted
+  price, not the regional median** (emissions-weighted: ×1.037 H12, ×0.984 EU21,
+  `held-budget-prices-levelC.rds`).
 - **The ranking adds less at H12 than at EU21, and is again within the random-order range.** Uniform
   gives +96.2 and the model's ranking +112.8. Permuted 1 gives +108.5. EU21 has three permutations
   (89–126); H12 has one, so H12 alone cannot place the ranking in a distribution.

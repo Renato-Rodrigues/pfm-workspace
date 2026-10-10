@@ -89,7 +89,8 @@ outside it. IDs such as E13 or D17 refer to that note.
      `runCoupledStage.R v6` on all 64 runs. Gate check 17 of 19: the null misses `-PFMgateRef` by up to
      $1.57 / 0.74 Gt, uniform across regions (budget loop, not the coupling); waived and disclosed (0005
      Phase 3, "H12 gate check"; `SCENARIOS.md` §3.1). Rule B agrees with EU21 within about 10%; rule C's
-     price relocation is about half the EU21 size (0005 Phase 5, "H12").
+     abatement moved is close to EU21's (19.9 vs 22.7 Gt); the median 2050 price only looked half as large
+     because 11 of EU21's 21 regions are European (0005 Phase 5, "H12").
    - ✅ **κ start decided 2026-10-09 (author): no effect in 2025, an effect from 2030 onwards**, i.e. the
      fade counted from $t_0$ = 2025 as committed (ADR 0050 decision 5). The wave-2 κ runs stand as submitted.
 4. **Phase 4, alongside:**
@@ -116,7 +117,10 @@ outside it. IDs such as E13 or D17 refer to that note.
      2026-10-10 (row `CEhold`, start tag `V6CEHOLD`, `remind_pfm` `73e4cf550`); to submit (`RUNNING.md`
      step 7c). When it lands: `runCoupledStage.R v6`, then `ruleCRelocationDecomp.R`. Reading: if it
      relocates near `v5`'s 76.7 Gt, the fading strength explains the drop; if near 22.7, the ranking does;
-   - 🟠 **why H12's rule-C relocation is half EU21's** (median 2050 ×1.075 vs ×1.153, anchors alike);
+   - ✅ **H12 vs EU21 rule C** (2026-10-10): not a model difference. The EU21 median 2050 price is a
+     European price (11 of 21 regions); with Europe counted once it is ×1.037 against H12's ×1.075, and
+     the abatement moved agrees (22.7 vs 19.9 Gt, same sign in 11 of 12 regions). Rule C is quoted by
+     gross relocation or the emissions-weighted price, not the regional median (0005 Phase 5, "H12");
    - step 2, the figures; step 3, the offline re-runs on `v6`; step 4, the governed documents
      (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper
      workspace; step 6, the deposit.
