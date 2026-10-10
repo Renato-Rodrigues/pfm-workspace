@@ -9,5 +9,10 @@ one folder per Run-Group:
 | `<group>/madrat-cache-manifest.tsv` | `pfm::pfmPrepareCache()`, automatically | every madrat cache file the group's pipeline reads, with size and md5. Deposit these files with the version |
 | `<group>/madrat-cache-used-pfm.tsv` | `tools/listMadratCacheUsed.R` on the estimation logs | the **pin**: when present, `pfmPrepareCache()` rebuilds the group's cache from exactly these files |
 | `<group>/madrat-cache-used-runs.tsv` | `listMadratCacheUsed.R` on the REMIND run logs | what the coupled runs read |
+| `<group>/remind-inputs-used-runs.tsv` | `tools/listRemindInputsUsed.R` on the REMIND run folders | the REMIND input-data archives (input, validation and CES tgz) the coupled runs used |
 
 `config.yml` `recordsDir` names this folder. ADR 0047.
+
+**Archiving.** `tools/archiveRunGroupInputs.sh <group> <dest>` (on the cluster) copies every file these
+records name, plus the group's prepared caches, into one dated folder with a `MANIFEST.tsv` (md5 checked
+against the records) and a `MISSING.tsv`. Run it before the shared PIK folders are cleaned (TODO E25).
