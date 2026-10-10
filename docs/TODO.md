@@ -127,9 +127,15 @@ outside it. IDs such as E13 or D17 refer to that note.
      `v6-rulec-relocation`, `v6-price-catchup` in `analysis/figures/` (`build-figures.R --group=v6`), also
      in the methodology document. Still open from 0005's list: φ(t) fans by SSP (deferred with the SSP
      axis) and the sector-binding diagnostic (D-M4);
-   - step 3, the offline re-runs on `v6`; step 4, the governed documents
-     (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper
-     workspace; step 6, the deposit.
+   - ✅ step 4, the governed documents (2026-10-10): `SCENARIOS.md`, `MODEL.md` and `EXPLAINER.md`
+     rewritten for `v6`, `COUPLING.md` and `README.md` made current; the `v5` versions archived in
+     `../_archive/_wip/2026-10-10/docs/`. `PRESENTATION.md` is marked as the `v5` deck: its spine waits
+     for step 5;
+   - step 3, the offline re-runs on `v6` — the analyses `MODEL.md` still quotes as "measured on `v5`":
+     the trend-shape grid (§2.3.1), the frontier rungs propagated to φ (§3.4.1), the re-scoped replay
+     (§8.4), the θ bounds (§5.3.1);
+   - 🟠 step 5, the `v6` paper workspace — **first an author decision: the spine**, now that both
+     headlines changed (§1 of `PRESENTATION.md`); step 6, the deposit.
 
 The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment twins) were built and ran in
 wave 2. Never re-run them with `clean = "group"`: it deletes the pinned spec file.
