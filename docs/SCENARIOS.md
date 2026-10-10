@@ -96,10 +96,10 @@ Each sector gets its own ranking u and its own strength k(t). REMIND needs the t
 | 0 | collapse to `min(φ_Bulk, φ_Diffuse)` — one price, the worse sector wins | the `-Min` twins (§4.5) |
 | 1 | floor + markup: `pm_taxCO2eq` = the worse sector, `pm_taxemiMkt(m)` = market *m*'s own increment over it | every other coupled row |
 
-**Which sector binds** has turned round since `v5`: in `v6` the **Bulk** sector is the more
-constrained one in **15 of 21 EU21 regions and 11 of 12 H12 regions** (§6.2a). "The political limit
-on household energy costs constrains the economy-wide price" is now true only for six EU21 regions
-(CHA, ECS, FRA, EWN, ESW, NES) and for CHA alone at H12.
+**Which sector binds depends on the specification family** (§6.2a). Under the deployed family A the
+**Bulk** sector is the more constrained one in **15 of 21 EU21 regions and 11 of 12 H12 regions**; under
+family B and the annual-data rung it is the Diffuse sector in 17 and 18 of 21, close to `v5` (14). Neither "the limit on
+household energy costs constrains the economy-wide price" nor its opposite is a robust statement.
 
 ### 1.2 Two closures: hold the price, or hold the budget
 
@@ -469,9 +469,13 @@ the drop; near 23 Gt, the ranking does.
 2. **The `v5` → `v6` drop is mostly a modelling decision** (removing an unidentified λ), not new
    evidence; say so wherever the two are compared (§4.10).
 3. **Two regions per sector are pinned by the parameter, not by data.** φ = 1 − θ·k(t) exactly for the
-   region at u = 1 in each sector (**CHA** in Diffuse, **IND** in Bulk, at both resolutions), and 1 for
-   the region at u = 0. φ is a *ranking* (§6.2).
-4. **Legislated prices may be rolled back in every run** (§6.3).
+   region at u = 1 in each sector (**CHA** in Diffuse, **IND** in Bulk, at both resolutions, under the
+   deployed spec; REF under family B, REF and ECS under the annual rung), and 1 for the region at u = 0.
+   φ is a *ranking* (§6.2).
+4. **Legislated prices may be rolled back in every run** (§6.3), and rarely are: from 2030 to 2100 both
+   market prices sit below the current-policy reference in 1.7% of region-years under rule B at EU21
+   (100 of 5775 across 25 runs; 0.8% at H12), 0.5% under rule C (0.2%) and 6.1% in ratio mode (0.8%),
+   always in European regions, whose reference rises to \$179.5 by 2050.
 5. **The co-evolution feedback is real and not causal.** The coupled strength differs from the offline
    one (Bulk k 2050 0.69 coupled against 0.63 offline at κ = 0), and the PFM loop takes 2–15 calls. Call
    it conditional scenario accounting (`MODEL.md` §8.1).
@@ -484,8 +488,9 @@ the drop; near 23 Gt, the ranking does.
 10. **Every φ is conditional on modelling choices the data do not settle** — the frontier family
     (family B in §4.9), the curve shape, the institution projections (held twins), the hold rule
     (E-hold). No φ here is a measured property of a region.
-11. **Which sector binds** is a property of the deployed specification and the anchor-year ranking; it
-    turned round between `v5` and `v6` (§6.2a). Do not write it as a fact about regions.
+11. **Which sector binds** is a property of the specification family: Bulk in 15 of 21 EU21 regions
+    under family A, in 3 of 21 under family B and the annual rung (§6.2a). Do not write it as a fact
+    about regions.
 
 ---
 
@@ -509,9 +514,17 @@ The level cap acts on the *increment* over the current-policy price `SSP2[-EU21]
 | India | \$4.3 |
 | Russia & Central Asia | \$4.0 |
 | Middle East & N. Africa | \$3.8 |
-| United States | **−\$6.1** (a negative net price in the reference; to be understood before it is quoted) |
+| United States | **−\$6.1** (see below) |
 
 Regions with near-zero reference prices have almost all of their cost-optimal price exposed to φ.
+
+**The US reference is negative by REMIND's input, not by the coupling.** REMIND's `NPi2025` realization
+(`45_carbonprice/NPi2025/datainput.gms`) holds the price from 2030 at the input value
+`fm_taxCO2eqHist("2030")` for the USA and SSA, and the input data (revision 8.24) give the USA **−\$6.16**
+(after \$24.6 in 2020 and \$12.3 in 2025; SSA \$5.71). `v5`'s reference had no US value at all. Under the
+level cap the US increment is therefore $A + 6.2$, and $P^{*} = -6.2 + \varphi\,(A + 6.2)$. Quote any US
+number with its reference: "against a current-policy path that turns the US carbon price slightly
+negative from 2030".
 
 ### 6.2 Why φ = 1 − θ·k for some regions — it is a *ranking*, not a capability
 
@@ -551,9 +564,24 @@ The clearest cases at EU21:
 | Middle East & N. Africa (MEA) | 0.729 | **0.540** | **Bulk**, by 0.189 |
 | West-North Europe (EWN) | **0.619** | 0.836 | **Diffuse**, by 0.217 |
 
-**This reversed between `v5` and `v6`**: in `v5` Diffuse bound in 14 of 21 EU21 regions. A sector φ of
-exactly 1.000 is a ceiling clamp, not a measurement — do not report "China's electricity and industry
-face no political constraint". Never quote a country-level figure for a coupled regional result.
+**This depends on the specification family, not on `v5` versus `v6`.** Across the EU21 rule-B runs
+(`coupled-runs.rds` `$phi`, the 2025 share):
+
+| run | Bulk binds | floor regions (φ = 0.50) |
+|---|---:|---|
+| deployed (family A) | 15 of 21 | CHA, IND |
+| saturation 0.5× / 2× (family A) | 13 / 14 | CHA, IND / CHA, ECE |
+| **family B** (`specalt`) | **3** (CAZ, ENC, NEN) | REF |
+| **annual data** | **3** (CAZ, NEN, REF) | REF, ECS |
+| all-median / all-low / nearest donors | 15 / 15 / 15 | CHA, IND / MEA, CHA / CHA, IND |
+
+Eight regions keep their binding sector in every run (CAZ, NEN on Bulk; CHA, ECS, ESW, EWN, FRA, NES on
+Diffuse); thirteen change with the specification. Under family B the attribution is close to `v5`
+(Diffuse in 14 of 21): Diffuse binds in 17 of 21 under family B (REF ties) and 18 under the annual rung. The assignment of uncovered countries does not move it. **So which sector binds
+is decided by how incumbent power is assumed to behave below the observed range** (family A vs B,
+`MODEL.md` §2.3) — not by the data. A sector φ of exactly 1.000 is a ceiling clamp, not a measurement —
+do not report "China's electricity and industry face no political constraint". Never quote a
+country-level figure for a coupled regional result.
 
 ### 6.3 The legislated price floor is off in every run
 
@@ -582,12 +610,14 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v6`**: the lowest 2050 market
 
 1. ⏳ **The rule-C static-share run** (`-PFMlevelC-Ehold-v6`, §4.10): strength vs ranking. Submitted
    2026-10-10.
-2. 🟠 **Understand the US reference price** (−\$6.1 in 2050, §6.1) before any US number is quoted.
+2. ✅ **The US reference price** (2026-10-10): REMIND's own `NPi2025` input, −\$6.16 from 2030 (§6.1).
+   Quote US numbers with it.
 3. 🟠 **Extend the budget warning to peak budgets** (`PITFALLS.md` §26): EU21 `-PFMlevelCMin-v6` never
    peaks before 2150 and nothing warned.
-4. 🟡 **The sector-binding diagnostic across specifications** (0005 D-M4): §6.2a is one specification.
-5. 🟡 **Floor violations re-measured on `v6`** (limitation 4): the `v5` count (689 of 1540 region-years
-   below the reference in unforced runs) is not re-measured.
+4. ✅ **The sector-binding diagnostic across specifications** (2026-10-10, §6.2a): the attribution
+   follows the specification family.
+5. ✅ **Floor violations re-measured on `v6`** (2026-10-10, limitation 4): 0.5–6.1% of region-years, all
+   European.
 
 ---
 
@@ -606,8 +636,8 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v6`**: the lowest 2050 market
 **Do not use for:** any `v5` number as current; "rule C cannot hold the budget"; a regional median
 compared across resolutions; any floor-region claim without flagging that φ is ordinal; any
 country-level binding-sector figure as a statement about regions; any price without naming its
-market; "the constraint lands on households" (Bulk binds in most regions in `v6`); the GDP gain
-without the CO₂ it buys.
+market; "the constraint lands on households" or "on industry" (it follows the specification family,
+§6.2a); a US number without its negative reference (§6.1); the GDP gain without the CO₂ it buys.
 
 ---
 

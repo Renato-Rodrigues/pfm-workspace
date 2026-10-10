@@ -281,8 +281,8 @@ observed among comparable countries, not a law.
    deployed model wins about one draw in seven among the admissible ones, and two families of
    saturation split the wins evenly. We report the other family and the curve's shape alongside.
 5. **Some regions are pinned by the dial, not by their data.** The construction guarantees that
-   *somebody* sits at the bottom of each sector's scale — China in buildings and transport, India in
-   power and industry. Their number says "ranked last", not "can only manage half".
+   *somebody* sits at the bottom of each sector's scale — under the deployed specification China in
+   buildings and transport and India in power and industry; under the alternative family, Russia. Their number says "ranked last", not "can only manage half".
 6. **The gap is held, not forecast.** We do not know how fast political gaps close; we assume they
    persist and report κ as the alternative.
 7. **The feasibility share depends on modelling choices, not only on the region.** Other

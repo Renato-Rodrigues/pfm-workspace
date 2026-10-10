@@ -524,9 +524,9 @@ one rung and one weighting.**
 #### 3.4.2 The sector ordering in the estimation sample
 
 On $E$ read straight out of `frontier.rds`, **Bulk is the more constrained sector in 32 of 48
-countries at 2023** (median $E$: Bulk 0.736, Diffuse 0.780). The coupled regional ranking agrees in
-`v6` (Bulk binds in 15 of 21 EU21 regions and 11 of 12 H12 regions, `SCENARIOS.md` §6.2a); in `v5`,
-whose φ was read after a λ projection to 2035, it did not.
+countries at 2023** (median $E$: Bulk 0.736, Diffuse 0.780). The coupled regional ranking agrees under
+the deployed family A (Bulk binds in 15 of 21 EU21 regions, 11 of 12 H12) and not under family B or the
+annual rung (3 of 21; `SCENARIOS.md` §6.2a): the regional attribution follows the specification family.
 
 **`projection.rds$implementability` is $S/10$, not $E$** (`computeImplementabilityFactor()` is
 `index / indexMax`). Nothing in the coupling reads it; any offline figure built from that column is
