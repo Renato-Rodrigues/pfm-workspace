@@ -138,7 +138,10 @@ outside it. IDs such as E13 or D17 refer to that note.
      ([0.134, 0.164] for the multiplicative cap, non-empty on `v6`). Only the λ placebo stays a `v5`
      measurement; `trendShapePhi.R` does not test `v6`'s best Bulk shape and fixes the seed at 2022;
    - 🟠 step 5, the `v6` paper workspace — **first an author decision: the spine**, now that both
-     headlines changed (§1 of `PRESENTATION.md`); step 6, the deposit.
+     headlines changed (§1 of `PRESENTATION.md`). Also bearing on it (2026-10-10): **which sector binds
+     follows the specification family** (Bulk in 15 of 21 EU21 regions under family A, 3 of 21 under
+     family B, `SCENARIOS.md` §6.2a), so no sector story can be a headline; and US numbers stand on a
+     negative reference price (REMIND's own `NPi2025` input, §6.1). Step 6, the deposit.
 
 The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment twins) were built and ran in
 wave 2. Never re-run them with `clean = "group"`: it deletes the pinned spec file.
