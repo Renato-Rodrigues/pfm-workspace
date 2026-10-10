@@ -3,25 +3,18 @@
 *A plain-language guide to the coupled REMIND runs: why each one exists, what it may and may
 not be used to conclude, and where it belongs in the paper.*
 
-**Status.** The `v5` batch is in and complete: **48 scenarios, 24 per resolution**, run
-2026-09-16 on Run-Group **`v5`** (deployed spec `X-2079 WGIge|noRoL|VerAcc bothIncAP lev
-ctl:GDPq.Pop.Hyd fe:OECDp`, panel `f8845f66fb39d316`), from the committed code — every run log
-reads `group v5`, `tier year 2035`, `gapClosure 0` (or 1 in `GAPCLOSE`). Results are in
-`output/remind-runs/v5/{EU21,H12}/`; the previous batch is in `../_archive/_wip/2026-10-01/gdx/v4/` and is not quoted. Central setting θ = 0.50,
-`cm_pfmGapClosure = 0`; the `THETA` (0.325 / 0.675) and `GAPCLOSE` sensitivities are complete at
-both resolutions.
+**Status.** The **`v6` batch** is in and complete (2026-10-10): **64 runs** on REMIND 3.7.1 — 46 at
+EU21 and 18 at H12, of which 54 are coupled (39 EU21, 15 H12) — on Run-Group **`v6`** (deployed spec
+`X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP`). Every row is generated from
+`analysis/run-groups/scenario-matrix-v6.yml` (ADR 0055). One further EU21 run, `-PFMlevelC-Ehold-v6`
+(start tag `V6CEHOLD`), was added on 2026-10-10 to separate two causes in §4.10; it is not in the
+numbers below until it lands. The `v5` version of this document, with the `v5` batch's numbers, is
+archived at `../_archive/_wip/2026-10-10/docs/SCENARIOS-v5.md`.
 
-**62 runs, over two submissions.** 2026-09-16 carried the original 48. 2026-09-17 added the 14
-`FIXPRICE` runs (§4.2a), re-ran the two flagged H12 mode-R runs, and re-ran EU21 `-PFMlevelC` from
-its own gdx for another 57 iterations. **Every run in the batch now finishes, converges and clears
-its early markets** (§3).
-
-**Every number below** is from `output/pfm/v5/coupling/coupled-runs.rds`
-(`Rscript analysis/coupled/extractCoupledResults.R output/remind-runs/v5 v5`) and `output/pfm/v5/coupling/coupled-facts.json`
-(`Rscript analysis/coupled/coupledBatchFacts.R v5 output/remind-runs/v5`). Re-read them from there.
-
-> ⚠️ **The uncoupled baselines and the θ = 0 nulls are not spec-dependent**, and they reproduce
-> across batches to the decimal (`-PFMgateB` 1710.3 Gt EU21). Everything with θ > 0 is new.
+**Every number below** is read from `output/pfm/v6/coupling/`: `coupled-facts.json` (results per run
+and arm), `coupled-costs.json` (emissions moved, GDP), `convergence-audit.rds`,
+`rulec-relocation-decomp.rds` and `v5-v6-coupled-contrast.json`. `Rscript
+analysis/coupled/runCoupledStage.R v6` rebuilds all of them (§9). Re-read them from there.
 
 > ⚠️ **Every price in this document names its market.** With the markup on
 > (`cm_pfmSectorMarkup = 1`) *both* markets carry one: ES (buildings and transport) faces
@@ -31,607 +24,468 @@ its early markets** (§3).
 
 **The batch in five sentences.**
 
-1. **Political feasibility adds 159 Gt CO₂ at EU21 and 164 Gt at H12** to the price path that holds
-   the 1000 Gt budget (the quantity headline, §4.2a), **100–236 Gt** across the declared θ range, and
-   **254–266 Gt** if the political gap is assumed to close. On the unforced anchor the same cap costs
-   +128 / +149 Gt against a null that misses the budget — the SI sensitivity (§4.2).
-2. **With the budget held, the carbon price splits within regions**: ES/ETS runs 0.66–1.37 (EU21)
-   and 0.70–1.31 (H12), households paying *less* than industry in 15 of 21 and 9 of 12 regions — not
-   one direction everywhere (§4.1).
-3. **The budget holds** in every budget-forced run — all of mode R and all six rule-C runs (§3, §4.1,
-   §4.3). The three runs that missed on 2026-09-16 were re-run and now converge.
-4. **The feedback is visible**: φ moves by up to 0.08 across runs as the energy system changes, and
-   the PFM loop contracts over 3–8 calls rather than settling in one (§3.2, limitation 5).
-5. **On the price path that holds the budget, the ceiling adds about 160 Gt CO₂** (+159.3 EU21 /
-   +163.8 H12, θ = 0.50; 100–236 Gt across the declared θ range) — the quantity headline (§4.2a).
+1. **Holding the price, political feasibility adds 118 Gt CO₂ by 2100 at EU21 and 113 Gt at H12**
+   (θ = 0.50; 70–182 Gt across the declared θ range) — the quantity headline (§4.2a).
+2. **The headline depends most on whether politics improves by itself**: a declared erosion of the
+   political drag (κ = 0.027 a year) leaves 41 Gt of it; the assignment of countries without data is
+   the widest data-side band, 110–155 Gt (§4.9).
+3. **Holding the budget, every run meets it**, and the ceiling moves about 20 Gt CO₂eq of abatement
+   between regions (22.7 EU21 / 19.9 H12) while the global anchor rises by a quarter (§4.3, §4.8).
+4. **v6 is weaker than v5 on both counts** — the quantity headline by a quarter to a third, the
+   relocated abatement by three quarters — almost all of it after 2050, where v6's political drag
+   fades and v5's did not (§4.10).
+5. **The two resolutions agree** within about 10% on the quantity headline and in sign region by
+   region on the relocation (§4.3, §4.8).
 
 Companion documents: `COUPLING.md` (how the interface works and how to run one), `MODEL.md`
-(the mathematics), `PITFALLS.md` (what silently breaks).
+(the mathematics), `PITFALLS.md` (what silently breaks), design note 0005 (the v6 plan and its
+results as they landed).
 
 ---
 
 ## 1. The idea in one page, no equations
 
 REMIND normally answers: *what is the cheapest way to hit a carbon budget?* Its answer is a
-carbon price path. Left alone it will happily propose that Russia or Sub-Saharan Africa charge
-several hundred dollars a tonne, because that is cost-efficient.
+carbon price path. Left alone it will happily propose that every region charge several hundred
+dollars a tonne by mid-century, because that is cost-efficient.
 
-The PFM asks a different question: **could that country's politics actually deliver that
-price?** It estimates, from institutions and who holds power, a ceiling on how stringent a
-country can plausibly get. The coupling feeds that ceiling back into REMIND so the model has to
-respect it while it optimises.
+The PFM asks a different question: **could that region's politics actually deliver that price?**
+It estimates, from institutions and who holds economic power, a ceiling on how stringent a country's
+climate policy can plausibly get, and how far below that ceiling each country sits. The coupling feeds
+that into REMIND so the model has to respect it while it optimises.
 
-Three moving parts:
+The moving parts:
 
-**The anchor.** A single global carbon price path REMIND builds. Everything regional is derived
-from it.
+**The anchor.** The global, cost-optimal carbon price path REMIND builds. Everything regional is
+derived from it.
 
-**φ ("phi"), the feasibility share.** One number per region between 0 and 1. φ = 1 means
-"politics is no obstacle here". φ = 0.6 means "this region can realistically deliver about 60% of
-the *extra* effort the cost-optimal answer asks beyond current policy". φ comes out of the PFM,
-is read at the tier year **2035** (`cm_startyear` 2030 + 5), and is recomputed *during* the REMIND
-run, so it responds to the energy system REMIND is building.
+**u, the ranking.** Where each region sits, from least to most constrained (0 to 1), read **once**,
+from observed 2023 data, separately for each sector. It does not change over the century.
 
-**θ ("theta"), the severity dial.** How hard the political constraint is allowed to bite. θ = 0
-switches the mechanism off entirely (every φ becomes 1). **θ = 0.50 is the central setting**, and
-the `THETA` group runs **0.325** and **0.675**. These are declared, not anchored (`MODEL.md` §5.3).
-**φ can never fall below 1 − θ**; the batch confirms the floor regions land on 1 − θ to four
-decimals at every θ (§6.2).
+**k(t), the strength.** How large the political shortfall is overall, relative to 2025 (k = 1 in
+2025). It moves every period, because the ceilings move with REMIND's energy system, income and
+institutions. On the 1000 Gt pathway the Bulk strength falls to about 0.69 by 2050 and 0.52 by 2100.
 
-**Three ways φ can bind** ("bind modes"), which make genuinely different claims:
+**φ ("phi"), the feasibility share.** φ = 1 − θ · k(t) · u, per region, sector and period. φ = 1 means
+"politics is no obstacle here". φ = 0.6 means "this region carries 60% of the *extra* price the
+cost-optimal answer asks beyond current policy" (rule B and C, §1.2) — a ranking at a declared
+severity, not a measured capability (§6.2).
 
-| mode | what it does | the claim it supports | can the budget still be met? |
-|---|---|---|---|
-| **R** — ratio | each region pays a φ-scaled share of the anchor | politics changes **where** abatement happens | yes, always |
-| **L** — level | each region's price is capped at current policy plus φ × the extra effort | politics caps **how much** a region can do | maybe not — *that is the finding* |
-| **M** — mild progression | the price is *generated* by political momentum; no anchor, no budget | where does observed political momentum actually take us? | no budget involved |
+**θ ("theta"), the severity dial.** How hard the constraint bites. θ = 0 switches the mechanism off
+(every φ = 1). **θ = 0.50 is the central setting**, with **0.325** and **0.675** as the declared range.
+Declared, never estimated (`MODEL.md` §5.3).
 
----
+**κ ("kappa"), the declared erosion.** An optional extra fade on the strength, k(t)·(1−κ)^(t−2025):
+"politics improves by itself at κ a year". **κ = 0 in every headline run**; 0.027 (central), 0.02 and
+0.05 are one sensitivity arm (ADR 0050 decision 5).
 
 ### 1.1 Two political regimes, one carbon price
 
 The PFM is **estimated separately for two sectors**, on one shared specification
 (`CONTEXT.md`, `MODEL.md` §2.2):
 
-| sector | what is in it | the politics |
-|---|---|---|
-| **Bulk** | electricity + industry | few, large, organised actors — utilities, heavy industry |
-| **Diffuse** | buildings + transport | costs land on households, visibly and immediately |
+| sector | what is in it | the politics | market in REMIND |
+|---|---|---|---|
+| **Bulk** | electricity + industry | few, large, organised actors — utilities, heavy industry | ETS |
+| **Diffuse** | buildings + transport | costs land on households, visibly and immediately | ES and "other" |
 
-Each gets its own frontier, its own donor-assignment bands, and its own estimated speed λ —
-**Bulk 0.1094/yr, Diffuse 0.0769/yr** (`output/pfm/v5/temporal-validation.rds`). At the deployed
-`cm_pfmGapClosure = 0` every run exports λ = 0 to modes R and L (verified in every log).
-
-REMIND needs the two sector answers reconciled. Two delivery paths:
+Each sector gets its own ranking u and its own strength k(t). REMIND needs the two reconciled:
 
 | `cm_pfmSectorMarkup` | delivery | rows |
 |---|---|---|
-| 0 | collapse to `min(φ_Bulk, φ_Diffuse)` — one price, the worse sector wins | the three `-Min` twins per resolution (§4.5) |
-| 1 | floor + **symmetric** markup: `pm_taxCO2eq` = the worse sector, `pm_taxemiMkt(m)` = market *m*'s own increment over it | every other coupled row |
+| 0 | collapse to `min(φ_Bulk, φ_Diffuse)` — one price, the worse sector wins | the `-Min` twins (§4.5) |
+| 1 | floor + markup: `pm_taxCO2eq` = the worse sector, `pm_taxemiMkt(m)` = market *m*'s own increment over it | every other coupled row |
 
-**Which sector binds** (§6.2a has the table):
+**Which sector binds** has turned round since `v5`: in `v6` the **Bulk** sector is the more
+constrained one in **15 of 21 EU21 regions and 11 of 12 H12 regions** (§6.2a). "The political limit
+on household energy costs constrains the economy-wide price" is now true only for six EU21 regions
+(CHA, ECS, FRA, EWN, ESW, NES) and for CHA alone at H12.
 
-| where | Diffuse binds | Bulk binds |
-|---|---:|---:|
-| estimation sample, country $E$, 2022 (`MODEL.md` §3.4.2) | 16 of 48 | **32 of 48** |
-| coupled, **EU21 regions**, `-PFMlevelB` | **14 of 21** | 7 — CAZ, DEU, ENC, IND, REF, SSA, UKI |
-| coupled, **H12 regions**, `-PFMlevelB` | **9 of 12** | 3 — CAZ, IND, REF |
+### 1.2 Two closures: hold the price, or hold the budget
 
-Bulk is the more constrained sector in most *countries*; Diffuse binds in most *regions*. The
-reversal happens after estimation — in the projection to 2035, the per-sector min–max
-normalisation (φ ranks regions within a sector, so which sector binds depends on each sector's
-cross-regional **spread**) and aggregation.
+The level cap caps each region's price at current policy plus φ times the extra effort,
+P = min(A, P_ref + φ · max(A − P_ref, 0)). What REMIND may do in response defines the closure:
 
-> ⚠️ **"The political limit on household-facing energy costs constrains the economy-wide carbon
-> price" is right for two-thirds of EU21 regions and three-quarters of H12 regions, and wrong for
-> the rest** — including Russia (REF), one of the two floor regions, which binds on Bulk. It is
-> also a statement about the headline frontier: the offline rung propagation moves the attribution
-> for about half the regions (`MODEL.md` §3.4.1). Write it per region, with that caveat.
+| closure | rows | anchor | budget | the sentence it produces |
+|---|---|---|---|---|
+| **rule B — hold the price** | `-PFMlevelBfix…` | pinned to the θ = 0 run's converged anchor (`cm_pfmAnchorFromGdx`) | not enforced | "political feasibility adds X Gt CO₂ to the 1000 Gt pathway" — the **quantity headline** |
+| **rule C — hold the budget** | `-PFMlevelC…` | rises until the budget holds; the cap is rebuilt every iteration (`cm_pfmBoundRebuild = 1`) | enforced | "the budget holds, and abatement moves between regions" |
+| ratio mode (continuity) | `-PFMratio` | rises | enforced | each region pays φ times the anchor |
 
-### 1.2 The gap persists, and λ is a declared switch
-
-**Decision (2026-09-11): the gap PERSISTS.** `cm_pfmGapClosure = 0` is the deployed setting, with
-the frontier's estimated rates run as a **declared sensitivity** (`startgroup=GAPCLOSE`, four runs
-per resolution). The reason is `claim ≤ evidence` (`MODEL.md` §4.3, `output/pfm/v5/lambda-explained/LAMBDA-EXPLAINED.html`):
-
-- **neither two-sector rate beats persistence** as a forecast (skill −0.180 Bulk, −0.698 Diffuse);
-- a **placebo battery** on panels built with *no adjustment by construction* returns λ̂ of
-  **0.291 [0.181, 0.419]** (Bulk) and **0.104 [0.062, 0.209]** (Diffuse) — the published Bulk rate is
-  below its null and the Diffuse rate inside it;
-- λ = 0 is `exportFeasibilityRegiDiff()`'s documented default.
-
-**One symbol called λ does three jobs, and the switch touches only two** (`test-exportFeasibilityBound.R`):
-
-| mode | λ is… | at λ = 0 | switched? |
-|---|---|---|---|
-| **1** ratio | the gap-closure rate | ratio = φ for the whole horizon | **yes** |
-| **2** level | the speed limit on approaching the φ-scaled target | the bound *is* the target from the first period; early bounds go **up** | **yes** |
-| **3** mild progression | the **momentum rate** — the mechanism itself | the price would freeze at its seed | **no** |
-
-**Measured on the batch — the switch points opposite ways in the two modes:**
-
-| result | λ = 0 (deployed) | λ = estimated (`GAPCLOSE`) | what λ = 0 does |
-|---|---:|---:|---|
-| quantity headline, EU21 (§4.2a) | **+159.3 Gt** | +254.4 Gt | **−37%** — conservative |
-| quantity headline, H12 | **+163.8 Gt** | +266.0 Gt | **−38%** — conservative |
-| headline B, EU21 / H12 (§4.2, SI) | +128.4 / +148.8 Gt | +192.2 / +239.6 Gt | −33% / −38% — conservative |
-| mode R regional spread, EU21 / H12 (§4.1) | **1.88× / 1.76×** | 1.10× / 1.09× | **+71% / +62%** — generous |
-| mode R markup written, EU21 / H12 | **0.722 / 0.617** | 0.108 / 0.089 | **~7×** — generous |
-| mode R within-region ES/ETS, EU21 | **0.66–1.37** | 0.92–1.03 | a split vs almost none |
-
-Methods must say: *we do not assume the gap closes; on the level-cap headline that is the cautious
-choice and lowers the cost by about a third; on the price-distribution result it is the generous one
-and it is what makes the split visible at all.*
-
-✅ **Scoping control passes exactly.** `-PFMmildProgGapC` is identical to `-PFMmildProg` at both
-resolutions (2583.3 / 2589.2 Gt): the switch does not reach mode 3.
-
-**Two estimates, two jobs** (decided 2026-09-17, `MODEL.md` §4.3.1): the 2001–2015 validation estimate
-above is what the `GAPCLOSE` rows apply; φ in every run is built on the same ECM re-estimated over
-2001–2022 (0.1027 / 0.0621).
+**No adjustment speed λ.** `v5` carried observed stringency forward to 2035 at an estimated speed λ.
+λ is not identified (it does not beat persistence, and a placebo returns rates of the same size), so
+`v6` removes it from the coupling (ADR 0050). The gap is read at the anchor year and held; the only
+gap-closure assumption left is the declared κ arm.
 
 ---
 
 ## 2. The scenario map
 
-**The file is generated, not hand-written.** `scripts/start/buildPFMScenarioConfig.R` reads
-REMIND's own `config/scenario_config.csv` and emits every row as *its canonical parent plus a
-named delta*:
+**The file is generated, not hand-written** (ADR 0055): edit the matrix, rebuild, commit both.
 
 ```bash
-Rscript scripts/start/buildPFMScenarioConfig.R
-Rscript scripts/start/validatePFMScenarioConfig.R config/scenario_config_PFM.csv
+Rscript analysis/run-groups/buildPFMScenarioConfig.R   # -> models/remind_pfm/config/scenario_config_PFM_v6.csv,
+                                                       #    then the validator and REMIND's own reader
 ```
 
-**24 scenarios per resolution, 48 in total**, identical in structure at H12 and EU21: two
-uncoupled baselines, four nulls, four science runs, three markup-off twins, four NPi twins, a
-four-run θ sweep and a four-run λ sensitivity. All rows carry `cm_startyear = 2030` and
-`cm_taxCO2_lowerBound_path_gdx_ref = 0` (§6.3).
+Every row is REMIND's canonical scenario plus named deltas; every coupled row carries
+`cm_taxCO2_regiDiff = 11`, `cm_pfmPhiPath = 1` (the share path), `cm_pfmGapClosure = 0` (no λ),
+`cm_pfmSectorMarkup = 1` unless a `-Min` twin, and `cm_taxCO2_lowerBound_path_gdx_ref = 0` (§6.3).
+H12 titles carry no resolution infix; EU21 titles carry `-EU21-`; coupled titles end in `-v6`.
 
-### 2.1 Uncoupled baselines
+### 2.1 Uncoupled baselines (re-run on REMIND 3.7.1)
 
 | run | why it exists |
 |---|---|
-| `SSP2[-EU21]-NPi2025` | current policies. The PFM's reference price path P_ref, the `path_gdx_ref` of every other row, and the uncoupled comparison for the NPi twins. **Must complete first.** |
-| `SSP2[-EU21]-PkBudg1000` | REMIND's own 1000 Gt cost-optimal answer. |
+| `SSP2[-EU21]-NPi2025` | current policies: the reference price P_ref, and the `path_gdx_ref` of every other row. **Must complete first.** |
+| `SSP2[-EU21]-PkBudg1000` | REMIND's own 1000 Gt cost-optimal answer |
+| `SSP2[-EU21]-PkBudg1000-PFMgateRef` | the uniform-price reference: the interface check (§3.1) |
 
 ### 2.2 Nulls — the mechanism installed but switched off
 
-**A null is not one thing.** Using the wrong one silently changes the answer (§4.7).
-
-| run | switched off how | answers "what happens if we add…" |
+| run | switched off how | the control for |
 |---|---|---|
-| `-PkBudg1000-PFMgateRef` | mechanism absent (`regiDiff = 0`, uniform price) | — the **interface** check, not a science control |
-| `-PkBudg1000-PFMgate` | present, θ = 0, budget enforced | …φ, under a held budget |
-| `-PkBudg1000-PFMgateB` | present, θ = 0, budget forcing off, mode R | …the cap, on the **unforced** anchor (SI sensitivity) |
-| `-PkBudg1000-PFMgateBfix` | present, θ = 0, budget forcing off, **anchor pinned to the `-PFMgate` path** | …the political **cap** — the control for the quantity headline; must reproduce `-PFMgate` |
-| `-NPi2025-PFMgate` | present, θ = 0, current policies | …φ, to a **non-ambitious** price path |
+| `-PkBudg1000-PFMgate-v6` | present, θ = 0, budget enforced | rule C and ratio mode; must reproduce `-PFMgateRef` |
+| `-PkBudg1000-PFMgateBfix-v6` | present, θ = 0, budget forcing off, **anchor pinned to `-PFMgate-v6`** | rule B (the quantity headline); must reproduce `-PFMgate-v6` |
 
-> ⚠️ **A bind mode 2 run at θ = 0 is not an uncoupled null** when gap closure is on, because the
-> speed limit can still bind — which is why `-PFMgateB` is bind mode 1.
+### 2.3 The science runs — 1000 Gt budget (wave 1, both resolutions)
 
-### 2.3 The science runs — 1000 Gt budget, θ = 0.50
+| run | closure | θ |
+|---|---|---|
+| `-PFMlevelBfix-v6`, `-PFMlevelBfixTh325-v6`, `-PFMlevelBfixTh675-v6` | rule B | 0.50, 0.325, 0.675 |
+| `-PFMlevelC-v6`, `-PFMlevelCTh325-v6`, `-PFMlevelCTh675-v6` | rule C | 0.50, 0.325, 0.675 |
+| `-PFMlevelBfix-held-v6`, `-PFMlevelC-held-v6` | rules B and C, institutions held at their anchor values | 0.50 |
 
-| run | mode | budget forcing | the sentence it produces |
+The **institutions-held twins** travel with the headline (author decision of 2026-10-06): in Phase 1
+institutions carried about half of the Bulk strength's fall by 2100.
+
+### 2.4 The sensitivity arms (wave 2, θ = 0.50)
+
+| group | rows (rule) | varies | resolutions |
 |---|---|---|---|
-| `-PkBudg1000-PFMratio` | R | on | "politics moves carbon price between regions and markets, and the budget holds" |
-| `-PkBudg1000-PFMlevelBfix` | L, rule B | **off, anchor pinned** | **quantity headline:** "political feasibility adds X Gt CO₂ to the 1000 Gt pathway" |
-| `-PkBudg1000-PFMratioBfix` | R | **off, anchor pinned** | bridge: the price headline's conversion with the anchor not raised |
-| `-PkBudg1000-PFMlevelB` | L, rule B | **off** | SI: the cap against the unforced \$75 → \$104 path |
-| `-PkBudg1000-PFMlevelC` | L, rule C | on | "the budget can / cannot be held under the cap" |
-| `-PkBudg1000-PFMmildProg` | M | n/a | "observed political momentum alone gets us to X Gt" |
+| ranking u | uniform, permuted 1–3, reversed (B); uniform, permuted 1 (C) | `pfmPhiOrdering` | EU21; H12 for B uniform and permuted 1 |
+| uncovered countries | all-median, all-low, nearest donors (B and C); USA donor, USA low (B) | variant Run-Groups `v6-<rule>` | EU21 |
+| markup and ratio | `-Min` (B and C), `-PFMratio` | `cm_pfmSectorMarkup = 0`; bind mode 1 | EU21 and H12 |
+| curve shape (main-text robustness) | saturation 0.5× and 2× (B) | `v6-sat05`, `v6-sat2` | EU21 |
+| family B / annual data (SI) | `specalt` (B and C), `annual` (B) | `v6-specalt`, `v6-annual` | EU21 |
+| formulation | E-hold (B), hold 2060 (B and C), regional k (B) | `pfmPhiHold`, `pfmPhiHoldYear`, `pfmPhiStrength` | EU21 |
+| declared closure κ | 0.027, 0.02, 0.05 (B and C) | `pfmPhiKappa` | EU21 |
+| strength vs ranking (added 2026-10-10) | E-hold (C) | `pfmPhiHold` | EU21, tag `V6CEHOLD` |
 
-### 2.4 The sensitivities and twins
-
-| group | rows | varies |
-|---|---|---|
-| **`-Min` twins** | `-PFMratioMin`, `-PFMlevelBMin`, `-PFMlevelCMin` | `cm_pfmSectorMarkup = 0` — one price per region |
-| **`<res>THETA`** | `-PFMratioTh325/Th675`, `-PFMlevelBTh325/Th675` | θ = 0.325 / 0.675 |
-| **`<res>GAPCLOSE`** | `-PFMratioGapC`, `-PFMlevelBGapC`, `-PFMlevelCGapC`, `-PFMmildProgGapC` | `cm_pfmGapClosure = 1` |
-| **NPi twins** | `-NPi2025-PFM{ratio,level,mildProg}`, null `-NPi2025-PFMgate` | the current-policies parent |
-| **`FIXPRICE`** | `-PFM{gateBfix, levelBfix, ratioBfix, levelBfixTh325, levelBfixTh675, levelBfixGapC, levelBfixMin}` | anchor **read** from the budget-held `-PFMgate` gdx (`cm_pfmAnchorFromGdx = on`, `path_gdx_carbonprice`; `COUPLING.md` §11.7), `cm_iterative_target_adj = 0` |
-| **`<res>RULEC`** | `-PFMlevelCTh325`, `-PFMlevelCTh675` | θ = 0.325 / 0.675 on rule C — the one claim still measured at a single severity (`TODO.md` item 41, claim C34). **Not yet run** |
-
-
-**Retired groups (2026-10-01).**
-- `<res>RERUN`: the re-runs of 2026-09-17 are done, so the tags were removed from the config.
-- `ITERTEST`: the row is gone, and so is the `cm_iteration_max` column. A run that does not
-  converge is not given a higher iteration cap. Either remove the source of non-convergence, or
-  start a new run from its gdx (`path_gdx`). The precedent is EU21 `-PFMlevelC`, which was
-  restarted from its own gdx (`TODO.md` 17). See `PITFALLS.md` §25b.
+**Retired from `v5`** (ADR 0050 and the batch design): mode M (`-PFMmildProg`), the λ arm `GAPCLOSE`,
+the unforced rule B (`-PFMlevelB` against `-PFMgateB`), the ratio-mode twin on the pinned path
+(`-PFMratioBfix`) and the NPi twins. Their `v5` readings are in the archived `v5` document.
 
 ### 2.5 Running them
 
-```bash
-Rscript start.R config/scenario_config_PFM.csv startgroup=EU21     # EU21 (no row carries the default tag "1": a bare start.R runs nothing)
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12      # H12
-Rscript start.R config/scenario_config_PFM.csv startgroup=AMT      # both resolutions, plain rows
-# EVERY sensitivity group is resolution-scoped: run it from that resolution's checkout
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12THETA     # θ sensitivity, 4 runs
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12GAPCLOSE  # λ sensitivity, 4 runs
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12FIXPRICE  # quantity headline, 7 runs
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12RULEC     # rule C at θ 0.325/0.675, 2 runs
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12RULECFIX  # the 5 rule-C rows with the cap rebuilt every iteration
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12GROUPVARIANTS  # held price on 6 variant Run-Groups (spec, income, USA, assignment)
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12GP24      # ordering tests: Bfix uniform/permuted1-3, C uniform/permuted1 (6)
-Rscript start.R config/scenario_config_PFM.csv startgroup=H12GP23      # rule C under all-median / all-low / China seed (3)
-#   ... and the same groups with the EU21 prefix from the EU21 checkout. Every group has the same
-#   number of rows at both resolutions. Rows are ordered in the file by mode and rule, with
-#   sub-sections (unforcedAnchor, heldPrice, heldPrice_groupVariants, heldPrice_orderingTests,
-#   heldBudget, heldBudget_orderingTests, heldBudget_assignmentTests).
+```r
+library(pfm)
+cfg <- "config/scenario_config_PFM_v6.csv"
+submitPFM("V6W2EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg)                  # dry run
+submitPFM("V6W2EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
 ```
 
-> 🔴 **Group tags are resolution-scoped and carry NO whitespace.** `start.R` matches a tag with
-> `grepl("(^|,)TAG($|,)")`, so `RULECH12, H12` makes `" H12"` a tag that `startgroup=H12` will never
-> select — silently, with a short run list. `analysis/run-groups/validatePFMScenarioConfig.R` now checks this,
-> and that titles use only letters, digits, `_` and `-` (REMIND's reader aborts the whole file on a
-> section separator typed with a space).
-
-> ⚠️ **Submit one `startgroup` at a time.** `start.R` turns a refused `sbatch` into a `stop()` that
-> kills the whole loop rather than skipping a row. `PITFALLS.md` §24.
+Start tags are `V6W<wave><res>` (`V6W1EU21`, `V6W1H12`, `V6W2EU21`, `V6W2H12`), `<res>BASE` for the
+parents, and a tag of its own for a row added after its wave (`V6CEHOLD`), so a re-submission never
+re-runs a wave. A start group never mixes resolutions: the H12 rows run from the `-H12` checkout, the
+EU21 rows from `-EU21`. `submitPFM` runs a preflight first (repos clean and pushed, packages installed,
+groups exported, mappings, the replay control) and refuses on any failure. `RUNNING.md` step 7c.
 
 ### 2.5a How an unfinished run earns its place
 
 🔴 **An unfinished run's `fulldata.gdx` is complete and reports success** (`PITFALLS.md` §25).
 `analysis/coupled/extractCoupledResults.R` admits an unfinished run only if **zero market-year cells
 through 2060 exceed REMIND's own `p80_surplusMaxTolerance`**, and records the reason in
-`$admittedUnfinished` (including `nolog` for a run copied without its `log.txt`). **In the `v5`
-batch every run finished and none needed admitting.**
+`$admittedUnfinished`. **In the `v6` batch every run finished and none needed admitting.**
 
 ---
 
 ## 3. Did the runs work?
 
-| check | `v5` batch (62 runs) |
+| check | `v6` batch (64 runs) |
 |---|---|
-| solve status | `o_modelstat = 2` in **62 of 62** |
-| finished | **62 of 62** (`REMIND run finished` in every log); none admitted unfinished |
-| early-period markets (≤ 2060) | **zero cells over tolerance anywhere**; worst 1.00× in H12 `-PFMratioBfix` |
-| PFM converged | final δ **3.1×10⁻⁵ to 1.96×10⁻³**, all below 0.002, against `cm_pfmConvTol = 0.002` |
-| PFM calls | **3 to 8** per coupled run |
+| solve status | `o_modelstat = 2` in **64 of 64** |
+| finished | **64 of 64**; none admitted unfinished |
+| early-period markets (≤ 2060) | **zero cells over tolerance**; worst exactly 1.00× (EU21 `-PFMlevelC-permuted1-v6`) |
+| PFM converged | final change in the share path **≤ 0.0019** in every run, against `cm_pfmConvTol = 0.002` |
+| PFM calls | **2 to 15** per coupled run |
 | iteration cap | **no run ends at `cm_iteration_max`** |
-| budget converged (adj = 9) | **held in every budget-forced run**; no `pm_pfmBudgetWarn`, and no run whose cumulative CO₂ is still rising at 2150 |
+| budget (rule C, ratio) | **held in every budget-forced run**: cumulative CO₂ 2100 989.0–1001.1 Gt (EU21), 989.7–998.2 (H12) |
+| never peaks before 2150 | every rule-B run (by design: the budget is not enforced) and one budget-forced run, EU21 `-PFMlevelCMin-v6` (1011.6 Gt at 2150) — disclose (`PITFALLS.md` §26) |
 | infeasibility code | `pm_pfmInfesCode = 0` in every coupled run |
-| markup written = seen | **equal everywhere** |
-| legislated floor | `cm_taxCO2_lowerBound_path_gdx_ref = 0` in all 62 |
-
-> ✅ **The three defects the 2026-09-16 batch carried are gone**, each fixed by a re-run rather than
-> by a change of method (`TODO.md` items 30, 31, 17):
->
-> - **H12 `-PFMratioMin`** now peaks at **1003.0 Gt in 2090** in 73 iterations (it previously never
->   peaked, reaching 1068 Gt at 2150). The H12 markup-off column in §4.5 is usable.
-> - **H12 `-PFMratioTh325`** now has markup written = seen (**0.340**) in 94 iterations; the only
->   mismatch in the batch is resolved.
-> - **EU21 `-PFMlevelC`**, restarted from its own gdx for 57 more iterations, now **holds the
->   budget** (peak 1000.4 Gt in 2090, `pm_pfmBudgetWarn = 0`, δ = 0.0014) with a bind share of
->   0.585 rather than 1.000 (§4.3). Its early markets are the cleanest in the batch (0.14×
->   tolerance); three `pebiolc` cells sit at 1.06× tolerance **after 2100**, outside the reporting
->   horizon.
+| legislated floor | `cm_taxCO2_lowerBound_path_gdx_ref = 0` in every row |
+| cache read | every coupled run read the staged Run-Group cache (`RUNNING.md` step 8); the shared-cache files and the REMIND input archives the runs used are in `records/v6/` and archived (`tools/archiveRunGroupInputs.sh`) |
 
 ### 3.1 The interface gate — a tolerance, not bit-identity
 
-`-PFMgate` (θ = 0, mechanism present) against `-PFMgateRef` (mechanism absent):
+`-PFMgate-v6` (θ = 0, mechanism present) against `-PFMgateRef` (mechanism absent), same REMIND version:
 
-| resolution | `pm_taxCO2eq` cells | differing | max difference | mean difference | cum. CO₂ 2100 | Nash iterations |
-|---|---:|---:|---:|---:|---|---|
-| EU21 | 358 | **294** | **\$0.71** | \$0.36 | 991.61 vs 991.77 Gt | 31 vs 27 |
-| H12 | 196 | **168** | **\$0.89** | \$0.47 | 989.11 vs 989.21 Gt | 50 vs 37 |
+| resolution | `pm_taxCO2eq` cells 2030–2100 | differing | max difference | cum. CO₂ 2100 | Nash iterations |
+|---|---:|---:|---:|---|---|
+| EU21 | 231 | **0** | \$0 | 1000.91 vs 1000.91 Gt | — |
+| H12 | 132 | **132** | **\$1.57** | 1000.07 vs 1000.81 Gt | 35 vs 38 |
 
-φ is exactly 1 and `p45_pfmPhiMktSpread` exactly 0 in both gates, so it is not the political layer;
-the two runs' budget loops stop at different iterations. The same cell counts have differed in
-every batch; the size stays below \$1 and cumulative CO₂ agrees to 0.2 Gt. **Do not write
-"bit-identical".** `TODO.md` item 19.
+φ and the share path are exactly 1 in both nulls, so it is not the political layer. At H12 the
+difference is **identical across all 12 regions in every year** (0.13% in 2030 rising to 0.32% in
+2090): one global path drawn slightly lower because REMIND's budget loop stopped at another iteration.
+Both runs meet the budget inside REMIND's own `cm_budgetCO2_absDevTol` (2 Gt). It is outside the
+gate's \$1 / 0.2 Gt limits, which were set from `v5`'s size (\$0.71 / \$0.89); **waived and disclosed**
+(0005 Phase 3, "H12 gate check"), the limits not re-tuned. **Do not write "bit-identical"** for H12.
 
-**`v6` (REMIND 3.7.1):** EU21 reproduces exactly (0 of 231 cells). H12 does not stay inside the
-tolerance: all 132 cells differ, by at most \$1.57 (0.13% in 2030 rising to 0.32% in 2090), and
-cumulative CO₂ is 1000.07 vs 1000.81 Gt. The difference is identical across all 12 regions in every
-year, so it is a uniformly lower global path from the budget loop stopping elsewhere, not the
-coupling. Both runs are inside REMIND's 2 Gt budget tolerance. Waived and disclosed, 0005 Phase 3,
-"H12 gate check".
+**The held-price pinning.** `-PFMgateBfix-v6` reproduces `-PFMgate-v6` within 5 Gt: **+2.2 Gt** at EU21
+(1003.2 Gt; `v5` +2.1) and **−1.5 Gt** at H12 (998.6 Gt; `v5` +3.5). If a future re-run moves this by
+more than a few Gt, the pinning failed and §4.2a is not interpretable.
 
 > ⚠️ The gate is **structurally blind** to defects that only exist at θ > 0. It proves the
 > plumbing, nothing else; §3.3 is the real test.
 
-### 3.2 Convergence — the loop contracts over several calls
+### 3.2 Convergence — on the whole share path
 
-At θ > 0 the PFM is called **3 to 8 times** per run. Of 36 runs with a δ sequence, **30 contract
-strictly** (e.g. EU21 `-PFMratio`: 0.0094 → 0.0027 → 0.00036); the six rule-C runs oscillate before
-settling below 0.002. Every final δ is below 0.002. This is a real fixed-point iteration, not a
-single-comparison assertion — the energy system moves φ and φ moves back (limitation 5).
+`v6` checks convergence on the share **path**: at each PFM call the largest change in φ over the
+checkpoint years 2035, 2050, 2070 and 2100, against 0.002, after at least two calls; two successive
+moves in opposite directions are damped (α = 0.5) rather than the tolerance loosened. Every run
+converged: 2–15 calls, final change ≤ 0.0019.
 
-### 3.3 φ and the markup both reach the solver
+### 3.3 φ and the markup reach the solver
 
-- `p45_pfmPhiMktSpread` is **1.3–2.9** (EU21) and **0.9–2.0** (H12) in markup-on θ > 0 runs, and
-  exactly **0** in every `-Min` twin and every gate.
-- `p45_pfmMarkupWritten` equals `p45_pfmMarkupSeen` in **every** run of the batch.
-- Every log reports `lambda per sector exported: Bulk 0.0000 | Diffuse 0.0000` at
-  `cm_pfmGapClosure = 0`.
+- The share path is loaded in every θ > 0 run, with the formulation `v6-anchor` in its history, and
+  φ < 1 somewhere (`phase3Gate.R` at both resolutions).
+- Rule C's rebuild reproduces the R-side cap to **9.1e-7** (`p45_pfmBoundCheck_iter`) at both
+  resolutions.
+- **Markup written vs seen.** In a finished run's gdx, `p45_pfmMarkupSeen` is read at the start of the
+  last presolve (what the presolve before wrote) and `p45_pfmMarkupWritten` at its end, so the two
+  differ whenever the markup moved in the final iteration. In the `v6` batch every run where they
+  differ had its markup move in the last iteration, and no run with an unmoved markup shows a
+  difference. The `markupMismatch` list in `coupled-facts.json` is a "still moving" flag, not an
+  erasure (`PITFALLS.md` §16).
+
+### 3.4 Settling — four short rule-C runs to quote with a note
+
+Four EU21 rule-C runs were still moving in their last ten iterations, which overlap the budget loop's
+final adjustment: `-PFMlevelC-kappa05-v6` (34 iterations; price range up to 16.7%, budget miss up to
+28.5 Gt), `-PFMlevelC-specalt-v6` (29; 16.5%, 13.0 Gt), `-PFMlevelC-uniform-v6` (40; 14.9%, 16.8 Gt) and
+`-PFMlevelCTh325-v6` (38; 3.5%, 28.0 Gt). All ended within 1.6 Gt of the budget. The deployed rule-C run
+moved 0.6% and 3.2 Gt; every H12 rule-C run settled (at most 1.4% and 5.5 Gt). `convergence-audit.rds`.
 
 ---
 
 ## 4. What the results say
 
-Cumulative figures are `pm_actualbudgetco2("2100")` in Gt CO₂ unless marked **peak** (the
-PkBudg budget is a peak budget); prices are 2050, \$2005/tCO₂, and name their market.
+Cumulative figures are `pm_actualbudgetco2("2100")` in Gt CO₂ unless marked **peak** (the PkBudg
+budget is a peak budget); prices are 2050, \$2005/tCO₂, and name their market. Price ratios are
+"× the θ = 0 run" (`-PFMgate-v6`).
 
-### 4.1 Mode R — politics redistributes, the budget survives, and the split runs both ways
+### 4.1 Ratio mode — continuity with `v5`
 
-| run | peak CO₂ EU21 / H12 | anchor 2050 EU21 / H12 | anchor vs θ = 0 | regional spread EU21 / H12 | within-region ES/ETS EU21 / H12 |
-|---|---|---|---:|---|---|
-| `-PFMgate` (θ = 0) | 999.1 / 998.4 | 253.7 / 248.3 | 1.00 | 1.00 | 1.000 |
-| `-PFMratioTh325` | 999.6 / 997.7 ⚠️ | 299.0 / 295.2 | 1.18 / 1.19 | 1.43 / 1.37 | 0.81–1.19 / 0.83–1.17 |
-| **`-PFMratio`** (θ = 0.50) | **1001.5 / 998.9** | 336.2 / 334.6 | **1.33 / 1.35** | **1.88 / 1.76** | **0.66–1.37 / 0.70–1.31** |
-| `-PFMratioTh675` | 999.8 / 1000.3 | 393.0 / 393.6 | 1.55 / 1.59 | 2.82 / 2.59 | 0.48–1.73 / 0.52–1.55 |
-| `-PFMratioGapC` | 1001.8 / 1000.9 | 265.0 / 260.5 | 1.05 / 1.05 | 1.10 / 1.09 | 0.92–1.03 / 0.93–1.02 |
-| `-PFMratioMin` | 1003.7 / 1003.0 | 364.8 / 369.2 | 1.44 / 1.49 | 1.88 / 1.76 | 1.000 — one price |
+Each region pays φ times the anchor, budget enforced. It holds the budget at both resolutions. The
+2050 anchor is **×1.287** the θ = 0 run's at EU21 (×1.264 H12) and the median regional price ×1.060
+(×1.048); it moves 19.7 Gt CO₂eq of abatement between regions at EU21 (17.4 at H12).
 
-**The budget holds** at every θ and both λ settings, at both resolutions (peak 998.4–1003.7).
-Politics redistributes the burden; it does not break the budget.
+**The price splits within regions, both ways.** ES/ETS in 2050 runs **0.56–1.17** at EU21 (ES below ETS
+in 16 of 21 regions) and **0.57–1.29** at H12 (4 of 12). The lowest is China at both resolutions: its
+Diffuse market is the most constrained, its Bulk market is not (§6.2a); the highest is Other Asia.
+The finding is the width and region-specificity, not a direction.
 
-**The anchor rises to pay for it** — by a third at θ = 0.50. The constrained regions' discount has
-to be made up somewhere, and REMIND raises the anchor that every region's share multiplies. The
-most constrained regions pay about **two-thirds** of the θ = 0 price (0.66 EU21 / 0.67 H12), the
-least constrained pay **1.33–1.35×** it.
+### 4.2 Rule B on the unforced anchor — not in `v6`
 
-**The regional spread is φ_max / φ_min**, which at λ = 0 is at most 1/(1 − θ): 1.88 at EU21 because
-the least constrained region sits at φ ≈ 0.94, not 1.
-
-**The sector split within a region is wide and runs both ways.** At θ = 0.50:
-
-| | ES below ETS | ES above ETS | median ES/ETS | largest splits |
-|---|---:|---:|---:|---|
-| EU21 `-PFMratio` | **15 of 21** | 6 | 0.965 | ECS 0.66 (ES \$168 vs ETS \$255); REF 1.37 (ES \$230 vs ETS \$168) |
-| H12 `-PFMratio` | **9 of 12** | 3 | 0.923 | LAM 0.70; REF 1.31 |
-
-Households pay less than industry in most regions, and **more in Russia, India, Canada/Australia/NZ**
-and, at EU21, Germany, the UK and North-Central Europe. The finding is the **width and
-region-specificity**, not a direction.
-
-### 4.2 Mode L rule B on the unforced anchor — an SI sensitivity, not the headline
-
-> ✅ **Decided 2026-09-17, measured 2026-09-18 (`TODO.md` 14g):** the quantity headline is
-> `-PFMlevelBfix` against `-PFMgateBfix` on the pinned budget path (**§4.2a**). Everything in this
-> section is the unforced-anchor family and belongs in the SI (claim C19).
-
-`-PFMlevelB` against its matched null `-PFMgateB` (both budget forcing **off**):
-
-| resolution | `-PFMgateB` | `-PFMlevelB` | **Δ cumulative CO₂ 2100** | market price 2050, low → high | bind share |
-|---|---:|---:|---:|---|---:|
-| EU21 | 1710.3 | 1838.7 | **+128.4 Gt** | \$45.2 → \$86.4 | 0.571 |
-| H12 | 1384.8 | 1533.6 | **+148.8 Gt** | \$71.5 → \$139.0 | 0.958 |
-
-**Political feasibility costs roughly 130–150 Gt CO₂ over the century — relative to an unforced
-price path.** The two resolutions differ by 15% of their mean — agreement in size, not a replication.
-
-> 🔴 **Read this before quoting headline B.** With budget forcing off, REMIND never raises the anchor.
-> The null `-PFMgateB` therefore runs a **uniform \$75 (2030) → \$86 (2050) → \$104 (2100)** and emits
-> **1710 Gt** by 2100 (peak 2319 Gt) — it is not the 1000 Gt pathway, which needs \$254 by 2050
-> (`-PFMgate`). Headline B is the extra CO₂ when the political cap binds *below that low path*. The
-> EU/UK regions already sit below their \$199 current-policy price in the null. `TODO.md` item 14g.
-
-| | EU21 | H12 | what it says |
-|---|---:|---:|---|
-| θ = 0.325 | +73.9 | +76.9 | the mild end |
-| **θ = 0.50 (deployed)** | **+128.4** | **+148.8** | the headline |
-| θ = 0.675 | +204.1 | +217.5 | the harsh end |
-| slope | **296 Gt / unit θ** | **322 Gt / unit θ** | close to linear through θ = 0 |
-| gap closes (`GAPCLOSE`) | +192.2 | +239.6 | λ = 0 is the conservative choice (§1.2) |
-| markup off (`-Min`) | +156.0 | +189.9 | §4.5 |
-
-**This is the SI sensitivity, not the headline.** If it is quoted at all: 128 Gt (EU21) / 149 Gt
-(H12) at θ = 0.50, with the 74–218 Gt θ range and 192–240 Gt under gap closure — always with the fact
-that its null emits 1710 / 1385 Gt. The headline is §4.2a.
-
-> ⚠️ **This is a world without the legislated EU price floor** (§6.3): EU/UK regions pay \$86.4 in
-> 2050 against a current-policy reference of \$199.47 — **in the null as well as under the cap**.
+The unforced family (`-PFMlevelB` against `-PFMgateB`, whose null emits about 1700 Gt) was an SI
+sensitivity in `v5` and is not part of the `v6` batch. The quantity headline is §4.2a.
 
 ### 4.2a The quantity headline — the cap on the price path that holds the budget
 
-The `FIXPRICE` family (§2.4). Both runs read the anchor `-PFMgate` converged to
-(`cm_pfmAnchorFromGdx = on`) and switch budget forcing off, so the **null meets the budget** and the
-gap is the extra CO₂ the ceiling adds to the 1000 Gt pathway.
-
-**The pinning gate first.** `-PFMgateBfix` must reproduce `-PFMgate`, and it does:
+Both runs read the anchor `-PFMgate-v6` converged to and switch budget forcing off, so the null meets
+the budget (§3.1, the pinning) and the difference is the extra CO₂ the ceiling adds to the 1000 Gt
+pathway.
 
 | | EU21 | H12 |
 |---|---:|---:|
-| anchor 2050, `-PFMgate` / `-PFMgateBfix` | \$254.42 / \$254.42 | \$248.98 / \$248.98 |
-| cumulative CO₂ 2100 | 991.6 → **993.7** | 989.1 → **992.6** |
-| peak cumulative CO₂ | 999.1 → **1001.4** | 998.4 → **1001.1** |
+| `-PFMgateBfix-v6` (θ = 0 null) | 1003.2 | 998.6 |
+| **`-PFMlevelBfix-v6`** (θ = 0.50) | **1121.4** | **1111.4** |
+| **Δ at θ = 0.50** | **+118.2** | **+112.8** |
+| Δ at θ = 0.325 / 0.675 | +73.0 / +181.5 | +69.6 / +169.6 |
+| slope | **264 Gt per unit θ** | **247 Gt per unit θ** |
+| institutions held | +117.3 | +107.8 |
+| markup off (`-Min`) | +159.7 | +154.2 |
+| bind share (last iteration) | 0.986 | 0.994 |
+| Bulk strength k 2050 / 2100 | 0.686 / 0.525 | 0.684 / 0.516 |
 
-The residual (**+2.1 Gt, 0.21%** EU21; **+3.5 Gt, 0.35%** H12) is what dropping budget forcing costs
-on an anchor that is no longer rescaled — not a coupling effect. **If a future re-run moves this by
-more than a few Gt, the pinning failed and nothing below is interpretable.**
+**Political feasibility adds about 115 Gt CO₂ to the 1000 Gt pathway** at the central severity, 70–182
+Gt across the declared θ range. The two resolutions agree within 5%.
 
-| | EU21 | H12 | |
-|---|---:|---:|---|
-| `-PFMgateBfix` (θ = 0 null) | 993.7 | 992.6 | meets the budget |
-| **`-PFMlevelBfix`** (θ = 0.50) | **1153.0** | **1156.4** | **+159.3 / +163.8 Gt** |
-| θ = 0.325 | 1093.7 | 1092.9 | +100.0 / +100.3 |
-| θ = 0.675 | 1217.8 | 1228.2 | +224.1 / +235.6 |
-| slope | | | **330 / 346 Gt per unit θ** |
-| gap closes (`GapC`) | 1248.1 | 1258.6 | +254.4 / +266.0 |
-| markup off (`Min`) | 1199.2 | 1215.0 | +205.5 / +222.4 |
-| mode-R twin (`-PFMratioBfix`) | 1163.3 | 1168.3 | +169.6 / +175.7 |
+- **Holding institutions changes almost nothing** (−0.9 / −5.0 Gt), although it moves the strength a
+  lot (Bulk k 2100 0.525 → 0.417, Diffuse 0.723 → 1.001 at EU21): the two sectors' changes cancel in
+  the headline. The headline does not rest on projected institutions.
+- **Sectoral differentiation buys back about 41 Gt** (26% EU21, 27% H12) (§4.5).
+- **The cap binds almost everywhere** (bind share 0.986 / 0.994).
+- **Emissions do not peak inside the horizon** in any rule-B run (EU21 1183.5 Gt at 2150): that is
+  what "the budget is not enforced" means. Quote the 2100 cumulative, never a peak, for this family.
 
-**Political feasibility adds about 160 Gt CO₂ to the 1000 Gt pathway** at the central severity,
-100–236 Gt across the declared θ range. The two resolutions differ by **2.8% of their mean** — far
-closer than the unforced family's 15%, because both are now measured against a null that meets the
-same budget.
+### 4.3 Rule C — the budget holds under the cap
 
-- **The conversion is not the story.** The mode-R twin, which scales each region's price by φ
-  instead of capping its increment, costs **+10.3 / +11.9 Gt more** — 6–7% of the headline. The two
-  headlines therefore differ because of the closure (hold the budget or hold the price), not because
-  of the mechanism (§8).
-- **Sectoral differentiation buys back 46.2 Gt (22.5%) at EU21 and 58.6 Gt (26.4%) at H12** — more
-  than in the unforced family (§4.5).
-- **λ = 0 is the conservative setting here**: assuming the gap closes raises the cost to +254 / +266.
-- **The cap binds almost everywhere**: bind share 0.912 (EU21) and 0.982 (H12), against 0.571 / 0.958
-  in the unforced family.
-- **Emissions do not peak inside the horizon** in any capped run (cumulative still rising at 2150),
-  which is what "the budget is not enforced" means. Quote the 2100 cumulative, never a peak, for
-  this family.
+Every rule-C run holds the budget (§3). What the cap changes is where the price and the abatement
+sit. The anchor rises to make up for the capped regions; in 2050, against the θ = 0 run:
 
-### 4.3 Mode L rule C — the budget can be held under the cap
+| | EU21 anchor | EU21 median region | H12 anchor | H12 median region |
+|---|---:|---:|---:|---:|
+| θ = 0.325 | 1.152 | 1.089 | 1.141 | 1.039 |
+| **θ = 0.50** | **1.259** | **1.153** | **1.251** | **1.075** |
+| θ = 0.675 | 1.417 | 1.232 | 1.383 | 1.115 |
+| institutions held | 1.261 | 1.158 | 1.245 | 1.068 |
+| markup off | 1.351 | 1.120 | 1.343 | 1.046 |
 
-| run | EU21: iterations, peak CO₂, bind share | H12: iterations, peak CO₂, bind share |
-|---|---|---|
-| `-PFMlevelC` (deployed) | **57 (restarted), 1000.4, 0.585** — `pm_pfmBudgetWarn = 0` | 57, 998.8, 0.738 |
-| `-PFMlevelCMin` (markup off) | 88, 1003.0, 0.211 | 71, 998.3, 0.399 |
-| `-PFMlevelCGapC` (gap closes) | 42, 998.6, 1.000 | 43, 1001.8, 1.000 |
+The cheapest region in 2050 is REF at both resolutions (×0.91); the dearest is CHA (×1.25–1.26) or a
+northern European region at EU21 (NEN ×1.26).
 
-**All six rule-C runs hold the budget.** The EU21 deployed run previously ended 15 Gt over at the
-100-iteration cap with the cap binding in every region-period; restarted from its own gdx for 57
-more iterations it converges to **1000.4 Gt with a bind share of 0.585** (`TODO.md` item 17). The
-earlier reading — that a fully binding cap leaves the anchor no instrument — described a run that had
-not finished converging, not a property of rule C. **Do not quote the 1015.4 Gt figure.**
+> ⚠️ **Do not compare the regional median across resolutions.** 11 of EU21's 21 regions are European
+> and all sit at ×1.12–1.26, so the EU21 median is a European price. Counting Europe once, as H12 does,
+> the EU21 median is ×1.037, below H12's ×1.075. Quote rule C by the abatement moved (§4.8) or the
+> emissions-weighted price (×0.984 EU21, ×1.037 H12, `held-budget-prices-levelC.rds`).
 
-**Reading.** Rule C is **not** "the budget cannot be held". It is "the budget can be held under the
-political cap in most configurations, and at EU21 the deployed setting sits at the edge". The PFM loop
-converged in all six (final δ ≤ 0.002); the budget loop is what capped in the one miss. Do not tune
-`cm_pfmConvTol` for it. `TODO.md` item 17.
+**Reading.** Rule C is not "the budget cannot be held". It is "the budget holds, the global price
+rises by a quarter, and the capped regions' share of the effort moves elsewhere" (§4.8).
 
-> ⚠️ Cumulative CO₂ **at 2100** is below 1000 in the gap-closure runs (954 / 963) because emissions
-> overshoot the peak and then go net-negative; the peak is the budget quantity.
+### 4.4 Mode M — retired
 
-### 4.4 Mode M does not corroborate mode L
-
-| | EU21 | H12 |
-|---|---:|---:|
-| `-PFMmildProg` cumulative 2100 | 2583.3 | 2589.2 |
-| vs `-PFMgateB` | **+873.0 Gt** | **+1204.4 Gt** |
-| vs `-PFMlevelB` | +744.7 (41% of the level-B pathway) | +1055.6 (69%) |
-
-Observed political momentum alone takes the world far past a 1000 Gt budget — six to eight times the
-level-cap cost. Modes L and M answer different questions and must not be presented as agreeing.
+Mode M generated the price from observed political momentum at the speed λ. With λ removed
+(ADR 0050) it has no mechanism left and is not in `v6`. Its `v5` reading (far past any 1000 Gt budget,
+not a corroboration of the level cap) is in the archived document.
 
 ### 4.5 The markup-off counterfactual
 
 | | EU21 | H12 |
 |---|---:|---:|
-| headline B with markup (`-PFMlevelB`) | +128.4 | +148.8 |
-| headline B without (`-PFMlevelBMin`) | +156.0 | +189.9 |
-| **bought back by pricing two markets separately** | **27.6 Gt = 17.7%** | **41.1 Gt = 21.6%** |
-| **quantity headline with markup (`-PFMlevelBfix`)** | **+159.3** | **+163.8** |
-| **quantity headline without (`-PFMlevelBfixMin`)** | **+205.5** | **+222.4** |
-| **bought back, pinned path** | **46.2 Gt = 22.5%** | **58.6 Gt = 26.4%** |
-| mode R anchor 2050, markup on / off (vs θ = 0) | 1.33× / 1.44× | 1.35× / 1.49× |
-| most expensive market 2050, markup on / off (vs θ = 0 anchor) | 1.33× / 1.35× | 1.35× / 1.32× |
+| quantity headline with markup (`-PFMlevelBfix-v6`) | +118.2 | +112.8 |
+| without (`-PFMlevelBfixMin-v6`) | +159.7 | +154.2 |
+| **bought back by pricing two markets separately** | **41.5 Gt = 26%** | **41.3 Gt = 27%** |
+| rule C anchor 2050, markup on / off | ×1.259 / ×1.351 | ×1.251 / ×1.343 |
 
-**Sectoral differentiation buys back about a fifth of the carbon cost of political feasibility**
-(18–22%). The markup also lowers the anchor rise the constraint needs (1.33× against 1.44× at
-EU21) — but **does not remove it**: with or without two prices, REMIND pays for the constrained
-regions' discount by raising what the unconstrained ones pay to about a third above cost-optimal.
-`p45_pfmPhiMktSpread` and `p45_pfmMarkupWritten` are exactly 0 in every `-Min` twin. On the pinned
-path the buy-back is larger (22–26%) because the cap binds in almost every region-period there.
+**Sectoral differentiation buys back about a quarter of the carbon cost of political feasibility.**
+It also lowers the anchor rise rule C needs, without removing it. EU21 `-PFMlevelCMin-v6` never peaks
+before 2150 (1011.6 Gt there) — quote its 2100 value with that note.
 
 ### 4.6 The θ sweep
 
-**The quantity headline (mode L, pinned path, §4.2a):** +100.0 / +159.3 / +224.1 Gt at EU21 and
-+100.3 / +163.8 / +235.6 at H12 for θ = 0.325 / 0.50 / 0.675 — **330 and 346 Gt per unit θ**, close
-to linear.
+Quantity headline: **+73.0 / +118.2 / +181.5 Gt** at EU21 and **+69.6 / +112.8 / +169.6 Gt** at H12 for
+θ = 0.325 / 0.50 / 0.675 — 264 and 247 Gt per unit θ, steeper above 0.50. Rule C: the anchor goes ×1.152
+→ 1.259 → 1.417 (EU21) and the relocated abatement 15.0 → 22.7 → 45.0 Gt CO₂eq. The sweep is declared;
+none of its points is an estimate. Figure: `v6-coupled-theta`.
 
-**Headline B (mode L, unforced anchor, SI):** +73.9 / +128.4 / +204.1 Gt at EU21 and +76.9 / +148.8 /
-+217.5 at H12 — **296 and 322 Gt per unit θ**.
+### 4.7 The NPi twins — not in `v6`
 
-**Mode R:** the regional spread goes 1.43 → 1.88 → 2.82 (EU21) and the within-region ES/ETS range
-widens from 0.81–1.19 to 0.48–1.73. The budget holds at every θ. Floor regions land on exactly
-1 − θ in every run (§6.2).
-
-The sweep is symmetric about 0.50 and declared; none of its points is an estimate or an anchor.
-
-### 4.7 The NPi twins — direction on a non-ambitious pathway
-
-Each mechanism on the current-policies pathway, against the correct θ = 0 null `-NPi2025-PFMgate`:
-
-| | EU21 | H12 |
-|---|---:|---:|
-| mode R (`-NPi2025-PFMratio`) | **+156.2 Gt** | **+185.6 Gt** |
-| mode L (`-NPi2025-PFMlevel`) | **+131.0 Gt** | **+157.8 Gt** |
-| mode M (`-NPi2025-PFMmildProg`) | +852.6 Gt | +1101.4 Gt |
-| **the confound**: `cm_taxCO2_regiDiff` 6 → 11 alone (`-NPi2025-PFMgate` vs `SSP2[-EU21]-NPi2025`) | **−904.7 Gt** | **−1163.8 Gt** |
-
-**All three mechanisms raise emissions at both resolutions** against the correct null. Against the
-uncoupled baseline they would appear to *lower* them, because switching the mechanism on also
-switches a REMIND regional-differentiation setting whose effect alone is **six to seven times** the
-political one, of the opposite sign.
-
-**The mode-L twin corroborates headline B on a completely different parent pathway**: +131.0 against
-+128.4 at EU21 (2%), +157.8 against +148.8 at H12 (6%). Nothing in the NPi family may be quoted
-against the uncoupled `SSP2[-EU21]-NPi2025`.
-
----
+The current-policies twins and their confound (`cm_taxCO2_regiDiff` 6 → 11 alone moves emissions six
+to seven times more than politics) were a `v5` display; they are not in the `v6` batch.
 
 ### 4.8 Where abatement goes, and what it costs in GDP
 
-`analysis/coupled/coupledCostsAndAbatement.R v5 output/remind-runs/v5` → `coupled-costs.json`. Regional `vm_co2eq`, `vm_cesIO`
-("inco") and `vm_cons` integrated over 2020–2100, each run against its matched θ = 0 null; the
-monetary series are discounted at 5%/yr. **Relocated** is half the sum of the absolute regional
-changes — the volume that moved, not the net.
+`coupledCostsAndAbatement.R` → `coupled-costs.json`: regional `vm_co2eq`, `vm_cesIO` ("inco") and
+`vm_cons` over 2020–2100, each run against its matched θ = 0 null; money discounted at 5%/yr.
+**Relocated** is half the sum of the absolute regional changes — the volume that moved, not the net.
 
-| | net Δ CO₂eq | relocated | ρ(φ, relative change) | GDP |
-|---|---:|---:|---:|---:|
-| **mode R** (budget held) EU21 / H12 | **+3.2 / +4.3** | **72.2 / 81.4** | **−0.76 / −0.61** | +0.041% / +0.033% |
-| mode R, gap closes | +6.6 / +9.9 | 6.0 / 7.1 | −0.68 / −0.86 | +0.032% / +0.029% |
-| **quantity headline** (`-PFMlevelBfix`) | +167.9 / +173.6 | 114.3 / 115.1 | −0.45 / −0.67 | +0.211% / +0.218% |
-| its null against `-PFMgate` (the pin) | **+2.1 / +3.5** | 1.1 / 1.7 | — | **+0.002% / +0.005%** |
-| mode M | +955.2 / +1312.7 | 478.4 / 656.4 | +0.10 / −0.26 | +0.473% / +0.714% |
+| | net Δ CO₂eq | relocated | ρ(φ, relative change) | GDP | consumption |
+|---|---:|---:|---:|---:|---:|
+| **rule C** EU21 / H12 | **−0.1 / −3.0** | **22.7 / 19.9** | −0.47 / −0.67 | +0.035% / +0.019% | +0.017% / +0.012% |
+| ratio mode EU21 / H12 | −3.1 / −2.6 | 19.7 / 17.4 | −0.72 / −0.56 | +0.036% / +0.027% | +0.017% / +0.017% |
+| **rule B** (quantity headline) EU21 / H12 | +127.9 / +121.5 | 66.7 / 60.7 | −0.36 / −0.59 | +0.19% / +0.16% | +0.20% / +0.18% |
 
 **Under a held budget the ceiling moves abatement rather than reducing it**: the net change is a few
-Gt while 72–81 Gt of abatement changes region. That is mode R's central claim, and until this artifact
-nothing tested it. The negative rank correlation says the direction is the one the mechanism asserts —
-**the more constrained a region, the more it emits relative to its own baseline**. With gap closure on,
-the relocation nearly vanishes (6–7 Gt): it exists because the gap persists, exactly as the price split
-does (§1.2).
+Gt while about 20 Gt changes region, and the more constrained a region the more it emits relative to
+its own baseline (negative ρ). Rule C, EU21 / H12: CHA −10.2 / −8.9, IND +8.1 / +7.0, MEA +7.9 / +5.1,
+EUR (summed) −6.0 / −3.8, SSA −3.7 / −5.9, REF +3.7 / +3.8 — the same sign in 11 of 12 H12 regions.
+Under κ the relocation falls to 9.5 / 8.4 / 5.3 Gt (κ = 0.02 / 0.027 / 0.05), with uniform shares to
+11.7 Gt.
 
-**Where the extra emissions land under the cap** (EU21, `-PFMlevelBfix`): MEA **+60.8**, SSA **+56.7**,
-REF **+27.7**, USA **+19.2 Gt**; the one large decrease is CHA **−28.9 Gt**, a general-equilibrium
-response rather than a political one.
+**Under the cap, the extra emissions land** (EU21, rule B) in MEA +37.5, IND +22.4, OAS +22.2, SSA
++16.8, REF +11.2 and USA +7.7 Gt (H12 alike).
 
 > 🔴 **GDP rises, and that is not a benefit.** REMIND carries no climate damages, so any run that
-> abates less looks richer (+0.21% GDP, +0.26% consumption under the cap). Quote it only in the same
-> sentence as the extra CO₂, or not at all. Regional GDP is not reported: the aggregation is not
-> reliable at region level.
+> abates less looks richer. Quote it only in the same sentence as the extra CO₂, or not at all.
+> Regional GDP is not reported.
 
-> ✅ **An independent check on the pinning.** `-PFMgateBfix` against `-PFMgate` moves 2.1 / 3.5 GtCO₂eq
-> and 0.002 / 0.005% of GDP — the pinned null is the budget-forced run in every respect that matters
-> (§4.2a).
+### 4.9 The sensitivity arms — what the quantity headline is sensitive to
+
+Rule B, θ = 0.50, EU21, extra cumulative CO₂ by 2100 (deployed **+118.2 Gt**). Each arm records the
+options its last PFM call ran with (`coupled-facts.json` `arms`); a recorded option that differs from
+the declared one would make the arm unusable, and none does. Figure: `v6-coupled-arms`.
+
+| arm | Δ Gt | vs deployed | reading |
+|---|---:|---:|---|
+| **κ = 0.02 / 0.027 / 0.05** | +53.5 / **+41.2** / +22.1 | −64.7 / −77.1 / −96.1 | **the largest effect**: at the central κ, 35% of the headline is left — the result depends on whether politics improves by itself |
+| static share, k ≈ 1 (E-hold) | +189.1 | +70.9 | the moving strength removes 37% of the static result |
+| institutions held | +117.3 | −0.9 | §4.2a |
+| hold 2060 / regional k | +125.6 / +121.5 | +7.4 / +3.3 | small |
+| ranking: uniform | +105.8 | −12.4 | size alone carries most of the effect |
+| ranking: permuted 1 / 2 / 3 | +102.1 / +126.4 / +89.3 | | the model's ranking (+118) sits inside the range of random orders |
+| ranking: reversed | +67.9 | −50.3 | the ranking is not irrelevant: reversing it costs 50 Gt |
+| uncovered countries: all median / all low / nearest donors / USA donor / USA low | +109.5 / +154.6 / +133.6 / +117.4 / +134.8 | −8.7 to +36.4 | **the widest data-side band, 110–155 Gt** |
+| saturation 0.5× / 2× | +115.2 / +130.0 | −3.0 / +11.8 | curve shape: small |
+| family B (`specalt`) / annual data | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps Bulk k above 1 (1.19 / 1.12 in 2050 / 2100) |
+
+Rule C under the same arms (median 2050 regional price, EU21): κ ×1.069 / 1.055 / 1.031, uniform ×1.043,
+permuted 1 ×1.114, all-median ×1.137, all-low ×1.217, nearest ×1.178, family B ×1.136, hold 2060 ×1.163.
+
+### 4.10 Against `v5`
+
+`analysis/v6/coupledV5V6Contrast.R` → `v5-v6-coupled-contrast.json`. Each headline against its own
+version's θ = 0 null, so REMIND's drift between 3.7.0.dev29 and 3.7.1 (+9 to +11 Gt on the nulls)
+cancels to first order.
+
+| | `v5` EU21 / H12 | `v6` EU21 / H12 |
+|---|---|---|
+| quantity headline, θ = 0.50 | +159.3 / +163.8 | **+118.2 / +112.8** |
+| slope per unit θ | 330 / 346 | 264 / 247 |
+| markup buy-back | 46.2 / 58.6 | 41.5 / 41.3 |
+| rule C anchor 2050 | ×1.305 / ×1.326 | ×1.259 / ×1.251 |
+| rule C abatement relocated | 76.7 / 84.5 | **22.7 / 19.9** |
+
+**The quantity headline shrinks by a quarter to a third.** Offline, most of that is removing λ
+(ADR 0050): the paper must say the weaker constraint comes mostly from dropping an unidentified rate,
+not from new evidence of feasibility.
+
+**Rule C moves about three quarters less abatement, almost all of it after 2050**
+(`analysis/v6/ruleCRelocationDecomp.R` → `rulec-relocation-decomp.rds`; figures `v6-rulec-relocation`,
+`v6-price-catchup`). Gross relocation 2020–2050 is 10.9 → 8.8 Gt; 2051–2100 it is 66.2 → 16.7 Gt (EU21).
+
+1. **In `v6` the constrained regions' price catches up with the θ = 0 run's by about 2070.** ETS price
+   over the null's in 2030 / 2070: REF 0.58 / 1.03, MEA 0.56 / 1.03, IND 0.52 / 1.00 (`v6`), against REF
+   0.59 / 0.68, MEA 0.81 / 0.95, SSA 0.76 / 0.89 (`v5`). In `v5` those regions kept a cheaper price for
+   the whole second half of the century and emitted more (SSA ETS +14.4, MEA ETS +17.3, REF ETS +10.2 Gt
+   after 2050), which China's power sector absorbed (−42.6 Gt). That is the moving strength k(t) at
+   work; `v5` held φ fixed after 2035. The κ arms confirm it dose by dose: post-2050 relocation 16.7 →
+   9.4 / 8.9 / 5.7 Gt as the 2070 price wedge narrows 0.117 → 0.037 / 0.026 / 0.008.
+2. **The ranking moved.** China's Diffuse market and India's Bulk market are now the most constrained
+   (u = 1). CHA's Bulk market is unconstrained in both versions (ETS ×1.32–1.37 in 2100) while its
+   ES+other market emits +8.6 Gt, so 16.1 Gt of the `v6` shift nets out inside regions (`v5`: 5.0).
+
+**Open:** how much of part 1 is the fading strength and how much the new ranking. The test is the
+rule-C static-share run `-PFMlevelC-Ehold-v6` (§2.4): near 77 Gt relocated means the strength explains
+the drop; near 23 Gt, the ranking does.
 
 ---
 
 ## 5. Limitations — read this before quoting anything
 
-1. **λ is a declared choice, and its direction differs by result** (§1.2): λ = 0 lowers headline B by
-   a third and is what makes the mode-R price split visible. State the direction per result.
-2. **Two results rest on runs that needed a second submission to converge** (§3): H12
-   `-PFMratioMin` and `-PFMratioTh325`, and EU21 `-PFMlevelC`, which converged only when restarted
-   for another 57 iterations. Nothing in the batch is at the iteration cap now, but a result whose
-   run needed 150+ iterations is a result to re-check when anything upstream changes.
-3. **Two regions per resolution are pinned by the parameter, not by data.** φ = 1 − θ exactly for
-   **ECS (Central Europe) and REF (Russia & Central Asia)** at EU21 and **LAM and REF** at H12, in
-   every run at every θ. φ is a *ranking*; both endpoints of the scale are guaranteed by construction
-   (§6.2). Note these are not the offline bound's pair (CHA, REF at 2025): the coupled φ is read at
-   2035 on the live energy system.
-4. **Legislated prices may be rolled back in every run** (§6.3). In the budget-unforced θ > 0 runs,
-   **689 of 1540** EU21 region-years from 2030–2100 have both market prices below the current-policy
-   reference; in budget-forced runs 174 of 1760.
-5. **The co-evolution feedback is visible, and moderate.** Across the eleven θ = 0.50 PkBudg runs φ
-   moves by up to **0.077** per region (India, EU21) — median 0.009 at EU21, 0.046 at H12 — and
-   between the 1000 Gt and current-policy families by up to 0.03. The loop contracts over 3–8 PFM
-   calls (§3.2). This is a real response of feasibility to the energy system, not a rounding error.
-   It is **not causal** (`MODEL.md` §8.1): call it conditional scenario accounting.
-6. **The United States has no covered country.** Its coupled φ (0.649 EU21 / 0.567 H12 in
-   `-PFMlevelB`) is set by the median-basis override and must be reported as a range
-   (`TODO.md` item 6).
-7. **θ has no admissible interval under the raw level cap** (`MODEL.md` §5.3.1). Mode L is usable
-   because it caps the increment over current policy, and because the legislated floor is off.
-8. **The interface gate is verified to a tolerance** (§3.1).
-9. **Every φ is conditional on modelling choices the data do not settle** — nine sources, listed with
-   their size in `MODEL.md` §5.3.2. θ carries the band in the main text; the frontier error structure
-   (median |Δφ| up to 0.171 offline), the specification (median |Δφ| ~0 but max 0.271 and the floor
-   region moves, claim C31, `v5` vs `v5-specalt`) and the rest are reported in the SI. No φ here is a measured property of a region.
-10. **Which sector binds depends on the frontier rung** offline, and the coupled attribution has not
-    been re-run across rungs (§6.2a).
+1. **θ and κ are declared, not estimated.** θ carries the main-text band; κ is the largest single
+   sensitivity of the quantity headline (§4.9). Neither may be presented as a finding.
+2. **The `v5` → `v6` drop is mostly a modelling decision** (removing an unidentified λ), not new
+   evidence; say so wherever the two are compared (§4.10).
+3. **Two regions per sector are pinned by the parameter, not by data.** φ = 1 − θ·k(t) exactly for the
+   region at u = 1 in each sector (**CHA** in Diffuse, **IND** in Bulk, at both resolutions), and 1 for
+   the region at u = 0. φ is a *ranking* (§6.2).
+4. **Legislated prices may be rolled back in every run** (§6.3).
+5. **The co-evolution feedback is real and not causal.** The coupled strength differs from the offline
+   one (Bulk k 2050 0.69 coupled against 0.63 offline at κ = 0), and the PFM loop takes 2–15 calls. Call
+   it conditional scenario accounting (`MODEL.md` §8.1).
+6. **The United States has no covered country.** Its φ comes from the donor rule; the USA-donor and
+   USA-low arms bound it (+117.4 / +134.8 Gt, §4.9).
+7. **The assignment of uncovered countries is the widest data-side band** (110–155 Gt). Report it.
+8. **The interface gate is verified to a tolerance**, and at H12 outside the `v5`-derived limits
+   (§3.1, waived and disclosed).
+9. **Four short rule-C runs were still settling** (§3.4); one budget-forced run never peaks (§4.5).
+10. **Every φ is conditional on modelling choices the data do not settle** — the frontier family
+    (family B in §4.9), the curve shape, the institution projections (held twins), the hold rule
+    (E-hold). No φ here is a measured property of a region.
+11. **Which sector binds** is a property of the deployed specification and the anchor-year ranking; it
+    turned round between `v5` and `v6` (§6.2a). Do not write it as a fact about regions.
 
 ---
 
@@ -639,77 +493,67 @@ response rather than a political one.
 
 ### 6.1 The reference path is the hidden driver
 
-Everything the coupling does is measured against `SSP2[-EU21]-NPi2025`, and modes R and L act on the
-*increment* over its price. Its 2050 carbon price:
+The level cap acts on the *increment* over the current-policy price `SSP2[-EU21]-NPi2025` (REMIND
+3.7.1). Its 2050 price, the higher of the two markets:
 
 | region | NPi 2050 price |
 |---|---:|
-| the 9 EU/UK regions (EU21) / EUR (H12) | **\$199.47** |
-| Canada/Australia/NZ | \$29.74 |
-| Latin America | \$22.36 |
-| Japan | \$18.91 |
-| Non-EU Nordic (EU21 NEN) / Non-EU Europe (H12 NEU) | \$16.43 / \$14.10 |
-| Non-EU S. Europe (EU21 NES) | \$13.73 |
-| China | \$11.17 |
-| Other Asia | \$11.15 |
-| India | \$4.35 |
-| Russia & Central Asia | \$4.04 |
-| Middle East & N. Africa | \$3.84 |
-| Sub-Saharan Africa | \$1.34 |
-| **United States** | **absent** |
+| the 9 EU/UK regions (EU21) / EUR (H12) | **\$179.5** |
+| Canada/Australia/NZ | \$29.7 |
+| Latin America | \$22.4 |
+| Japan | \$18.9 |
+| Non-EU Nordic (EU21 NEN) / Non-EU Europe (H12 NEU) | \$16.4 / \$14.1 |
+| Non-EU S. Europe (EU21 NES) | \$13.7 |
+| China, Other Asia | \$11.2 |
+| Sub-Saharan Africa | \$5.7 |
+| India | \$4.3 |
+| Russia & Central Asia | \$4.0 |
+| Middle East & N. Africa | \$3.8 |
+| United States | **−\$6.1** (a negative net price in the reference; to be understood before it is quoted) |
 
-Two orders of magnitude, and the US is not in the reference file at all. Regions with near-zero
-reference prices have almost all of their cost-optimal price exposed to φ.
+Regions with near-zero reference prices have almost all of their cost-optimal price exposed to φ.
 
-### 6.2 Why φ = 1 − θ for some regions — it is a *ranking*, not a capability
-
-`models/pfm/R/aggregateFeasibilityToRegions.R` computes
+### 6.2 Why φ = 1 − θ·k for some regions — it is a *ranking*, not a capability
 
 ```
-phi = 1 - theta * u        u = (gap - gap_min) / (gap_max - gap_min)
+phi_{r,s}(t) = 1 - theta * k_s(t) * u_{r,s}       u = (gap - gap_min) / (gap_max - gap_min), at 2023
 ```
 
-`u` is the region's **position between the best and worst region in the sample**. The largest gap
-is handed `u = 1` → φ = 1 − θ; the smallest `u = 0`. **Both endpoints are guaranteed by
-construction.** φ = 0.50 at θ = 0.50 means "ranked last" and carries no information about how far
-last place is from the rest.
+`u` is the region's **position between the best and worst region**, per sector, read once at the
+anchor year. The largest gap is handed u = 1, the smallest u = 0; **both endpoints are guaranteed by
+construction**. In 2025 (k = 1) φ = 0.50 at θ = 0.50 means "ranked last"; later φ rises as k(t) falls.
 
-In the batch (`-PFMlevelB`, θ = 0.50): **EU21** floor **ECS, REF**, top **NEN 0.938**, median 0.738;
-**H12** floor **LAM, REF**, top **CAZ 0.877**, median 0.738. The floor pair is identical in every run
-at every θ at each resolution. With the markup on, overall φ reaches 1 only if a region is best in
-**both** sectors, and none is.
+In the batch (`-PFMlevelBfix-v6`, θ = 0.50, the 2025 share): **EU21** floor **CHA** (Diffuse) and **IND**
+(Bulk), top **NEN 0.900**, median 0.619; **H12** floor **CHA** and **IND** again, top **NEU 0.869**, median
+0.610. The `v5` floor pairs (ECS, REF at EU21; LAM, REF at H12) are gone: the ranking moved with the
+v6 specification and anchor year.
 
-**For the paper.** Do not write "Russia can only sustain 50% of the cost-optimal price". Write "these
-regions rank at the bottom of the feasibility distribution; how far below the rest is set by θ, a
-parameter we declare."
+**For the paper.** Do not write "India can only sustain 50% of the cost-optimal price". Write "these
+regions rank at the bottom of the feasibility distribution in one sector; how far below the rest is
+set by θ, a parameter we declare."
 
 ### 6.2a Which sector binds, at region level
 
-Measured on `-PFMlevelB` from `p45_pfmPhiMkt`, checked across all 11 markup-on θ = 0.50 runs:
+From `p45_pfmPhiMkt` of `-PFMlevelBfix-v6` (the 2025 share):
 
-| | Diffuse binds | Bulk binds | assignment stable across runs |
-|---|---:|---:|---:|
-| **EU21 regions** | **14 of 21 (67%)** | **7** — CAZ, DEU, ENC, IND, REF, SSA, UKI | 19 of 21 |
-| **H12 regions** | **9 of 12 (75%)** | **3** — CAZ, IND, REF | 12 of 12 |
+| | Diffuse binds | Bulk binds |
+|---|---:|---:|
+| **EU21 regions** | **6** — CHA, ECS, FRA, EWN, ESW, NES | **15 of 21** |
+| **H12 regions** | **1** — CHA | **11 of 12** |
 
 The clearest cases at EU21:
 
 | region | ES (Diffuse) φ | ETS (Bulk) φ | binds |
 |---|---:|---:|---|
-| Russia & Central Asia (REF) | 0.670 | **0.500** | **Bulk**, by 0.170 |
-| Central Europe (ECS) | **0.500** | 0.764 | **Diffuse**, by 0.264 |
-| North-Central Europe (ENC) | 1.000 | **0.746** | **Bulk** (ES on the ceiling clamp) |
-| China (CHA) | **0.785** | 1.000 | **Diffuse** (ETS on the ceiling clamp) |
-| Non-EU S. Europe (NES) | **0.711** | 0.915 | **Diffuse** |
+| China (CHA) | **0.500** | 1.000 | **Diffuse**, by 0.500 (ETS on the ceiling clamp) |
+| India (IND) | 0.729 | **0.500** | **Bulk**, by 0.229 |
+| Other Asia (OAS) | 0.808 | **0.536** | **Bulk**, by 0.272 |
+| Middle East & N. Africa (MEA) | 0.729 | **0.540** | **Bulk**, by 0.189 |
+| West-North Europe (EWN) | **0.619** | 0.836 | **Diffuse**, by 0.217 |
 
-**The two floor regions bind in opposite sectors** at EU21: REF on Bulk, ECS on Diffuse. So "the
-coupled result is a buildings-and-transport limit applied to the whole economy" is false for Russia.
-A sector φ of exactly 1.000 is a ceiling clamp, not a measurement — do not report "China's electricity
-and industry face no political constraint".
-
-**Stability is not robustness.** The assignment is stable against the bind mode, not against the
-specification or the frontier rung (limitation 10). Never quote a country-level figure for a coupled
-regional result.
+**This reversed between `v5` and `v6`**: in `v5` Diffuse bound in 14 of 21 EU21 regions. A sector φ of
+exactly 1.000 is a ceiling clamp, not a measurement — do not report "China's electricity and industry
+face no political constraint". Never quote a country-level figure for a coupled regional result.
 
 ### 6.3 The legislated price floor is off in every run
 
@@ -720,40 +564,30 @@ regional result.
 pm_taxCO2eq(t,regi) = max(pm_taxCO2eq(t,regi), p45_taxCO2eq_path_gdx_ref(t,regi));
 ```
 
-inside the `cm_iterative_target_adj eq 5/7/9` block. **It is 0 in all 62 runs**, so budget-forced and
-unforced families are in the same policy world, and prices below the reference path are permitted
-and occur (limitation 4). `extractCoupledResults()` reports zero floor violations because the check is
-gated on the switch.
+inside the `cm_iterative_target_adj eq 5/7/9` block. **It is 0 in every `v6` row** (the matrix sets it
+on both parents), so prices below the reference path are permitted. **Methods must say which policy
+world this is**, in one sentence: a feasibility ceiling that cannot bind below legislated policy would
+be legislation plus a ceiling; a model that lets a region abolish its ETS is also a choice.
 
-**It still has to be declared.** Of the two coherent options it is the *less* conservative: a
-feasibility ceiling that cannot bind below currently legislated policy is legislation plus a ceiling,
-but a model that lets the EU abolish its ETS is also a choice. **Methods must say which**, in one
-sentence.
+### 6.4 The level-cap ratchet — fixed, confirmed absent
 
-### 6.4 The mode L ratchet — fixed, confirmed absent
-
-A past defect: mode L read `priceOptimal` from the run's own already-capped `pm_taxCO2eq`, making the
-bound collapse onto the NPi reference within 3–4 calls. `models/pfm/R/iterativePFM.R` now takes it from
-`p45_taxCO2eq_anchor`. **Confirmed absent on `v5`**: the lowest 2050 mode-L market price is \$45.2
-(EU21) / \$71.5 (H12), well above the near-zero reference prices of the regions that pay it.
+A past defect: the level cap read the optimal price from the run's own already-capped
+`pm_taxCO2eq`, collapsing the bound onto the reference within 3–4 calls. `iterativePFM.R` takes it
+from `p45_taxCO2eq_anchor`. **Confirmed absent on `v6`**: the lowest 2050 market price under rule B is
+\$135.9 (CHA, EU21; \$133.9 H12), against China's \$11.2 reference.
 
 ---
 
 ## 7. Needed improvements, in priority order
 
-1. ✅ **H12 `-PFMratioMin` re-run** (2026-09-17): peaks at 1003.0 Gt in 2090, 73 iterations. C20 and
-   §4.5 quote both resolutions again.
-2. ✅ **H12 `-PFMratioTh325` re-run**: markup written = seen (0.340), 94 iterations.
-3. 🟠 **Extend the budget warning to peak budgets** — `pm_pfmBudgetWarn` did not fire on the run
-   whose peak cumulative CO₂ was 68 Gt over (that run has since been re-run, but the blind spot in
-   the check is still there: `TODO.md` item 32, `PITFALLS.md` §26).
-4. 🟠 **State λ's direction per result** in Methods (§1.2).
-5. 🟠 **Restate the interface gate as a tolerance** (§3.1, `TODO.md` item 19).
-6. 🟡 **Re-run the binding-sector attribution across frontier rungs** inside REMIND (limitation 10).
-7. 🟡 **Regenerate or delete the seed `.inc`** (`TODO.md` item 20).
-8. 🟡 **Give modes R and M a bind-share diagnostic** (`TODO.md` item 21).
-9. ✅ **The specification band is measured** (2026-09-17, `v5-specalt`; `MODEL.md` §5.3.0). Quote its
-   max and rank shift, not its median.
+1. ⏳ **The rule-C static-share run** (`-PFMlevelC-Ehold-v6`, §4.10): strength vs ranking. Submitted
+   2026-10-10.
+2. 🟠 **Understand the US reference price** (−\$6.1 in 2050, §6.1) before any US number is quoted.
+3. 🟠 **Extend the budget warning to peak budgets** (`PITFALLS.md` §26): EU21 `-PFMlevelCMin-v6` never
+   peaks before 2150 and nothing warned.
+4. 🟡 **The sector-binding diagnostic across specifications** (0005 D-M4): §6.2a is one specification.
+5. 🟡 **Floor violations re-measured on `v6`** (limitation 4): the `v5` count (689 of 1540 region-years
+   below the reference in unforced runs) is not re-measured.
 
 ---
 
@@ -761,36 +595,36 @@ bound collapse onto the NPi reference within 3–4 calls. `models/pfm/R/iterativ
 
 | display | runs | numbers | must travel with it |
 |---|---|---|---|
-| **the cost of political feasibility** (Fig 5b, quantity headline) | `-PFMlevelBfix` vs `-PFMgateBfix`, both resolutions, with `Th325/Th675`, `GapC`, `Min`; `-PFMratioBfix` | **+159 / +164 Gt**; θ range 100–236; gap closes 254–266; conversion +10–12 | θ declared; λ direction; floor-off world; the null reproduces `-PFMgate` to 0.2–0.4% |
-| SI: the cap on the unforced anchor | `-PFMgateB` vs `-PFMlevelB`; `THETA`, `GAPCLOSE` | +128 / +149 Gt; θ range 74–218; gap closes 192–240 | the null emits 1710 Gt, not 1000 |
-| **where the abatement goes** (Fig 5d) | `-PFMratio` vs `-PFMgate` and `-PFMlevelBfix` vs `-PFMgateBfix`, per region (§4.8) | budget held: net +3 / +4 Gt against 72 / 81 Gt relocated, ρ(φ) −0.76 / −0.61; price held: 114 / 115 Gt relocated | emissions only — the GDP effect never travels without the CO₂ number (C37) |
-| **politics splits the carbon price** (Fig 5a) | `-PFMratio`, EU21, 2050; `-PFMratioMin` | ES/ETS 0.66–1.37, 15 of 21 below | both directions; conditional on λ = 0; rung caveat |
-| **the NPi twins** (Fig 5c) | NPi mechanism rows vs `-NPi2025-PFMgate` | +131 to +186 Gt (R, L); confound −905 / −1164 | the correct null; the confound drawn to scale |
-| **the bound** (Fig 3) | none — `coupling-summary.rds` | PFM-side | not re-optimised |
-| **Methods: which policy world** | config + every gdx | floor off in 48 of 48 | one sentence |
-| **Discussion: the feedback** | all θ = 0.50 PkBudg rows | φ moves ≤ 0.08; 3–8 PFM calls | not causal |
+| **the cost of political feasibility** (quantity headline; `v6-coupled-theta`) | `-PFMlevelBfix-v6` vs `-PFMgateBfix-v6`, both resolutions, with `Th325/Th675`, `-held`, `-Min` | **+118 / +113 Gt**; θ range 70–182 | θ declared; κ (§4.9); floor-off world; the null reproduces `-PFMgate-v6` within 2 Gt |
+| **what it is sensitive to** (`v6-coupled-arms`) | the wave-2 arms, EU21 | κ 41 Gt left at 0.027; assignment 110–155; ranking inside random orders | κ declared; one seed per permutation |
+| **where the abatement goes** (rule C) | `-PFMlevelC-v6` vs `-PFMgate-v6`, per region | net −0.1 / −3.0 Gt against 22.7 / 19.9 Gt moved; anchor ×1.26 / ×1.25 | emissions only; never the regional median across resolutions |
+| **against `v5`** (`v6-rulec-relocation`, `v6-price-catchup`) | §4.10 | headline −26% / −31%; relocation −70% / −76%, almost all after 2050 | the drop is mostly λ's removal; the strength-vs-ranking split is open until `-PFMlevelC-Ehold-v6` |
+| **politics splits the carbon price** (ratio mode) | `-PFMratio-v6`, 2050 | ES/ETS 0.56–1.17 EU21 | both directions |
+| **Methods: which policy world** | every row | floor off | one sentence |
+| **Discussion: the feedback** | the coupled strength | Bulk k coupled 0.69 vs offline 0.63 (2050) | not causal |
 
-**Do not use for:** any mode-R spread or sector split without stating it is conditional on λ = 0;
-"rule C cannot hold the budget" (it holds in six of six); the retired figures from the pre-re-run
-batch (H12 `-PFMratioMin` at 1068 Gt, EU21 `-PFMlevelC` at 1015.4 Gt); the unforced-anchor cost
-(+128 / +149 Gt) as the headline — it is the SI sensitivity (§4.2, claim C19); any floor-region claim
-without flagging that φ is ordinal; any country-level binding-sector figure as a statement about
-regions; any price without naming its market; mode M as corroboration of mode L; "the constraint
-lands on households" as a uniform statement.
+**Do not use for:** any `v5` number as current; "rule C cannot hold the budget"; a regional median
+compared across resolutions; any floor-region claim without flagging that φ is ordinal; any
+country-level binding-sector figure as a statement about regions; any price without naming its
+market; "the constraint lands on households" (Bulk binds in most regions in `v6`); the GDP gain
+without the CO₂ it buys.
 
 ---
 
 ## 9. How to re-derive every number here
 
 ```bash
-Rscript analysis/coupled/extractCoupledResults.R output/remind-runs/v5 v5   # -> output/pfm/v5/coupling/coupled-runs.rds (≈5 min)
-Rscript analysis/coupled/coupledBatchFacts.R v5 output/remind-runs/v5       # -> output/pfm/v5/coupling/coupled-facts.json
+Rscript analysis/coupled/runCoupledStage.R v6      # extract (coupled-runs.rds), admission, facts, costs,
+                                                   # held-budget prices, rule-C freeze, convergence audit, provenance
+Rscript analysis/v6/coupledV5V6Contrast.R          # -> v5-v6-coupled-contrast.{rds,json}
+Rscript analysis/v6/ruleCRelocationDecomp.R        # -> rulec-relocation-decomp.rds
+Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/EU21            # the gate, per resolution
+Rscript analysis/v6/phase3Gate.R output/remind-runs/v6/H12 --res H12
+Rscript analysis/figures/build-figures.R --group=v6                    # the figures
 ```
 
 The extractor keeps the newest run per (resolution, scenario), checks `log.txt` for `REMIND run
-finished`, and applies the early-market admission rule (§2.5a). Keep older batches out of the
-`output/remind-runs/v5/EU21` and `output/remind-runs/v5/H12` folders (the previous batch is in `../_archive/_wip/2026-10-01/gdx/v4/`, which the extractor ignores
-because it holds no `fulldata.gdx` of its own).
+finished`, and applies the early-market admission rule (§2.5a).
 
 By hand, `gdxdump fulldata.gdx symb=<name> format=csv`:
 
@@ -798,22 +632,22 @@ By hand, `gdxdump fulldata.gdx symb=<name> format=csv`:
 |---|---|
 | cumulative CO₂ | `pm_actualbudgetco2` — element `"2100"`. **It runs to 2150**; the peak is the budget quantity |
 | the **floor** every market pays | `pm_taxCO2eq` — **multiply by 272 to get \$2005/tCO₂**. ⚠️ **This is not the ES price** |
-| **ES** market price | `pm_taxCO2eq + pm_taxemiMkt(t,regi,"ES")` — dims are **(year, region, market)** |
-| **ETS** market price | `pm_taxCO2eq + pm_taxemiMkt(t,regi,"ETS")` — same dims |
+| **ES** / **ETS** market price | `pm_taxCO2eq + pm_taxemiMkt(t,regi,"ES"/"ETS")` — dims **(year, region, market)** |
+| emissions by market | `vm_co2eqMkt(t, regi, market)` (GtC; ×44/12) |
 | the cost-optimal anchor | `p45_taxCO2eq_anchor(ttot)` — ×272 |
-| φ per region / per market | `p45_regiDiff_phi` / `p45_pfmPhiMkt(regi, market)` |
-| λ per market | `p45_pfmLambdaMkt(regi, market)` — and `cm_pfmGapClosure` |
-| did φ reach the solver? | `p45_regiDiff_ratio`; `p45_pfmRatioSpread` |
-| did the markup reach the solver? | `p45_pfmMarkupWritten` vs `p45_pfmMarkupSeen` |
-| is the markup doing anything? | `p45_pfmMarkupShare_iter`, `p45_pfmPhiMktSpread` (0 = cannot differentiate) |
-| φ convergence path | `p45_pfmDelta_iter` — **entries before the first PFM call are a 1e6 sentinel**; `p45_pfmCallCount` |
+| the share path | `p45_pfmPhiPath(ttot, regi)`, per market `p45_pfmPhiMktPath(ttot, regi, market)`; per iteration `p45_pfmPhiPath_iter` |
+| φ per region / per market (2025 value) | `p45_regiDiff_phi` / `p45_pfmPhiMkt(regi, market)` |
+| the strength and options a call used | the run's `pfm-phi-history.rds` (last entry: `k`, `options`, `formulation`) |
+| did the markup reach the solver? | `p45_pfmMarkupWritten` vs `p45_pfmMarkupSeen` — different iterations (§3.3) |
+| rule C's rebuild | `p45_pfmBoundCheck_iter` (~1e-6 on call iterations) |
+| path convergence | `p45_pfmDelta_iter` — **entries before the first PFM call are a 1e6 sentinel**; `p45_pfmCallCount` |
 | how hard the cap bit | `p45_pfmBindShare_iter` — ⚠️ **written only under bind mode 2** |
 | did Nash converge? | `cm_iteration_max` — the count actually used; 100 means it hit the cap |
-| did the **budget** converge? | `p80_globalBudget_absDev_iter` at the last iteration, against `cm_budgetCO2_absDevTol`; `pm_pfmBudgetWarn`; `pm_pfmInfesCode = 4` only past 10× the tolerance |
+| did the **budget** converge? | `p80_globalBudget_absDev_iter` at the last iteration against `cm_budgetCO2_absDevTol`; `pm_pfmBudgetWarn`; `p45_pfmBudgetNoPeak_iter` |
 | solve status | `o_modelstat` (2 = locally optimal) — **reads 2 on an unfinished run too** |
 | did the markets clear? | `p80_surplusMax_iter` at the last iteration over `p80_surplusMaxTolerance`; split at 2060 |
-| the legislated floor | `p45_taxCO2eq_path_gdx_ref`, `cm_taxCO2_lowerBound_path_gdx_ref` |
-| the dial | `cm_pfmTheta`, `cm_pfmBindMode`, `cm_pfmSectorMarkup`, `cm_pfmGapClosure`, `cm_iterative_target_adj` |
+| the REMIND version | `c_model_version` (3-7-1) |
+| the dial | `cm_pfmTheta`, `cm_pfmBindMode`, `cm_pfmSectorMarkup`, `cm_pfmPhiPath`, `cm_pfmBoundRebuild`, `cm_pfmAnchorFromGdx`, `cm_iterative_target_adj` |
 
 `cm_iterative_target_adj` tells you which family a run belongs to: 9 = budget enforced by iteration,
 0 = not. It must match before two runs are differenced.
