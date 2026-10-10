@@ -109,6 +109,7 @@ Move them to new REMIND bases only with `refreshBases.R` (`PITFALLS.md` §34):
 | `ceilingGate.R` | C9: the ceiling-fall gate on the v6 spec, and what it removes from the band (`specBand.R v6 ceilingRejected`) |
 | `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |
 | `coupledV5V6Contrast.R` | Phase 6 step 1: the `v5` → `v6` contrast of every coupled headline per resolution (rule B Δ and θ slope, the markup, rule C anchor and median 2050 price, costs and relocation), each against its group's own null → `output/pfm/v6/coupling/v5-v6-coupled-contrast.{rds,json}` |
+| `ruleCRelocationDecomp.R` | Phase 6: why rule C moves less abatement in `v6` than `v5` — gross relocation by region, market (`vm_co2eqMkt`) and period, the emissions-weighted price wedge, and each region's share of the change → `output/pfm/v6/coupling/rulec-relocation-decomp.rds` |
 | `couplingOffline.R` | Phase 3: the v6 coupling call offline on a REMIND gdx, against the Phase 1 numbers |
 | `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V371` runs (the 3.7.1 bases, the null vs the same-version `-PFMgateRef`, rule B path and history, rule C rebuild) |
 | `variantGroups.R` | the wave-2 variant Run-Groups (spec, shape, assignment twins, annual rung) through the v6 formulation on the same scenario panels: k(t), the ranking u against v6, the floor region, Δφ at 2050 (offline) |

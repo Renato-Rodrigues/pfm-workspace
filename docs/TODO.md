@@ -106,9 +106,13 @@ outside it. IDs such as E13 or D17 refer to that note.
    - ✅ step 1, the `v5` → `v6` coupled contrast (2026-10-10, `analysis/v6/coupledV5V6Contrast.R`). The
      quantity headline shrinks by a quarter to a third; rule C's price relocation barely moves, but the
      abatement it moves falls by about three quarters (76.7 → 22.7 Gt CO₂eq at EU21);
-   - 🟠 **decompose that rule-C change by sector and region** before the spine is re-decided. First look:
-     CHA's Diffuse market and IND's Bulk market are now the most constrained (u = 1), so less abatement
-     moves to them (0005 Phase 6 step 1);
+   - ✅ **that rule-C change decomposed** (2026-10-10, `analysis/v6/ruleCRelocationDecomp.R`; 0005 Phase 6
+     step 1): almost all of it is after 2050 (66.2 → 16.7 Gt), where `v6`'s constrained regions' prices
+     return to the null's as the strength fades (`v5` held them below it to 2100); the κ arms confirm
+     it dose by dose. The new ranking (CHA Diffuse, IND Bulk at u = 1) makes part of it net out inside
+     regions (16.1 Gt);
+   - 🟠 **one EU21 run to separate the fading strength from the new ranking**: rule C with the static
+     share, `-PFMlevelC-Ehold` (twin of the rule-B arm; not in the batch). Author's call;
    - 🟠 **why H12's rule-C relocation is half EU21's** (median 2050 ×1.075 vs ×1.153, anchors alike);
    - step 2, the figures; step 3, the offline re-runs on `v6`; step 4, the governed documents
      (`SCENARIOS.md`, `COUPLING.md`, `MODEL.md` still describe `v5`'s batch); step 5, the `v6` paper

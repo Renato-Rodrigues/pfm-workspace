@@ -1352,14 +1352,38 @@ converge is handled in one of two ways:
    - **but the abatement it moves between regions falls by about three quarters**: 76.7 → 22.7 / 84.5 →
      19.9 Gt CO₂eq. This is the "China absorbs" composition named in step 5: in `v5` CHA alone took
      −54.2 Gt of it (`v5` `coupled-costs.json`); in `v6` CHA takes −10.2 Gt (EU21) / −8.9 (H12), and
-     IND turns from −5.4 to +8.1 Gt. **First look (2026-10-10, EU21 `-PFMlevelC`, `coupled-runs.rds`):
-     the ranking moved.** (φ as `p45_regiDiff_phi` records it; in `v6` 0.50 at θ = 0.50 means u = 1.)
-     CHA's Bulk market is unconstrained in both versions (φ_ETS = 1, 2050 ETS price
-     $331 `v5` / $286 `v6`), but its Diffuse market went from φ 0.78 to 0.50, the most constrained, and its
-     2050 ES price from $262 to $166. IND's Bulk went from 0.78 to 0.50. The two regions that absorbed
-     the abatement in `v5` are now the most constrained in at least one sector, so less is moved to
-     them. A full decomposition (by sector and region) is still to do before the paper's spine is
-     re-decided;
+     IND turns from −5.4 to +8.1 Gt. **Decomposed 2026-10-10** (`analysis/v6/ruleCRelocationDecomp.R`
+     → `output/pfm/v6/coupling/rulec-relocation-decomp.rds`; `-PFMlevelC` against `-PFMgate`, emissions
+     by market from `vm_co2eqMkt`, prices from `coupled-runs.rds`). Three parts, EU21 numbers (H12 the
+     same in kind):
+     1. **Almost all of the drop is after 2050.** Gross relocation 2020–2050 is 10.9 → 8.8 Gt; 2051–2100
+        it is 66.2 → 16.7 Gt (H12: 12.5 → 8.3 and 73.2 → 13.4). Before 2050 `v6` is no weaker: its price
+        wedge is wider in 2030 (emissions-weighted SD of log price over null 0.238 vs 0.177).
+     2. **In `v6` the constrained regions' prices come back to the null's by about 2070; in `v5` they
+        stayed below it to 2100.** ETS price over the null's in 2030 / 2070: REF 0.58 / 1.03, MEA 0.56 /
+        1.03, IND 0.52 / 1.00, OAS 0.59 / 1.03 (`v6`), against REF 0.59 / 0.68, MEA 0.81 / 0.95, SSA
+        0.76 / 0.89 (`v5`). In `v5` those regions kept a cheaper price for the whole second half of the
+        century and emitted more there (2051–2100: SSA ETS +14.4, MEA ETS +17.3, REF ETS +10.2 Gt), which
+        CHA's power sector absorbed (−42.6 Gt). In `v6` no region's ETS market stays cheap after about
+        2060; the one market that does (CHA's Diffuse, 0.71 of the null's in 2070) sits in the region
+        whose power sector pays most, so its extra emissions largely net out inside CHA (part 3). This is the moving strength k(t) of ADR 0049 at work (`v5` held φ fixed
+        after 2035). The κ arms show it dose by dose: a faster-fading strength relocates less, 22.7 Gt
+        deployed against 9.5 / 8.4 / 5.3 Gt at κ = 0.02 / 0.027 / 0.05. Under rule B the static-share
+        arm (`-Ehold`, k ≈ 1) relocates 120.7 Gt, back at `v5`'s 114.3 (rule-B relocation mixes in the
+        overshoot, so this is support, not a measure).
+     3. **The ranking moved, and part of the relocation now nets out inside a region.** (φ as
+        `p45_regiDiff_phi` records it; in `v6` 0.50 at θ = 0.50 means u = 1.) CHA's Bulk market is
+        unconstrained in both versions (φ_ETS = 1; ETS price over null 1.37 `v5` / 1.32 `v6` in 2100), but
+        its Diffuse market went from φ 0.78 to 0.50, the most constrained: CHA ES+other now emits +8.6 Gt
+        (price 0.68–0.85 of the null's) against CHA ETS −18.8. IND's Bulk went from 0.78 to 0.50 (ETS
+        +7.6 Gt). Counted per region-market, gross relocation is 38.8 Gt in `v6`, of which 16.1 nets out
+        inside regions (`v5`: 81.7, 5.0 netting). SSA turns from +30.0 to −3.7 Gt: its price goes above
+        the null's after 2050 (1.13 in 2070).
+
+     Region by region, CHA (−22.0), SSA (−13.2), MEA (−8.7) and REF (−5.5) carry 49.4 of the 53.9 Gt
+     fall in gross relocation. **What is not separated yet:** how much of part 1 is the moving strength
+     and how much is the new ranking. The clean test is one EU21 run, rule C with the static share
+     (`-PFMlevelC-Ehold`, the twin of the rule-B arm); it is not in the batch;
    - rule B's relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
      small (+0.21 → +0.19% / +0.22 → +0.16%).
 2. Figures in the shared layer:
