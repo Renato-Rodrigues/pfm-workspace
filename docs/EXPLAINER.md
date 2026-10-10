@@ -2,7 +2,8 @@
 
 *A plain-language walkthrough for readers who do not run the code — colleagues, WP partners,
 reviewers. Eleven steps, a handful of equations. Derivations, caveats and fitted values are in
-`MODEL.md`; the REMIND interface is in `COUPLING.md`. Numbers here are from Run-Group `v5`.*
+`MODEL.md`; the REMIND interface is in `COUPLING.md`; the results in full are in `SCENARIOS.md`.
+Numbers here are from Run-Group `v6`.*
 
 📊 **Charts.** Everything is built by `analysis/figures/build-figures.R` from the registry in
 `analysis/figures/R/registry.R`, and rendered into `analysis/figures/output/all/` (one PNG per figure, always) and
@@ -12,11 +13,11 @@ reviewers. Eleven steps, a handful of equations. Derivations, caveats and fitted
 figure, what it shows, what to read off it and what must not be claimed from it — start there.
 
 ```bash
-Rscript analysis/figures/build-figures.R                 # everything, every medium
-Rscript analysis/figures/build-figures.R --only=<id>     # one figure
+Rscript analysis/figures/build-figures.R --group=v6                 # everything, every medium
+Rscript analysis/figures/build-figures.R --group=v6 --only=<id>     # one figure
 ```
 
-> Step 11 reports the coupled REMIND runs for the current model (62 runs, September 2026).
+> Step 11 reports the coupled REMIND runs for the current model (64 runs, October 2026).
 
 ---
 
@@ -25,8 +26,7 @@ Rscript analysis/figures/build-figures.R --only=<id>     # one figure
 Integrated assessment models like REMIND answer *"what is the cheapest way to meet a carbon
 budget?"* They assume every region can adopt whatever carbon price the optimisation asks for.
 
-Politics says otherwise. Countries with similar economies adopt very different climate policy,
-and they change it at a limited speed.
+Politics says otherwise. Countries with similar economies adopt very different climate policy.
 
 **This model asks a different question: what is a region politically able to do, and what
 happens to the mitigation pathway once you take that seriously?**
@@ -41,8 +41,8 @@ policy stringency on a **0–10** index. We use two sector groups, because the p
 - **Bulk** — electricity and industry. Few, large, organised actors.
 - **Diffuse** — buildings and transport. Costs land on households directly.
 
-Call this observed stringency $S$. It exists for **48 countries**; the model must eventually
-speak for **248**.
+Call this observed stringency $S$. It exists for **48 countries**, 2001–2023; the model must
+eventually speak for **248**.
 
 ## Step 2 — Explain it with drivers
 
@@ -54,14 +54,18 @@ predict a stringency of 14.
 | group | in the model | idea |
 |---|---|---|
 | **actor power** | clean-energy (innovator) share; fossil incumbent share; fossil incumbency per person | who wins the fight, and how big the losers are |
-| **institutional quality** | government effectiveness; vertical accountability (can voters hold rulers to account) | can the state deliver, and does it have to answer for it |
+| **institutional quality** | government effectiveness; rule of law; vertical accountability (can voters hold rulers to account) | can the state deliver, are its rules kept, and does it have to answer for it |
 | **how they combine** | each actor-power term multiplied by each institution | the same lobby matters differently in different states |
-| **controls** | income, population, hydro/nuclear share, a common time trend | structure |
+| **controls** | income, population, clean baseload (hydro, nuclear, geothermal), a common time trend | structure |
 
 Incumbency enters **twice** on purpose. The *share* of fossil fuels in the energy system measures
 dependence; incumbency *per person* measures how large the fossil interest is. They pull in
-different directions in the data — dependence goes with less stringent policy, scale in power and
-industry with more — and carrying both lets the model tell them apart.
+different directions — dependence goes with less stringent policy, scale in power and industry
+with more — and carrying both lets the model tell them apart.
+
+The actor-power terms **saturate**: each enters as $x/(x+\text{median})$, so a share far outside
+anything observed cannot push the prediction along a straight line. That matters when REMIND's
+deep decarbonisation takes fossil shares to near zero.
 
 ## Step 3 — Ask what a country *could* do
 
@@ -74,10 +78,11 @@ $v$ is ordinary symmetric noise; $u$ is the **shortfall**, one-sided by construc
 distance between what a country's drivers permit and what it actually did. Call the frontier
 $S^{*}$.
 
-What sets the frontier: **state capability** is the clearest institutional channel — strongly in
-buildings and transport, weakly and fragilely in power and industry. Accountability has no clear
-effect on its own. A common upward time trend does a large share of the work, which is why the
-model is used to *rank* countries, not to explain how policy rose over time.
+What sets the frontier: **state capability** is the clearest institutional channel in buildings
+and transport; in power and industry the institution terms are **not identified** (they are
+insignificant on average and flip sign at the frontier). Most of the institutional signal runs
+through how institutions combine with incumbency. A common upward time trend does a large share of
+the work, which is why the model is used to *rank* countries, not to explain how policy rose.
 
 ## Step 4 — Define the gap
 
@@ -90,28 +95,25 @@ relative to that country's own frontier, never an absolute number of index point
 > is small. Ranking on absolute gaps rewards that — it reads "little left to do" where it
 > should read "little capacity".
 
-In 2022 the median country realises about **71%** (Bulk) and **75%** (Diffuse) of its own ceiling,
-and every one of the 48 sits below both.
+In 2023 the median country realises about **74%** (Bulk) and **78%** (Diffuse) of its own ceiling.
+Bulk is the more constrained sector in 32 of the 48 countries.
 
 **Which country sits where is less certain than that.** Re-estimating the frontier with different,
 equally defensible assumptions about the shortfall reshuffles the country ranking considerably.
 So we report groups and ranges, never a named league table.
 
-## Step 5 — Ask how fast gaps close
+## Step 5 — Read the gap once, and hold it
 
-Countries do not jump to their frontier:
+Each country's distance below its ceiling is read **once, in 2023**, the last year with data, and
+then **held**: as the scenario changes the country's drivers, its ceiling moves, and the country
+stays the same distance below it (measured on the logit scale).
 
-$$\Delta S_t = \lambda\big(S^{\text{eq}} - S_{t-1}\big)$$
-
-Estimated from history, $\lambda$ comes out at about **0.11** (Bulk) and **0.08** (Diffuse) per
-year — half-lives of 6 and 9 years.
-
-**Two honesty notes, and they decide how the number is used.** First, of the four finer sectors
-**only electricity's speed beats "assume nothing changes" out of sample.** Second, when we feed the
-same estimator artificial data in which *nothing* ever closes any gap, it still returns speeds of
-this size. So we cannot show the historical speed is political catching-up rather than an artefact
-of the method. **The coupled runs therefore assume the political gap persists**, and run the
-estimated speed only as a sensitivity.
+**Why not let gaps close at a historical speed?** The previous version did, at an estimated speed of
+about 0.1 a year. But that speed does not forecast better than "assume nothing changes", and the
+same estimator returns speeds of that size on artificial data in which *nothing* ever closes. So it
+cannot show that politics catches up. **The model now assumes the gap persists**, and asks the
+question the other way round as one declared assumption (κ, Step 7): *what if politics improves by
+itself?*
 
 ## Step 6 — Cover the countries the data never saw
 
@@ -127,57 +129,60 @@ Every country instead gets $E$ from one of three explicit branches:
 | **median** | median observed $E$ | unusual, but not weak — no evidence either way |
 
 Similarity is measured in the model's own terms. Each country keeps **its own** ceiling and
-borrows only the gap. Every number carries its provenance, because once everything has a value
-the output stops *looking* uncertain even though the evidence has not changed. In power and
-industry, more than half the uncovered countries fall into the low band.
-
-**How much of the world is actually measured depends on how you weight it:** roughly a fifth of
-countries, but by final energy — what a carbon price acts on — **eleven of twenty-one** world
-regions are fully covered, China is 96% covered, and apart from the United States only Sub-Saharan
-Africa (15%) and the Middle East (22%) fall below a quarter. Quote the weighting alongside the number, always.
+borrows only the gap. Every number carries its provenance. **Most uncovered countries are placed by
+a rule, not a donor** — 150 of 200 in power and industry, 167 in buildings and transport — and the
+choice of rule is the widest data-side uncertainty in the results (Step 11).
 
 The residual is **concentrated**: the United States has no policy data at all, which is why the
-single documented override for the USA carries so much weight — and why its feasibility share must
-be reported as a range, not a point.
+single documented override for the USA carries so much weight — and why its result is reported as
+a range, not a point.
 
-## Step 7 — Turn the gap into one number per region
+## Step 7 — Turn the gap into one number per region, per sector, per year
 
-Countries aggregate to REMIND regions, weighted by **final energy**. Each region gets a
-**feasibility share**:
+Countries aggregate to REMIND regions, weighted by **final energy**. Three quantities follow:
 
-$$\varphi_r = 1 - \theta\,u_r$$
+- **The ranking $u$.** Where each region sits among all regions in 2023, from the one closest to
+  its frontier (0) to the furthest (1). Read once, separately for each sector, and **fixed**.
+- **The strength $k(t)$.** How large the political shortfall is overall, relative to 2025 ($k = 1$
+  in 2025). It moves every period, because the ceilings move with REMIND's energy system, income and
+  institutions. On the 1000 Gt pathway the power-and-industry strength falls to about 0.6–0.7 by
+  2050: the energy transition itself relaxes the political constraint.
+- **The feasibility share**:
 
-where $u_r$ is the region's position in the range of relative gaps: 0 for the region closest to
-its frontier, 1 for the furthest. So $\varphi = 1$ means no political discount and
-$\varphi = 1-\theta$ the most constrained region.
+$$\varphi_{r,s}(t) = 1 - \theta\,k_s(t)\,u_{r,s}$$
+
+So $\varphi = 1$ means no political discount, and in 2025 the most constrained region in a sector
+sits at $1-\theta$; later, as $k$ falls, every region moves the same fraction towards 1.
 
 $\theta$ is the **severity dial** — a choice, not an estimate — so it is swept: **0.325, 0.50 and
-0.675**. There is no historical experiment that would let us estimate it, and the one shortcut that
-used to suggest a value no longer works for power and industry. **$\theta = 0$ switches the whole
-thing off**, which is how we test the machinery is wired correctly.
+0.675**. There is no historical experiment that would let us estimate it. **$\theta = 0$ switches the
+whole thing off**, which is how we test the machinery is wired correctly.
+
+**κ, the declared erosion** — one sensitivity, not the headline: the strength also shrinks by κ a
+year, whatever the drivers do — "politics improves by itself". Declared at **0.027** (the drag halves
+by mid-century), with 0.02 and 0.05, before any run that uses it.
 
 ## Step 8 — Connect it to REMIND
 
-Three ways to apply $\varphi$, run as alternatives because they make **different claims**:
+The share caps how far each region's carbon price can rise above its current policy:
 
-**A. Ratio** — politics rescales each region's share of the global price. *Says:* politics
-changes **where** abatement happens. The budget is always met.
+$$P = \min\big(A,\ P^{\text{ref}} + \varphi\,(A - P^{\text{ref}})\big)$$
 
-**B. Level** — politics caps how much of the *extra* effort beyond current policy a region
-delivers. *Says:* politics caps **how much** a region can do. The budget may become unreachable —
-and that is the finding, not a failure.
+with $A$ the cost-optimal global price and $P^{\text{ref}}$ today's policy. What REMIND may do in
+response is the experiment, run two ways:
 
-**C. Mild progression** — the price is *generated* by politics rather than constrained, starting
-from today's observed price. *Says:* where does current political momentum actually take us? No
-budget, so it cannot be infeasible.
+**Hold the price (rule B).** The global price stays on the path that meets the budget without
+politics; the cap binds; emissions are what they are. *Says:* how much carbon budget does political
+feasibility cost?
 
-A and B constrain the optimiser; C ignores it entirely. **B and C agreeing would not by itself be
-corroboration**: an earlier version had them nearly identical, and that turned out to be a bug
-pulling both towards the same reference price. Two methods agreeing is only evidence if they are
-genuinely independent.
+**Hold the budget (rule C).** The budget must still be met; REMIND raises the global price until it
+is. *Says:* who pays more, who pays less, and where does abatement move?
+
+A third mode from the previous version, which *generated* the price from political momentum, is
+retired: its mechanism was the speed of Step 5.
 
 REMIND prices two markets — electricity-and-industry, and everything else — so each market
-carries its own sector's feasibility on top of a shared floor rather than both collapsing to the
+carries its own sector's feasibility on top of a shared floor, rather than both collapsing to the
 more constrained one.
 
 ## Step 9 — The loop
@@ -187,17 +192,16 @@ REMIND solves  →  new energy system
       ↓
 drivers change (fossil share, electrification …)
       ↓
-PFM recomputes ceilings, gaps, and φ
+PFM recomputes ceilings, the strength k(t), and φ(t) for every period
       ↓
 carbon price updates
       ↓
 REMIND solves again …
 ```
 
-A **fixed point**: converged when another PFM call stops changing $\varphi$, measured as
-$\delta = \max_r|\varphi_r^{\text{new}} - \varphi_r^{\text{old}}|$. A *maximum*, not an average —
-one region still moving keeps the loop open. $\varphi$ is read at 2035, the first period REMIND is
-free to change.
+A **fixed point**: converged when another PFM call stops changing the share path, measured as the
+largest change anywhere over 2035, 2050, 2070 and 2100. A *maximum*, not an average — one region
+still moving keeps the loop open. In the batch it took 2 to 15 calls.
 
 Three failure modes are watched explicitly, because the dangerous one is silent: a runaway carbon
 price makes the model *succeed* while producing nonsense.
@@ -206,52 +210,50 @@ price makes the model *succeed* while producing nonsense.
 
 | run | what it answers |
 |---|---|
-| **reference** | uncoupled — the plain baseline |
-| **gate** (θ = 0) | is the machinery wired correctly? Must match the reference within tolerance |
-| **ratio** | does politics redistribute effort between regions and markets? |
-| **level, budget kept** | who would have to exceed their political limit, and by how much? |
-| **level, budget relaxed** | how much carbon budget does political feasibility cost? |
-| **mild progression** | where does current momentum take us on its own? |
+| **reference** | uncoupled — the plain baselines (current policies, the 1000 Gt budget) |
+| **gate** (θ = 0) | is the machinery wired correctly? Must match a uniform-price reference |
+| **hold the price** (rule B) | how much carbon budget does political feasibility cost? |
+| **hold the budget** (rule C) | where does the price and the abatement move? |
 | **θ = 0.325 / 0.675** | how much of the answer is the severity dial? |
-| **gap closes** | what changes if the political gap is assumed to close at the historical speed? |
+| **institutions held** | how much rests on projected institutions? |
+| **κ = 0.02 / 0.027 / 0.05** | what if politics improves by itself? |
+| **ranking tests** | uniform, shuffled, reversed rankings: is it *who* is constrained, or only *how much*? |
+| **uncovered countries** | other rules for the countries without data, the USA among them |
+| **specification** | the other family of saturation, the curve's shape, annual data |
 | **one price per region** | what is lost if the two markets cannot be priced separately? |
 
-Each also runs on a current-policies pathway, so an effect can be attributed to the coupling
-rather than to the mechanism acting on any price path. **Always compare against the θ = 0 gate,
-not the plain reference**: switching the machinery on also changes an unrelated REMIND setting
-whose effect can be larger than the politics.
-
-**The headline is chosen after the results, against a rule agreed in advance** — and that rule
-includes: if the political constraint turns out *not* to bind, we report that rather than hunting
-for a version that does.
+**Always compare against the θ = 0 gate, not the plain reference**: switching the machinery on also
+changes REMIND settings whose effect can be larger than the politics.
 
 ## Step 11 — What the runs say
 
-The full set ran in September 2026 — 62 runs at two different ways of carving the world into regions,
-so that anything resolution-specific shows up as a disagreement, with both free parameters swept.
+The full set ran in October 2026 — 64 runs at two different ways of carving the world into
+regions (21 and 12), so that anything resolution-specific shows up as a disagreement.
 
-**The first finding is the cost.** When the carbon budget is not forced to hold, respecting what
-politics permits adds about **130 billion tonnes of CO₂** at the finer regional detail and **150** at
-the coarser one. How severe the constraint is taken to be moves it between **75 and 220**. Assuming
-the political gap closes over time — the choice most people expect to be the optimistic one — moves
-it *up*, to **190–240**, because a permanent limit binds early and a closing one leaves more to catch
-up later.
+**The first finding is the cost.** Holding the price, respecting what politics permits adds about
+**115 billion tonnes of CO₂** by 2100 (118 at the finer regional detail, 113 at the coarser) to the
+pathway that meets a 1000 Gt budget. The severity dial moves it between **70 and 180**. Pricing the
+two markets separately buys back about 40 of it.
 
-**The second is what happens when the budget is held.** It survives — but only because the model
-raises the global carbon price by about a third, and it does not raise it evenly. Within a region the
-industrial and household-facing prices move apart, by up to one and a half to one. Households pay
-*less* than industry in 15 of 21 regions and *more* in the other 6, Russia among them. The honest
-finding is the width and the region-specificity, not a direction. Being able to price the two markets
-separately buys back about a fifth of the carbon cost.
+**The second is how much it depends on politics improving by itself.** If the political drag
+erodes by itself at the declared central rate, two thirds of that cost goes (41 left). That
+assumption matters more than anything else we tested. The next largest is how the countries without
+data are placed: 110 to 155.
 
-**The third is that politics responds.** As REMIND changes the energy system, the feasibility shares
-move — by up to 0.08 for a region — and the model and the political layer settle together over several
-rounds. The loop of Step 9 is visible in the numbers. It is not a causal claim.
+**The third is what happens when the budget is held.** It holds in every run — the model raises
+the global carbon price by about a quarter, and moves about **20 billion tonnes of CO₂-equivalent**
+of abatement between regions: China abates more, India, the Middle East and Russia less. That is far
+less than the previous version found (about 80), and almost all of the difference is after 2050:
+the constrained regions' prices catch up with the unconstrained run's by about 2070, as the strength
+fades.
 
-**The fourth is a warning about controls.** Measured against the right control — the same machinery
-with the dial at zero — politics raises emissions. Measured against the plain uncoupled run, it appears
-to *lower* them, because switching the machinery on also changes an unrelated REMIND setting whose
-effect is six to seven times larger.
+**The fourth is that politics responds.** As REMIND changes the energy system, the strength moves —
+power-and-industry falls to about 0.69 by 2050 in the coupled runs — and the model and the political
+layer settle together over several rounds. It is not a causal claim.
+
+**The fifth is how it compares with the previous version.** The cost is a quarter to a third
+smaller. Most of that comes from dropping the historical speed of Step 5, which could not be shown
+to be real — a modelling decision, not new evidence that politics is easier.
 
 ---
 
@@ -268,30 +270,24 @@ observed among comparable countries, not a law.
 **Eight honest limitations:**
 
 1. **Coverage.** 48 of 248 countries are observed. The rest are placed by explicit, disclosed
-   rules — better than assuming no constraint, but still assumption.
-2. **Two gap definitions coexist.** Steps 4–7 use $1-E$ (bounded, frontier-relative); mild
-   progression uses $(S^{*}-S)/S$ (unbounded). They are not interchangeable.
-3. **The severity dial $\theta$ is a choice.** Any result that only exists at high $\theta$ is a
-   result about $\theta$, not about politics. It is swept through REMIND at three values.
-4. **The specification is not unique.** Across resampled data, state capability is in the winning
-   model every time and incumbency-in-two-forms three times in four; but the particular set of
-   institutions wins only about one draw in eight, and the exact deployed model about one in
-   twelve. Which accountability measure belongs is not settled.
+   rules — better than assuming no constraint, but still assumption, and the widest data-side band.
+2. **Two dials are choices.** The severity θ and the erosion κ are declared, not estimated. Any
+   result that only exists at one setting is a result about the setting.
+3. **The power-and-industry institutions are not identified**, and part of how that sector's
+   strength moves rests on them. Every headline run has a twin with institutions held, and the
+   headline barely moves.
+4. **The specification is not unique.** Across resampled data, state capability and rule of law are
+   in the winning model almost every time, and incumbency-in-two-forms in most; but the exact
+   deployed model wins about one draw in seven among the admissible ones, and two families of
+   saturation split the wins evenly. We report the other family and the curve's shape alongside.
 5. **Some regions are pinned by the dial, not by their data.** The construction guarantees that
-   *somebody* sits at the bottom of the scale — in the coupled runs, Central Europe and Russia at the
-   finer regional detail, Latin America and Russia at the coarser one. Their number says "ranked
-   last", not "can only manage half".
-6. **The historical speed of political change is not demonstrated.** A method that finds the same
-   speed in data where nothing changes cannot show that anything did. We assume gaps persist and
-   report the alternative.
-7. **The feasibility share depends on modelling choices, not only on the country.** Changing an
-   equally defensible assumption about how countries fall short of their frontier moves a region's
-   feasibility share by a median of up to about 0.17. Refitting the supply-side sector under a
-   different equally defensible specification leaves most regions where they were, but moves the
-   ones it touches by up to 0.27 — and changes which region sits lowest of all. **We keep one shared specification for both
-   sectors deliberately, because their scores are compared against each other — but the price is
-   that the number is a property of a region *given a model*, not a measured property of the
-   region.** We report it as a band rather than a point.
+   *somebody* sits at the bottom of each sector's scale — China in buildings and transport, India in
+   power and industry. Their number says "ranked last", not "can only manage half".
+6. **The gap is held, not forecast.** We do not know how fast political gaps close; we assume they
+   persist and report κ as the alternative.
+7. **The feasibility share depends on modelling choices, not only on the region.** Other
+   assumptions about how countries fall short of their frontier, and the other saturation family,
+   move it. It is a property of a region *given a model*, reported as a band.
 8. **Which world the runs are in.** Whether existing legislated carbon prices can be rolled back is
    a model switch. Every run is configured to allow it — the less conservative of the two choices —
    and the paper must say so in one sentence.

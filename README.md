@@ -13,8 +13,8 @@ that does not differ exists once.
 
 | model version (Run-Group) | status | paper workspace | PFM results | coupled runs | design |
 |---|---|---|---|---|---|
-| `v5` (country resolution, spec `X-2079`) | **current, frozen** — the `v5` record | `papers/pfm-paper-v5/` (frozen at v18; superseded by the v6 paper) | `output/pfm/v5/` (+ `v5-noinc`, `v5-specalt`) | `output/remind-runs/v5/{EU21,H12}/` | `docs/` as of 2026-10-01, ADRs ≤ 0046 |
-| `v6` | **in preparation** | `papers/pfm-paper-v6/` (to be created like `pfm-paper-v5`) | `output/pfm/v6/` | `output/remind-runs/v6/…` | `docs/design-notes/0005-v6-implementation-plan.md` |
+| `v5` (country resolution, spec `X-2079`) | **frozen** — the `v5` record, tagged `v5-final` | `papers/pfm-paper-v5/` (frozen at v18; superseded by the v6 paper) | `output/pfm/v5/` (+ `v5-noinc`, `v5-specalt`) | `output/remind-runs/v5/{EU21,H12}/` | `docs/` as of 2026-10-01, ADRs ≤ 0046 |
+| `v6` (country resolution, spec `X-1791 … satAP`; share path φ(t)) | **current** — estimation, offline formulation and the coupled batch complete (64 runs, REMIND 3.7.1, 2026-10-10); analysis and paper in progress | `papers/pfm-paper-v6/` (to be created like `pfm-paper-v5`) | `output/pfm/v6/` (+ `v6-annual`, `v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment twins) | `output/remind-runs/v6/{EU21,H12}/` | `docs/` (rewritten for `v6` 2026-10-10), ADRs 0049–0055, `docs/design-notes/0005-v6-implementation-plan.md` |
 | `v1`–`v4` | superseded, never quoted | — | archived | archived | archived |
 
 **Lineage to keep with `v5`.** `v5`'s specification selection is a re-cut of the `v4` sweep under a
