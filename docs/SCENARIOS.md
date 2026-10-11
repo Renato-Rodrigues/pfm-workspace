@@ -7,8 +7,9 @@ not be used to conclude, and where it belongs in the paper.*
 EU21 and 18 at H12, of which 54 are coupled (39 EU21, 15 H12) — on Run-Group **`v6`** (deployed spec
 `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP`). Every row is generated from
 `analysis/run-groups/scenario-matrix-v6.yml` (ADR 0055). One further EU21 run, `-PFMlevelC-Ehold-v6`
-(start tag `V6CEHOLD`), was added on 2026-10-10 to separate two causes in §4.10; it is not in the
-numbers below until it lands. The `v5` version of this document, with the `v5` batch's numbers, is
+(start tag `V6CEHOLD`), was added on 2026-10-10 and landed on 2026-10-11 to separate two causes in §4.10;
+with it the batch is **65 runs** (55 coupled). Counts below that say 64 describe the batch before it. The
+`v5` version of this document, with the `v5` batch's numbers, is
 archived at `../_archive/_wip/2026-10-10/docs/SCENARIOS-v5.md`.
 
 **Every number below** is read from `output/pfm/v6/coupling/`: `coupled-facts.json` (results per run
@@ -211,7 +212,7 @@ through 2060 exceed REMIND's own `p80_surplusMaxTolerance`**, and records the re
 | PFM calls | **2 to 15** per coupled run |
 | iteration cap | **no run ends at `cm_iteration_max`** |
 | budget (rule C, ratio) | **held in every budget-forced run**: cumulative CO₂ 2100 989.0–1001.1 Gt (EU21), 989.7–998.2 (H12) |
-| never peaks before 2150 | every rule-B run (by design: the budget is not enforced) and one budget-forced run, EU21 `-PFMlevelCMin-v6` (1011.6 Gt at 2150) — disclose (`PITFALLS.md` §26) |
+| never peaks before 2150 | every rule-B run (by design: the budget is not enforced) and two budget-forced runs, EU21 `-PFMlevelCMin-v6` (1011.6 Gt at 2150) and `-PFMlevelC-Ehold-v6` (1018.8 Gt at 2150), both meeting the budget at 2100 — disclose (`PITFALLS.md` §26) |
 | infeasibility code | `pm_pfmInfesCode = 0` in every coupled run |
 | legislated floor | `cm_taxCO2_lowerBound_path_gdx_ref = 0` in every row |
 | cache read | every coupled run read the staged Run-Group cache (`RUNNING.md` step 8); the shared-cache files and the REMIND input archives the runs used are in `records/v6/` and archived (`tools/archiveRunGroupInputs.sh`) |
@@ -456,9 +457,22 @@ not from new evidence of feasibility.
    (u = 1). CHA's Bulk market is unconstrained in both versions (ETS ×1.32–1.37 in 2100) while its
    ES+other market emits +8.6 Gt, so 16.1 Gt of the `v6` shift nets out inside regions (`v5`: 5.0).
 
-**Open:** how much of part 1 is the fading strength and how much the new ranking. The test is the
-rule-C static-share run `-PFMlevelC-Ehold-v6` (§2.4): near 77 Gt relocated means the strength explains
-the drop; near 23 Gt, the ranking does.
+**Separated by the static-share run** `-PFMlevelC-Ehold-v6` (2026-10-11; strength held at k ≈ 1: Bulk
+0.991 / 0.997, Diffuse 1.000 in 2050 / 2100). With the strength held, rule C moves **65.6 Gt** (v5 76.7,
+v6 22.7), **56.6 Gt after 2050** (v5 66.2, v6 16.7), and the 2050 median regional price is ×1.25 the θ = 0
+run's (v6 ×1.153).
+
+- **The size of the relocation is the strength.** Holding k restores 42.9 of the 54.0 Gt lost between v5
+  and v6 (79%; after 2050, 81%). The new ranking and the other v6 changes account for the rest.
+- **Its composition is the ranking.** With the strength held, China absorbs again (−45.1 Gt; its power
+  sector −48.4), as in v5. The extra emissions follow the v6 ranking: MEA +23.7, IND +18.4, OAS +15.4,
+  REF +7.0 Gt, mostly in their power sectors; in v5 they went to SSA +30.0, MEA +25.4, REF +14.8. SSA
+  now abates more (−7.1).
+- **"China absorbs" is therefore a static-strength result.** It holds while the political drag does not
+  fade, and shrinks to −10.2 Gt when the drag fades with the energy transition — which is what the
+  deployed v6 formulation does.
+
+Figure: `v6-rulec-relocation` (the static-share bar beside v5 and v6).
 
 ---
 
@@ -484,7 +498,8 @@ the drop; near 23 Gt, the ranking does.
 7. **The assignment of uncovered countries is the widest data-side band** (110–155 Gt). Report it.
 8. **The interface gate is verified to a tolerance**, and at H12 outside the `v5`-derived limits
    (§3.1, waived and disclosed).
-9. **Four short rule-C runs were still settling** (§3.4); one budget-forced run never peaks (§4.5).
+9. **Four short rule-C runs were still settling** (§3.4); two budget-forced runs never peak before 2150
+   (`-PFMlevelCMin-v6`, §4.5, and `-PFMlevelC-Ehold-v6`, §4.10).
 10. **Every φ is conditional on modelling choices the data do not settle** — the frontier family
     (family B in §4.9), the curve shape, the institution projections (held twins), the hold rule
     (E-hold). No φ here is a measured property of a region.
@@ -608,8 +623,8 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v6`**: the lowest 2050 market
 
 ## 7. Needed improvements, in priority order
 
-1. ⏳ **The rule-C static-share run** (`-PFMlevelC-Ehold-v6`, §4.10): strength vs ranking. Submitted
-   2026-10-10.
+1. ✅ **The rule-C static-share run** (`-PFMlevelC-Ehold-v6`, §4.10), landed 2026-10-11: the fading
+   strength explains about 80% of the v5 → v6 drop in relocation; the ranking sets who emits more.
 2. ✅ **The US reference price** (2026-10-10): REMIND's own `NPi2025` input, −\$6.16 from 2030 (§6.1).
    Quote US numbers with it.
 3. 🟠 **Extend the budget warning to peak budgets** (`PITFALLS.md` §26): EU21 `-PFMlevelCMin-v6` never
@@ -628,7 +643,7 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v6`**: the lowest 2050 market
 | **the cost of political feasibility** (quantity headline; `v6-coupled-theta`) | `-PFMlevelBfix-v6` vs `-PFMgateBfix-v6`, both resolutions, with `Th325/Th675`, `-held`, `-Min` | **+118 / +113 Gt**; θ range 70–182 | θ declared; κ (§4.9); floor-off world; the null reproduces `-PFMgate-v6` within 2 Gt |
 | **what it is sensitive to** (`v6-coupled-arms`) | the wave-2 arms, EU21 | κ 41 Gt left at 0.027; assignment 110–155; ranking inside random orders | κ declared; one seed per permutation |
 | **where the abatement goes** (rule C) | `-PFMlevelC-v6` vs `-PFMgate-v6`, per region | net −0.1 / −3.0 Gt against 22.7 / 19.9 Gt moved; anchor ×1.26 / ×1.25 | emissions only; never the regional median across resolutions |
-| **against `v5`** (`v6-rulec-relocation`, `v6-price-catchup`) | §4.10 | headline −26% / −31%; relocation −70% / −76%, almost all after 2050 | the drop is mostly λ's removal; the strength-vs-ranking split is open until `-PFMlevelC-Ehold-v6` |
+| **against `v5`** (`v6-rulec-relocation`, `v6-price-catchup`) | §4.10 | headline −26% / −31%; relocation −70% / −76%, almost all after 2050 | the quantity drop is mostly λ's removal; the relocation drop is about 80% the fading strength (`-PFMlevelC-Ehold-v6`) |
 | **politics splits the carbon price** (ratio mode) | `-PFMratio-v6`, 2050 | ES/ETS 0.56–1.17 EU21 | both directions |
 | **Methods: which policy world** | every row | floor off | one sentence |
 | **Discussion: the feedback** | the coupled strength | Bulk k coupled 0.69 vs offline 0.63 (2050) | not causal |

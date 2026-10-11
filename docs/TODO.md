@@ -114,11 +114,11 @@ outside it. IDs such as E13 or D17 refer to that note.
      return to the null's as the strength fades (`v5` held them below it to 2100); the κ arms confirm
      it dose by dose. The new ranking (CHA Diffuse, IND Bulk at u = 1) makes part of it net out inside
      regions (16.1 Gt);
-   - ⏳ **one EU21 run to separate the fading strength from the new ranking**: rule C with the static
-     share, `SSP2-EU21-PkBudg1000-PFMlevelC-Ehold-v6` (twin of the rule-B arm). In the matrix since
-     2026-10-10 (row `CEhold`, start tag `V6CEHOLD`, `remind_pfm` `73e4cf550`); to submit (`RUNNING.md`
-     step 7c). When it lands: `runCoupledStage.R v6`, then `ruleCRelocationDecomp.R`. Reading: if it
-     relocates near `v5`'s 76.7 Gt, the fading strength explains the drop; if near 22.7, the ranking does;
+   - ✅ **the fading strength vs the new ranking, separated** (2026-10-11): the rule-C static-share run
+     `-PFMlevelC-Ehold-v6` (k ≈ 1) moves 65.6 Gt, restoring 79% of the v5 → v6 drop; China absorbs again
+     (−45.1 Gt) and the extra emissions follow the v6 ranking (MEA, IND, OAS, REF). The size is the
+     strength, the composition is the ranking; "China absorbs" is a static-strength result
+     (`SCENARIOS.md` §4.10, 0005 Phase 6 step 1). The run never peaks before 2150 (1018.8 Gt): disclose;
    - ✅ **H12 vs EU21 rule C** (2026-10-10): not a model difference. The EU21 median 2050 price is a
      European price (11 of 21 regions); with Europe counted once it is ×1.037 against H12's ×1.075, and
      the abatement moved agrees (22.7 vs 19.9 Gt, same sign in 11 of 12 regions). Rule C is quoted by

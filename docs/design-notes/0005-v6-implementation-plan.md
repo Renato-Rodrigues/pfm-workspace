@@ -1388,10 +1388,24 @@ converge is handled in one of two ways:
         the null's after 2050 (1.13 in 2070).
 
      Region by region, CHA (−22.0), SSA (−13.2), MEA (−8.7) and REF (−5.5) carry 49.4 of the 53.9 Gt
-     fall in gross relocation. **What is not separated yet:** how much of part 1 is the moving strength
-     and how much is the new ranking. The clean test is one EU21 run, rule C with the static share
-     (`-PFMlevelC-Ehold-v6`, the twin of the rule-B arm). Added 2026-10-10 as matrix row `CEhold`, start tag
-     `V6CEHOLD` (`remind_pfm` `73e4cf550`);
+     fall in gross relocation.
+
+     **Separated 2026-10-11 by the static-share run** `-PFMlevelC-Ehold-v6` (matrix row `CEhold`, tag
+     `V6CEHOLD`; $k \approx 1$ throughout: Bulk 0.991 / 0.997, Diffuse 1.000 in 2050 / 2100; finished in 52
+     iterations, 2 PFM calls, budget met at 2100, 1001 Gt). With the strength held, rule C moves **65.6 Gt**
+     (v5 76.7, v6 22.7), **56.6 Gt after 2050** (v5 66.2, v6 16.7); 2050 median regional price ×1.25 (v6
+     ×1.153).
+     - **The size is the strength.** Holding $k$ restores 42.9 of the 54.0 Gt the relocation lost between
+       v5 and v6 (79%; after 2050, 39.9 of 49.5, 81%). The remaining fifth is the new ranking and the rest
+       of the v6 changes.
+     - **The composition is the ranking.** With the strength held, China absorbs again (−45.1 Gt; its
+       power sector −48.4), as in v5 (−54.2). Who emits more follows the v6 ranking: MEA +23.7, IND
+       +18.4, OAS +15.4, REF +7.0, mostly in their power sectors (IND, MEA, OAS ETS +22.5 / +24.7 / +27.1),
+       where v5 sent it to SSA (+30.0), MEA (+25.4) and REF (+14.8); SSA now abates more (−7.1).
+     - So **"China absorbs" is a static-strength result**: it holds while the political drag does not fade,
+       and shrinks to −10.2 Gt when the drag fades as the energy transition proceeds.
+     - ⚠️ Disclose: like `-PFMlevelCMin-v6`, the run's cumulative CO₂ is still rising at 2150 (1018.8 Gt),
+       so it never peaks within the horizon although it meets the budget at 2100;
    - rule B's relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
      small (+0.21 → +0.19% / +0.22 → +0.16%).
 2. Figures in the shared layer:
