@@ -47,6 +47,11 @@ Two shares computed from the IAM's own energy system: how far the clean transiti
 and how much fossil capital is still in place. **This is the channel through which a REMIND
 pathway talks back to the model.** They must enter **split**, never as a composite difference —
 the composite makes projections scenario-blind under the extrapolation guard.
+**How to name it outside the model (ADR 0056):** "the economic weight of fossil and clean-energy
+interests"; incumbents = **fossil interests** (measured by fossil dependence), innovators =
+**clean-energy interests** (measured by clean-energy build-out). It is a proxy for **structural power**
+(leverage from economic importance), not for **instrumental power** (lobbying, finance, access), which
+is not observed. Avoid bare "incumbent": in political science it means the officeholder.
 
 ### Saturating transform
 Actor power enters as $\tilde A = A/(A+\bar A)$, with $\bar A$ the frozen training median.

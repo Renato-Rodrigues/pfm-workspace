@@ -76,6 +76,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0053 | The `v6` panel: 2023 (IEA 2025), geothermal, one re-sweep; power & industry γ 0.997 accepted | **Accepted** (2026-10-07; D3, D8 decided; Phase 2 gate passed) |
 | 0054 | Time-indexed φ interface; convergence on the φ path | **Accepted** (2026-10-08, at the 0005 Phase 3 gate, runs `EU21V371`) — implemented 2026-10-07 |
 | 0055 | Generated scenario config | **Accepted** (2026-10-07), implemented: `pfm::buildPFMScenarioConfig()`, `analysis/run-groups/scenario-matrix-v6.yml` |
+| 0056 | Actor power presented as the economic weight of fossil and clean-energy interests, a proxy for structural power | **Accepted** (2026-10-12): reader-facing wording; model and code names unchanged |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043
 (how it was selected), 0044 (what actor power *is*), 0040 (actor-power transform), 0026 (response
