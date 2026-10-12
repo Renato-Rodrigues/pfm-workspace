@@ -10,7 +10,8 @@
 #      differ BETWEEN places; a uniform rise moves nothing);
 #   4. the change between the groups, region by region: 1/2 (|d_new| - |d_old|).
 # Also, when present in <new>: the rule-C arms that test the cause (-PFMlevelC-Ehold, the static share,
-# k close to 1: strength vs ranking; the kappa arms: a faster-fading strength), reported beside the rest.
+# k close to 1: strength vs ranking; the kappa arms: a faster-fading strength; -backslide: today's strength
+# growing, design note 0006), reported beside the rest, at each resolution where they ran.
 # Emissions as coupledCostsAndAbatement.R: GtCeq x 44/12, annual interpolation, summed 2020-2100.
 # Prices as the facts: the coupled-runs.rds market prices (ets, es; "other" pays the ES price).
 # Output: output/pfm/<new>/coupling/rulec-relocation-decomp.rds and a printed summary.
@@ -57,7 +58,7 @@ prices <- function(g, res, title) {
 }
 gross <- function(d) round(sum(abs(d)) / 2, 1)
 
-ARMS <- c("Ehold", "kappa02", "kappa", "kappa05")   # rule-C arms of <new>, used when present
+ARMS <- c("Ehold", "kappa02", "kappa", "kappa05", "backslide")   # rule-C arms of <new>, used when present
 cases <- c(lapply(c(OLD, NEW), function(g) list(g = g, arm = "")),
            lapply(ARMS, function(x) list(g = NEW, arm = x)))
 out <- list(); summ <- list()

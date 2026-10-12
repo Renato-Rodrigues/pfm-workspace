@@ -225,14 +225,14 @@ runs:
      variant: annual, group: v6-annual, warm: "@gateBfix",
      description: "The annual-data rung (D3, A6): the sibling Run-Group v6-annual."}
 
-  - {key: BEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
-     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix",
+  - {key: BEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21, H12],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix", start: {H12: V6PERSH12},
      description: "E hold (D2, C5): the static-share bound, k close to 1."}
   # Added 2026-10-10 after the batch (0005 Phase 6 step 1): rule C's relocated abatement falls from 76.7 (v5)
   # to 22.7 Gt (v6), almost all after 2050. This twin of BEhold separates the fading strength from the new
   # ranking. Its own start tag, so it never re-runs wave 2.
-  - {key: CEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
-     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@C", start: {EU21: V6CEHOLD},
+  - {key: CEhold, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21, H12],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@C", start: {EU21: V6CEHOLD, H12: V6PERSH12},
      description: "E hold (D2, C5), rule C: the static-share bound with the budget held, strength vs ranking (0005 Phase 6)."}
   - {key: Bhold2060, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: hold2060, options: {pfmPhiHoldYear: "2060"}, warm: "@Bfix",
@@ -247,11 +247,11 @@ runs:
   # what the drivers already do, the political drag halves by mid-century" (half-life 25 years); the
   # sensitivities 0.02 (half-life ~35 years) and 0.05 (~14 years) bracket it. Rule B and rule C each.
   # Counted from t0 = 2025 (decided 2026-10-09): no effect in 2025, an effect from 2030, REMIND's first free period.
-  - {key: Bkappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
-     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@Bfix",
+  - {key: Bkappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21, H12],
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@Bfix", start: {H12: V6PERSH12},
      description: "Declared closure on the strength, kappa = 0.027 a year, the central case (D13, C2) - replaces GAPCLOSE."}
-  - {key: Ckappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
-     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@C",
+  - {key: Ckappa, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21, H12],
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@C", start: {H12: V6PERSH12},
      description: "Declared closure on the strength, kappa = 0.027 a year, the central case, rule C."}
   - {key: Bkappa02, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@Bfix",
@@ -265,3 +265,14 @@ runs:
   - {key: Ckappa05, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
      variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@C",
      description: "Kappa sensitivity, fast erosion: 0.05 a year, rule C."}
+  # Added 2026-10-12 for the paper frames (design note 0006): the persistence ladder at H12 (start tag
+  # V6PERSH12 on the H12 twins of BEhold, CEhold, Bkappa, Ckappa above) and a backsliding arm, the strength
+  # GROWING above today's: E hold (k = 1) times (1 - kappa)^(t - 2025) with kappa < 0. PROPOSED VALUE
+  # -0.005 a year (k = 1.13 in 2050, 1.45 in 2100; the top-ranked share 1 - 0.5 k stays above 0.27) - the
+  # author declares it before submission, as kappa was declared (ADR 0050). Own tag, EU21 only.
+  - {key: Bbackslide, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@BEhold", start: {EU21: V6BACK},
+     description: "Backsliding (0006): today's strength growing 0.5% a year, rule B."}
+  - {key: Cbackslide, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@CEhold", start: {EU21: V6BACK},
+     description: "Backsliding (0006): today's strength growing 0.5% a year, rule C."}

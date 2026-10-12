@@ -208,7 +208,10 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       v <- trimws(r[[cl]] %||% "")
       if (nzchar(v) && !v %in% allowed[[cl]]) err(t, ": ", cl, " = '", v, "' not in ", paste(allowed[[cl]], collapse = "/"))
     }
-    k <- num(r$pfmPhiKappa); if (!is.na(k) && (k < 0 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside [0, 1)")
+    k <- num(r$pfmPhiKappa); if (!is.na(k) && (k <= -1 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside (-1, 1)")
+    # a negative kappa is the backsliding arm: "worse than today" needs today's strength as its base (E hold)
+    if (!is.na(k) && k < 0 && !identical(trimws(r$pfmPhiHold %||% ""), "ratio"))
+      wrn(t, ": pfmPhiKappa = ", k, " (backsliding) without pfmPhiHold = ratio grows the FADING strength, not today's")
     hy <- num(r$pfmPhiHoldYear); if (!is.na(hy) && (hy < 2030 || hy > 2150)) err(t, ": pfmPhiHoldYear = ", hy, " is not a year in 2030-2150")
     sd <- trimws(r$pfmPhiOrderingSeed %||% "")
     if (nzchar(sd) && !grepl("^[0-9]+$", sd)) err(t, ": pfmPhiOrderingSeed = '", sd, "' is not an integer")

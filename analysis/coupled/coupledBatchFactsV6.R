@@ -172,6 +172,7 @@ F$arms <- lapply(stats::setNames(RES, RES), function(res) {
   ks <- R$key[R$resolution == res & grepl("^PkBudg1000-PFMlevel(Bfix|C)-[A-Za-z0-9]+$", R$key)]
   ks <- setdiff(ks, c("PkBudg1000-PFMlevelBfix-held", "PkBudg1000-PFMlevelC-held"))
   g <- cum(res, "PkBudg1000-PFMgateBfix"); pg <- price2050(res, "PkBudg1000-PFMgate")
+  ag <- anchor2050(res, "PkBudg1000-PFMgate")   # rule-C arms: the global price against the theta = 0 null
   lapply(stats::setNames(ks, sub("^PkBudg1000-PFMlevel", "", ks)), function(k) {
     x <- run(res, k); ruleB <- grepl("^PkBudg1000-PFMlevelBfix-", k)
     dep <- if (ruleB) "PkBudg1000-PFMlevelBfix" else "PkBudg1000-PFMlevelC"
@@ -183,7 +184,8 @@ F$arms <- lapply(stats::setNames(RES, RES), function(res) {
            kBulk2050 = kAt(e, "Bulk", 2050), kBulk2100 = kAt(e, "Bulk", 2100),
            kDiffuse2050 = kAt(e, "Diffuse", 2050), kDiffuse2100 = kAt(e, "Diffuse", 2100)),
       if (ruleB) list(delta = rd(x$cum2100 - g, 1))
-      else if (length(pg) && length(p)) list(price2050OverGateMedian = rd(stats::median(p[names(pg)] / pg), 3)))
+      else c(list(anchorOverGate = rd(anchor2050(res, k) / ag, 3)),
+             if (length(pg) && length(p)) list(price2050OverGateMedian = rd(stats::median(p[names(pg)] / pg), 3))))
   })
 })
 
