@@ -7,7 +7,7 @@
 # "per SD" invites the reader to conclude the trend is ~39x the largest institutional channel.
 #
 # It is not. Rescaled to beta * SD(x) - each term's contribution to the linear predictor, in
-# logits - the trend is 0.818 against GovEff's 0.264 in Bulk, about 3x; in Diffuse it is 0.408
+# logits - the trend is 0.818 against GovEff's 0.264 in power & industry, about 3x; in buildings & transport it is 0.408
 # against 0.389, about 1x. That is the honest comparison, it is still the largest single term,
 # and it FITS ON THE AXIS, so the axis break the previous version needed is gone.
 #
@@ -16,11 +16,11 @@
 # claims C25). Run-Group v1:
 #
 #            raw beta   SD(x)    contribution   GovEff contribution   ratio
-#   Bulk      10.279    0.0796      0.818              0.264          3.10x
-#   Diffuse    5.124    0.0796      0.408              0.389          1.05x
+#   Power & industry      10.279    0.0796      0.818              0.264          3.10x
+#   Buildings & transport    5.124    0.0796      0.408              0.389          1.05x
 #
-#   trend share of linear-predictor variance: 0.658 Bulk / 0.405 Diffuse (MODEL.md 2.4)
-#   shift across the estimation window:       2.63 logits Bulk / 1.31 Diffuse
+#   trend share of linear-predictor variance: 0.658 power & industry / 0.405 buildings & transport (MODEL.md 2.4)
+#   shift across the estimation window:       2.63 logits power & industry / 1.31 buildings & transport
 #
 # Companion to fig-frontier-coefficients, which uses the SAME scaling but keeps the fixed
 # effects. Use that one for the complete term list; use this one when the political terms need

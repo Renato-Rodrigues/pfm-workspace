@@ -5,7 +5,7 @@
 #
 # WHY.  `frontier::sfa()` wraps Coelli's FRONTIER 4.1 Fortran and reports standard
 # errors from the Fortran's own covariance matrix. On 2026-08-26 that matrix was
-# found to be CORRUPT for `v4` Bulk: it reported a median SE of 0.924 and 0 of 15
+# found to be CORRUPT for `v4` power & industry: it reported a median SE of 0.924 and 0 of 15
 # significant coefficients, when the true median SE at the very same MLE is 0.062
 # and 12 of 15 are significant. The point estimates were never affected. Nothing in
 # the fit object flagged it — `converged` was TRUE, the log-likelihood correct, and

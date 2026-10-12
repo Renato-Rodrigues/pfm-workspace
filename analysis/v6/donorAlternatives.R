@@ -1,12 +1,12 @@
 # Decision 3 of 2026-10-06: how many uncovered countries the band rule can match to donors, and how
 # good those matches are, under alternative matching rules - and what each does to the coupling.
 #   Rscript analysis/v6/donorAlternatives.R [group]          (from the repo root; default v6)
-# The deployed rule (computeDonorAssignment defaults): distance over the spec's base drivers weighted
+# The selected rule (computeDonorAssignment defaults): distance over the spec's base drivers weighted
 # by |beta|; "close" up to the median, "far" up to the 90th percentile of the covered countries'
 # nearest-neighbour distances; beyond that no donor (median or low band). Alternatives:
 #   fewer drivers (the top 3-6 by |beta|), equal weights, a looser "far" bound (95th percentile, the
 #   maximum, no bound).
-# Quality is judged in the FULL space (the deployed metric), so a rule that finds more donors only
+# Quality is judged in the FULL space (the selected metric), so a rule that finds more donors only
 # by ignoring drivers shows it. Effect on the coupling: the anchor ranking u (EU21) and k(t) on
 # PkBudg1000. Output: output/pfm/<group>/phase1/donor-alternatives.rds and a printed summary.
 source("analysis/_common/_loadPfm.R")
@@ -56,7 +56,7 @@ alts <- list(
   "far <= max covered distance" = list(qualityQuantiles = c(0.5, 1)),
   "no 'none' class (nearest donors always)" = list(qualityQuantiles = c(0.5, Inf)))
 
-# full-space distance of each recipient to its nearest chosen donor, in the deployed metric
+# full-space distance of each recipient to its nearest chosen donor, in the selected metric
 fullDist <- function(sec, a) {
   b <- base[[sec]]; wv <- attr(b, "weights"); yr <- attr(b, "year")
   X <- setup[[sec]]$sDf; X <- X[X$year == yr, ]; rownames(X) <- as.character(X$region); X <- as.matrix(X[, names(wv)])
@@ -104,6 +104,6 @@ saveRDS(list(summary = out, regions = rg), file.path(OUT, "donor-alternatives.rd
 options(width = 220)
 num <- vapply(out, is.numeric, logical(1)); out[num] <- lapply(out[num], function(x) round(x, 3))
 print(out[order(out$sector), ], row.names = FALSE)
-cat("\nDonor share of each region's weight (Bulk), and u:\n")
+cat("\nDonor share of each region's weight (Power & industry), and u:\n")
 r2 <- rg[rg$sector == "Bulk", c("alternative", "region", "shareDonor", "shareMedian", "shareLowBand", "u")]
 r2[, 3:6] <- round(r2[, 3:6], 2); print(r2, row.names = FALSE)

@@ -3,7 +3,7 @@
 # (ceilingCollapse, sanity walk) rejects a spec whose median covered-country ceiling on the gating
 # scenario (PkBudg1000) ends below 90% of its 2025 value.
 #   Rscript analysis/v6/ceilingGate.R [group]       (repo root; after phase1.R and the pfm-anchor step)
-# Reports: the gate value and margin for the deployed spec; the country distribution of the ceiling
+# Reports: the gate value and margin for the selected specification; the country distribution of the ceiling
 # ratio 2025 -> 2050 / 2100 on NPi and PkBudg1000, covered and all, final-energy weighted too; how the
 # gate acts across the bootstrap pool. Output: output/pfm/<group>/phase1/ceiling-gate.rds.
 source("analysis/_common/_loadPfm.R")
@@ -45,9 +45,9 @@ cr <- merge(cr, pool$verdicts[, c("model", "pass", "severeRules")], by = "model"
 cr$onlyCeiling <- cr$severeRules == "ceilingCollapse"
 saveRDS(list(deployed = dep, distribution = dist, pool = cr), file.path(P1, "ceiling-gate.rds"))
 options(width = 200)
-cat("== deployed", pool$deployed, ": gate value (median covered S* 2100/2025, PkBudg1000) Bulk", round(dep[1], 3), "Diffuse", round(dep[2], 3), "| gate 0.90\n")
+cat("== selected", pool$deployed, ": gate value (median covered S* 2100/2025, PkBudg1000) power & industry", round(dep[1], 3), "Diffuse", round(dep[2], 3), "| gate 0.90\n")
 cat("\n== country distribution of the ceiling ratio vs 2025\n"); print(dist, row.names = FALSE, digits = 3)
 cat("\n== the gate across the pool (", nrow(cr), "specs with a ceiling value)\n")
-cat("  ratio range Bulk", paste(round(range(cr$Bulk, na.rm = TRUE), 3), collapse = "-"), "| Diffuse", paste(round(range(cr$Diffuse, na.rm = TRUE), 3), collapse = "-"), "\n")
+cat("  ratio range power & industry", paste(round(range(cr$Bulk, na.rm = TRUE), 3), collapse = "-"), "| Diffuse", paste(round(range(cr$Diffuse, na.rm = TRUE), 3), collapse = "-"), "\n")
 cat("  specs below 0.90 in a sector:", sum(pmin(cr$Bulk, cr$Diffuse) < 0.9, na.rm = TRUE), "| rejected by ceilingCollapse alone:", sum(cr$onlyCeiling), "\n")
 cat("  passing specs' lowest ratio:", round(min(pmin(cr$Bulk, cr$Diffuse)[cr$pass], na.rm = TRUE), 3), "\n")

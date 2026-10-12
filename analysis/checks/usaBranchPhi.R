@@ -13,7 +13,7 @@
 # regions, u = (g - gmin)/(gmax - gmin), and delivers phi = 1 - theta * max_s u_s (the most
 # constrained sector). For a region that is a single uncovered country, g is that country's
 # assigned 1 - E, so phi_USA follows from the per-sector gMin/gMax stored in anchorDerivation.
-# The script first REPRODUCES the deployed (median) value from those quantities and stops if it
+# The script first REPRODUCES the selected (median) value from those quantities and stops if it
 # cannot - so the other two branches are computed by a formula that has just been checked.
 #
 # The one non-trivial case: a branch that puts the USA OUTSIDE [gmin, gmax] makes it the new
@@ -83,7 +83,7 @@ if (abs(rep - deployed) > 1e-4) stop("the median branch gives ", round(rep, 4), 
                                       round(deployed, 4), " - the formula is not the one the bound uses")
 
 cat(sprintf("USA offline feasibility share, %s, tier year %d, severity %.2f\n", group, cs$weights$year, theta))
-cat(sprintf("  deployed (median) reproduced: %.4f vs artifact %.4f\n", rep, deployed))
+cat(sprintf("  selected (median) reproduced: %.4f vs artifact %.4f\n", rep, deployed))
 print(phi, row.names = FALSE, digits = 4)
 out <- list(branches = b, phi = phi, deployed = deployed, theta = theta, tierYear = cs$weights$year,
             seedYear = seed, blendCheck = check, group = group,

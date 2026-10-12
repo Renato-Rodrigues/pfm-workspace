@@ -20,15 +20,15 @@ matters more than the decision, because λ does **two unrelated jobs**:
 |---|---|---|
 | switch | `cm_pfmGapClosure` | none: always on |
 | what it does | does a region's political gap close over the century, or persist? | carries observed stringency from the last data year to the tier year (2035), where **E and φ are read** |
-| deployed | **0 — the gap persists** | the full-panel ECM rate (Bulk 0.1027, Diffuse 0.0621) |
-| dropping it | changes **no result**: every headline run already has λ = 0. You lose the `GAPCLOSE` arm and the λ claims | there is no projected stringency, so **no E, no φ, no coupling** |
+| selected | **0 — the gap persists** | the full-panel ECM rate (Power & industry 0.1027, buildings & transport 0.0621) |
+| dropping it | changes **no result**: every headline run already has λ = 0. You lose the `GAPCLOSE` sensitivity run and the λ claims | there is no projected stringency, so **no E, no φ, no coupling** |
 
 **A paper without job A is a real option. A paper without job B is a different paper** — you would
 have to read φ at the last observed year instead of 2035, which changes every coupled number and
 needs the whole batch re-run.
 
 Everything below assumes **job A**: λ = 0 stated as an assumption, the estimation of λ and its
-sensitivity arm removed from the paper.
+sensitivity run removed from the paper.
 
 ---
 
@@ -75,19 +75,19 @@ epistemic standing.
 **Excluded (6)** — the claims that *are* λ: **C12** (half-life 4–6 years), **C13** (the ECM beats
 no-change only in electricity), **C14** (no-change is hard to beat where policy barely moved),
 **C16** (event timing unpredictable, AUC 0.48 / 0.33), **C25** (the ceiling's historical rise is
-mostly secular drift), **C29** (the coupled replay improves the Diffuse fit where the ceiling acts —
+mostly secular drift), **C29** (the coupled replay improves the buildings & transport fit where the ceiling acts —
 its comparator *is* the uncoupled ECM).
 
 **Unchanged (18)** — the estimation spine and the limitations: C3, C7–C11, C15, C17, C18, C21, C22,
 C24, C26–C28, C30, C31, C34.
 
 **Kept but weaker (15)** — C1, C2, C4, C5, C6, C19, C19b, C19c, C20, C23, C32, C33, C35, C36, C37.
-They survive numerically (λ = 0 is what produced them) but lose the arm that shows how much they
+They survive numerically (λ = 0 is what produced them) but lose the sensitivity run that shows how much they
 depend on it.
 
 ### The numbers B can no longer show
 
-| result | λ = 0 (deployed) | λ = estimated | what B loses |
+| result | λ = 0 (selected) | λ = estimated | what B loses |
 |---|---|---|---|
 | quantity headline, EU21 / H12 | **+159.3 / +163.8 Gt** | +254.4 / +266.0 | that λ = 0 is the **conservative** choice, by 37–38% |
 | within-region ES/ETS split, EU21 | **0.66–1.37** | 0.92–1.03 | that λ = 0 is the **generous** choice — the split nearly vanishes |
@@ -110,9 +110,9 @@ the sensitivity of. That is the exposure. It is not fatal — the assumption is 
 kind of thing a referee finds in one question: *"what if the gap closes?"*
 
 Under A the answer is already in the paper: *we measured the rate, it failed its own forecast test
-(skill −0.180 Bulk, −0.698 Diffuse against persistence), a placebo returns 0.291 / 0.104 where
-nothing adjusts, two-thirds of Diffuse countries have a non-positive own rate — so we hold the gap
-fixed, and here is the arm that shows what closing it would do.*
+(skill −0.180 power & industry, −0.698 buildings & transport against persistence), a placebo returns 0.291 / 0.104 where
+nothing adjusts, two-thirds of buildings & transport countries have a non-positive own rate — so we hold the gap
+fixed, and here is the sensitivity run that shows what closing it would do.*
 
 ---
 
@@ -131,8 +131,8 @@ is most obviously honest — but it is a choice about what kind of paper this is
 ## 5. A third option, if B is tempting for length
 
 **B′ — drop the λ *estimation*, keep the λ *sensitivity*.** No C12–C16, no ECM validation section;
-keep the `GAPCLOSE` arm as a declared robustness column and one sentence: *"the gap is held fixed;
-an arm in which it closes at a rate estimated from the panel moves the cost headline to 254–266 Gt
+keep the `GAPCLOSE` sensitivity run as a declared robustness column and one sentence: *"the gap is held fixed;
+a sensitivity run in which it closes at a rate estimated from the panel moves the cost headline to 254–266 Gt
 and nearly removes the split."* Costs about 80 words. Keeps the defence of the assumption the split
 rests on; loses the honesty exhibits.
 

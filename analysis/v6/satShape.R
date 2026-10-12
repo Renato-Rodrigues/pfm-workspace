@@ -1,5 +1,5 @@
-# How much does the deployed spec's result depend on the shape of its saturating actor-power curve?
-# (design note 0005 §7a decision 6: family A in the main text, with this as its robustness check.)
+# How much does the selected specification's result depend on the shape of its saturating actor-power curve?
+# (design note 0005 §7a decision 6: the both-saturate family in the main text, with this as its robustness check.)
 # The curve is x / (x + xBar); xBar is fixed at the training median. Here xBar = s * median for
 # s in 0.5, 1, 2 (pfm's apSatScale): below 1 the curve flattens earlier - incumbents lose weight faster
 # as they shrink - above 1 it is closer to linear over the observed range.
@@ -88,7 +88,7 @@ fs <- do.call(rbind, fit); rownames(fs) <- NULL
 saveRDS(list(fit = fs, k = k, regions = rg, frontierReproduced = frCheck), file.path(P1, "sat-shape.rds"))
 
 options(width = 200)
-cat("\n== control: scale 1 reproduces the deployed frontier:", paste(names(frCheck), frCheck, collapse = ", "), "\n")
+cat("\n== control: scale 1 reproduces the selected frontier:", paste(names(frCheck), frCheck, collapse = ", "), "\n")
 fs$dBicBulk <- fs$bicBulk - fs$bicBulk[fs$scale == 1]; fs$dBicDiffuse <- fs$bicDiffuse - fs$bicDiffuse[fs$scale == 1]
 cat("\n== sanity walk and fit\n"); print(fs, row.names = FALSE, digits = 4)
 kw <- reshape(k, idvar = c("scale", "run", "sector"), timevar = "year", direction = "wide"); names(kw) <- sub("k.", "", names(kw), fixed = TRUE)

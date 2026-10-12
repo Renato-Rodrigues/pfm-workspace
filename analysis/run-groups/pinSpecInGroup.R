@@ -12,11 +12,11 @@
 # result is visible rather than assumed.
 #
 # Usage, from the project root:
-#   Rscript analysis/run-groups/pinSpecInGroup.R v5-noinc Diffuse "X-2076 WGIge|noRoL|VerAcc bothIncAP lev ctl:Pop.Hyd fe:OECDp"
+#   Rscript analysis/run-groups/pinSpecInGroup.R v5-noinc buildings & transport "X-2076 WGIge|noRoL|VerAcc bothIncAP lev ctl:Pop.Hyd fe:OECDp"
 #
 # Typical sequence for a BOTH-SECTOR variant:
-#   Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc Bulk    "<spec>"   # creates the group
-#   Rscript analysis/run-groups/pinSpecInGroup.R          v5-noinc Diffuse "<spec>"   # pins the second sector
+#   Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc power & industry    "<spec>"   # creates the group
+#   Rscript analysis/run-groups/pinSpecInGroup.R          v5-noinc buildings & transport "<spec>"   # pins the second sector
 #   Rscript -e 'library(pfm); pfmRun(group = "v5-noinc", steps = c("pfm-frontier","pfm-temporal",
 #               "pfm-donor","pfm-projection","pfm-coupling-bound"), cluster = "slurm")'
 #   Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-noinc

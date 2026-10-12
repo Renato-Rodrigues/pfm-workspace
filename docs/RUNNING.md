@@ -276,11 +276,11 @@ Three tags in `config/scenario_config_PFM.csv`:
 | `EU21V6GATE` | the four gate rows alone, once the 3.7.1 bases exist in the output folder |
 
 The gate rows (section `v6_phase3_gate_EU21`), all `pfmGroup = v6`, `cm_pfmPhiPath = 1`:
-- `SSP2-EU21-PkBudg1000-PFMgate-v6`: the θ = 0 null; must reproduce `-PFMgateRef` on the same
+- `SSP2-EU21-PkBudg1000-PFMgate-v6`: the no-politics reference (θ = 0); must reproduce `-PFMgateRef` on the same
   REMIND version (no longer `v5`'s `-PFMgate`);
-- `SSP2-EU21-PkBudg1000-PFMgateBfix-v6`: the held-price null; starts after it;
-- `SSP2-EU21-PkBudg1000-PFMlevelBfix-v6`: rule B, θ = 0.5; starts after the held-price null;
-- `SSP2-EU21-PkBudg1000-PFMlevelC-v6`: rule C, θ = 0.5, with the GAMS rebuild.
+- `SSP2-EU21-PkBudg1000-PFMgateBfix-v6`: the no-politics reference with the price held; starts after it;
+- `SSP2-EU21-PkBudg1000-PFMlevelBfix-v6`: hold the price, θ = 0.5; starts after the no-politics reference with the price held;
+- `SSP2-EU21-PkBudg1000-PFMlevelC-v6`: hold the budget, θ = 0.5, with the GAMS rebuild.
 
 Needs `output/remind-inputs/v6` with `phi-anchor.rds` (`pfmRun(group = "v6", steps =
 c("pfm-anchor", "pfm-remind-inputs"))`).
@@ -311,11 +311,11 @@ Rscript analysis/run-groups/buildPFMScenarioConfig.R   # writes models/remind_pf
 Commit the matrix (project repo) and the CSV (`remind_pfm`), push, and on the cluster
 `tools/setup.sh --cluster --update`. Tags: `V6W<wave><res>` (`V6W1EU21`, `V6W1H12`, `V6W2EU21`,
 `V6W2H12`); `H12BASE` and `EU21BASE` for the parents. A row added after its wave carries its own tag
-(`start:` in the matrix), so a re-submission never re-runs the wave: `V6CEHOLD` (rule C static share, 2026-10-10);
-`V6PERSH12` (the H12 persistence arms, 2026-10-12, from the `-H12` checkout); `V6BACK` (the EU21 backsliding
-arm, 2026-10-12, warm-started from the `-Ehold` runs; design note 0006). `V6W1H12` also starts the H12 3.7.1 bases and
+(`start:` in the matrix), so a re-submission never re-runs the wave: `V6CEHOLD` (hold the budget constant limit, 2026-10-10);
+`V6PERSH12` (the H12 persistence sensitivity runs, 2026-10-12, from the `-H12` checkout); `V6BACK` (the EU21 growing limit
+sensitivity run, 2026-10-12, warm-started from the `-Ehold` runs; design note 0006). `V6W1H12` also starts the H12 3.7.1 bases and
 `-PFMgateRef`, chained. The EU21 rows already run in the gate keep `EU21V6GATE`, so `V6W1EU21` does not
-re-run them. Wave 2 needs the variant Run-Groups exported first (the preflight checks each).
+re-run them. Second batch needs the variant Run-Groups exported first (the preflight checks each).
 
 ```r
 library(pfm)
@@ -372,7 +372,7 @@ Rscript analysis/coupled/runCoupledStage.R v6                # the whole post-ba
 is still in flight and fails the early-market test (`PITFALLS.md` §25) or a finished run has an
 early-period market over tolerance (§25a), and otherwise runs the facts scripts in order
 (`coupledBatchFacts` → `coupled-facts.json`; for any group after `v5`, `coupledBatchFactsV6`, which reads
-each run's φ path and $k$ from its history and accepts a batch that lands in waves; then costs, held-budget prices, rule-C freeze,
+each run's φ path and $k$ from its history and accepts a batch that lands in waves; then costs, hold-the-budget prices, hold-the-budget freeze,
 convergence, provenance), stopping on the first that fails. `--allow-skipped` goes on without the
 in-flight runs, listing them.
 

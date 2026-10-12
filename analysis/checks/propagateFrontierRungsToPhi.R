@@ -45,7 +45,7 @@ source("analysis/_common/_loadPfm.R")
 args      <- commandArgs(trailingOnly = TRUE)
 GROUP     <- if (length(args) >= 1) args[[1]] else "v1"
 SEED_YEAR <- if (length(args) >= 2) as.integer(args[[2]]) else 2022
-THETA     <- 0.50          # the deployed severity dial
+THETA     <- 0.50          # the selected severity dial
 MAPPINGS  <- c(EU21 = "models/mrpfm/inst/extdata/regional/regionmapping_21_EU11.csv",
                H12  = "models/mrpfm/inst/extdata/regional/regionmappingH12.csv")
 OUT       <- file.path("output/pfm", GROUP, "frontier-rung-phi.rds")
@@ -76,7 +76,7 @@ if (!exists(".pfmSpecArgs")) source("models/pfm/R/pfmSpecArgs.R")
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 # ---------------------------------------------------------------------------
-# 1. the deployed fit, per sector
+# 1. the selected fit, per sector
 # ---------------------------------------------------------------------------
 panel <- .panelForGroup(GROUP)
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(file.path("output/pfm", GROUP)))

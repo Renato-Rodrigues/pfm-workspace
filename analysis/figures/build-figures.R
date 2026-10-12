@@ -44,14 +44,14 @@ if (!"--guide" %in% args) {
   # ── Fig 1b · frontier fit ───────────────────────────────────────────────────
   # Countries against their own estimated ceiling. The figure that makes "frontier,
   # not regression" visual — the vertical distance IS political slack.
-  # Rail: label Diffuse only; Bulk slack ranks are not robust.
+  # Rail: label buildings & transport only; power & industry slack ranks are not robust.
   if (run("frontier-fit")) {
     message("[frontier-fit]"); buildFigure("frontier-fit", GROUP, MEDIA)
   }
 
   # ── Fig 2a · frontier coefficients ──────────────────────────────────────────
   # What moves the ceiling, and that the two sectors are moved by different things.
-  # Rail: neither Bulk actor-power MAIN effect is significant — the story is the
+  # Rail: neither power & industry actor-power MAIN effect is significant — the story is the
   # interactions (triangles).
   if (run("frontier-coefficients")) {
     message("[frontier-coefficients]"); buildFigure("frontier-coefficients", GROUP, MEDIA)
@@ -121,7 +121,7 @@ if (!"--guide" %in% args) {
 
   # ── variant · coefficients, political terms only ──────────────────────────────
   # Same beta x SD(x) scaling as Fig 2a, fixed effects dropped so the political terms
-  # get the room. The trend is scaled, never dropped - it carries 0.658 of the Bulk
+  # get the room. The trend is scaled, never dropped - it carries 0.658 of the power & industry
   # linear-predictor variance and a reader must still see that it is the largest term.
   if (run("frontier-coefficients-focused")) {
     message("[frontier-coefficients-focused]"); buildFigure("frontier-coefficients-focused", GROUP, MEDIA)
@@ -145,7 +145,7 @@ if (!"--guide" %in% args) {
 
   # ── report · leave-one-country-out influence ──────────────────────────────────
   # From the reports' influence exhibit (ADR 0037). A term whose worst-case p crosses
-  # alpha has a pivotal country and may not be claimed - the Bulk HorAcc main effect
+  # alpha has a pivotal country and may not be claimed - the power & industry HorAcc main effect
   # is exactly this case.
   if (run("influence-loro")) {
     message("[influence-loro]"); buildFigure("influence-loro", GROUP, MEDIA)
@@ -186,13 +186,13 @@ if (!"--guide" %in% args) {
   }
 
   # ── SI · the sharing cost ───────────────────────────────────────────────────
-  # One spec for both sectors costs Bulk 4.9% and Diffuse 24.9% of theory content.
+  # One spec for both sectors costs power & industry 4.9% and buildings & transport 24.9% of theory content.
   if (run("sharing-cost")) {
     message("[sharing-cost]"); buildFigure("sharing-cost", GROUP, MEDIA)
   }
 
   # ── SI · the selection landscape ────────────────────────────────────────────
-  # Where the deployed spec sits among 2232 candidates. 159 of the 242 admissible ones
+  # Where the selected specification sits among 2232 candidates. 159 of the 242 admissible ones
   # fit better; it wins on a declared multi-criteria rule, not by dominating.
   if (run("selection-landscape")) {
     message("[selection-landscape]"); buildFigure("selection-landscape", GROUP, MEDIA)
@@ -236,7 +236,7 @@ if (!"--guide" %in% args) {
 
   # ── Fig 4b · implementability ranked ────────────────────────────────────────
   # Read the distance between a country's two points, not its absolute position.
-  # Rail: ordered by Diffuse on purpose — never read a Bulk country ranking off it.
+  # Rail: ordered by buildings & transport on purpose — never read a power & industry country ranking off it.
   if (run("implementability-ranked-countries")) {
     message("[implementability-ranked-countries]")
     buildFigure("implementability-ranked-countries", GROUP, MEDIA)
@@ -272,7 +272,7 @@ if (!"--guide" %in% args) {
     message("[coupled-budget-cost]"); buildFigure("coupled-budget-cost", GROUP, MEDIA)
   }
 
-  # ── Fig 5c · the NPi twins ──────────────────────────────────────────────────
+  # ── Fig 5c · the NPi variants ──────────────────────────────────────────────────
   # Kills "your result is an artefact of high ambition", and prints the confound that
   # decides the sign rather than leaving it to the caption.
   if (run("coupled-npi-twins")) {
@@ -305,7 +305,7 @@ if (!"--guide" %in% args) {
 
   # ── v6 coupled (Phase 5 / 6) — only for a v6 group: they read the v6 coupling artifacts
   # and the v5 ones beside them. Rails: theta and kappa are declared; the v5 -> v6 drop is
-  # mostly lambda's removal; rule C relocates, it does not add emissions.
+  # mostly lambda's removal; hold the budget relocates, it does not add emissions.
   if (grepl("^v6", GROUP)) {
     for (id in c("v6-coupled-theta", "v6-coupled-arms", "v6-rulec-relocation", "v6-price-catchup")) {
       if (run(id)) { message("[", id, "]"); buildFigure(id, GROUP, MEDIA) }

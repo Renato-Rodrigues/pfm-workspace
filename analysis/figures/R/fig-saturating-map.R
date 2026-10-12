@@ -13,18 +13,18 @@ figSaturatingMap <- function(group = "v5", sector = "Bulk") {
   sc <- as.data.frame(fr$bySector[[sector]]$scores)
 
   # Abar: the frozen training median of the raw share. Recover it from driverScaling when
-  # the fit carries it, otherwise fall back to the documented Bulk training median.
+  # the fit carries it, otherwise fall back to the documented power & industry training median.
   ds <- tryCatch(fr$bySector[[sector]]$driverScaling, error = function(e) NULL)
   abar <- tryCatch({
     s <- ds$sat
     if (is.null(s)) NA_real_ else as.numeric(s[[grep("Innov", names(s))[1]]])
   }, error = function(e) NA_real_)
-  if (!is.finite(abar)) abar <- 0.16   # documented Bulk training median order of magnitude
+  if (!is.finite(abar)) abar <- 0.16   # documented power & industry training median order of magnitude
 
   x <- seq(0, 0.8, length.out = 400)
   d <- data.frame(A = x, sat = x / (x + abar), linear = x / max(x))
 
-  trainLo <- 0.03; trainHi <- 0.43     # MODEL.md 2.3, Bulk innovator power in training
+  trainLo <- 0.03; trainHi <- 0.43     # MODEL.md 2.3, power & industry innovator power in training
   projLo  <- 0.58; projHi  <- 0.68     # the range REMIND takes it to
 
   p <- ggplot2::ggplot(d, ggplot2::aes(x = A)) +

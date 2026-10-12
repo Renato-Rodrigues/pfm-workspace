@@ -1,11 +1,11 @@
 # 0004 — What a v6 formulation could change: clamps, smoothing, tier years, SSPs
 
-**Status: Open.** Evidence for a possible v6 definition; nothing here is decided or deployed.
+**Status: Open.** Evidence for a possible v6 definition; nothing here is decided or selected.
 
 **Provenance.** Run-Group `v5`, offline, 2026-09-29. Script `analysis/v6/v6FormulationTests.R`
 (parts `guard`, `annual`, `tiers`, `ssp`); outputs in `output/pfm/v5/v6-tests/*.rds`. Unless stated,
-coefficients are the deployed `v5` fits (`X-2079`), the energy system is the **final** state of one
-coupled run (`SSP2-EU21-PkBudg1000-PFMlevelBfix`, EU21), shares are aggregated with the deployed
+coefficients are the selected `v5` fits (`X-2079`), the energy system is the **final** state of one
+coupled run (`SSP2-EU21-PkBudg1000-PFMlevelBfix`, EU21), shares are aggregated with the selected
 final-energy weights and band assignments at θ = 0.50. REMIND is **not** re-optimised, so no
 energy-system feedback responds to any variant. Shares below 2035 read "φ"; "Spearman" is across the
 21 EU21 regions against the stated reference.
@@ -34,27 +34,27 @@ excess in training SDs; `guard.rds$audit`):
 | Vertical accountability | 0.4% | 0 | 0 | — | never binds |
 | Hydro/nuclear share | 1% | 2% | 2% | small | never matters |
 
-(Bulk / Diffuse where they differ.)
+(Power & industry / buildings & transport where they differ.)
 
 **Removing clamps** (`guard.rds$phiCompare`, `$ceiling`):
 
-| variant | φ 2035 vs deployed | φ 2050 | φ 2070 | Diffuse ceiling 2100 (median; share > 9) | Bulk median E 2100 |
+| variant | φ 2035 vs selected | φ 2050 | φ 2070 | Buildings & transport ceiling 2100 (median; share > 9) | Power & industry median E 2100 |
 |---|---|---|---|---|---|
-| innovator unclamped | Spearman **0.977**, median \|Δφ\| 0.005, max 0.031, same floor | 0.878 / 0.100 / 0.238 | 0.824 / 0.116 / 0.286 | 9.00; **50%** (deployed 7.43; 0%) | **0.18** (deployed 0.45) |
+| innovator unclamped | Spearman **0.977**, median \|Δφ\| 0.005, max 0.031, same floor | 0.878 / 0.100 / 0.238 | 0.824 / 0.116 / 0.286 | 9.00; **50%** (selected 7.43; 0%) | **0.18** (selected 0.45) |
 | all actor power unclamped | 0.977 / 0.006 / 0.031 | 0.885 / 0.101 / 0.252 | 0.840 / 0.118 / 0.279 | 8.99; 50% | 0.17 |
 | no guard at all | 0.979 / 0.006 / 0.072 | 0.876 / 0.101 / 0.252 | 0.835 / 0.120 / 0.284 | 8.99; 50% | 0.19 |
 
 **Answers.**
 
-- **Can the innovator clamp go?** *For the deployed single 2035 reading, yes, at almost no cost*:
+- **Can the innovator clamp go?** *For the selected single 2035 reading, yes, at almost no cost*:
   φ moves by a median 0.005 and at most 0.03, and the floor is unchanged. By 2035 few countries have
   left the innovator range.
 - **What plays against it** — everything after 2035. Most countries end up 5–9 SD beyond any observed
   innovator share, and a *linear* coefficient is then extrapolated that far:
-  - the Diffuse ceiling runs into the logit bound: half of all countries above 9 by 2100, so the
+  - the buildings & transport ceiling runs into the logit bound: half of all countries above 9 by 2100, so the
     ordering compresses at the top and stops discriminating;
-  - Bulk stringency is projected to **fall** as renewables grow (median E 0.45 → 0.18), because the
-    Bulk ECM innovator coefficient is negative (−0.077, not significant). An insignificant sign
+  - Power & industry stringency is projected to **fall** as renewables grow (median E 0.45 → 0.18), because the
+    power & industry ECM innovator coefficient is negative (−0.077, not significant). An insignificant sign
     becomes a first-order projection.
 - **Relaxing the other clamps** changes nothing measurable (`noGuard` ≈ `noActorPower` at every
   tier year), because in this SSP2 run they barely bind. That is also why they should **stay**: they
@@ -65,16 +65,16 @@ excess in training SDs; `guard.rds$audit`):
 - **The principled way to "unclamp" innovators** is the saturating transform already in the code
   (`apTransform = "saturating"`, ADR 0040): `x / (x + x̄)` has a marginal effect that decays, and the
   guard then clamps it only at the *physical* domain (share = 1), not the sample edge. It is in the
-  sweep's menu (`satAP`); the best per-sector Diffuse spec `X-1854` uses it. A v6 with later tier
+  sweep's menu (`satAP`); the best per-sector buildings & transport spec `X-1854` uses it. A v6 with later tier
   years should adopt it for innovator power, and re-run selection to do so; dropping the clamp on a
   linear term is not a defensible alternative.
 
 ## 2. Annual data instead of the 5-year moving average
 
-The deployed specification refitted on an **annual** panel against the smoothed one, both rebuilt
+The selected specification refitted on an **annual** panel against the smoothed one, both rebuilt
 from the madrat cache (the smoothed rebuild reproduces the `v5` panel to 0.018; `annual.rds`):
 
-| | Bulk MA5 | Bulk annual | Diffuse MA5 | Diffuse annual |
+| | Power & industry MA5 | Power & industry annual | Buildings & transport MA5 | Buildings & transport annual |
 |---|---:|---:|---:|---:|
 | frontier slack share γ | 0.987 | 0.984 | 0.982 | 0.957 |
 | frontier coefficient signs agreeing | — | **14 / 17** (flips: three near-zero terms) | — | **17 / 17** |
@@ -89,15 +89,15 @@ from the madrat cache (the smoothed rebuild reproduces the `v5` panel to 0.018; 
 - **The frontier does not depend on the smoothing.** Same signs, same slack structure, the same
   2022 ordering (0.98 / 0.93). Switching the *ceiling* to annual data changes little and removes a
   disclosed choice.
-- **λ does.** Annual estimates are 1.7× (Bulk) and 4× (Diffuse) the smoothed ones: the moving
+- **λ does.** Annual estimates are 1.7× (Power & industry) and 4× (Buildings & transport) the smoothed ones: the moving
   average makes yearly changes strongly autocorrelated (0.73–0.80 vs ~0), which reads as slow
-  adjustment. A large part of the deployed λ is a smoothing artefact. The placebo battery that puts λ
+  adjustment. A large part of the selected λ is a smoothing artefact. The placebo battery that puts λ
   inside its null was run on smoothed panels and would have to be re-run on annual ones before any
   annual λ is used.
 - **It does not go against REMIND.** The frontier is a levels model without dynamics; REMIND's
   5-year periods only matter for the projection recursion, which already compounds an annual rate
   over each period (`1 − (1 − λ)^Δt`). What *would* change for REMIND is the 2022 → 2035 projection:
-  at the annual Diffuse λ (half-life 2.3 yr) almost every country would reach its equilibrium by
+  at the annual buildings & transport λ (half-life 2.3 yr) almost every country would reach its equilibrium by
   2035, so the 2035 share would measure the ratio of two fitted models (S_eq / S*) rather than
   observed shortfall. That strengthens the case for §3's frozen-gap reading.
 - **Recommendation:** fit the frontier on annual data in v6 (or report it as a robustness rung);
@@ -106,15 +106,15 @@ from the madrat cache (the smoothed rebuild reproduces the `v5` panel to 0.018; 
 ## 3. Extra tier years (2050, 2070)
 
 `tiers.rds`. Two projection rules for the stringency S that the gap needs:
-**speed-limited** (deployed: S moves toward the ECM equilibrium at λ, capped by S\*) and
+**speed-limited** (selected: S moves toward the ECM equilibrium at λ, capped by S\*) and
 **frozen gap** (each country keeps its fitted 2022 ratio E = S/S\*; only the ceiling moves).
 
 | reading | speed-limited | frozen gap |
 |---|---|---|
 | φ 2050 vs 2035 | Spearman **0.46**, median \|Δφ\| 0.175, floor ECS,REF → CHA | Spearman 0.998, median 0.000 |
 | φ 2070 vs 2035 | Spearman **0.10**, median 0.125, floor → CHA,IND | Spearman 0.996, median 0.002 |
-| median relative gap, Bulk 2035 / 2050 / 2070 | 0.23 / 0.38 / 0.47 | 0.30 / 0.30 / 0.30 |
-| median relative gap, Diffuse 2035 / 2050 / 2070 | 0.19 / 0.19 / 0.09 | 0.25 / 0.25 / 0.25 |
+| median relative gap, power & industry 2035 / 2050 / 2070 | 0.23 / 0.38 / 0.47 | 0.30 / 0.30 / 0.30 |
+| median relative gap, buildings & transport 2035 / 2050 / 2070 | 0.19 / 0.19 / 0.09 | 0.25 / 0.25 / 0.25 |
 
 **And the finding that matters for the paper as it stands:** at the 2035 tier year itself, the two
 rules give **Spearman 0.52, median \|Δφ\| 0.067, max 0.245 (UKI), floor ECS,REF → REF**. The λ
@@ -123,10 +123,10 @@ as `papers/pfm-paper-v5/docs/gap-plan.md` GP-26, now answered offline.
 
 **Answers.**
 
-- **Under the deployed rule, later tiers reorder the world** — by 2070 the ordering is unrelated to
-  2035's (0.10). What drives it is not politics: the Bulk gap widens because the projected Bulk
+- **Under the selected rule, later tiers reorder the world** — by 2070 the ordering is unrelated to
+  2035's (0.10). What drives it is not politics: the power & industry gap widens because the projected power & industry
   equilibrium falls with decarbonisation (the incumbency and innovator coefficients of §1), and by
-  2070 88% of Diffuse innovator values are out of support. That is `MODEL.md` §7's "no scenario
+  2070 88% of buildings & transport innovator values are out of support. That is `MODEL.md` §7's "no scenario
   differences past ~2060" in numbers.
 - **Under a frozen gap, extra tiers are redundant** — and the energy-system feedback almost vanishes
   with them, because a fixed E moves the regional gap only through composition.
@@ -134,14 +134,14 @@ as `papers/pfm-paper-v5/docs/gap-plan.md` GP-26, now answered offline.
 
   | gap definition | tiers add | feedback | honesty |
   |---|---|---|---|
-  | projected S at λ (deployed) | large reordering, model-structural after 2050 | yes | rests on an unidentified λ |
+  | projected S at λ (selected) | large reordering, model-structural after 2050 | yes | rests on an unidentified λ |
   | frozen 2022 E | nothing | nearly none | no unsupported parameter |
   | frozen E **plus a declared closure path** θ(t) = θ(1−κ)^(t−2035), κ swept | a severity path, not an ordering | through the ceiling only | declared, like θ |
 
 - **If tiers are added anyway**, the mechanics are simple and keep the paper manageable: read φ at
   2035 and 2050, interpolate linearly between them, hold the 2050 value afterwards; do **not** go to
   2070 (support). The mode-L bound is already indexed by year (`p45_pfmPriceBound(ttot, …)`), so the
-  held-price runs need no GDX change; rule C and ratio mode need a year-indexed share
+  hold-the-price runs need no GDX change; hold the budget and proportional mode need a year-indexed share
   (`../_archive/_wip/2026-10-01/docs/pfm_dynamic_ssp_coupling_architecture.md` §4.4). Report it as one SI sensitivity against the
   2035-only main result, not as a second headline.
 
@@ -180,16 +180,16 @@ through the same projection. But the three questions are one question:
 | step | what | cost | why first |
 |---|---|---|---|
 | 1 | a projection-rule switch in `iterativePFM()` (frozen 2022 E vs λ) and a frozen-gap `v5` sensitivity run | small code, 2 runs per resolution | 2035 floor and ordering depend on it (Spearman 0.52) — the paper's own open GP-26 |
-| 2 | frontier on the annual panel as a rung (or as the deployed fit) | one re-fit | removes the smoothing choice; ordering already robust |
+| 2 | frontier on the annual panel as a rung (or as the selected fit) | one re-fit | removes the smoothing choice; ordering already robust |
 | 3 | innovator power on the saturating transform, re-select | a sweep | prerequisite for any reading after 2035 |
-| 4 | a 2050 tier as an SI sensitivity: linear 2035 → 2050, held after | GDX symbol for rule C / ratio | only after 1–3 |
+| 4 | a 2050 tier as an SI sensitivity: linear 2035 → 2050, held after | GDX symbol for hold the budget / ratio | only after 1–3 |
 | 5 | SSP governance swap (SSP1 / SSP3) on the SSP2 energy system, offline | a day | measures whether the SSP signal survives normalisation before any SSP run |
 
 ## Caveats
 
 - One coupled run's final energy system, EU21 only, θ = 0.50; REMIND does not respond to any variant,
   so these are first-round effects, not coupled results.
-- Shares in §1 and §3 use deployed coefficients; §2 re-fits on rebuilt panels (control 0.018 max
+- Shares in §1 and §3 use selected coefficients; §2 re-fits on rebuilt panels (control 0.018 max
   difference to the `v5` panel).
 - `pfm::projectFeasiblePath(rule = "frozen-gap")` returns `NA` for every row on the coupled scenario
   frame (the seed ceiling is taken from the earliest frame year). The frozen gap here is built in the

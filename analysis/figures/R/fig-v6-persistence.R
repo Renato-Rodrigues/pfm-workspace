@@ -1,16 +1,17 @@
 # The persistence ladder (design note 0006): every result of both closures against how long the political
-# drag lasts, EU21, theta = 0.50. Read from coupling/persistence-ladder.rds (analysis/v6/persistenceLadder.R).
+# limit lasts, EU21, theta = 0.50. Read from coupling/persistence-ladder.rds (analysis/v6/persistenceLadder.R).
 #
-#   v6-persistence-ladder  three panels sharing the rungs: extra CO2 by 2100 when the price is held; the
+#   v6-persistence-ladder  three panels sharing the cases: extra CO2 by 2100 when the price is held; the
 #                          global price in 2050 and the abatement moved between regions when the budget is held
-#   v6-cumulative-co2      cumulative CO2 to 2150 when the price is held, one line per rung against the
+#   v6-cumulative-co2      cumulative CO2 to 2150 when the price is held, one line per case against the
 #                          theta = 0 run: whether and when it peaks (net-zero CO2)
 #
-# The rungs are ordered from the most persistent drag to the fastest erosion, in one hue from dark to light.
+# The cases are ordered from the most persistent limit to the fastest erosion, in one hue from dark to light.
+# The names are the labels of SCENARIOS.md 2.6; the keys are the run-name pieces.
 
 .pfmRungs <- function() {
-  c(backslide = "drag growing (backsliding)", Ehold = "today's drag held", deployed = "fading with the transition",
-    kappa02 = "plus erosion κ 0.02", kappa = "plus erosion κ 0.027", kappa05 = "plus erosion κ 0.05")
+  c(backslide = "growing limit", Ehold = "constant limit", deployed = "fading limit",
+    kappa02 = "fading + erosion 2% a year", kappa = "fading + erosion 2.7% a year", kappa05 = "fading + erosion 5% a year")
 }
 
 figV6PersistenceLadder <- function(group = "v6", resolution = "EU21") {
@@ -44,9 +45,9 @@ figV6PersistenceLadder <- function(group = "v6", resolution = "EU21") {
     ggplot2::scale_fill_manual(values = c(`by 2100` = pfmAccent(), `2020–2050` = "grey65", `2051–2100` = "#5B9BD5"),
                                breaks = c("2020–2050", "2051–2100"), name = "abatement moved:") +
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.22))) +
-    ggplot2::labs(title = "How long the political drag lasts orders every result, under both closures",
+    ggplot2::labs(title = "How long the political limit lasts orders every result, under both closures",
                   subtitle = paste0("Coupled REMIND runs, ", resolution, ", θ = 0.50, 1000 Gt budget, each against its θ = 0 run.\n",
-                                    "Top row: the drag persists longest. Abatement moved: half the sum of regional changes, 2020–2100."),
+                                    "Top row: the limit persists longest. Abatement moved: half the sum of regional changes, 2020–2100."),
                   x = NULL, y = NULL)
   attr(p, "pfmGrid") <- "x"
   attr(p, "pfmTheme") <- ggplot2::theme(legend.position = "bottom", strip.text = ggplot2::element_text(hjust = 0, face = "bold"))
@@ -61,7 +62,7 @@ figV6CumulativeCo2 <- function(group = "v6", resolution = "EU21") {
   P$line <- ifelse(P$rung == "null", "no political limit (θ = 0)", R[P$rung])
   lv <- c(unname(rungs), "no political limit (θ = 0)")
   P$line <- factor(P$line, levels = lv)
-  # one hue, dark (persistent drag) to light (fast erosion); the theta = 0 run in grey
+  # one hue, dark (persistent limit) to light (fast erosion); the theta = 0 run in grey
   shades <- grDevices::colorRampPalette(c("#0B3C61", "#9CC3E4"))(length(rungs))
   cols <- c(stats::setNames(shades, unname(rungs)), `no political limit (θ = 0)` = "grey45")
   pk <- do.call(rbind, lapply(split(P, P$line), function(x) { i <- which.max(x$cum); x[i, ] }))
@@ -76,8 +77,8 @@ figV6CumulativeCo2 <- function(group = "v6", resolution = "EU21") {
     ggplot2::geom_text(data = end, ggplot2::aes(label = sprintf("%.0f Gt", cum)), hjust = -0.15, size = 2.5, show.legend = FALSE) +
     ggplot2::scale_colour_manual(values = cols, name = NULL) +
     ggplot2::scale_x_continuous(breaks = c(2025, 2050, 2075, 2100, 2125, 2150), expand = ggplot2::expansion(mult = c(0.01, 0.1))) +
-    ggplot2::labs(title = "If the political drag does not erode, cumulative CO₂ is still rising in 2150",
-                  subtitle = paste0("Hold the price (rule B), ", resolution, ", θ = 0.50: cumulative CO₂ from 2020, Gt.\n",
+    ggplot2::labs(title = "If the political limit does not erode, cumulative CO₂ is still rising in 2150",
+                  subtitle = paste0("Hold the price, ", resolution, ", θ = 0.50: cumulative CO₂ from 2020, Gt.\n",
                                     "A dot marks the year it peaks (net-zero CO₂); no dot: still rising in 2150."),
                   x = NULL, y = "cumulative CO₂ (Gt)")
   attr(p, "pfmGrid") <- "y"

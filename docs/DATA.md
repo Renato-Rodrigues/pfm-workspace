@@ -35,8 +35,8 @@ iteration.
 
 | Block | Source (madrat type) | Edition in hand | Years | Countries with data 2022 / 2023 (v5 cache) | Enters as |
 |---|---|---|---|---|---|
-| **Outcome** | OECD CAPMF (`CAPMF` → `calcPolicyStringency`) | official database, downloaded June 2026 | 1990–2023 | 49 / 49 | Policy Stringency Bulk (mean of Electricity, Industry), Diffuse (Buildings, Transport); never imputed |
-| Outcome (legacy, retired model) | World Bank Carbon Pricing Dashboard (`WBCarbonPricingDashboard` → `calcCarbonPrice`) | `data_2025.xlsx` | 1994–2025 | 45 / 45 | effective carbon price, Bulk / Diffuse; 2023 emission shares carried to 2024–25 |
+| **Outcome** | OECD CAPMF (`CAPMF` → `calcPolicyStringency`) | official database, downloaded June 2026 | 1990–2023 | 49 / 49 | Policy Stringency power & industry (mean of Electricity, Industry), buildings & transport (Buildings, Transport); never imputed |
+| Outcome (legacy, retired model) | World Bank Carbon Pricing Dashboard (`WBCarbonPricingDashboard` → `calcCarbonPrice`) | `data_2025.xlsx` | 1994–2025 | 45 / 45 | effective carbon price, power & industry / buildings & transport; 2023 emission shares carried to 2024–25 |
 | Energy (actor power) | IEA World Energy Balances via mrremind `calcPE`, `calcFE` | **2024 edition** (`ieaVersion = "default"`, complete to 2022) — v5; **2025 edition** (`"latest"`, complete to 2023) — v6 | 1960–2022 (2024 ed.) / –2023 (2025 ed.) | 208 / – (2024 ed.) | primary and final energy by carrier → innovator / incumbent power, energy intensity, hydro + nuclear share |
 | Energy (electricity) | Ember yearly electricity data (`Ember`, `subtype = "generation"`) | cache to 2024 | 2000–2024 | 212 / 210 | wind, solar and total electricity generation |
 | Institutions | World Bank WGI (`WGIindicator`) | 2025 release (`wgidataset_with_sourcedata-2025.xlsx`) | 1996–2024 | 249 / 249 | Government Effectiveness, Voice and Accountability, Political Stability, Regulatory Quality, Control of Corruption, Rule of Law |
@@ -51,7 +51,7 @@ OECD value added (`OECDValueAdded`, sector weights), EDGAR GHG (`EDGARghg`), Glo
 
 **Rule of Law: V-Dem, not WGI.** The candidate set the sweep searches over uses the V-Dem Rule of
 Law index. WGI Rule of Law is built and normalised but not a candidate (author's decision; it stays
-so in v6). The `v5` deployed spec `X-2079 WGIge|noRoL|VerAcc …` carries no Rule-of-Law term at all.
+so in v6). The `v5` selected specification `X-2079 WGIge|noRoL|VerAcc …` carries no Rule-of-Law term at all.
 Consequence for projections: the Rule of Law the sweep can pick has **no** SSP projection; it
 follows the institution rule (§5.4), not the Andrijevic Rule-of-Law path.
 
@@ -76,7 +76,7 @@ and recorded (`pfm::pfmPanelDef()`):
 - **The moving average is applied to every panel series, outcomes included**, after normalisation.
   It is centred and shrinks at the edges (the 2022 value of `v5` is the mean of 2020–2022; the
   2023 value of `v6` the mean of 2021–2023), so no year is lost.
-- **Why smoothed is the deployed fit and annual the sibling** (design note 0005 D3): the anchor
+- **Why smoothed is the selected fit and annual the sibling** (design note 0005 D3): the anchor
   reads the ranking in one year, and single-year CAPMF noise would enter it directly. `v6-annual`
   is the robustness rung: same candidate set, same selection, unsmoothed panel. It is a separate
   Run-Group, so it has its own panel hash, fit cache entries and manifest.
@@ -187,7 +187,7 @@ smoothed value there. Since 2026-10-06 (decision 2B) the path is then harmonised
 every other series (§5.5), so the scenario starts where history ends. Under (d) `hold` this means the
 held value moves from the panel's anchor value to the raw last observation by 2040, not a flat line
 from 2023. The storyline rule is in the headline (0005 D10, decision 1A of 2026-10-06), with an
-"institutions held" twin for each headline cell.
+"institutions held" variant for each headline cell.
 
 ### 5.5 Harmonisation to history
 
@@ -212,7 +212,7 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
 
 1. **Outcomes are never imputed.** A country-year with no CAPMF value is out of the sample; a region
    aggregates over its data-bearing members only.
-2. **Panel definition** per §3: smoothed (5-year centred, outcomes included) for the deployed fit,
+2. **Panel definition** per §3: smoothed (5-year centred, outcomes included) for the selected fit,
    annual as the sibling rung.
 3. **2023 from the 2025 IEA edition**, which also revises earlier years (§4).
 4. **Institution indices** are imputed over gaps by time interpolation and, where a country has
@@ -249,7 +249,7 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
   panel (`f8845f66`) in every variable to 1e-15 **except Urban Population Share for Austria**
   (up to 0.018, growing from 2000 to 2014): the cached SSP-extension file differs from the one the
   fit read. Both `pfm` 0.6.0 and the current code show it, so it predates the v6 changes. The
-  deployed `v5` spec does not use urban share; the gap is recorded, not repaired.
+  selected `v5` spec does not use urban share; the gap is recorded, not repaired.
 - **Sources differ between machines.** The workstation's raw Ember file is the January 2024
   release while the `v5` cache holds Ember to 2024; raw sources are only read for calculations no
   cache has. Reproduce from the group's cache, not from a fresh compute.

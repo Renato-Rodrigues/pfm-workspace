@@ -7,8 +7,8 @@
 #           headline rung; the object Fig. 3b's rank spans describe)
 #   offline the PFM-side bound at 2025 with the published lambda as a speed limit and REMIND not
 #           re-optimising (coupling-summary.rds$boundAnchor; combined share, min rule)
-#   coupled the share REMIND received in the held-price headline run, read at the tier year 2035 after
-#           the projection (coupled-runs.rds, -PFMlevelBfix; per sector: ETS pays Bulk, ES pays Diffuse)
+#   coupled the share REMIND received in the hold-the-price headline run, read at the tier year 2035 after
+#           the projection (coupled-runs.rds, -PFMlevelBfix; per sector: ETS pays power & industry, ES pays buildings & transport)
 # The referee's point: the step from seed to coupled includes a projection whose rate cannot be told
 # from a placebo, and it moves at least one large region (China, supply side) from the floor to 1.
 #

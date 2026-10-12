@@ -11,11 +11,11 @@
 #     Var(beta_Inc) + GovEff^2 Var(beta_Inc:GovEff) + 2 GovEff Cov(beta_Inc, beta_Inc:GovEff)
 #
 # The covariance term is the one a coefficient table cannot give you, and it is not small:
-# at v1 Cov = -0.00119 in Bulk, so ignoring it would overstate the interval where the two
+# at v1 Cov = -0.00119 in power & industry, so ignoring it would overstate the interval where the two
 # terms pull together and understate it elsewhere. This figure was BLOCKED until
 # runPFMFrontier() started persisting $vcov and $support (2026-08-18).
 #
-# BOTH INCUMBENCY TERMS, ONE ROW EACH (added 2026-09-18, TODO item 37). The deployed spec is
+# BOTH INCUMBENCY TERMS, ONE ROW EACH (added 2026-09-18, TODO item 37). The selected specification is
 # `bothIncAP`: incumbency enters twice, as a SHARE of the energy system and PER CAPITA, and the
 # two are different claims about how fossil interests bind. Drawing only the share term showed
 # half the mechanism, and the half that was drawn was the one whose sign is easier to read.
@@ -39,7 +39,7 @@ figMarginalEffectIncumbency <- function(group = "v5",
 
   # RESOLVE the actor-power terms against the spec, do not assume their spelling. `v1`'s X-0370
   # carried `Incumbent.Power`; a `splitAPpc` spec carries `Incumbent.Power.pc` only; the
-  # deployed `bothIncAP` spec carries both (ADR 0044). Hardcoding one name made this figure
+  # Selected `bothIncAP` spec carries both (ADR 0044). Hardcoding one name made this figure
   # fail on `v4` with "the interaction is not in this spec", which read as a missing term when
   # it was a renamed one. Take whatever variants the spec has that also carry the interaction.
   allTerms <- unique(unlist(lapply(fr$bySector, function(b) b$coefTable$term)))
@@ -127,7 +127,7 @@ figMarginalEffectIncumbency <- function(group = "v5",
       title = "Fossil incumbency bites differently depending on state capability",
       subtitle = paste0(
         "Marginal effect of incumbent power on the ceiling as government effectiveness varies, ",
-        "with 95% ML intervals\nfrom the frontier covariance matrix. The deployed spec carries ",
+        "with 95% ML intervals\nfrom the frontier covariance matrix. The selected specification carries ",
         "incumbency TWICE - as a share of the energy system\nand per capita - and each row is one ",
         "of them. Shaded band is the observed interquartile range of the moderator;\nthe axis ",
         "spans its observed range and stops there. The second interaction is held at its sample mean."),

@@ -1,4 +1,4 @@
-# The v6 variant Run-Groups through the v6 formulation, offline (design note 0005 Phase 5 wave 2 inputs).
+# The v6 variant Run-Groups through the v6 formulation, offline (design note 0005 Phase 5 second batch inputs).
 #   Rscript analysis/v6/variantGroups.R          (repo root; after analysis/v6/phase1.R and the variants'
 #                                                 exports in output/remind-inputs/<group>)
 # For every exported v6* group with an anchor artifact: its spec, frontier gamma, the assignment basis

@@ -6,14 +6,14 @@
 #   cd /p/projects/elevate/WP3.4          # the project root: output/, models/pfm/, output/remind-inputs/ side by side
 #   Rscript analysis/run-groups/makeGroupVariants.R  # all six
 #   Rscript analysis/run-groups/makeGroupVariants.R v5-usadonor v5-usalow   # only some
-#   PFM_VARIANT_BASE=v6 Rscript analysis/run-groups/makeGroupVariants.R v6-nearest   # twins of another base
-# On a v6 base (one with phi-anchor.rds) only the assignment twins are built: each twin's anchor is
+#   PFM_VARIANT_BASE=v6 Rscript analysis/run-groups/makeGroupVariants.R v6-nearest   # variants of another base
+# On a v6 base (one with phi-anchor.rds) only the assignment variants are built: each variant's anchor is
 # REBUILT from its own assignment (pfm-anchor) and checked to differ from the base's - a copied anchor
-# would make the twin couple exactly like the base. The phi-override groups do not exist for v6 (the
+# would make the variant couple exactly like the base. The phi-override groups do not exist for v6 (the
 # ordering tests are the pfmPhiOrdering columns, D15); spec variants come from makeSpecVariantGroup.R.
 #
 # What it does, per group:
-#   * twins of v5 (usadonor, usalow, allmedian, alllow, nearest): copies output/pfm/v5 -> output/pfm/<group> if absent,
+#   * Variants of v5 (usadonor, usalow, allmedian, alllow, nearest): copies output/pfm/v5 -> output/pfm/<group> if absent,
 #     re-runs ONLY the donor step with the group's basisOverride (or, for -nearest, its matching rule:
 #     every uncovered country on its nearest donors, design note 0005 §7a decision 3), and VERIFIES the result - the donor
 #     step returns without an error when it cannot find the panel, so a silent no-op is checked for;
@@ -37,7 +37,7 @@ source("analysis/_common/_loadPfm.R")      # the source tree, not a possibly sta
 # the files a step writes right after it. On the cluster pfmRun() otherwise submits to SLURM and returns
 # at once, so the check failed before the job had started (2026-10-07).
 # Where the Run-Groups and the Fit Cache are: config.yml (output/pfm, output/pfm/fit-cache). The donor
-# step's own defaults are the pre-2026-10-01 layout (output/), so without this every twin failed with
+# step's own defaults are the pre-2026-10-01 layout (output/), so without this every variant failed with
 # "Run-Group 'output/<group>' does not exist" after copying the base (2026-10-07).
 local({
   `%||%` <- function(a, b) if (is.null(a)) b else a   # not in base R 4.3
@@ -55,7 +55,7 @@ twins <- list(
   allmedian = stats::setNames(rep("median",  length(unc)), unc),
   alllow    = stats::setNames(rep("lowBand", length(unc)), unc))
 names(twins) <- paste0(base, "-", names(twins))
-# Twins that change the matching rule rather than the bases: donor-step arguments, the USA override kept.
+# Variants that change the matching rule rather than the bases: donor-step arguments, the USA override kept.
 ruleTwins <- list(nearest = list(qualityQuantiles = c(0.5, Inf)))
 names(ruleTwins) <- paste0(base, "-", names(ruleTwins))
 exportOnly <- paste0(base, c("-specalt", "-noinc"))
@@ -135,8 +135,8 @@ for (g in todo) {
       if (!all(ok)) stop("copy to output/", g, " incomplete")
     }
     # A v6 base carries phi-anchor.rds, which holds the ranking u built from the BASE's donor
-    # assignment. Copied as it is, the twin would export the base's anchor and couple exactly like the
-    # base, silently. Remove it here; it is rebuilt from the twin's own assignment below.
+    # assignment. Copied as it is, the variant would export the base's anchor and couple exactly like the
+    # base, silently. Remove it here; it is rebuilt from the variant's own assignment below.
     anchorBase <- file.path("output/pfm", base, "phi-anchor.rds")
     v6base <- file.exists(anchorBase)
     if (v6base) unlink(file.path("output/pfm", g, "phi-anchor.rds"))
@@ -169,7 +169,7 @@ for (g in todo) {
     if (!file.exists(af)) stop("pfm-anchor did not write ", af, " - nothing exported")
     a1 <- readRDS(af); a0 <- readRDS(anchorBase)
     if (identical(a1$country, a0$country)) {
-      stop(g, ": the rebuilt anchor equals ", base, "'s - the twin's assignment did not reach it. Nothing exported.")
+      stop(g, ": the rebuilt anchor equals ", base, "'s - the variant's assignment did not reach it. Nothing exported.")
     }
     cat("anchor rebuilt from ", g, "'s own assignment (differs from ", base, "'s)
 ", sep = "")

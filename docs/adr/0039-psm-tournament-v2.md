@@ -14,8 +14,8 @@ The Maximin Selection Rule's stated principle is "a spec is scored by its worse 
 its implementation ranks worse-sector *tier* first and *mean* ΔR²(theory) second. Two
 documented consequences for the PSM: the tier metric structurally favors composite-AP specs
 (interaction-carried signal demotes split forms to Blue — the R1 attribution finding), and
-mean-ΔR² lets a strong Diffuse compensate a weak Bulk (deployed X-1203: Bulk 0.039 vs
-Diffuse 0.163). Separately, composite-AP deployments are scenario-blind under the
+mean-ΔR² lets a strong buildings & transport compensate a weak power & industry (selected X-1203: power & industry 0.039 vs
+Buildings & transport 0.163). Separately, composite-AP deployments are scenario-blind under the
 driver-support guard (|CA−NPi| ≈ 0 by 2050), making them unusable for IAM coupling; and the
 corrected country-resolution sweep raises the achievable worse-sector theory contribution
 substantially (Green-tier min-ΔR² 0.105 vs 0.067 at R54).

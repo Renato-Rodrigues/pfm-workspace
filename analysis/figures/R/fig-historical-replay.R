@@ -7,10 +7,10 @@
 #   * against PERSISTENCE the coupled system is far better (skill +0.71 / +0.73) - which is
 #     unsurprising, because persistence is a very weak baseline over 22 years;
 #   * against the ECM - the model it is actually meant to improve on - the gain is +0.003 in
-#     Bulk and +0.038 in Diffuse. In Bulk that is indistinguishable from nothing.
+#     Power & industry and +0.038 in buildings & transport. In power & industry that is indistinguishable from nothing.
 #
 # And the reason it is nearly nothing is the third number: the ceiling BINDS in only 1.6% of
-# Bulk rows and 4.0% of Diffuse rows over the historical window. A constraint that almost never
+# Power & industry rows and 4.0% of buildings & transport rows over the historical window. A constraint that almost never
 # binds cannot change much, so this gate rules out a BROKEN coupling; it does not validate the
 # ceiling. Out of sample the binding share is an order of magnitude larger (84.5% of
 # region-years), and nothing here speaks to that regime. MODEL.md 8.4.
@@ -58,7 +58,7 @@ figHistoricalReplay <- function(group = "v5") {
       subtitle = sprintf(paste0(
         "Root-mean-square error against observed stringency, replayed from a %d seed over ",
         "%d country-years.\nAgainst persistence the coupled system wins easily; against the ",
-        "uncoupled ECM — the model it must actually\nimprove on — it gains 0.003 in Bulk. ",
+        "uncoupled ECM — the model it must actually\nimprove on — it gains 0.003 in power & industry. ",
         "The constraint is rarely active, so there is little for it to change."),
         hr$seedYear, d$n[1]),
       x = "RMSE against observed stringency (lower is better)", y = NULL)

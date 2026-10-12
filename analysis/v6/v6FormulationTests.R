@@ -2,11 +2,11 @@
 #
 #   Rscript analysis/v6/v6FormulationTests.R [guard] [annual] [tiers] [ssp]      (from the repo root)
 #
-# Everything is Run-Group v5 and OFFLINE: coefficients are the deployed v5 fits (E1, E3) or refits
+# Everything is Run-Group v5 and OFFLINE: coefficients are the selected v5 fits (E1, E3) or refits
 # on a rebuilt panel (E2); the energy system is the final state of ONE coupled run
 # (SSP2-EU21-PkBudg1000-PFMlevelBfix); nothing is re-optimised by REMIND.
 #   E1 guard  - which driver clamps bind, when, and what removing them does to ceilings and phi
-#   E2 annual - the deployed spec refitted on an annual (unsmoothed) panel vs the 5-yr moving average
+#   E2 annual - the selected specification refitted on an annual (unsmoothed) panel vs the 5-yr moving average
 #   E3 tiers  - phi read at 2035 / 2050 / 2070, speed-limited vs frozen-gap projection
 #   E4 ssp    - GovEff under SSP1 / SSP3 instead of SSP2 (only if the madrat cache has them)
 # Output: output/pfm/v5/v6-tests/<part>.rds and a printed summary. Not a Run-Group artifact.
@@ -173,7 +173,7 @@ if ("tiers" %in% args) {
 #   ratio    S(t) = E0 * S*(t)                         relative gap constant; ceiling changes never reach phi
 #   absolute S(t) = max(S*(t) - (1 - E0) S*0, 0)       index-point gap D constant; g(t) = D / S*(t)
 #   logit-u  S(t) = 10 logistic(logit(S*(t)/10) - u)   the frontier's own shortfall u constant (logit scale)
-# plus the deployed speed-limited path for reference.
+# plus the selected speed-limited path for reference.
 if ("gaprules" %in% args) {
   say("E3b gap rules")
   sq <- function(p, n = 1056) (p * (n - 1) + 0.5) / n
@@ -208,7 +208,7 @@ if ("gaprules" %in% args) {
   names(res) <- rules
   tab <- do.call(rbind, lapply(rules, function(rl) {
     ph <- res[[rl]]$phi
-    rbind(cbind(rule = rl, what = "2035 vs deployed 2035", cmp(res[["speed-limited"]]$phi[[1]]$wide, ph[[1]]$wide)),
+    rbind(cbind(rule = rl, what = "2035 vs selected 2035", cmp(res[["speed-limited"]]$phi[[1]]$wide, ph[[1]]$wide)),
           cbind(rule = rl, what = "2050 vs own 2035", cmp(ph[[1]]$wide, ph[[2]]$wide)),
           cbind(rule = rl, what = "2070 vs own 2035", cmp(ph[[1]]$wide, ph[[3]]$wide)))
   }))
@@ -276,7 +276,7 @@ if ("levels" %in% args) {
                  spearmanS = 1, medAbsSstar = stats::median(abs(m$Sstar.r - m$Sstar.h)))
     }))
   }))
-  # (b) regional shares from levels, read at three tier years on the deployed projection
+  # (b) regional shares from levels, read at three tier years on the selected projection
   ps <- stats::setNames(lapply(SECT, function(s) project(s)$path), SECT)
   mm <- function(x) { u <- (max(x) - x) / (max(x) - min(x)); 1 - THETA * u }   # highest level -> phi = 1
   shares <- lapply(c(2035, 2050, 2070), function(ty) {
@@ -361,8 +361,8 @@ if ("isotonic" %in% args) {
 # phi_rs(t) = 1 - theta [ k_s(t) ubar_s + d_s(t) (u_rs - ubar_s) ],  k = G(t)/G(2025) (weighted mean gap),
 # d = D(t)/D(2025) (weighted SD of the regional gaps). Ranking u_rs from the 2022-anchored gaps (E held from 2022,
 # read at 2025). Government effectiveness swapped to SSP1 / SSP3 by adding (SSPx - SSP2) of the normalised SSP
-# index to the deployed SSP2 driver, so the deployed normalisation and 2022 harmonisation stay intact. GDP and
-# population stay SSP2 (not cached for other SSPs); the energy system is the SSP2 held-price run's.
+# index to the selected SSP2 driver, so the selected normalisation and 2022 harmonisation stay intact. GDP and
+# population stay SSP2 (not cached for other SSPs); the energy system is the SSP2 hold-the-price run's.
 if ("sspstrength" %in% args) {
   say("E7 SSP level + spread")
   raw <- readRDS(file.path(ROOT, "data/madrat/convertSSPextensions.rds")); if (is.list(raw) && !is.null(raw$x)) raw <- raw$x

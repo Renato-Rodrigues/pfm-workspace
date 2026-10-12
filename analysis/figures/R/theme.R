@@ -9,6 +9,42 @@ pfmSectorColours <- function() {
   c(Bulk = "#1B6CA8", Diffuse = "#C2571A")
 }
 
+#' Sector labels shown on a chart. The data and the code keep the keys `Bulk` / `Diffuse`; what a
+#' reader sees is the plain name (`SCENARIOS.md` 2.6, `CONTEXT.md`).
+pfmSectorLabels <- function() c(Bulk = "Power & industry", Diffuse = "Buildings & transport")
+
+#' Replace the sector keys inside any label text
+pfmSectorLabel <- function(x) {
+  if (is.null(x)) return(x)
+  L <- pfmSectorLabels()
+  out <- as.character(x)
+  for (k in names(L)) out <- gsub(paste0("\\b", k, "\\b"), L[[k]], out, perl = TRUE)
+  names(out) <- names(x)
+  out
+}
+
+#' Show the sector keys of a finished plot by their labels: facet strips and the legends of
+#' discrete scales. The data is left alone, so a builder's subsetting and colour names still work.
+#' buildFigure() applies it to every figure.
+pfmRelabelSectors <- function(p) {
+  if (!inherits(p, "ggplot")) return(p)
+  if (!is.null(p$facet$params$labeller)) {
+    old <- p$facet$params$labeller
+    p$facet$params$labeller <- function(labels) {
+      labels[] <- lapply(labels, pfmSectorLabel)
+      if (is.function(old)) old(labels) else ggplot2::label_value(labels)
+    }
+  }
+  for (s in p$scales$scales) {
+    if (!inherits(s, "ScaleDiscrete")) next
+    lab <- s$labels
+    s$labels <- if (inherits(lab, "waiver")) pfmSectorLabel
+                else if (is.function(lab)) local({ f <- lab; function(x) pfmSectorLabel(f(x)) })
+                else pfmSectorLabel(lab)
+  }
+  p
+}
+
 #' Sequential accent used for single-series figures
 pfmAccent <- function() "#1B6CA8"
 pfmMuted  <- function() "grey55"

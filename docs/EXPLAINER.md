@@ -38,8 +38,8 @@ happens to the mitigation pathway once you take that seriously?**
 The OECD's Climate Actions and Policies Measurement Framework (CAPMF) scores national climate
 policy stringency on a **0–10** index. We use two sector groups, because the politics differ:
 
-- **Bulk** — electricity and industry. Few, large, organised actors.
-- **Diffuse** — buildings and transport. Costs land on households directly.
+- **Power & industry** — electricity and industry. Few, large, organised actors.
+- **Buildings & transport** — buildings and transport. Costs land on households directly.
 
 Call this observed stringency $S$. It exists for **48 countries**, 2001–2023; the model must
 eventually speak for **248**.
@@ -95,8 +95,8 @@ relative to that country's own frontier, never an absolute number of index point
 > is small. Ranking on absolute gaps rewards that — it reads "little left to do" where it
 > should read "little capacity".
 
-In 2023 the median country realises about **74%** (Bulk) and **78%** (Diffuse) of its own ceiling.
-Bulk is the more constrained sector in 32 of the 48 countries.
+In 2023 the median country realises about **74%** (Power & industry) and **78%** (Buildings & transport) of its own ceiling.
+Power & industry is the more constrained sector in 32 of the 48 countries.
 
 **Which country sits where is less certain than that.** Re-estimating the frontier with different,
 equally defensible assumptions about the shortfall reshuffles the country ranking considerably.
@@ -158,8 +158,8 @@ $\theta$ is the **severity dial** — a choice, not an estimate — so it is swe
 0.675**. There is no historical experiment that would let us estimate it. **$\theta = 0$ switches the
 whole thing off**, which is how we test the machinery is wired correctly.
 
-**κ, the declared erosion** — one sensitivity, not the headline: the strength also shrinks by κ a
-year, whatever the drivers do — "politics improves by itself". Declared at **0.027** (the drag halves
+**κ, the erosion rate** — one sensitivity, not the headline: the strength also shrinks by κ a
+year, whatever the drivers do — "politics improves by itself". Declared at **0.027** (the limit halves
 by mid-century), with 0.02 and 0.05, before any run that uses it.
 
 ## Step 8 — Connect it to REMIND
@@ -171,11 +171,11 @@ $$P = \min\big(A,\ P^{\text{ref}} + \varphi\,(A - P^{\text{ref}})\big)$$
 with $A$ the cost-optimal global price and $P^{\text{ref}}$ today's policy. What REMIND may do in
 response is the experiment, run two ways:
 
-**Hold the price (rule B).** The global price stays on the path that meets the budget without
+**Hold the price.** The global price stays on the path that meets the budget without
 politics; the cap binds; emissions are what they are. *Says:* how much carbon budget does political
 feasibility cost?
 
-**Hold the budget (rule C).** The budget must still be met; REMIND raises the global price until it
+**Hold the budget.** The budget must still be met; REMIND raises the global price until it
 is. *Says:* who pays more, who pays less, and where does abatement move?
 
 A third mode from the previous version, which *generated* the price from political momentum, is
@@ -212,8 +212,8 @@ price makes the model *succeed* while producing nonsense.
 |---|---|
 | **reference** | uncoupled — the plain baselines (current policies, the 1000 Gt budget) |
 | **gate** (θ = 0) | is the machinery wired correctly? Must match a uniform-price reference |
-| **hold the price** (rule B) | how much carbon budget does political feasibility cost? |
-| **hold the budget** (rule C) | where does the price and the abatement move? |
+| **hold the price** (hold the price) | how much carbon budget does political feasibility cost? |
+| **hold the budget** (hold the budget) | where does the price and the abatement move? |
 | **θ = 0.325 / 0.675** | how much of the answer is the severity dial? |
 | **institutions held** | how much rests on projected institutions? |
 | **κ = 0.02 / 0.027 / 0.05** | what if politics improves by itself? |
@@ -235,7 +235,7 @@ regions (21 and 12), so that anything resolution-specific shows up as a disagree
 pathway that meets a 1000 Gt budget. The severity dial moves it between **70 and 180**. Pricing the
 two markets separately buys back about 40 of it.
 
-**The second is how much it depends on politics improving by itself.** If the political drag
+**The second is how much it depends on politics improving by itself.** If the political limit
 erodes by itself at the declared central rate, two thirds of that cost goes (41 left). That
 assumption matters more than anything else we tested. The next largest is how the countries without
 data are placed: 110 to 155.
@@ -274,14 +274,14 @@ observed among comparable countries, not a law.
 2. **Two dials are choices.** The severity θ and the erosion κ are declared, not estimated. Any
    result that only exists at one setting is a result about the setting.
 3. **The power-and-industry institutions are not identified**, and part of how that sector's
-   strength moves rests on them. Every headline run has a twin with institutions held, and the
+   strength moves rests on them. Every headline run has a variant with institutions held, and the
    headline barely moves.
 4. **The specification is not unique.** Across resampled data, state capability and rule of law are
    in the winning model almost every time, and incumbency-in-two-forms in most; but the exact
-   deployed model wins about one draw in seven among the admissible ones, and two families of
+   selected model wins about one draw in seven among the admissible ones, and two families of
    saturation split the wins evenly. We report the other family and the curve's shape alongside.
 5. **Some regions are pinned by the dial, not by their data.** The construction guarantees that
-   *somebody* sits at the bottom of each sector's scale — under the deployed specification China in
+   *somebody* sits at the bottom of each sector's scale — under the selected specification China in
    buildings and transport and India in power and industry; under the alternative family, Russia. Their number says "ranked last", not "can only manage half".
 6. **The gap is held, not forecast.** We do not know how fast political gaps close; we assume they
    persist and report κ as the alternative.

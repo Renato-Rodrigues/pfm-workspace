@@ -2,7 +2,7 @@
 # The offline bound machinery (exportFeasibilityBound, as runPFMCouplingBound uses it) with the v6
 # shares phi_r(t) from the anchor artifact, on the v5 reference (NPi) and optimal (PkBudg1000) price
 # paths. Gives the DIRECTION of the change against v5 before any REMIND run. OFFLINE: one round, no
-# REMIND response, no held-budget closure (rule C needs REMIND) - label every number so (GP-2).
+# REMIND response, no hold-the-budget closure (hold the budget needs REMIND) - label every number so (GP-2).
 #   Rscript analysis/v6/offlineHeadline.R [group]       (repo root; after analysis/v6/phase1.R and
 #                                                        pfmRun(steps = "pfm-anchor") or runPFMAnchor)
 # Cases, EU21, sector rule "min" (the worse sector), theta 0.325 / 0.50 / 0.675:
@@ -74,7 +74,7 @@ ref <- rbind(old(file.path(GD, "coupling/coupling-summary.rds"), paste0("v5 form
              old("output/pfm/v5/coupling/coupling-summary.rds", "v5 formulation, v5 spec (pipeline; future mapping, E26)"))
 all <- rbind(ref, v6)
 saveRDS(list(summary = all, regions = do.call(rbind, regs), lambda = lambdaG, thetas = THETAS,
-             label = "OFFLINE first round - no REMIND response, no held-budget closure"),
+             label = "OFFLINE first round - no REMIND response, no hold-the-budget closure"),
         file.path(P1, "offline-headline.rds"))
 
 options(width = 220)

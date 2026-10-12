@@ -5,7 +5,7 @@
 # removed is not a result.
 #
 # THREE states, not two. An earlier version coloured everything with pMax > alpha as
-# "fragile", which is wrong: a term that was never significant in the first place (Bulk
+# "fragile", which is wrong: a term that was never significant in the first place (Power & industry
 # Innovator, p = 0.67) trivially has pMax > alpha, and calling it fragile implies there was
 # a finding to lose. The honest classification is:
 #
@@ -14,7 +14,7 @@
 #   PIVOTAL       p < alpha but one country flips it - NOT claimable, and the countries
 #                                                     are named on the figure
 #
-# MODEL.md 2.6: Bulk Horizontal Accountability is pivotal on ISL / PER / ZAF and is
+# MODEL.md 2.6: power & industry Horizontal Accountability is pivotal on ISL / PER / ZAF and is
 # explicitly not a finding. Naming them is the point - "has a pivotal country" invites the
 # reader to wonder which, and the answer is short enough to print.
 

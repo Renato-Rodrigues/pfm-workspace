@@ -11,7 +11,7 @@ Accepted — decided in a grill-with-docs session. Glossary: [[Context Dummies (
 
 von Dulong & Hagen 2025 (ERL, appraised INCLUDE) find institutions (freedom, government
 effectiveness, corruption control) are the top ML predictors of climate-policy stringency, and the
-PSM's deployed spec is trend-heavy (first-sweep median trendShare 0.64; `trendDominanceGate` 0.9).
+PSM's selected specification is trend-heavy (first-sweep median trendShare 0.64; `trendDominanceGate` 0.9).
 The obvious move — adding corruption/freedom as new channel candidates — would revise the
 2026-06-12 three-channel Institutional Quality rule.
 
@@ -33,6 +33,6 @@ The obvious move — adding corruption/freedom as new channel candidates — wou
    the R7 EU-dummy precedent — no external reader, no mrpfm chain; the tables cover both
    R54 codes (unambiguous aggregates only) and ISO3 for the country-resolution run.
 3. **Trend dominance:** no gate change now (0.5 would gut the pool; ADR 0027 lesson). Instead a
-   report-only **year-FE rung**: the deployed spec re-fit with year dummies replacing the logistic
+   report-only **year-FE rung**: the selected specification re-fit with year dummies replacing the logistic
    trend, demonstrating the channels survive within-year identification. Revisit the gate only
    after the country-level + EU-control rerun shows whether trendShare drops organically.

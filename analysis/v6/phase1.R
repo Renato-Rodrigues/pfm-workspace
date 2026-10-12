@@ -6,7 +6,7 @@
 #   1. anchors at EU21 and H12 (the ranking u, the provenance of each region's gap)
 #   2. k_s(t) on every energy system: NPi, PkBudg1000, and the coupled -PFMgate / -PFMlevelBfix /
 #      -PFMlevelC runs (how much REMIND's energy system moves k between pathways)
-#   3. the variants: E-hold (D2/C5), hold 2060 (D6), model spread (D11), regional k (D16),
+#   3. the variants: constant limit (D2/C5), drivers stop in 2060 (D6), model spread (D11), regional k (D16),
 #      ordering tests (D15/C1)
 #   4. C3: k_s(t) with only one driver group moving (actor power / institutions / controls)
 #   5. C8: the seam at the anchor year, eta of the scenario panel against history
@@ -71,7 +71,7 @@ cat("\n== out-of-support share of the drivers (C10), EU21\n")
 print(reshape(strength[strength$resolution == "EU21" & strength$sector == "Bulk", c("run", "year", "outOfSupportShare")],
               idvar = "run", timevar = "year", direction = "wide"), row.names = FALSE, digits = 2)
 
-# ── 3. variants on the two horns' energy systems (EU21) ──────────────────────────────────────
+# ── 3. variants on the two closures' energy systems (EU21) ──────────────────────────────────────
 a <- anchors$EU21
 phiOf <- function(st, ...) { p <- computeSharePath(a, st, theta = THETA, ...); p[p$sector != "min", ] }
 cmpPhi <- function(base, alt, label) do.call(rbind, lapply(c(2035, 2050, 2070), function(y) {
@@ -94,14 +94,14 @@ variants <- do.call(rbind, lapply(c("PkBudg1000", "PFMlevelBfix"), function(k) {
   regPhi$phi <- pmin(pmax(1 - THETA * regPhi$kr * regPhi$u, 0), 1)
   kpath <- function(s, lab) cbind(variant = lab, s$strength[s$strength$year %in% YRS, c("sector", "year", "k")])
   out <- rbind(
-    cmpPhi(base, phiOf(stE), "E-hold (static share, C5)"),
-    cmpPhi(base, phiOf(st60), "hold 2060 (D6)"),
+    cmpPhi(base, phiOf(stE), "constant limit (C5)"),
+    cmpPhi(base, phiOf(st60), "drivers stop in 2060 (D6)"),
     cmpPhi(base, phiOf(st, spread = "model"), "model spread d = D/D(t0) (D11)"),
     cmpPhi(base, regPhi, "regional k_r (D16)"),
     cmpPhi(base, phiOf(st, ordering = "uniform"), "uniform u (D15)"),
     cmpPhi(base, phiOf(st, ordering = "reversed"), "reversed u (D15)"),
     do.call(rbind, lapply(1:3, function(sd) cmpPhi(base, phiOf(st, ordering = "permuted", seed = sd), paste0("permuted u, seed ", sd)))))
-  attr(out, "k") <- rbind(kpath(st, "logit hold (central)"), kpath(stE, "E-hold"), kpath(st60, "hold 2060"))
+  attr(out, "k") <- rbind(kpath(st, "distance kept (central)"), kpath(stE, "constant limit"), kpath(st60, "drivers stop in 2060"))
   cbind(run = k, out)
 }))
 saveRDS(variants, file.path(OUT, "variants.rds"))

@@ -61,7 +61,7 @@ figCoupledRelocation <- function(group = "v5", resolutions = c("EU21", "H12")) {
     ggplot2::labs(
       title = "Politics moves abatement between regions, and moves it towards the constrained ones",
       subtitle = paste0(
-        "Change in cumulative CO₂eq 2020-2100 against each run's matched θ = 0 null, by region, ",
+        "Change in cumulative CO₂eq 2020-2100 against each run's matched no-politics reference (θ = 0), by region, ",
         "θ = 0.50.\nRegions are ordered by their feasibility share φ - most constrained at the top.\n",
         "Budget held: ", say(levels(d$contrast)[1]), "\n",
         "Price path held: ", say(levels(d$contrast)[2])),

@@ -1,23 +1,23 @@
 # What it costs to make both sectors share one specification.
 #
-# The model deploys a SINGLE specification across Bulk and Diffuse, because a shared functional
+# The model deploys a SINGLE specification across power & industry and buildings & transport, because a shared functional
 # form is what makes the two sectors comparable and the maximin selection rule meaningful. That
 # is a design choice, and it has a measurable price: each sector could have done better on its
 # own.
 #
 # On v1 the price is wildly asymmetric:
-#   Bulk    best 0.102 vs deployed 0.097  ->  4.9% of achievable theory content given up
-#   Diffuse best 0.189 vs deployed 0.142  -> 24.9% given up
+#   Power & industry    best 0.102 vs selected 0.097  ->  4.9% of achievable theory content given up
+#   Buildings & transport best 0.189 vs selected 0.142  -> 24.9% given up
 #
-# So the shared specification is close to Bulk's own optimum and a long way from Diffuse's.
-# The deployed spec is, in effect, a Bulk specification that Diffuse is made to wear - which
-# matters because Diffuse is the sector that usually binds in the coupling (SCENARIOS.md 1.1)
+# So the shared specification is close to power & industry's own optimum and a long way from buildings & transport's.
+# The selected specification is, in effect, a power & industry specification that buildings & transport is made to wear - which
+# matters because buildings & transport is the sector that usually binds in the coupling (SCENARIOS.md 1.1)
 # and therefore the one carrying the headline result.
 #
 # This is the third leg of the selection-honesty set, and it is the one nobody had looked at:
 #   selection-stability   would a RESAMPLE choose this spec?          (no - 4.5%)
 #   selection-landscape   did it dominate on THIS sample?             (no - 159 fit better)
-#   sharing-cost          what does forcing one spec on both cost?    (Diffuse: a quarter)
+#   sharing-cost          what does forcing one spec on both cost?    (Buildings & transport: a quarter)
 
 figSharingCost <- function(group = "v5") {
   sv <- pfmArtifact(group, "selection-variants.rds")
@@ -50,11 +50,11 @@ figSharingCost <- function(group = "v5") {
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.16, 0.16))) +
     ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.7, 1.5))) +
     ggplot2::labs(
-      title = "The shared specification costs Diffuse a quarter of its explanatory content",
+      title = "The shared specification costs buildings & transport a quarter of its explanatory content",
       subtitle = paste0(
-        "Theory content ΔR² of the deployed shared specification against what each sector ",
-        "could reach on its own.\nBulk gives up 4.9%; Diffuse gives up 24.9%. The shared ",
-        "form sits close to Bulk's optimum and far from Diffuse's —\nand Diffuse is the ",
+        "Theory content ΔR² of the selected shared specification against what each sector ",
+        "could reach on its own.\nPower & industry gives up 4.9%; buildings & transport gives up 24.9%. The shared ",
+        "form sits close to power & industry's optimum and far from buildings & transport's —\nand buildings & transport is the ",
         "sector that usually binds in the coupling."),
       x = "ΔR²(theory)", y = NULL)
   attr(p, "pfmGrid") <- "x"

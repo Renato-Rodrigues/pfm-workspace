@@ -2,15 +2,15 @@
 #
 # The figure form of the correlation tables the old reports carried (one table per driver
 # group). Promoted into the figure
-# layer because it is the direct evidence for a claim the paper makes in words: the deployed
+# layer because it is the direct evidence for a claim the paper makes in words: the selected
 # channel set is reselected in only 29.4% of resamples and leads its runner-up by 0.5
 # percentage points (claims C17). Collinearity between the institutional channels is WHY, and
 # a reader should be able to see it rather than take it on trust.
 #
 # ONE MATRIX, BOTH SECTORS. The two sectors are fitted on different estimation rows (the
-# Estonia PE-coal exclusion hits Bulk), so their correlation matrices are NOT identical - they
+# Estonia PE-coal exclusion hits power & industry), so their correlation matrices are NOT identical - they
 # differ by up to 0.225. Showing them as two 12x12 facets would halve the cell size for a
-# difference that is mostly small, so instead Bulk is drawn BELOW the diagonal and Diffuse
+# difference that is mostly small, so instead power & industry is drawn BELOW the diagonal and buildings & transport
 # ABOVE it, in one grid. Terms are named once on the left axis and numbered; the columns
 # repeat the numbers. Naming them on the diagonal was tried and does not fit - a 30-character
 # interaction name cannot live in a 1/12th-width tile.

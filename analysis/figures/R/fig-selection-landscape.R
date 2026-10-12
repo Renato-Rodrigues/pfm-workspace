@@ -1,13 +1,13 @@
-# The selection landscape — where the deployed specification actually sits.
+# The selection landscape — where the selected specification actually sits.
 #
 # `selection-stability` (Fig 2c) answers "would a RESAMPLE have chosen this model?" and says
-# no: the deployed spec is reselected in 4.5% of resamples and its channel set in 29.4%. This
+# no: the selected specification is reselected in 4.5% of resamples and its channel set in 29.4%. This
 # figure answers the prior question - "given THIS sample, how much better than the
 # alternatives was it?" - and the answer is: it was not better on any single quantity a reader
 # would naturally check.
 #
 # On v1, of 2232 candidate specifications, 242 pass the admissibility gate. Against those 242
-# the deployed spec X-0370 is:
+# the selected specification X-0370 is:
 #     4 specs have a HIGHER minimum ΔR²(theory)      - the theory-content criterion
 #    43 specs have a higher MEAN ΔR²(theory)
 #   159 specs have a LOWER (better) sum BIC          - i.e. two thirds fit the data better
@@ -19,7 +19,7 @@
 # multi-criteria rule from a set of near-equivalent candidates, most of which fit better.**
 #
 # The figure must therefore NOT imply the rule is "maximise minΔR²" - the four points to the
-# right of the deployed one would look like an error if it were. Their ranks (10, 26, 39, 44)
+# right of the selected one would look like an error if it were. Their ranks (10, 26, 39, 44)
 # come from losing on the later tie-breaks, and the caption says so.
 #
 # Axes: theory content against fit, which is exactly the trade-off the rule navigates. BIC is
@@ -32,9 +32,9 @@ figSelectionLandscape <- function(group = "v5", stage = "PolicyStringency", tieT
   if (is.null(m)) stop("figSelectionLandscape: no maximin table for '", stage, "'", call. = FALSE)
   dep <- s$selected[[stage]]
 
-  m$group <- ifelse(m$model == dep, "deployed",
+  m$group <- ifelse(m$model == dep, "selected",
                     ifelse(m$gatePass, "passes the gate", "fails the gate"))
-  m$group <- factor(m$group, levels = c("fails the gate", "passes the gate", "deployed"))
+  m$group <- factor(m$group, levels = c("fails the gate", "passes the gate", "selected"))
   d <- m[m$model == dep, ]
   g <- m[m$gatePass & m$model != dep, ]
 
@@ -50,25 +50,25 @@ figSelectionLandscape <- function(group = "v5", stage = "PolicyStringency", tieT
     ggplot2::geom_point(ggplot2::aes(colour = group, size = group, alpha = group)) +
     ggplot2::geom_point(data = d, colour = pfmRail(), size = 3.2, shape = 21,
                         stroke = 1.1, fill = NA) +
-    ggplot2::geom_text(data = d, ggplot2::aes(label = "deployed"), hjust = -0.35,
+    ggplot2::geom_text(data = d, ggplot2::aes(label = "selected"), hjust = -0.35,
                        size = 2.6, colour = pfmRail(), fontface = "bold") +
     ggplot2::scale_colour_manual(values = c(`fails the gate` = "grey78",
                                             `passes the gate` = pfmAccent(),
-                                            deployed = pfmRail())) +
+                                            selected = pfmRail())) +
     ggplot2::scale_size_manual(values = c(`fails the gate` = 0.5,
-                                          `passes the gate` = 1.1, deployed = 2.2),
+                                          `passes the gate` = 1.1, selected = 2.2),
                                guide = "none") +
     ggplot2::scale_alpha_manual(values = c(`fails the gate` = 0.35,
-                                           `passes the gate` = 0.75, deployed = 1),
+                                           `passes the gate` = 0.75, selected = 1),
                                 guide = "none") +
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.03, 0.12))) +
     ggplot2::labs(
-      title = "The deployed specification is one of many, and most of them fit better",
+      title = "The selected specification is one of many, and most of them fit better",
       # No markdown here - ggplot subtitles are plain text and asterisks render literally.
       subtitle = sprintf(paste0(
         "%s candidate specifications; %d pass the admissibility gate. Of those, %d fit the ",
         "data better (lower BIC),\n%d have higher theory content, and %d more sit within ",
-        "%.3f of the deployed spec on the theory criterion — a tie.\nIt ranks first on a ",
+        "%.3f of the selected specification on the theory criterion — a tie.\nIt ranks first on a ",
         "declared multi-criteria maximin rule, not on either axis alone."),
         format(nrow(m), big.mark = ","), nPass, nBetterBIC, nHigherMin, nTied, tieTol),
       x = "minimum ΔR²(theory) across sectors  →  more theory content",

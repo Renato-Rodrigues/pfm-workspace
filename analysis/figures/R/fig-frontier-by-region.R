@@ -17,7 +17,7 @@
 # is drawn as an EMPTY PANEL - it has no in-coverage country at all, and showing the hole is
 # more honest than dropping the region and letting the reader assume 20 is all there are.
 #
-# Colour: the two scenarios reuse the validated Bulk/Diffuse pair (#1B6CA8 / #C2571A, CVD dE
+# Colour: the two scenarios reuse the validated power & industry / buildings & transport pair (#1B6CA8 / #C2571A, CVD dE
 # 20.3 protan / 27.8 normal, ALL PASS). The historical half stays in ink, as in the companion
 # figures, so "past = ink, future = colour" reads the same way across all three.
 

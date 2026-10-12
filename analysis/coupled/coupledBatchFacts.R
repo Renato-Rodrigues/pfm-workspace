@@ -91,7 +91,7 @@ F$modeRExamples <- lapply(stats::setNames(RES, RES), function(res) {
   lapply(seq_len(nrow(x)), function(i) list(region = x$region[i], es = rd(x$es[i], 1), ets = rd(x$ets[i], 1),
                                             ratio = rd(x$es[i] / x$ets[i], 3))) })
 
-## ---- mode L rule B, theta, gap closure, markup ------------------------------------------------------------
+## ---- mode L hold the price, theta, gap closure, markup ------------------------------------------------------------
 F$headlineB <- lapply(stats::setNames(RES, RES), function(res) {
   g <- cum(res, "PkBudg1000-PFMgateB")
   d <- function(k) rd(cum(res, k) - g, 1)
@@ -110,8 +110,8 @@ F$headlineB <- lapply(stats::setNames(RES, RES), function(res) {
        gapCDirection = if (cum(res, "PkBudg1000-PFMlevelBGapC") > cum(res, "PkBudg1000-PFMlevelB")) "lambda=0 lowers the cost" else "lambda=0 raises the cost") })
 ## ---- headline VARIANTS: -PFMlevelBfix-<suffix> rows run on another Run-Group (pfmGroup column) ----
 ## GP-14 (v5-specalt, v5-noinc), GP-3(b) (v5-usadonor, v5-usalow), GP-10(b) (v5-allmedian,
-## v5-alllow). Each is the deployed headline run with ONLY the Run-Group changed, so it is measured
-## against the same zero-severity null, -PFMgateBfix (phi = 1 at theta = 0, whatever the group).
+## v5-alllow). Each is the selected headline run with ONLY the Run-Group changed, so it is measured
+## against the same no-politics reference, -PFMgateBfix (phi = 1 at theta = 0, whatever the group).
 ## Picked up automatically from the titles, so a new variant needs no code.
 F$headlineVariants <- lapply(stats::setNames(RES, RES), function(res) {
   ks <- R$key[R$resolution == res & grepl("^PkBudg1000-PFMlevelBfix-[A-Za-z0-9]+$", R$key)]
@@ -124,7 +124,7 @@ F$headlineVariants <- lapply(stats::setNames(RES, RES), function(res) {
   })
 })
 
-## ---- the QUANTITY headline: rule B on the pinned budget-consistent path (TODO 14g) ----------------
+## ---- the QUANTITY headline: hold the price on the pinned budget-consistent path (TODO 14g) ----------------
 ## -PFMlevelBfix against -PFMgateBfix. Both read the anchor of this resolution's -PFMgate from its
 ## gdx (cm_pfmAnchorFromGdx = on) with budget forcing off, so the cap is measured against the price
 ## path that MEETS the budget rather than the unforced $75 path headlineB uses.
@@ -160,10 +160,10 @@ F$gapClosureModeR <- lapply(stats::setNames(RES, RES), function(res) list(
   markupLambda0 = rd(run(res, "PkBudg1000-PFMratio")$markupWritten, 3),
   markupGapC = rd(run(res, "PkBudg1000-PFMratioGapC")$markupWritten, 3)))
 
-## ---- rule C ----------------------------------------------------------------------------------------------
+## ---- Hold the budget ----------------------------------------------------------------------------------------------
 F$ruleC <- lapply(stats::setNames(RES, RES), function(res) lapply(
   c(levelC = "PkBudg1000-PFMlevelC", Min = "PkBudg1000-PFMlevelCMin", GapC = "PkBudg1000-PFMlevelCGapC",
-    # the severity arms: a result since the cap is rebuilt every iteration (cm_pfmBoundRebuild = 1,
+    # the severity sensitivity runs: a result since the cap is rebuilt every iteration (cm_pfmBoundRebuild = 1,
     # RULECFIX 2026-09-22); before that they were the frozen-cap diagnostic of SI S18
     Th325 = "PkBudg1000-PFMlevelCTh325", Th675 = "PkBudg1000-PFMlevelCTh675"),
   function(k) { x <- run(res, k)
@@ -172,11 +172,11 @@ F$ruleC <- lapply(stats::setNames(RES, RES), function(res) lapply(
          peak = rd(x$peak, 1), peakYear = x$peakYear, bindShare = rd(x$bindShare, 3),
          infesCode = x$infesCode, budgetWarnDev = rd(x$budgetWarnDev, 2),
          finalDelta = signif(x$finalDelta, 3),
-         # The level-cap closure's own anchor rise, reported beside the ratio mode's (referee v08,
-         # M3: the two held-budget closures are different mechanisms and only one was reported).
+         # The level-cap closure's own anchor rise, reported beside the proportional mode's (referee v08,
+         # M3: the two hold-the-budget closures are different mechanisms and only one was reported).
          anchorOverGate = rd(anchor2050(res, k) / anchor2050(res, "PkBudg1000-PFMgate"), 3)) }))
 
-## ---- mode M and the NPi twins ----------------------------------------------------------------------------
+## ---- mode M and the NPi variants ----------------------------------------------------------------------------
 F$modeM <- lapply(stats::setNames(RES, RES), function(res) list(
   mildProg = rd(cum(res, "PkBudg1000-PFMmildProg"), 1),
   deltaVsGateB = rd(cum(res, "PkBudg1000-PFMmildProg") - cum(res, "PkBudg1000-PFMgateB"), 1),

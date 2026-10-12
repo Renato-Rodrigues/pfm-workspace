@@ -1,4 +1,4 @@
-# 42. Sector-differentiated carbon price: deliver Bulk/Diffuse through `pm_taxemiMkt`, not through a `min`
+# 42. Sector-differentiated carbon price: deliver power & industry / buildings & transport through `pm_taxemiMkt`, not through a `min`
 
 Date: 2026-08-17
 
@@ -13,9 +13,9 @@ the **default** delivery path; `min` survives as the fallback when the markup is
 The PFM is estimated **separately for two sectors**, because they are politically
 different regimes (`MODEL.md` §1):
 
-- **Bulk** — electricity + industry. Few, large, organised actors. Speed limit
+- **Power & industry** — electricity + industry. Few, large, organised actors. Speed limit
   λ = 0.1023/yr.
-- **Diffuse** — buildings + transport. Costs land on households, visibly. λ = 0.0770/yr.
+- **Buildings & transport** — buildings + transport. Costs land on households, visibly. λ = 0.0770/yr.
 
 REMIND's `45_carbonprice` sets one price per region, `pm_taxCO2eq`, so the two shares had
 to be collapsed to one number before delivery. The rule was `min` — the worse sector
@@ -24,8 +24,8 @@ governs — applied in three places (φ, the mode-L bound, the mode-M path).
 Measured on the 48 in-coverage countries at 2030, that rule is doing something much
 narrower than it looks:
 
-- ~~**Diffuse binds in 45 of 48 countries (94%).** Bulk binds in 3.~~ 🔴 **RETRACTED 2026-08-19** — computed on S/10 (`PITFALLS.md` §22). On $E$ at the tier year Diffuse binds in **16 of 48 (33%)**; Bulk binds in 32. The ADR's decision stands: it rests on the two sectors disagreeing, not on which one wins.
-- ~~Median implementability: Bulk 0.687, Diffuse 0.600; correlation 0.71.~~ 🔴 **RETRACTED
+- ~~**Buildings & transport binds in 45 of 48 countries (94%).** Power & industry binds in 3.~~ 🔴 **RETRACTED 2026-08-19** — computed on S/10 (`PITFALLS.md` §22). On $E$ at the tier year buildings & transport binds in **16 of 48 (33%)**; power & industry binds in 32. The ADR's decision stands: it rests on the two sectors disagreeing, not on which one wins.
+- ~~Median implementability: power & industry 0.687, buildings & transport 0.600; correlation 0.71.~~ 🔴 **RETRACTED
   2026-08-19** — computed on `projection.rds$implementability` = S/10, the measure MODEL.md §7
   prohibits. On $E$ at the tier year the medians are **0.723 / 0.731** — tied — and the
   correlation is **+0.26**. `PITFALLS.md` §22, `SCENARIOS.md` §1.1. The ADR's decision is
@@ -48,7 +48,7 @@ Three problems follow.
    the worse one is biased low.
 
 Pooling the two sectors into a single median frontier was considered and rejected: the
-estimated coefficients and speed limits genuinely differ, and the Bulk/Diffuse split is
+estimated coefficients and speed limits genuinely differ, and the power & industry / buildings & transport split is
 the structural insight the paper rests on. The sector split is not the problem. **The
 collapse is.**
 
@@ -84,11 +84,11 @@ Four facts make this work, all verified against the code and the gdx:
    `pm_taxCO2eq`, every one of those consumers keeps working unchanged. Putting the whole
    price into `pm_taxemiMkt` instead would have required auditing all of them.
 
-**Market ↔ sector mapping: ETS ≈ Bulk, ES + other ≈ Diffuse.** Measured shares of CO₂ at
+**Market ↔ sector mapping: ETS ≈ power & industry, ES + other ≈ buildings & transport.** Measured shares of CO₂ at
 2030: ETS 58%, ES 30%, other 11%, with the ETS share ranging from 11% (Nordic EU) to 80%
 (China) — behaving exactly like "power + industry". The correspondence is good but **not a
 bijection**: `sector2emiMkt` (`core/sets.gms:2095`) maps `indst` to *both* ETS and ES, and
-`trans` to ES and other. We accept that industry's ES slice receives the Diffuse price.
+`trans` to ES and other. We accept that industry's ES slice receives the buildings & transport price.
 That is a deliberate, documented approximation, and it errs toward *less* differentiation,
 i.e. toward the old behaviour.
 
@@ -154,13 +154,13 @@ out to move a headline.
 
 ## Amendment, 2026-08-17: the markup is symmetric, and it carries a market dimension
 
-Two corrections to the decision above. Both were found by instrumenting the deployed
+Two corrections to the decision above. Both were found by instrumenting the selected
 frontier rather than by review.
 
 **1. The markup was one-sided, and that capped the demand side.** As first written, the
-markup went on ETS only and `ES`/`other` were set to zero. Where **Bulk** is the worse
-sector the floor is already Bulk, the ETS markup is correctly zero — but ES was then
-pinned at the *Bulk* price and the Diffuse estimate was discarded. That is the same
+markup went on ETS only and `ES`/`other` were set to zero. Where **Power & industry** is the worse
+sector the floor is already power & industry, the ETS markup is correctly zero — but ES was then
+pinned at the *power & industry* price and the buildings & transport estimate was discarded. That is the same
 information loss this ADR exists to remove, moved to the other sector.
 
 Every market now carries its own sector's markup, and `other` follows `ES` (REMIND's own
@@ -169,7 +169,7 @@ already states). The map lives in one place: `.psmSectorMarkets()`.
 
 **2. "3 of 48 countries" is withdrawn — it is 14 of 48.** Re-derived from
 `output/v1/frontier.rds` (2022, n = 48) using the coupling's own measure, the
-within-sector normalised relative gap that φ = 1 − θu is built from: **Bulk is the worse
+within-sector normalised relative gap that φ = 1 − θu is built from: **Power & industry is the worse
 sector in 14 of 48 countries** — ARG, CAN, FIN, IDN, ISL, JPN, KOR, MLT, NOR, NZL, RUS,
 SAU, SWE, ZAF. By raw efficiency it is 38 of 48. Neither is 3, under either measure, on
 the regenerated `satAP` frontier. The discarded ES headroom in those countries was a

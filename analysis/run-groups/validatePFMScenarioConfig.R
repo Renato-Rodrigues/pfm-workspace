@@ -144,7 +144,7 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
   # Both of these are unconditional in 45_carbonprice/functionalForm/datainput.gms and
   # both fail as a bare GAMS execution error ~28s in, with no fulldata.gdx and no
   # abort.gdx to read - the least diagnosable failure this config can produce. All
-  # three NPi twins died this way on 2026-08-12.
+  # three NPi variants died this way on 2026-08-12.
   #   * the anchor: cm_taxCO2_startyear and cm_taxCO2_peakBudgYr BOTH default to -1,
   #     and the linear/exponential branch aborts unless exactly one is positive.
   #   * input_ref.gdx: read by Execute_Loadpoint before any branch, so it is required
@@ -209,15 +209,15 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       if (nzchar(v) && !v %in% allowed[[cl]]) err(t, ": ", cl, " = '", v, "' not in ", paste(allowed[[cl]], collapse = "/"))
     }
     k <- num(r$pfmPhiKappa); if (!is.na(k) && (k <= -1 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside (-1, 1)")
-    # a negative kappa is the backsliding arm: "worse than today" needs today's strength as its base (E hold)
+    # a negative kappa is the growing limit sensitivity run: "worse than today" needs today's strength as its base (E hold)
     if (!is.na(k) && k < 0 && !identical(trimws(r$pfmPhiHold %||% ""), "ratio"))
-      wrn(t, ": pfmPhiKappa = ", k, " (backsliding) without pfmPhiHold = ratio grows the FADING strength, not today's")
+      wrn(t, ": pfmPhiKappa = ", k, " (growing limit) without pfmPhiHold = ratio grows the FADING strength, not today's")
     hy <- num(r$pfmPhiHoldYear); if (!is.na(hy) && (hy < 2030 || hy > 2150)) err(t, ": pfmPhiHoldYear = ", hy, " is not a year in 2030-2150")
     sd <- trimws(r$pfmPhiOrderingSeed %||% "")
     if (nzchar(sd) && !grepl("^[0-9]+$", sd)) err(t, ": pfmPhiOrderingSeed = '", sd, "' is not an integer")
     if (identical(trimws(r$pfmPhiStrength %||% ""), "regional") && nzchar(trimws(r$pfmPhiOrdering %||% "")) &&
         !identical(trimws(r$pfmPhiOrdering), "model")) {
-      err(t, ": the regional strength arm is not combined with an ordering test (D15, D16)")
+      err(t, ": the regional strength sensitivity run is not combined with an ordering test (D15, D16)")
     }
     g <- trimws(r$pfmGroup %||% ""); pp <- trimws(r$cm_pfmPhiPath %||% "")
     if (cpl(r) && startsWith(g, "v6") && !identical(pp, "1")) {

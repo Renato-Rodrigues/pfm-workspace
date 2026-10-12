@@ -12,8 +12,8 @@
 #   1. DESCRIPTIVE - how strongly S* and E track income per capita. S* can be income-graded while
 #      E is not, because income cancels between numerator and denominator. That distinction is the
 #      whole argument, and it needs no refit.
-#   2. THE NO-INCOME TWIN - the deployed spec's twin without the income control: the sweep spec whose
-#      name is the deployed one with ctl:GDPq.Pop.Hyd -> ctl:Pop.Hyd (v5: X-2079 -> X-2076; v6: X-1791
+#   2. THE NO-INCOME TWIN - the selected specification's variant without the income control: the sweep spec whose
+#      name is the selected one with ctl:GDPq.Pop.Hyd -> ctl:Pop.Hyd (v5: X-2079 -> X-2076; v6: X-1791
 #      -> X-1788). Refit both as frontiers, and compare E, the rank ordering, and a country-level phi
 #      proxy.
 #   The same pass gives GP-11, the GovEff correlate of the shortfall (Spearman of E with Government
@@ -45,9 +45,9 @@ nm <- vapply(s$specs, function(z) as.character(z$name %||% NA), character(1))
 depName <- s$selected$PolicyStringency
 specKey <- function(x) sub("^X-[0-9]+ ", "", x)   # the name without its sweep number
 altName <- nm[!is.na(nm) & specKey(nm) == sub("ctl:GDPq.", "ctl:", specKey(depName), fixed = TRUE)][1]
-if (is.na(altName)) stop("no no-income twin found in the sweep")
-cat("deployed (with income)   :", depName, "\n")
-cat("twin     (no income)     :", altName, "\n\n")
+if (is.na(altName)) stop("no no-income variant found in the sweep")
+cat("selected (with income)   :", depName, "\n")
+cat("variant     (no income)     :", altName, "\n\n")
 
 norm <- function(x) {
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers"))
@@ -124,8 +124,8 @@ for (sec in SECT) {
   cat(sprintf("  Spearman(E,  capability)        : %+.3f   <- is the shortfall smaller where the state is stronger?\n", sp(m$E_dep, m$capability)))
   cat(sprintf("  Spearman(observed S, capability): %+.3f\n", sp(m$observedIndex, m$capability)))
 
-  # --- 2. the no-income twin ---------------------------------------------------------------
-  cat(sprintf("  Spearman(E deployed, E no-income): %+.3f\n", sp(m$E_dep, m$E_alt)))
+  # --- 2. the no-income variant ---------------------------------------------------------------
+  cat(sprintf("  Spearman(E selected, E no-income): %+.3f\n", sp(m$E_dep, m$E_alt)))
   cat(sprintf("  median |dE| %.4f   max |dE| %.4f\n",
               stats::median(abs(m$E_alt - m$E_dep)), max(abs(m$E_alt - m$E_dep))))
   m$rankDep <- rank(-m$E_dep); m$rankAlt <- rank(-m$E_alt)
@@ -142,7 +142,7 @@ for (sec in SECT) {
               sp(m$phi_dep, m$phi_alt),
               stats::median(abs(m$phi_alt - m$phi_dep)), max(abs(m$phi_alt - m$phi_dep))))
   cat(sprintf("  Spearman(phi proxy, income)     : %+.3f\n", sp(m$phi_dep, m$income)))
-  cat(sprintf("  gamma: deployed %.4f | no-income %.4f\n\n",
+  cat(sprintf("  gamma: selected %.4f | no-income %.4f\n\n",
               fD$frontierGamma %||% NA, fA$frontierGamma %||% NA))
 
   m$sector <- sec
@@ -157,8 +157,8 @@ cat("written:", file.path(GDIR, "income-screen.rds"), "\n\n")
 
 cat("--- the quotable version, if this screen says the ordering is worth defending ----------\n")
 NOINC <- paste0(GROUP, "-noinc")
-cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", GROUP, " ", NOINC, " Bulk    \"", altName, "\"\n", sep = "")
-cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", NOINC, " ", NOINC, " Diffuse \"", altName, "\"\n", sep = "")
+cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", GROUP, " ", NOINC, " Power & industry    \"", altName, "\"\n", sep = "")
+cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", NOINC, " ", NOINC, " Buildings & transport \"", altName, "\"\n", sep = "")
 cat("Rscript -e 'library(pfm); pfmRun(group = \"", NOINC, "\",\n", sep = "")
 cat("                        steps = c(\"pfm-frontier\",\"pfm-temporal\",\"pfm-donor\",\n")
 cat("                                  \"pfm-projection\",\"pfm-coupling-bound\"),\n")

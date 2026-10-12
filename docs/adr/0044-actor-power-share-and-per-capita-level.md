@@ -4,7 +4,7 @@ Date: 2026-08-25
 
 ## Status
 
-Accepted. Deployed in Run-Group `v3` as
+Accepted. Selected in Run-Group `v3` as
 `X-2367 noGE|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP`.
 
 Closes `design-notes/0001` (share vs level), whose recommendation this record **overturns**.
@@ -67,7 +67,7 @@ count; `sweep.rds$results` (per-sector rows) for tier rate and VIF.
 | form | candidates | best rank | in top 50 | Green rate¹ | median maxVIF¹ |
 |---|---:|---:|---:|---:|---:|
 | `splitAPpc` | 720 | **1** *(sanity-rejected)* | 11 | 0.442 | 18.4 |
-| **`bothIncAP`** | 720 | **2 → deployed** | **20** | **0.544** | 18.4 |
+| **`bothIncAP`** | 720 | **2 → selected** | **20** | **0.544** | 18.4 |
 | `mixedAP` *(the note's pick)* | 720 | 8 | 11 | 0.487 | 16.8 |
 | `splitAP` *(status quo)* | **1488** | **41** | 6 | 0.403 | 15.6 |
 | `compAP` | 744 | 44 | 2 | 0.216 | 14.6 |
@@ -99,15 +99,15 @@ composition artifact, not a formal test**.
 χ² = 14.33, df 4, *p* = 0.0063. **Exactly the two forms this ADR is about separate from the field**,
 in opposite directions. `splitAPpc` and `mixedAP` are indistinguishable from proportional.
 
-The deployed spec's own channel set `noGE|RoL|VerAcc` is the most favoured set in the pool (7 slots,
+The selected specification's own channel set `noGE|RoL|VerAcc` is the most favoured set in the pool (7 slots,
 46 wins, 2.10× expected, *p* < 0.0001), and the set that leads on raw share alone,
 `WGIge|RoL|VerAcc`, is significantly *dis*favoured (0.53×) — it held 27 of 60 slots.
 
 **3. Interaction with the ceiling gate** (ADR 0043). The rank-1 spec `X-1746` (`splitAPpc`) is
 admissible but was rejected by the projection-sanity walk under `ceilingCollapse` — median frontier
 ceiling falling to 90% of its 2025 value by 2100, 78% of covered countries falling — plus three
-other severe flags. `X-2367` passes with **0 severe flags and a rising ceiling** (Bulk 1.11,
-Diffuse 1.25). The gate cost **0.8% of mean ΔR² and rank 1 → 2**, against `v1`'s ~8% and rank
+other severe flags. `X-2367` passes with **0 severe flags and a rising ceiling** (Power & industry 1.11,
+Buildings & transport 1.25). The gate cost **0.8% of mean ΔR² and rank 1 → 2**, against `v1`'s ~8% and rank
 1 → 11.
 
 ## Consequences
@@ -127,18 +127,18 @@ construction. The block is identified; the individual coefficients are not. **A 
 (job 1886490, since overwritten in place) reported `splitAP` at 0 of 200 resamples. `splitAP`'s
 best spec ranks **41** and the pool was the top **40** — it was excluded by one place and could not
 have won. Two further claims from that run ("Government Effectiveness robust at 0.772", "the
-deployed channel set ranks 4th") were pool-composition artifacts in the same way. The `topK = 60`
+selected channel set ranks 4th") were pool-composition artifacts in the same way. The `topK = 60`
 run above exists because of that failure. **Any future bootstrap must be quoted with its `topK` and
 its slot counts.**
 
 **The ceiling gate remains necessary and this ADR does not weaken it.** The rank-1 spec was the
-falling-ceiling one, so without ADR 0043 `v3` would have deployed it. What has changed is the
+falling-ceiling one, so without ADR 0043 `v3` would have selected it. What has changed is the
 price: the gate and the per-capita reformulation address the same defect from two directions, and
 having both makes the gate nearly free *in fit terms*. It is not free in selection terms — it
 empties the candidate pool in 12 of 200 resamples and leaves a median of 9 of 60 standing.
 
 **The specification is selected; the channel set is not, and no individual spec is stable.** The
-best single specification wins 0.085 of resamples and the deployed one 0.045 (median rank 5 of 60).
+best single specification wins 0.085 of resamples and the selected one 0.045 (median rank 5 of 60).
 The **accountability channel remains unidentified** — `VerAcc`, `noAcc` and `DiagAcc` all sit within
 ±25% of proportional. This is consistent with `CLAUDE.md`'s standing position that the
 accountability channel is deliberately not identified, and the paper must report the form as
@@ -146,7 +146,7 @@ selected while reporting the channel set as set-identified.
 
 **Selection-honesty exhibits need re-cutting for `v3`.** The `v1` triple — `selection-stability`
 (C17), `selection-landscape` (C27), `sharing-cost` (C30) — is quoted together precisely because any
-one alone understates fragility. All three are `v1` numbers against a different deployed spec.
+one alone understates fragility. All three are `v1` numbers against a different selected specification.
 
 **Not established by this ADR** (TODO item 14, open): whether the forms differ on the frontier's own
 diagnostics — γ, `driverOutOfSupport`, scenario responsiveness — or only on ΔR²

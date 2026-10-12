@@ -18,7 +18,7 @@
 # the pin. Start the chain at pfm-frontier.
 #
 # Usage, from the project root:
-#   Rscript analysis/run-groups/makeSpecVariantGroup.R v1 v1-specalt Diffuse "X-0102 WGIge|RoL|HorAcc splitAP lev ctl:GDPq fe:OECDp satAP"
+#   Rscript analysis/run-groups/makeSpecVariantGroup.R v1 v1-specalt buildings & transport "X-0102 WGIge|RoL|HorAcc splitAP lev ctl:GDPq fe:OECDp satAP"
 #   sector "both" pins the spec in both sectors (v6 deploys one shared spec); key=value arguments after
 #   the spec name override fields of the pinned spec, e.g. the shape of the saturating curve:
 #   Rscript analysis/run-groups/makeSpecVariantGroup.R v6 v6-specalt both "X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn"
@@ -34,7 +34,7 @@
 # pfm-temporal is NOT optional. pfm-coupling-bound reads the political closure rate lambda from
 # temporal-validation.rds$bySector$<s>$ecm$metrics$adjustmentSpeed, and that ECM is fitted on
 # the SPEC. Copying v1's temporal-validation.rds into the variant instead would pair the
-# deployed spec's lambda with the alternative spec's frontier - two specifications inside one
+# Selected specification's lambda with the alternative spec's frontier - two specifications inside one
 # phi, which is precisely the silent mixing this comparison exists to avoid. Without it the run
 # completes and only the last step reports
 #     [PFM-BOUND] skipped - missing: temporal-validation.rds
@@ -89,7 +89,7 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
   # Copy the inputs the downstream steps read; do NOT copy the artifacts they will rewrite,
   # so a stale file cannot masquerade as a fresh one. frontier.rds and temporal-validation.rds
   # are deliberately NOT copied: both are fitted on the spec, and a copied one would put the
-  # deployed spec's frontier or lambda underneath the alternative spec's phi.
+  # Selected specification's frontier or lambda underneath the alternative spec's phi.
   keep <- c(basename(pfm:::.pfmSelectedModels(src)), "sweep.rds", "channels-exhaustive.yml", "manifest.json")
   for (f in keep) {
     p <- file.path(src, f)
@@ -109,7 +109,7 @@ makeSpecVariantGroup <- function(from = "v1", to = "v1-specalt", sector = "Diffu
     idx <- which(vapply(sel, function(x) identical(x$model_type, tag), logical(1)))
     if (!length(idx)) stop("makeSpecVariantGroup: no '", tag, "' entry in selected-models-pfm.yml")
     old <- c(old, sel[[idx[1]]]$name)
-    # keep the deployed entry's estimation settings (estimator, index bound, trend shape)
+    # keep the selected entry's estimation settings (estimator, index bound, trend shape)
     keep <- sel[[idx[1]]][intersect(c("estimator", "indexMax", "trendMidpoint", "trendSteepness"), names(sel[[idx[1]]]))]
     cfg$model_type <- tag
     sel[[idx[1]]] <- c(cfg[setdiff(names(cfg), names(keep))], keep)

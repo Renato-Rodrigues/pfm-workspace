@@ -11,7 +11,7 @@
 # (propagateFrontierRungsToPhi.R: seed year = the group's last panel year, 2022 on v5 and 2023 on v6
 # (v6's anchor year); covered countries aggregated to EU21 regions with
 # equal and with GDP weights, min-max over regions, severity 0.50):
-#   deployed   E     = S / S*          observed over the frontier ceiling (what the coupling uses)
+#   Selected   E     = S / S*          observed over the frontier ceiling (what the coupling uses)
 #   residual   E_res = S / S_mean      observed over the MEAN regression's fitted level, i.e. a pure
 #                                      prediction-error ratio: > 1 where the model under-predicts
 # If the regional orderings coincide, the regional ordering IS prediction error; the further apart,
@@ -121,7 +121,7 @@ cty <- do.call(rbind, lapply(SECT, function(sec) {
 }))
 
 cat("\nCountry level, ", SEED, " (the object C42 is about):\n", sep = ""); print(cty, row.names = FALSE, digits = 3)
-cat("\nRegional ordering, EU21, severity ", THETA, ", deployed E versus prediction-error ratio:\n", sep = "")
+cat("\nRegional ordering, EU21, severity ", THETA, ", selected E versus prediction-error ratio:\n", sep = "")
 print(res, row.names = FALSE, digits = 3)
 out <- list(comparisons = res, countryLevel = cty, phi = phis, country = country,
             seedYear = SEED, theta = THETA, group = GROUP,

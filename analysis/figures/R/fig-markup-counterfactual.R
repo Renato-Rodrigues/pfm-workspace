@@ -2,10 +2,10 @@
 #
 # The attribution panel. Fig 5a shows the sector split; the obvious referee question is whether
 # that split is the frontier speaking or just REMIND having two markets to price. This figure
-# answers it with the exact twin: cm_pfmSectorMarkup = 0, nothing else changed.
+# answers it with the exact variant: cm_pfmSectorMarkup = 0, nothing else changed.
 #
 # The answer is NOT "the split is an artefact". Turning the markup off does not remove a
-# spurious spread - it DISCARDS the Bulk/Diffuse distinction, so REMIND receives only
+# spurious spread - it DISCARDS the power & industry / buildings & transport distinction, so REMIND receives only
 # min(phi_Bulk, phi_Diffuse) and prices one number. So the figure has two jobs, and they are
 # both comparisons within a row:
 #
@@ -20,7 +20,7 @@
 # collapse of a familiar mark is the whole message. Regions keep ONE ordering (by phi) across
 # both facets, otherwise the eye cannot track a region between them.
 #
-# Colour: pfmSectorColours() unchanged from Fig 5a - ETS is Bulk, ES is Diffuse. Re-validated
+# Colour: pfmSectorColours() unchanged from Fig 5a - ETS is power & industry, ES is buildings & transport. Re-validated
 # as a categorical pair here (scripts/validate_palette.js): CVD dE 20.3 protan, 27.8 normal,
 # ALL CHECKS PASS. The anchor is a reference rule, not a third series.
 #
@@ -40,7 +40,7 @@ figMarkupCounterfactual <- function(group = "v5",
   a <- pfmArtifact(group, "coupling/coupled-runs.rds")
   res <- a$runs$resolution[a$runs$scenario == on][1]
 
-  # Assert the twin really is markup-off. The whole figure is a claim about one switch, and a
+  # Assert the variant really is markup-off. The whole figure is a claim about one switch, and a
   # mislabelled run would draw a perfectly convincing wrong picture (PITFALLS.md 16 - the
   # markup has already once read as identically zero for an unrelated reason).
   mk <- function(sc) {
@@ -116,7 +116,7 @@ figMarkupCounterfactual <- function(group = "v5",
     ggplot2::labs(
       title = "Without the second instrument the constraint stops binding",
       subtitle = sprintf(paste0(
-        "Regional carbon price in %d, %s, θ = 0.50, budget held, ordered by φ. The twins ",
+        "Regional carbon price in %d, %s, θ = 0.50, budget held, ordered by φ. The variants ",
         "differ in one switch.\nDashed: the cost-optimal anchor ($%.0f). With the markup off ",
         "the two markets collapse to one price and the\nmedian region returns to the anchor ",
         "($%.0f against $%.0f with it) — the constraint is absorbed, not expressed."),
@@ -136,6 +136,6 @@ figMarkupCounterfactual <- function(group = "v5",
                        size = 2.3, colour = unname(cols["Diffuse"]))
 
   pfmStamp(p, group, note = paste0(
-    "exact twins, cm_pfmSectorMarkup 1 vs 0 - the split's direction is a frontier ",
+    "exact variants, cm_pfmSectorMarkup 1 vs 0 - the split's direction is a frontier ",
     "result, its magnitude is rule-dependent"))
 }

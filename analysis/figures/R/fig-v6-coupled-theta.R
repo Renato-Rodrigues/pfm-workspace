@@ -1,5 +1,5 @@
-# The v6 quantity headline, coupled: extra cumulative CO2 by 2100 under rule B (price held at the
-# theta = 0 path, cap binding) against the held-price null, over the declared severity theta, at both
+# The v6 quantity headline, coupled: extra cumulative CO2 by 2100 under hold the price (price held at the
+# theta = 0 path, cap binding) against the no-politics reference (price held), over the declared severity theta, at both
 # resolutions, with v5 beside it (design note 0005 Phase 5 / Phase 6 step 1).
 #
 # Each version against its OWN null, so REMIND's drift between 3.7.0.dev29 (v5) and 3.7.1 (v6) cancels
@@ -34,7 +34,7 @@ figV6CoupledTheta <- function(group = "v6", old = "v5") {
                                 guide = if (is.null(old)) "none" else "legend") +
     ggplot2::scale_x_continuous(breaks = c(0, 0.325, 0.5, 0.675), labels = c("0", "0.325", "0.50", "0.675")) +
     ggplot2::labs(title = "Holding the price: extra CO₂ grows with the declared severity",
-                  subtitle = paste0("Rule B: cumulative CO₂ by 2100 above the held-price null (θ = 0), Gt.",
+                  subtitle = paste0("Hold the price: cumulative CO₂ by 2100 above the no-politics reference (θ = 0), Gt.",
                                     if (!is.null(old)) paste0("\n", group, " against ", old, ", each against its own null.")),
                   x = "severity θ (declared)", y = "extra cumulative CO₂ by 2100 (Gt)")
   attr(p, "pfmGrid") <- "y"

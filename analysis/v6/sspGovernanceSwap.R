@@ -1,7 +1,7 @@
 # Phase 1, step 6 of design note 0005, governance part (0004 §5 step 5): SSP1 and SSP3 institutions on
 # the SSP2 energy system, to measure the SSP spread of k_s(t) against the spread across theta.
 #   Rscript analysis/v6/sspGovernanceSwap.R [group]     (repo root; after phase1.R and the pfm-anchor step)
-# What moves with the SSP here: the institution drivers of the deployed spec -
+# What moves with the SSP here: the institution drivers of the selected specification -
 #   V-Dem Rule of Law and Vertical Accountability: the declared storyline rule per SSP (DATA.md 5.4);
 #   Government Effectiveness: the SSP extensions' Governance Model, per SSP.
 # What does NOT (the full version needs SSP GDP and population, cluster): the energy system (SSP2
@@ -10,7 +10,7 @@
 # Method: the institution block is rebuilt per SSP exactly as panelDataScenario builds it (projection,
 # median imputation, normalisation on the historical range, harmonisation to the panel's 2023 value),
 # and the SSP2 scenario panel gets  rebuilt(SSPx) - rebuilt(SSP2)  added, which cancels any replication
-# error. "hold" (institutions at their last observation) is the decision-1A twin, for reference.
+# error. "hold" (institutions at their last observation) is the decision-1A variant, for reference.
 # Output: output/pfm/<group>/phase1/ssp-governance.rds and a printed summary.
 source("analysis/_common/_loadPfm.R")
 suppressMessages({ library(madrat); library(magclass); library(mrpfm) })

@@ -20,27 +20,27 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 
 **Where it stands.** Run-Group `v6` is estimated and coupled: 65 runs, all admitted, at EU21 and H12
 (0005 Phase 5; `SCENARIOS.md`). The candidate paper spines are design note 0006: eight frames on one
-finding, that how long the political drag lasts orders every result of both closures. Their common
+finding, that how long the political limit lasts orders every result of both closures. Their common
 evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
 `output/pfm/v6/coupling/persistence-ladder.{rds,json}`).
 
 **Next, in order:**
 
 1. 🟠 **Choose the spine** (author; 0006). Recommended: today's politics versus tomorrow's, led by "net
-   zero slips unless politics changes" (21 of 25 EU21 held-price runs never peak by 2150).
-2. 🟠 **Run `V6PERSH12`** (H12, 4 runs: the static-share and central-κ arms, rules B and C) **and `V6BACK`**
-   (EU21, 2 runs: backsliding, today's strength growing). Both are in the generated config
-   (`RUNNING.md` step 7c). The backsliding rate stays at the proposed κ = −0.005 a year until it is
+   zero slips unless politics changes" (21 of 25 EU21 hold-the-price runs never peak by 2150).
+2. 🟠 **Run `V6PERSH12`** (H12, 4 runs: the constant limit and central-κ sensitivity runs, both closures) **and `V6BACK`**
+   (EU21, 2 runs: growing limit, today's strength growing). Both are in the generated config
+   (`RUNNING.md` step 7c). The growing limit rate stays at the proposed κ = −0.005 a year until it is
    declared; a different declared rate means re-running `V6BACK`.
 3. 🟠 **When they land:** sync them, then `runCoupledStage.R v6`, `ruleCRelocationDecomp.R`,
    `persistenceLadder.R v6`, and update 0006.
 4. 🟠 **The paper workspace** (Phase 6 step 5; 0005 §0a item 5). Scaffold it without the `v5` v18 draft as
    text (amends D19, **to be confirmed**). Port the literature (item 35's sources included), the glossary
    and the general drafting rules. Write Methods fresh for the `v6` formulation (D-A1…A7), with the
-   held-budget arithmetic (D-M2 (i)) and the sector-ordering caveat (D-M4). Then mark
+   hold-the-budget arithmetic (D-M2 (i)) and the sector-ordering caveat (D-M4). Then mark
    `papers/pfm-paper-v5` as superseded in its `CLAUDE.md` and `VERSIONS.md`.
 5. 🟠 **The paper's figures, `v6` only:** the persistence ladder under both closures; the peak-year figure
-   if frame 6 leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
+   if *Net zero slips* leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
    C10). `v6-coupled-theta`, `v6-rulec-relocation` and `v6-price-catchup` show `v5` beside `v6`; the
    paper needs `v6`-only versions.
 6. 🟠 **The deposit** (D-M3, Phase 6 step 6): Zenodo at tags of `pfm`, `mrpfm`, the fork and the project
@@ -52,12 +52,12 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
   drivers by 2100, `MODEL.md` §5.2).
 - 🟢 **G2:** close design note 0004 (ADRs 0049, 0052, 0053 accepted); 0006 closes with the spine, 0005 at
   the end of Phase 6.
-- 🟢 **G3:** add the `v6` terms to `CONTEXT.md` (anchor year, strength factor, logit hold, static share,
-  persistence, backsliding); rewrite `PRESENTATION.md` once the spine is chosen.
+- 🟢 **G3:** add the `v6` terms to `CONTEXT.md` (anchor year, strength factor, distance kept, constant limit,
+  persistence, growing limit); rewrite `PRESENTATION.md` once the spine is chosen.
 - 🟢 **G4 (author):** the v6 methodology document's *Against v5* and *What changed from v5* sections:
   remove them or mark them internal.
 - 🟢 **Workstation:** reinstall the local `pfm`, which is older than the repository
-  (`tools/setup.sh --install --no-cache`); update `test-couplingV6.R:101`, which expects Bulk
+  (`tools/setup.sh --install --no-cache`); update `test-couplingV6.R:101`, which expects power & industry
   $k_{2100}$ 0.4809 and gets 0.4884 since the scenario panel was rebuilt on 2026-10-08 (the test is
   skipped on the cluster). R on the workstation is back on 4.3.2 (reinstalled 2026-10-12 after an
   update to 4.6.1 removed it); 4.6.1 is still installed and registered as the machine default.
@@ -69,7 +69,7 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 **Optional:** ⚪ C11, the price–efficiency elasticity (a separate workstream).
 
 **Deferred beyond the `v6` paper (author, 2026-10-07):**
-- **The SSP axis** (A1d, wave 3, φ(t) fans by SSP; 0005 §7a decision 7). The machinery stays; the
+- **The SSP axis** (A1d, third batch, φ(t) fans by SSP; 0005 §7a decision 7). The machinery stays; the
   governance-only measurement is on record (`output/pfm/v6/phase1/ssp-governance.rds`).
 - **Institution projections informed by the PoliClim forecasts** (`analysis/checks/policlimInstitutions.R`);
   then revisit the ceiling-fall gate (ADR 0043; 0005 §7a decision 8).
@@ -80,8 +80,8 @@ contrast in the paper); E25 for `v5` (fetching `v5`'s shared-cache files, now op
 the `v5`-manuscript minors of D-m1…m10. The `v5` → `v6` contrasts already computed (0005 Phase 6 step 1
 and §8) stay as the internal record.
 
-The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment twins) were built and ran in
-wave 2. Never re-run them with `clean = "group"`: it deletes the pinned spec file.
+The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment variants) were built and ran in
+second batch. Never re-run them with `clean = "group"`: it deletes the pinned spec file.
 
 ---
 
@@ -102,8 +102,8 @@ on 2026-10-02), and the bodies of the items closed on 2026-09-17/18 are in
 | item | status | where it went |
 |---|---|---|
 | **36** | ⛔ superseded 2026-10-02 | no `v5` manuscript: `papers/pfm-paper-v5` is frozen at v18 and the `v6` paper replaces it (0005 D19, Phase 6) |
-| **41** | ⛔ superseded 2026-10-02 | no `v5` runs (author, 2026-10-01); rule C at θ 0.325 / 0.50 / 0.675 is `v6` wave 1 (0005 Phase 5) |
-| **6** | ⛔ superseded 2026-10-02 | the USA assignment rules (donor / low) are `v6` wave 2 (0005 Phase 5, D-M2) |
+| **41** | ⛔ superseded 2026-10-02 | no `v5` runs (author, 2026-10-01); hold the budget at θ 0.325 / 0.50 / 0.675 is `v6` first batch (0005 Phase 5) |
+| **6** | ⛔ superseded 2026-10-02 | the USA assignment rules (donor / low) are `v6` second batch (0005 Phase 5, D-M2) |
 | **12** | ⛔ superseded 2026-10-02 | λ is removed from the coupling in `v6` (0005 D13); the `v5` disclosure question lapsed with the `v5` paper |
 | **7a** (open part) | ⛔ decided 2026-10-02 | one shared spec is held fixed in `v6` (0005 D17); the measured band (C31) is reported in the `v6` paper |
 | **11a** | ⛔ superseded 2026-10-02 | the ceiling-fall gate is re-examined on `v6` (0005 C9); the guard clean-up is E14 |
@@ -118,13 +118,13 @@ on 2026-10-02), and the bodies of the items closed on 2026-09-17/18 are in
 | **39** | ✅ done 2026-10-01/02 | project repo created and pushed; everything tagged `v5-final`; the rest is E4 (deferred) |
 | **35** | ✅ done 2026-10-02 | citation slots filled 2026-09-18; the two hazards resolved 2026-10-02 with copies placed in `papers/pfm-paper-v5/literature/sources/`: the publisher's PDF of Battese & Coelli 1992 (note re-appraised, now INCLUDE) and the authors' final manuscript of Douenne & Fabre 2022 with its online appendix (70 / 14 / 22% unchanged; locators §3.1, fn. 21). Port with the literature to the `v6` paper (0005 D19); its uncited-note hygiene goes with it |
 | **7** | ✅ done 2026-10-02 | `psm*` → `pfm*` renamed in `pfm`, `preparePFM.R`, `analysis/` and the governed docs, after the `v5-final` tags (`design-notes/0005` D21, F9). Legacy names are still read: `selected-models-psm.yml`, `psm-*` steps, and deprecated aliases for the old exported functions. Released as `pfm` 0.5.0 |
-| **33** | ✅ done 2026-09-18 | costs and abatement relocation adopted as claims **C36** (held budget relocates: net +3/+4 Gt against 72/81 Gt moved) and **C37** (where it lands, + the GDP caveat) — `SCENARIOS.md` §4.8, **Fig 5d**, P3.7b |
+| **33** | ✅ done 2026-09-18 | costs and abatement relocation adopted as claims **C36** (hold the budget relocates: net +3/+4 Gt against 72/81 Gt moved) and **C37** (where it lands, + the GDP caveat) — `SCENARIOS.md` §4.8, **Fig 5d**, P3.7b |
 | **37** | ✅ done 2026-09-18 | Fig 4b re-pointed to region rank intervals; Fig 2b carries both incumbency terms (opposite signs) — `MODEL.md` §2.3, claim C9 |
-| **28** | ✅ resolved 2026-09-17 | replay gate re-scoped to the rows where the ceiling acts (+0.001 Bulk / +0.064 Diffuse) — claim C29, `MODEL.md` §8.4 |
+| **28** | ✅ resolved 2026-09-17 | replay gate re-scoped to the rows where the ceiling acts (+0.001 power & industry / +0.064 buildings & transport) — claim C29, `MODEL.md` §8.4 |
 | **14g** | ✅ decided 2026-09-17, measured 2026-09-18 | two headlines; the quantity one is `-PFMlevelBfix` vs `-PFMgateBfix` (+159.3 / +163.8 Gt) — `SCENARIOS.md` §4.2a, claim C35, `COUPLING.md` §11.7 |
 | **30** | ✅ closed 2026-09-17 | H12 `-PFMratioMin` re-run: peaks 1003.0 Gt at 2090, 73 iterations; C20 quotes both resolutions |
 | **31** | ✅ closed 2026-09-17 | H12 `-PFMratioTh325` re-run: markup written = seen (0.340), 94 iterations |
-| **17** | ✅ closed 2026-09-17 | EU21 `-PFMlevelC` restarted from its own gdx for 57 more iterations: 1000.4 Gt, bind share 0.585, warn 0 — rule C holds in 6 of 6 (C34) |
+| **17** | ✅ closed 2026-09-17 | EU21 `-PFMlevelC` restarted from its own gdx for 57 more iterations: 1000.4 Gt, bind share 0.585, warn 0 — hold the budget holds in 6 of 6 (C34) |
 | **7a** | ✅ closed 2026-09-17 | specification band measured on `v5-specalt` — `MODEL.md` §5.3.0, claim C31 |
 | **1c** | ✅ decided 2026-09-17 | both λ estimates documented, full panel justified for projection — `MODEL.md` §4.3.1; log line fixed in `runPFMCouplingBound.R` |
 | **1** | ✅ decided 2026-09-17 | θ in the main text, sources 2–8 of φ uncertainty in the SI — `MODEL.md` §5.3.2; the specification band (source 3) measured the same day, item 7a |

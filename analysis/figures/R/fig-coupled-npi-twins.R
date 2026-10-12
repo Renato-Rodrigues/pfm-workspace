@@ -1,17 +1,17 @@
 # Fig 5c — the mechanism is not an artefact of assuming high ambition.
 #
-# The NPi twins run every mechanism on the CURRENT-POLICIES pathway. If the coupled effect
+# The NPi variants run every mechanism on the CURRENT-POLICIES pathway. If the coupled effect
 # only appeared under an ambitious budget, a referee would rightly say the result is a
 # property of high ambition rather than of politics. All six bars point the same way, so it
 # is not.
 #
 # The figure also has to carry the methodological point that makes it honest: the effect is
-# measured against the theta = 0 null, and measuring it against the UNCOUPLED baseline
+# measured against the no-politics reference (theta = 0), and measuring it against the UNCOUPLED baseline
 # instead flips the sign. That confound is 4-45x the size of the signal, so it is drawn to
 # scale as a separate marker rather than described in the caption where nobody reads it.
 #
 # Form: horizontal bars of the EFFECT (a difference), faceted by resolution. Faceting rather
-# than colour-by-resolution deliberately: pfmSectorColours() is reserved for Bulk/Diffuse
+# than colour-by-resolution deliberately: pfmSectorColours() is reserved for power & industry / buildings & transport
 # semantics across every other figure in this set, and reusing those hues for EU21/H12 would
 # make hue mean two different things in one document.
 
@@ -45,16 +45,16 @@ figCoupledNpiTwins <- function(group = "v5") {
   }
   d <- do.call(rbind, rows)
 
-  # Every bar is a DIFFERENCE, so a missing twin renders as an absent bar rather than an
+  # Every bar is a DIFFERENCE, so a missing variant renders as an absent bar rather than an
   # error: on 2026-09-14 this figure was rebuilt on a Run-Group whose batch carried no NPi
-  # twins at all and it drew an empty panel under a headline asserting "all six bars point
+  # Variants at all and it drew an empty panel under a headline asserting "all six bars point
   # the same way". Refuse instead. Same contract as figMarkupCounterfactual and
   # figCoupledConvergence: a builder that cannot find its runs says so.
   miss <- d$key[!is.finite(d$effect)]
   if (length(miss)) {
     stop("figCoupledNpiTwins: ", length(miss), " of ", nrow(d),
          " bars have no run in group ", group, " (", paste(unique(miss), collapse = ", "),
-         "). The NPi twins and their -NPi2025-PFMgate null must be in the batch.",
+         "). The NPi variants and their -NPi2025-PFMgate reference must be in the batch.",
          call. = FALSE)
   }
 
@@ -75,7 +75,7 @@ figCoupledNpiTwins <- function(group = "v5") {
     ggplot2::labs(
       title = "On current policies too, politics raises emissions — and the control decides the sign",
       subtitle = paste0(
-        "Change in cumulative CO₂ to 2100 against the correct θ = 0 null, current-policies ",
+        "Change in cumulative CO₂ to 2100 against the correct no-politics reference (θ = 0), current-policies ",
         "pathway. All six blue bars point\nthe same way, so the mechanism is not an artefact ",
         "of assuming high ambition. The red bar is the effect of switching\n",
         "cm_taxCO2_regiDiff alone — measure against the uncoupled baseline instead and that ",
@@ -83,5 +83,5 @@ figCoupledNpiTwins <- function(group = "v5") {
       x = "Δ cumulative CO₂ to 2100, Gt", y = NULL)
   attr(p, "pfmGrid") <- "x"
 
-  pfmStamp(p, group, note = "θ = 0.50; NPi twins, read against -NPi2025-PFMgate")
+  pfmStamp(p, group, note = "θ = 0.50; NPi variants, read against -NPi2025-PFMgate")
 }

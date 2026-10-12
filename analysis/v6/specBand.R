@@ -1,12 +1,12 @@
 # The spec band (design note 0005 Phase 2 step 4): every spec that passes the sanity walk of a Run-Group,
 # taken through the v6 coupling formulation offline - its frontier, its donor assignment, its anchor and
 # k_s(t) on the same energy systems. Answers: is the headline mechanism (k falling on PkBudg1000) a
-# property of the deployed spec, or of the band? Separates spec from panel when compared with v6-annual.
+# property of the selected specification, or of the band? Separates spec from panel when compared with v6-annual.
 #   Rscript analysis/v6/specBand.R [group] [set]    (from the repo root; default v6; after analysis/v6/phase1.R)
 #   set: "passing" (default) - the sanity-passing specs; "ceilingRejected" - the pool specs rejected by
 #   the ceilingCollapse gate ALONE (design note 0005 C9: what the gate keeps out of the band).
 # Each spec gets a scratch Run-Group output/pfm/specband-<group>/s<i>/ (manifest, selected spec, frontier,
-# donor assignment); the deployed spec is run through the same path as a control and must reproduce
+# donor assignment); the selected specification is run through the same path as a control and must reproduce
 # <group>/frontier.rds. Output: output/pfm/<group>/phase1/spec-band.rds and a printed summary.
 source("analysis/_common/_loadPfm.R")
 suppressMessages({ library(madrat); library(magclass) })
@@ -38,7 +38,7 @@ panel <- loadTrainingPanel(manifest$panel_hash, modelDir)
 selDeployed <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 w <- pfmAssertSizeWeights(pfmCouplingWeights(year = 2025, scenario = "SSP2"), "spec band")
 scen <- lapply(c(NPi = "NPi", PkBudg1000 = "PkBudg1000"), function(k) v6ScenPanel(P1, k, BASES[[k]]))
-say(length(passing), " sanity-passing spec(s); deployed ", deployed)
+say(length(passing), " sanity-passing spec(s); selected ", deployed)
 
 ymlFor <- function(spec) lapply(selDeployed, function(e) {
   keep <- e[c("model_type", "estimator", "indexMax", "trendMidpoint", "trendSteepness")]
@@ -79,7 +79,7 @@ rg <- do.call(rbind, regs); rownames(rg) <- NULL
 saveRDS(list(k = out, regions = rg, frontierReproduced = frCheck, set = set), file.path(P1, paste0("spec-band", sfx, ".rds")))
 
 options(width = 220)
-cat("\n== control: deployed spec's frontier reproduced:", paste(names(frCheck), frCheck, collapse = ", "), "\n")
+cat("\n== control: selected specification's frontier reproduced:", paste(names(frCheck), frCheck, collapse = ", "), "\n")
 kw <- reshape(out, idvar = c("id", "spec", "deployed", "bootWin", "run", "sector"), timevar = "year", direction = "wide")
 names(kw) <- sub("k.", "", names(kw), fixed = TRUE)
 kw$spec <- sub(" bothIncAP lev ", " ", sub("WGIge|", "", kw$spec, fixed = TRUE), fixed = TRUE)
@@ -90,7 +90,7 @@ for (s in c("Bulk", "Diffuse")) for (r in names(scen)) {
 dep <- if (deployed %in% rg$spec) rg[rg$spec == deployed, c("sector", "region", "u")] else
   data.frame(sector = readRDS(file.path(P1, "anchors.rds"))$EU21$region$sector, region = readRDS(file.path(P1, "anchors.rds"))$EU21$region$region,
              u = readRDS(file.path(P1, "anchors.rds"))$EU21$region$u)
-cat("\n== ranking u: Spearman with the deployed spec (EU21)\n")
+cat("\n== ranking u: Spearman with the selected specification (EU21)\n")
 print(do.call(rbind, lapply(split(rg, list(rg$id, rg$sector), drop = TRUE), function(d) {
   m <- merge(d[, c("region", "u")], dep[dep$sector == d$sector[1], c("region", "u")], by = "region")
   data.frame(id = d$id[1], sector = d$sector[1], gammaBulk = round(d$gammaBulk[1], 4), spearman = round(stats::cor(m$u.x, m$u.y, method = "spearman"), 3))

@@ -1,17 +1,17 @@
 # The persistence ladder (design note 0006, the paper frames): every result of both closures against how
-# long the political drag lasts, one row per rung, rule and resolution.
+# long the political limit lasts, one row per rung, rule and resolution.
 #   Rscript analysis/v6/persistenceLadder.R [group]          (repo root; default v6)
 # Run after runCoupledStage.R <group> and ruleCRelocationDecomp.R: it reads their artifacts and adds only
 # the cumulative CO2 path of each run (pm_actualbudgetco2, Gt CO2, the element of each year, PITFALLS 16).
 #
-# Rungs, from worse than today to fastest erosion (titles -PFMlevel<Bfix|C>[-<arm>]-v6; a rung that has not
+# Rungs, from worse than today to fastest erosion (titles -PFMlevel<Bfix|C>[-<sensitivity run>]-v6; a rung that has not
 # run is left out, so the ladder can be read while the batch lands):
-#   backslide  today's strength growing, E hold with kappa < 0 (declared, 0006)
-#   Ehold      today's strength held, k close to 1 (the static share, D2 / C5)
-#   deployed   the strength fading with the projected drivers (the v6 headline)
-#   kappa02 / kappa / kappa05   plus declared erosion of 0.02 / 0.027 / 0.05 a year (ADR 0050)
-# Rule B (held price) against -PFMgateBfix: extra cumulative CO2 by year, the year cumulative CO2 peaks,
-# GDP and consumption. Rule C (held budget) against -PFMgate: the global price (anchor, 2050), relocated
+#   Growing limit  today's strength growing, E hold with kappa < 0 (declared, 0006)
+#   Constant limit      today's strength held, k close to 1 (the constant limit, D2 / C5)
+#   Selected   the strength fading with the projected drivers (the v6 headline)
+#   kappa02 / kappa / kappa05   plus erosion rate of 0.02 / 0.027 / 0.05 a year (ADR 0050)
+# Hold the price against -PFMgateBfix: extra cumulative CO2 by year, the year cumulative CO2 peaks,
+# GDP and consumption. Hold the budget against -PFMgate: the global price (anchor, 2050), relocated
 # abatement by period, the regional price wedge, China's change, GDP and consumption (all regions).
 # "dividend" = the static rung minus each rung: what the ladder says politics that develops is worth.
 # Writes output/pfm/<group>/coupling/persistence-ladder.{rds,json} (with `paths`, each run's cumulative CO2
@@ -40,7 +40,7 @@ cumPath <- function(res, x) {
   y <- suppressWarnings(as.integer(d[[1]])); v <- as.numeric(d[[ncol(d)]])
   stats::setNames(v[match(YEARS, y)], YEARS)
 }
-# k of a run: the arms carry it in the facts; the deployed rows sit in the per-run list (rule B) or ruleC
+# k of a run: the sensitivity runs carry it in the facts; the selected rows sit in the per-run list (hold the price) or ruleC
 kOf <- function(res, rule, rung) {
   e <- if (rung == "deployed") {
     if (rule == "C") FA$ruleC[[res]][["0.50"]]
@@ -107,9 +107,9 @@ dividend <- function(t, col) {
   }))
 }
 D <- rbind(dividend(B, "extra2100"), dividend(C, "relocated"))
-cat("\n== Rule B (held price) against -PFMgateBfix: extra cumulative CO2 (Gt), peak year, discounted GDP / consumption (%)\n")
+cat("\n== Hold the price against -PFMgateBfix: extra cumulative CO2 (Gt), peak year, discounted GDP / consumption (%)\n")
 if (!is.null(B)) print(B[, setdiff(names(B), c("meaning", "kDiffuse2050", "kDiffuse2100"))], row.names = FALSE)
-cat("\n== Rule C (held budget) against -PFMgate: global price 2050 (x null), relocated abatement (Gt CO2eq), price wedge SD\n")
+cat("\n== Hold the budget against -PFMgate: global price 2050 (x reference), relocated abatement (Gt CO2eq), price wedge SD\n")
 if (!is.null(C)) print(C[, setdiff(names(C), c("meaning", "kDiffuse2050", "kDiffuse2100"))], row.names = FALSE)
 cat("\n== The dividend: the static rung minus each rung\n"); if (!is.null(D)) print(D, row.names = FALSE)
 out <- list(group = GROUP, generated = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), rungs = as.list(RUNGS),

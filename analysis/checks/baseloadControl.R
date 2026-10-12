@@ -2,11 +2,11 @@
 #   Rscript analysis/checks/baseloadControl.R [group] [compareGroup]      (default v6 v5)
 # Four questions, all estimation-side (history only; the scenario-panel unit fix of PITFALLS 28
 # does not change any of them):
-#   1. Which terms carry the VIF of the X-2079 design, in each group? (v6: the Bulk incumbent
+#   1. Which terms carry the VIF of the X-2079 design, in each group? (v6: the power & industry incumbent
 #      share against the hydro/nuclear/geothermal control; Iceland's geothermal tips it over 6.)
 #   2. What does the control do? The mean regression with and without it, population kept: the
-#      Bulk incumbent-share coefficient, and the countries whose fit moves (nuclear/hydro ones).
-#   3. What the soft keys decide: the deployed spec under each softVifGate / inferenceTGate.
+#      Power & industry incumbent-share coefficient, and the countries whose fit moves (nuclear/hydro ones).
+#   3. What the soft keys decide: the selected specification under each softVifGate / inferenceTGate.
 #   4. How many specs the soft VIF key demotes, per control set and channel set.
 # The mean regression is replicated by OLS on the squeezed logit of the index (the satP engine,
 # MODEL.md 2.1) with standardized drivers and products of standardized drivers as interactions;
@@ -104,13 +104,13 @@ out$control <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   print(cbind(cf[, 1, drop = FALSE], round(cf[, -1], 3)), row.names = FALSE)
   list(coef = cf, r2 = c(with = w$r2, populationOnly = wo$r2), countries = a[order(a$shift), ])
 })
-cat("  Bulk, most affected countries (residual = observed - fitted, logit, last five years; rank 1 = most over-achieving):\n")
+cat("  Power & industry, most affected countries (residual = observed - fitted, logit, last five years; rank 1 = most over-achieving):\n")
 x <- out$control$Bulk$countries; x <- rbind(utils::head(x, 6), utils::tail(x, 6))
 print(cbind(x["country"], round(x[, c("baseload", "incumbentShare", "residWith", "residWithout", "shift")], 2),
             x[, c("rankWith", "rankWithout")]), row.names = FALSE)
 
 # 3. What the soft keys decide -------------------------------------------------------------------
-cat("\n3. First near-tie band of", g, "ordered under each soft-key setting (deployed = first)\n")
+cat("\n3. First near-tie band of", g, "ordered under each soft-key setting (selected = first)\n")
 s <- readRDS(file.path("output/pfm", g, "sweep.rds")); m <- mmOf(s); r <- s$results
 m$vif <- tapply(r$maxVIF, r$model, max)[m$model]
 m$tmin <- suppressWarnings(tapply(r$minSigTheoryT, r$model, function(v) min(v, na.rm = TRUE)))[m$model]

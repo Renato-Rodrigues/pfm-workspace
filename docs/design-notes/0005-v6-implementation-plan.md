@@ -56,7 +56,7 @@ The work is front-loaded with things that are cheap and decisive:
 | **0** | `psm` → `pfm` rename first; then commit and push, version control, small code fixes | workstation | the rename is one isolated commit per repo; `v5` artifacts still read through aliases; everything is pushed |
 | **1** | Offline prototype of the v6 formulation on `v5` artifacts and gdx files | workstation | the prototype reproduces the methodology's $k_s(t)$ values; ADRs drafted |
 | **2** | Data and estimation, Run-Group **`v6`**: SSP-aware panel, accountability rule, geothermal, panel to 2023, re-sweep with saturating innovator power | cluster (sweep) | spec selected; diagnostics pass; v5→v6 ordering comparison written |
-| **3** | Coupling code: R (`iterativePFM` v6 path) and GAMS (time-indexed φ, rule-C rebuild, mode R) | workstation + test runs | replay harness and negative control pass; θ = 0 gate run passes |
+| **3** | Coupling code: R (`iterativePFM` v6 path) and GAMS (time-indexed φ, hold-the-budget rebuild, mode R) | workstation + test runs | replay harness and negative control pass; θ = 0 gate run passes |
 | **4** | Run tooling: scenario matrix → generated config, preflight, submit wrapper, post-batch stage | workstation (in parallel with 3) | the v6 batch config is generated, not hand-edited |
 | **5** | Coupled batch `v6`: SSP2 core → sensitivities → SSP1 / SSP3 | cluster | every run converged or admitted by the §25a rule |
 | **6** | Analysis, figures, governed docs, ADRs, new paper workspace (replaces `papers/pfm-paper-v5`), deposit | workstation | `paper-check` READY on the first v6 draft |
@@ -73,29 +73,29 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
 |---|---|
 | 0 — rename, unblock, clean | ✅ 2026-10-02 |
 | 1 — offline prototype | ✅ 2026-10-07 (anchor artifact, offline headline, spec band, ceiling gate, ADR drafts) |
-| 2 — data and estimation, Run-Group `v6` | ✅ 2026-10-06 (`v6`, `v6-annual`; Bulk γ accepted) |
+| 2 — data and estimation, Run-Group `v6` | ✅ 2026-10-06 (`v6`, `v6-annual`; power & industry γ accepted) |
 | 3 — coupling code | ✅ gate passed 2026-10-08 (EU21); H12 check 17 of 19, waived and disclosed 2026-10-10 |
 | 4 — run tooling | ✅ F1–F4, F6–F9; F5 open (optional) |
-| 5 — the coupled batch | ✅ 2026-10-10 (64 runs), plus the rule-C static-share run 2026-10-11 (65). Two follow-up batches set up 2026-10-12 (below) |
+| 5 — the coupled batch | ✅ 2026-10-10 (64 runs), plus the hold-the-budget constant-limit run 2026-10-11 (65). Two follow-up batches set up 2026-10-12 (below) |
 | 6 — analysis, documents, paper | steps 1–4 ✅; step 5 (the paper) waits for the spine; step 6 (the deposit) after it |
 
 **Open, in order** (🟠 needed for the paper, 🟢 improves it, ⚪ optional):
 
 1. 🟠 **Choose the spine** (author). The candidates are in design note 0006; recommended: today's politics
    versus tomorrow's, led by "net zero slips unless politics changes".
-2. 🟠 **`V6PERSH12`**, 4 H12 runs: the static-share and central-κ arms under both rules, so the
+2. 🟠 **`V6PERSH12`**, 4 H12 runs: the constant limit and central-κ sensitivity runs under both rules, so the
    persistence ladder is not EU21 only. Ready to submit (`RUNNING.md` step 7c).
-3. 🟠 **`V6BACK`**, 2 EU21 runs: backsliding, today's strength growing (κ < 0, accepted by `pfm` since
+3. 🟠 **`V6BACK`**, 2 EU21 runs: growing limit, today's strength growing (κ < 0, accepted by `pfm` since
    2026-10-12). The rate is the author's to declare; it stays at the proposed −0.005 a year for now.
 4. 🟠 **When they land:** `runCoupledStage.R v6`, `ruleCRelocationDecomp.R`, `persistenceLadder.R v6`;
    update 0006.
 5. 🟠 **Phase 6 step 5, the paper workspace (D19, amended by §7b).** Scaffold it **without** the `v5` v18
    draft as text: that draft is built on the `v5` specification and results. Port only what is
    version-independent: the literature (with item 35's sources), the glossary, the drafting rules.
-   Write Methods fresh for the `v6` formulation (D-A1…A7), with the held-budget arithmetic (D-M2 (i))
+   Write Methods fresh for the `v6` formulation (D-A1…A7), with the hold-the-budget arithmetic (D-M2 (i))
    and the sector-ordering caveat (D-M4). *The amendment needs the author's confirmation.*
 6. 🟠 **The paper's figures, `v6` only.** The ladder under both closures; the peak-year / net-zero figure
-   if frame 6 leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
+   if *Net zero slips* leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
    C10). Three of the four coupled figures of 2026-10-10 (`v6-coupled-theta`, `v6-rulec-relocation`,
    `v6-price-catchup`) show `v5` beside `v6` and need `v6`-only versions for the paper.
 7. 🟠 **The deposit** (D-M3, Phase 6 step 6): a Zenodo archive at tags of `pfm`, `mrpfm`, the fork and the
@@ -106,28 +106,28 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
 9. ✅ **D-GP8 / GP-11 / GP-13 on `v6`, run 2026-10-12** (the three scripts take the Run-Group since that
    day; offline, covered countries, the last panel year 2023). Results on file for when the paper needs
    them:
-   - *Income (GP-8, `income-screen.rds`).* The ceiling tracks income in Diffuse (Spearman of $S^*$ with
-     GDP per head +0.62; Bulk +0.15), the shortfall $E$ the coupling reads much less (+0.37 Bulk, +0.30
-     Diffuse). Refitting without the income control (X-1788) leaves $E$ almost unchanged: Spearman with
-     the deployed $E$ +0.984 / +0.997, median rank shift 1 / 0 of 48, median |Δφ| 0.014 / 0.003.
-   - *State capability (GP-11, same file).* $E$ rises with Government Effectiveness: +0.36 Bulk, +0.22
-     Diffuse. The shortfall is smaller where the state is stronger, more clearly in Bulk.
+   - *Income (GP-8, `income-screen.rds`).* The ceiling tracks income in buildings & transport (Spearman of $S^*$ with
+     GDP per head +0.62; power & industry +0.15), the shortfall $E$ the coupling reads much less (+0.37 power & industry, +0.30
+     buildings & transport). Refitting without the income control (X-1788) leaves $E$ almost unchanged: Spearman with
+     the selected $E$ +0.984 / +0.997, median rank shift 1 / 0 of 48, median |Δφ| 0.014 / 0.003.
+   - *State capability (GP-11, same file).* $E$ rises with Government Effectiveness: +0.36 power & industry, +0.22
+     buildings & transport. The shortfall is smaller where the state is stronger, more clearly in power & industry.
    - *Prediction error (GP-13, `ordering-checks.rds`, `residual-ordering-phi.rds`).* At country level the
-     shortfall tracks the mean regression's residual (Spearman of $E$ with the residual ratio 0.80 Bulk,
-     0.85 Diffuse in 2023). The regional ordering keeps more of its own: Spearman 0.82 (Bulk), 0.62
-     (Diffuse) and 0.83 (combined share) over 20 EU21 regions, equal weights. The floor region is the
+     shortfall tracks the mean regression's residual (Spearman of $E$ with the residual ratio 0.80 power & industry,
+     0.85 buildings & transport in 2023). The regional ordering keeps more of its own: Spearman 0.82 (Power & industry), 0.62
+     (Buildings & transport) and 0.83 (combined share) over 20 EU21 regions, equal weights. The floor region is the
      same under both. The proxy floor (OAS, CHA) is not the coupled one (CHA, IND): the screen leaves
      out the 200 uncovered countries.
    - *Trend shape (GP-15, `ordering-checks.rds` B).* The 2010 / 0.30 shape keeps the delivered ordering
      (Spearman 0.97); the 2005 / 0.10 shape moves it most (0.77, OAS).
 10. 🟢 **G2:** close 0004 (its ADRs 0049, 0052 and 0053 are accepted); close 0006 with the spine and this
     note at the end of Phase 6.
-11. 🟢 **G3, the rest:** `CONTEXT.md` lacks the `v6` terms (anchor year, strength factor, logit hold,
-    static share, persistence, backsliding); `PRESENTATION.md` is rewritten once the spine is chosen.
+11. 🟢 **G3, the rest:** `CONTEXT.md` lacks the `v6` terms (anchor year, strength factor, distance kept,
+    constant limit, persistence, growing limit); `PRESENTATION.md` is rewritten once the spine is chosen.
 12. 🟢 **G4, the rest (author):** the v6 methodology document's *Against v5* and *What changed from v5*
     sections. Under §7b, remove them or mark them as internal background.
 13. 🟢 **Workstation housekeeping:** the installed `pfm` is older than the repository
-    (`tools/setup.sh --install --no-cache`); `test-couplingV6.R:101` expects Bulk $k_{2100}$ 0.4809 and
+    (`tools/setup.sh --install --no-cache`); `test-couplingV6.R:101` expects power & industry $k_{2100}$ 0.4809 and
     gets 0.4884 since the scenario panel was rebuilt on 2026-10-08 (the same with the code before the κ
     change).
 14. 🟢 **F5:** promote the reproduction-chain scripts into `pfm`. The deposit can ship `analysis/` as it
@@ -150,7 +150,7 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
   list, both resolutions where a number has two.
 - **E6**: superseded by the anchor artifact (C6).
 
-**Deferred (⏸) beyond this paper:** the SSP axis (A1d, wave 3, φ(t) fans by SSP; §7a decision 7); the
+**Deferred (⏸) beyond this paper:** the SSP axis (A1d, third batch, φ(t) fans by SSP; §7a decision 7); the
 PoliClim-informed institution projections, after which the ceiling-fall gate is revisited (§7a decision
 8); version control for `../communication/` (E4; the new paper workspace is its own repository).
 
@@ -167,7 +167,7 @@ the first model period.
 2. **Distance held on the logit scale.** $q_{c,s} = \eta_{c,s,t_a} - y_{c,s,t_a}$. For an
    uncovered country, $y_{c,s,t_a} = \mathrm{logit}(E_c S^*_{c,s,t_a}/S_{\max})$, using the
    band-rule $E_c$. Then $S_{c,s,t} = S_{\max}\,\mathrm{logit}^{-1}(\eta_{c,s,t} - q_{c,s})$.
-3. **Ranking from the anchor year:** aggregate with the deployed final-energy weights to
+3. **Ranking from the anchor year:** aggregate with the selected final-energy weights to
    $g_{r,s,t_a}$, then $u_{r,s} = (g_{r,s} - g_{\min,s})/(g_{\max,s} - g_{\min,s})$. Computed
    **once, offline**, per Run-Group, and staged as an artifact.
 4. **Strength from the world mean gap:** $G_s(t) = \sum_r w_r\,g_{r,s}(t)$, with
@@ -176,8 +176,8 @@ the first model period.
    2100 value only in REMIND's terminal periods (2110–2150). The sensitivity holds it from 2060
    (decision D6).
 5. **Share:** $\varphi_{r,s}(t) = \mathrm{clip}_{[0,1]}\big(1 - \theta\,[\,k_s(t)\,\bar u_s + d_s(t)\,(u_{r,s} - \bar u_s)\,]\big)$.
-   The deployed setting is $d_s = k_s$, which reduces to $1 - \theta\,k_s(t)\,u_{r,s}$.
-6. **Delivery is unchanged:** the floor is $\min_s$; ETS ← Bulk; ES and other ← Diffuse; the level
+   The selected setting is $d_s = k_s$, which reduces to $1 - \theta\,k_s(t)\,u_{r,s}$.
+6. **Delivery is unchanged:** the floor is $\min_s$; ETS ← power & industry; ES and other ← buildings & transport; the level
    cap $P = \min(A, P^{ref} + \varphi\,\max(A - P^{ref}, 0))$, now with $\varphi(t)$.
 
 What REMIND can still move: $k_s(t)$, through actor power, in every period up to the hold year.
@@ -192,7 +192,7 @@ here (D1).
 |---|---|---|---|
 | D1 | Deploy the **anchor + mean-gap strength** formulation ("Next step 1") as the v6 coupling. Keep the v5 2035 reading only as a reproduction switch | keep the 2035 reading; extra tier years under the λ projection | recommended |
 | D2 | Hold each country's distance on the **logit scale** ($q = \eta - y$), not the efficiency ratio $E$ | hold $E$ (natural scale); hold the index-point gap | recommended — **must be stated as the mechanism** |
-| D3 | Anchor at the last panel year on the moving-average panel; fit the frontier on that panel; annual data as a robustness rung, built as the **sibling Run-Group `v6-annual`** with its own panel | switch the deployed fit to annual data | **decided by the author, 2026-10-02** |
+| D3 | Anchor at the last panel year on the moving-average panel; fit the frontier on that panel; annual data as a robustness rung, built as the **sibling Run-Group `v6-annual`** with its own panel | switch the selected fit to annual data | **decided by the author, 2026-10-02** |
 | D4 | Normalise $k$ at $t_0 = 2025$ in every scenario; $u$ from anchor-year data; $\varphi(t_0) = 1 - \theta u$ | normalise at 2022 | recommended |
 | D5 | Converge on the **φ path** (max over regions, markets and checkpoint years) at the existing tolerance 0.002; log the all-period δ; switch to the strict rule if it ends above 2 × tol | converge on $k$ with tolerance tol/θ | agreed |
 | D6 | **No hold year in the central case:** $k_s$ follows the ceilings to 2100. **Hold at 2060 is the sensitivity.** The out-of-support share is reported per year with every run | hold at 2060 as the central case | **decided by the author, 2026-10-01** |
@@ -200,14 +200,14 @@ here (D1).
 | D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating innovator power together. 2023 comes from the **IEA 2025 edition**, which also revises earlier years | three separate refits; a 2022-only fit on the 2025 edition | **decided by the author, 2026-10-02** (2023 and its edition) |
 | D9 | One SSP per run, taken from `cm_GDPpopScen` and threaded to the panel, the weights, $P^{ref}$ and the anchor donor; **asserted** | SSP2 everywhere (today) | recommended |
 | D10 | Institutions with no SSP projection (all V-Dem series, Rule of Law included; WGI Voice and Accountability, Political Stability, Regulatory Quality): **(b) declared storyline convergence** (target percentile and speed per SSP, SSP2 unchanged) in the headline; **(a)** the same convergence for every SSP and **(d)** hold at the last observed value as sensitivities. Rule of Law stays V-Dem, not WGI | (c) map from the Andrijevic composite index; WGI Rule of Law | **decided by the author, 2026-10-02**; implemented (`pfmInstitutionProjection`, `DATA.md` §5.4) |
-| D11 | Spread: $d_s = k_s$ in every headline run; a declared storyline spread $d_s = \rho_{SSP}(t)\,k_s$ only as an SI arm; the model-derived $D_s(t)/D_s(t_0)$ reported as a diagnostic only | model-derived spread in the headline | recommended |
+| D11 | Spread: $d_s = k_s$ in every headline run; a declared storyline spread $d_s = \rho_{SSP}(t)\,k_s$ only as an SI sensitivity run; the model-derived $D_s(t)/D_s(t_0)$ reported as a diagnostic only | model-derived spread in the headline | recommended |
 | D12 | Clip φ to [0, 1]; redefine θ as "severity at $t_0$"; log the clipped share, and flag $k_s > 1/\theta$ | let φ float below $1-\theta$ unbounded | recommended |
-| D13 | **Remove λ from the coupling.** Retire mode M and the `GAPCLOSE` arm from the v6 batch. Replace gap closure by one declared closure arm on the strength. Keep the ECM in diagnostics only | keep λ for the 2022→2035 step; keep `GAPCLOSE` | recommended |
-| D14 | New time-indexed GDX symbols behind a switch; keep the old symbols; rule B needs no GAMS change | re-rank the existing symbols | recommended |
+| D13 | **Remove λ from the coupling.** Retire mode M and the `GAPCLOSE` sensitivity run from the v6 batch. Replace gap closure by one declared closure sensitivity run on the strength. Keep the ECM in diagnostics only | keep λ for the 2022→2035 step; keep `GAPCLOSE` | recommended |
+| D14 | New time-indexed GDX symbols behind a switch; keep the old symbols; hold the price needs no GAMS change | re-rank the existing symbols | recommended |
 | D15 | Ordering tests (uniform, permuted, reversed, set) become a ranking option on **$u$**, composing with $k(t)$. This replaces `phi-override.yml` for v6 | keep overriding φ after the fact | recommended |
 | D16 | Region-specific strength $k_{r,s}(t)$ only as an SI sensitivity | deploy it | recommended |
 | D17 | **Hold fixed** in v6: one shared spec for both sectors, min–max normalisation, final-energy weights, the USA override, the θ grid {0.325, 0.50, 0.675} | change any of these too | recommended |
-| D18 | Re-run the θ = 0 nulls once on the v6 fork and gate them against `v5`. **Amended 2026-10-07:** the fork moved to REMIND 3.7.1, so the null is gated against `-PFMgateRef` on the same version, and the uncoupled bases are re-run on 3.7.1 first (`PITFALLS.md` §34) | reuse the `v5` nulls | recommended; amended |
+| D18 | Re-run the no-politics references (θ = 0) once on the v6 fork and gate them against `v5`. **Amended 2026-10-07:** the fork moved to REMIND 3.7.1, so the no-politics reference is gated against `-PFMgateRef` on the same version, and the uncoupled bases are re-run on 3.7.1 first (`PITFALLS.md` §34) | reuse the `v5` no-politics references | recommended; amended |
 | D19 | **New paper workspace** on Run-Group `v6`, built the way `papers/pfm-paper-v5` was built from `paper`. `papers/pfm-paper-v5` v18 is the draft; `papers/pfm-paper-v5`'s design, claims and literature are the seed. `papers/pfm-paper-v5` is frozen at v18 as the `v5` record and **is not submitted**: the v6 paper replaces it | continue `papers/pfm-paper-v5` and switch its Run-Group; submit `papers/pfm-paper-v5` on `v5` in parallel | **decided by the author, 2026-10-01** |
 | D20 | Put the project layer (`analysis/`, `analysis/figures/`, `docs/`, `docs/design-notes/`, `config.yml`, paper workspaces) under git, excluding data, output and gdx | keep it workstation-only | agreed |
 | D21 | The `psm*` → `pfm*` rename is **the first step of v6, before anything else**, with read-aliases so the frozen `v5` artifacts and the `papers/pfm-paper-v5` bundle stay readable | defer to after submission | **decided by the author, 2026-10-01** |
@@ -219,7 +219,7 @@ here (D1).
 
 - **It removes the one unidentified rate the share depended on.** λ sits inside or below its
   placebo null (0.291 [0.181, 0.419] / 0.104 [0.062, 0.209], `TODO.md` 12b). It does not beat
-  persistence. On annual data it is 1.7× (Bulk) and 4× (Diffuse) the smoothed value, so much of it
+  persistence. On annual data it is 1.7× (Power & industry) and 4× (Buildings & transport) the smoothed value, so much of it
   is a smoothing artefact (0004 §2).
 - **The λ step is first-order for the ordering REMIND receives.** At 2035, the speed-limited and
   frozen-gap rules agree at a Spearman of only 0.52, and the floor pair changes (0004 §3). The
@@ -229,14 +229,14 @@ here (D1).
 - **It removes a v5 inconsistency inside every region.** Covered countries are projected at λ;
   uncovered countries hold their ratio $E$ (`aggregateFeasibilityToRegions.R` fills
   $E \cdot S^*$). Both rules are mixed in one regional aggregate (methodology, Step 2).
-- **It makes GP-26 and the `chinaseed` arm of GP-23 moot by construction**, and implements GP-27,
+- **It makes GP-26 and the `chinaseed` sensitivity run of GP-23 moot by construction**, and implements GP-27,
   the share that moves after the tier year.
 - **The cost:** a region's own energy transition can no longer change its rank. It is stated, and
   D16 tests it.
 
 **D2 — hold the distance on the logit scale. This choice is the mechanism, not a detail.**
 
-- In 0004 §3 (E3b), holding $E$ fixed leaves the median relative gap at 0.30 / 0.30 / 0.30 (Bulk)
+- In 0004 §3 (E3b), holding $E$ fixed leaves the median relative gap at 0.30 / 0.30 / 0.30 (Power & industry)
   for 2035 / 2050 / 2070. That makes $k_s \approx 1$, and the formulation collapses to a static
   share.
 - Holding $q$ on the logit scale lets the gap shrink as a ceiling rises toward saturation, and
@@ -245,7 +245,7 @@ here (D1).
   are all defined on the logit scale. Holding the shortfall where the model defines it is the
   model-consistent version of "the gap persists".
 - **What must travel with it:** Methods states that the strength factor exists because the
-  shortfall is held on the logit scale. The $E$-hold run is reported as the static-share bound.
+  shortfall is held on the logit scale. The $E$-hold run is reported as the constant-limit bound.
   The methodology lists this as "a new declared assumption"; the plan makes it a named sensitivity.
 
 **D3 — anchor on the moving-average panel; annual data as a rung.**
@@ -254,12 +254,12 @@ here (D1).
   robust to it (Spearman of $E_{2022}$ 0.981 / 0.932; 14 / 17 and 17 / 17 signs agree; 0004 §2).
 - The anchor reading **benefits** from smoothing. The ranking is now read in a single year, and
   the end-of-panel value is already a three-year mean (2020–2022).
-- An annual deployed fit would put single-year CAPMF noise straight into the ranking. It stays a
+- An annual selected fit would put single-year CAPMF noise straight into the ranking. It stays a
   robustness rung (methodology Next step 5).
 
 **D4 — normalise $k$ at 2025.**
 
-- $k(t_0) = 1$ by construction in every scenario, including the nulls and every SSP. SSP
+- $k(t_0) = 1$ by construction in every scenario, including the no-politics references and every SSP. SSP
   differences then come only from trajectories after 2025, where REMIND and the SSPs differ.
 - The ranking still comes from observed data at $t_a$.
 - This also removes an ambiguity in the methodology, which writes both $\varphi(2022)$ and
@@ -269,7 +269,7 @@ here (D1).
 
 - With $d = k$ and $\max u = 1$, $\max_r|\Delta\varphi_r| = \theta\,|\Delta k|$ exactly. Checking φ
   is therefore identical to the methodology's rule.
-- It avoids dividing by θ, which is undefined for the θ = 0 nulls.
+- It avoids dividing by θ, which is undefined for the no-politics references (θ = 0).
 - It keeps `cm_pfmConvTol` meaning what it means today.
 - It extends naturally to $d \ne k$ and to the per-market shares. v5 checks only the
   economy-wide floor (`iterativePFM.R`, step 4), so a market share could still be moving when the
@@ -292,11 +292,11 @@ here (D1).
   - **Saturating innovator power becomes necessary, not optional (D7).** Without a hold, $k_s$
     reads ceilings to 2100. By 2050, 56–65% of countries are above the innovator range on `v5`
     (0004 §1).
-  - **The hold-2060 arm is the honest bound** on how much of each headline comes from late-century
-    extrapolation. It runs for both closures at EU21 (Phase 5, wave 2).
+  - **The hold-2060 sensitivity run is the honest bound** on how much of each headline comes from late-century
+    extrapolation. It runs for both closures at EU21 (Phase 5, second batch).
   - **Late-century SSP differences are partly clamp-driven:** GovEff reaches the scale maximum by
     2070 under SSP1 and SSP5, and 60% of countries are above the GDP range by 2100 on SSP2 (0004
-    §1, §4). The SSP results are therefore always reported next to their hold-2060 twin.
+    §1, §4). The SSP results are therefore always reported next to their hold-2060 variant.
 
 **D7 — the actor-power form: selected, under an extrapolation gate (decided 2026-10-02).**
 
@@ -318,7 +318,7 @@ here (D1).
     `MODEL.md` §6); the gate makes the out-of-sample behaviour the deciding evidence instead of an
     assumption.
   - **Implemented:** `apTransform` gains `"saturating-innovator"` / `"saturating-incumbent"`
-    (twins `" satInn"` / `" satInc"`; `" satAP"` stays both); `pfmSpecs(apTransforms,
+    (variants `" satInn"` / `" satInc"`; `" satAP"` stays both); `pfmSpecs(apTransforms,
     dropCompositeAP)`; the gate in the sanity walk (`apExtrapolationGate`, `apExtrapolationSd`,
     `apExtrapolationWindow`); all set in `config.yml` `sweep:` and recorded in the group's
     manifest (`sweepOptions`), so `v5` keeps its grid.
@@ -327,14 +327,14 @@ here (D1).
   the `v5` gdxs, and the out-of-support share is reported per year with every run (C10).
 - Background, unchanged:
 - v6 reads ceilings to 2060–2100. The linear innovator term is then extrapolated 5–9 SD beyond the
-  data for most countries (0004 §1). Without the clamp, half of all Diffuse ceilings exceed 9 by
+  data for most countries (0004 §1). Without the clamp, half of all buildings & transport ceilings exceed 9 by
   2100 and the ordering compresses.
 - The saturating form $x/(x + \bar x)$ already exists (ADR 0040, `satAP`). It decays at the
   physical domain, not at the sample edge.
 - The other clamps stay: log population (up to 130 SD), the upper bound on incumbent power per
   capita (40–75 SD outliers), GDP and GovEff. They cost nothing today and stop explosions under
   SSP inputs (0004 §1).
-- **Rungs:** the selected spec's other actor-power forms (its linear and saturating twins) are
+- **Rungs:** the selected spec's other actor-power forms (its linear and saturating variants) are
   reported as SI rungs, so the effect of the form is shown, whichever wins. (`bothIncAP`, 76% of
   `v5` bootstrap winners, is the incumbency *structure*, share plus per capita; it is independent of
   the linear/saturating form.)
@@ -381,7 +381,7 @@ is reported as one documented change set, not three drifting ones.
 - The model's own spread is driven by extrapolated drivers and clamps, which is exactly what the
   hold year guards against.
 - Stacking a second declared dial onto the headline would make the SSP fan uninterpretable. The
-  headline uses $d = k$ for every SSP; the storyline spread is one SI arm per SSP; the model-derived
+  headline uses $d = k$ for every SSP; the storyline spread is one SI sensitivity run per SSP; the model-derived
   ratio is reported as a diagnostic.
 
 **D12 — clip φ and redefine θ.**
@@ -400,7 +400,7 @@ is reported as one documented change set, not three drifting ones.
   leaves the batch; its code stays.
 - **`GAPCLOSE`** answered "what if the gap closes at λ". Under v6 the declared equivalent is a
   closure on the strength, $k_s(t)\,(1 - \kappa)^{t - t_0}$, with κ declared. This follows the
-  third option of 0004 §3. One SI arm.
+  third option of 0004 §3. One SI sensitivity run.
 - **The ECM stays** in `psm-temporal` as a reported finding (forecast skill, placebo), not as a
   model input. This closes design-note 0003.
 
@@ -409,25 +409,25 @@ is reported as one documented change set, not three drifting ones.
 - Re-ranking an existing symbol is how defect 4 produced a silent all-zero load (`COUPLING.md` §7).
 - Add `p45_pfmPhiPath(ttot, all_regi)` and `p45_pfmPhiMktPath(ttot, all_regi, all_emiMkt)`, `ttot`
   first, behind `cm_pfmPhiPath` (default 0). The old rank-1 / rank-2 symbols carry the $t_0$ value.
-- Rule B needs nothing new: `p45_pfmPriceBound(ttot, …)` is already year-indexed, and
+- Hold the price needs nothing new: `p45_pfmPriceBound(ttot, …)` is already year-indexed, and
   `exportFeasibilityBound()` already takes φ per region-year.
-- Rule C's rebuild and mode R must read the path (`presolve.gms` around lines 297–336 and 365–368,
-  plus the `postsolve.gms` Step IV.4 mirror). Otherwise rule C silently rebuilds from a constant φ
+- The hold-the-budget rebuild and mode R must read the path (`presolve.gms` around lines 297–336 and 365–368,
+  plus the `postsolve.gms` Step IV.4 mirror). Otherwise hold the budget silently rebuilds from a constant φ
   after convergence — the GP-18 failure in a new form.
 
 **D15 — ordering tests on $u$.**
 
 - `phi-override.yml` overwrites φ after it is computed. Under v6 that would freeze $k(t)$ out of
-  the test arm.
+  the test sensitivity run.
 - Testing at the level of $u$ (uniform at $\bar u$; permuted; reversed; set) keeps the strength
-  dynamics identical between deployed and test arms. The contrast then isolates the estimated
+  dynamics identical between selected and test sensitivity runs. The contrast then isolates the estimated
   ordering, which is exactly referee point v16 M1.
 - As a first-class option it is also logged, typed and testable, instead of a file that a stale
   run folder can carry over (the reason `preparePFM.R` has to delete it).
 
 **D16 — regional strength as a sensitivity only.** $k_{r,s}(t) = g_{r,s}(t)/g_{r,s}(t_0)$ restores
 region-specific feedback but lets regions reorder on extrapolated drivers. That is the v5 problem
-in a new form. One SI arm answers "what does the common factor cost?" (methodology limitation 1).
+in a new form. One SI sensitivity run answers "what does the common factor cost?" (methodology limitation 1).
 
 **D17 — change one thing at a time.** Every quantity the referee has already accepted keeps its
 definition, so the `v5` → `v6` difference can be attributed to the formulation and the re-sweep.
@@ -436,8 +436,8 @@ The open questions on these choices stay open, but are not v6 work:
 - the endpoint spacing of the min–max (GP-14): measured at most 3.9% on the headline;
 - the weighting.
 
-**D18 — re-run the nulls.** In principle a θ = 0 null is formulation-independent (φ ≡ 1). But v6
-adds GAMS code paths, and the fork may merge upstream REMIND. Four nulls per resolution are cheap
+**D18 — re-run the no-politics references.** In principle a no-politics reference (θ = 0) is formulation-independent (φ ≡ 1). But v6
+adds GAMS code paths, and the fork may merge upstream REMIND. Four no-politics references per resolution are cheap
 next to an unexplained drift in every contrast. The gate reuses `COUPLING.md` §6.6.
 
 **D19 — a new paper workspace that replaces `papers/pfm-paper-v5` (author's decision).**
@@ -514,14 +514,14 @@ and improving it. Items ticked earlier keep their own notes.
 
 - [x] ✅ **A1 — Next step 1: the anchored gap with mean-gap strength.** Implement $q$, $u$, $G_s$,
       $k_s$, φ(t) in R (P1 prototype, P3 coupling), with the checkpoint convergence rule and the
-      all-period diagnostic (D5). Run held-price and held-budget at both resolutions (P5).
+      all-period diagnostic (D5). Run hold-the-price and hold-the-budget at both resolutions (P5).
 - [x] ✅ **A1a — time horizon:** no hold year in the central case; hold-2060 as the sensitivity (D6;
       P5). Revise `MODEL.md` §7 through ADR 0052.
 - [x] **A1b — stability and damping:** damping in R, logged, used only on oscillation (D5; P3).
       ✅ Code 2026-10-07 (`.pfmV6Damp`), awaiting the Phase 3 gate runs.
 - [x] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
-      φ for ratio mode and the rule-C rebuild (D14; P3). ✅ Code 2026-10-07 (`COUPLING.md` §14).
-- [ ] ⏸ **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI arm (D11; P5).
+      φ for proportional mode and the hold-the-budget rebuild (D14; P3). ✅ Code 2026-10-07 (`COUPLING.md` §14).
+- [ ] ⏸ **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI sensitivity run (D11; P5).
       **Deferred beyond this paper version** (decision 7 of §7a): the SSP machinery stays, the
       `v6` paper is SSP2 only.
 - [x] ✅ **A2 — Next step 2a: panel to 2023.** Verify that CAPMF, WGI, V-Dem and the energy data
@@ -552,7 +552,7 @@ and improving it. Items ticked earlier keep their own notes.
 - [x] ✅ **B1** — The spread $d_s$ is defined twice: as model-derived ($D_s(t)/D_s(2025)$) and as
       declared per storyline. Adopt D11 and rewrite the section.
 - [x] ✅ **B2** — The convergence tolerance $\text{cm\_pfmConvTol}/\theta$ is undefined at θ = 0 (the
-      nulls). Adopt D5.
+      no-politics references). Adopt D5.
 - [x] ✅ **B3** — $\varphi_{r,s}(2022)$ and $k_s(2025) = 1$ are mixed. Adopt D4 and write it once.
 - [x] ✅ **B4** — "No hold year (default)" conflicts with `MODEL.md` §7 ("no scenario differences past
       ~2060"). Resolved by D6 in favour of the methodology: `MODEL.md` §7 is revised, and the
@@ -568,14 +568,14 @@ and improving it. Items ticked earlier keep their own notes.
 
 - [x] ✅ **C1** — Built-in ordering tests on $u$ (uniform, permuted ×3, reversed) at both closures (D15;
       P3/P5). This is the v6 form of GP-24.
-- [x] ✅ **C2** — A declared closure arm on the strength, $\kappa$ (D13; P5), replacing `GAPCLOSE`.
-      **κ declared 2026-10-08:** 0.027 a year (the drag halves by mid-century), sensitivities 0.02 and
-      0.05, rule B and C each (ADR 0050 decision 5). Open: the six wave-2 runs.
+- [x] ✅ **C2** — A declared closure sensitivity run on the strength, $\kappa$ (D13; P5), replacing `GAPCLOSE`.
+      **κ declared 2026-10-08:** 0.027 a year (the limit halves by mid-century), sensitivities 0.02 and
+      0.05, both closures each (ADR 0050 decision 5). Open: the six second batch runs.
 - [ ] 🟠 **C3** — Decompose $k_s(t)$ by driver group: actor power (the REMIND feedback), institutions
       (SSP), controls (income, population), plus a composition term. This is the mechanism figure,
       and the v6 form of `TODO.md` 4 (P1 prototype, P6 figure).
-- [x] ✅ **C4** — Regional strength $k_{r,s}$ as one SI arm (D16; P5).
-- [x] ✅ **C5** — $E$-hold (static-share) bound as one SI arm (D2; P5).
+- [x] ✅ **C4** — Regional strength $k_{r,s}$ as one SI sensitivity run (D16; P5).
+- [x] ✅ **C5** — $E$-hold (constant limit) bound as one SI sensitivity run (D2; P5).
 - [x] **C6** — ✅ **Done 2026-10-07** (`pfm::runPFMAnchor`, step `pfm-anchor` after `pfm-donor`;
       `pfmAnchorFor()` reads it). 28 KB on `v6`; $k(t)$ from the artifact alone equals Phase 1's
       exactly, at both resolutions. Was: a precomputed **anchor artifact** per Run-Group (`phi-anchor.rds`: $q_{c,s}$,
@@ -589,16 +589,16 @@ and improving it. Items ticked earlier keep their own notes.
       after `panelDataScenario()`'s harmonisation. A seam would enter $k$ directly (P1 acceptance
       test, `PITFALLS.md` §21).
 - [x] **C9** — ✅ **Re-examined 2026-10-07** (`analysis/v6/ceilingGate.R`, `phase1/ceiling-gate.rds`).
-      The deployed spec passes by a wide margin: 1.21 (Bulk) and 1.27 (Diffuse) against 0.90 (v5:
-      0.003). 12.5% of covered Bulk ceilings fall by 2100 on PkBudg1000 (v5: 75%). **But under v6
-      the gate decides the sign of Bulk $k$:** the 4 pool specs it alone rejects are all family A
-      (satAP; three `splitAPpc`, plus X-1860 satAP), with Bulk ceilings at 0.64–0.72 and Bulk
+      The selected specification passes by a wide margin: 1.21 (Power & industry) and 1.27 (Buildings & transport) against 0.90 (v5:
+      0.003). 12.5% of covered power & industry ceilings fall by 2100 on PkBudg1000 (v5: 75%). **But under v6
+      the gate decides the sign of power & industry $k$:** the 4 pool specs it alone rejects are all the both-saturate family
+      (satAP; three `splitAPpc`, plus X-1860 satAP), with power & industry ceilings at 0.64–0.72 and power & industry
       $k_{2050}$ on PkBudg1000 of 1.31–1.54 (`phase1/spec-band-ceilingRejected.rds`). The gate is
       ADR 0043's (2026-08-23, before any `v6` result), and it targets the same thing as decision 6:
       incumbent interactions extrapolated below the observed incumbency. **Kept for `v6`, flagged
-      for revision** (§7a decision 8): its consequence is reported in the SI with family B. Was:
+      for revision** (§7a decision 8): its consequence is reported in the SI with the innovators-only family. Was:
       re-examine the ceiling-fall gate (`TODO.md` 11a). Under v6 the ceiling trajectory
-      *is* the driver of $k$: 75% of Bulk ceilings fall by 2100 on `v5`, and the gate passes by
+      *is* the driver of $k$: 75% of power & industry ceilings fall by 2100 on `v5`, and the gate passes by
       0.003. Re-check it on the `v6` spec (P2).
 - [ ] 🟢 **C10** — Report the out-of-support share per year beside every $k_s(t)$ (P3/P6).
 - [ ] ⏸ **C11 (optional)** — The price–efficiency elasticity, the only empirical route to θ
@@ -607,12 +607,12 @@ and improving it. Items ticked earlier keep their own notes.
 ### D. Referee and gap-plan points from `papers/pfm-paper-v5` that belong in v6
 
 - [x] ✅ **D-M1 (review-v16 M1, GP-24)** — What the *estimated* ordering adds to size and location.
-      Run the uniform and permuted arms in the v6 core batch (C1; wave 2). **Not run on `v5`**
+      Run the uniform and permuted sensitivity runs in the v6 core batch (C1; second batch). **Not run on `v5`**
       (author's decision, 2026-10-01). Phase 1 gives an offline first read on `v5` artifacts at
       no cluster cost.
-- [ ] 🟠 **D-M2 (v16 M2, GP-23)** — The held-budget horn.
+- [ ] 🟠 **D-M2 (v16 M2, GP-23)** — The hold-the-budget closure.
   - (i) State the arithmetic: implied $1/\bar\varphi$ against the realised anchor (wording).
-  - (ii) Run rule C under the all-median and all-low assignment rules (P5).
+  - (ii) Run hold the budget under the all-median and all-low assignment rules (P5).
   - (iii) `chinaseed` is moot under v6, which reads 2022 by construction. Record that as the answer.
 - [ ] 🟠 **D-M3 (v16 M3, GP-4/9/16)** — The deposit. Build it into v6 from the start: version
       control (D20), tagged `pfm` / `mrpfm` / fork commits per batch, run configurations,
@@ -667,7 +667,7 @@ Latent defects (P0 unless noted):
 - [x] **E5** — ✅ **Done 2026-10-02** (`pfm` 0.5.1): defaults `group = "v5"`,
       `weightYear = 2025`; help and comments corrected; `nTiers` documented as tiered-rule only.
       Was: `iterativePFM()` defaults are stale. `group = "psm-country-v3"`. `weightYear = 2050`,
-      while the deployed runs use 2025 via `preparePFM.R`, so an offline call silently uses
+      while the selected runs use 2025 via `preparePFM.R`, so an offline call silently uses
       different weights. The help text points to `docs/psm-coupling-scenario-design.md`, which does
       not exist. Comments say "phi is time-invariant by construction (tiers fixed at 2022)". `nTiers`
       is unused under the continuous rule. Fix the defaults and comments.
@@ -695,8 +695,8 @@ Latent defects (P0 unless noted):
 - [x] **E11** — ✅ **Done 2026-10-07** (`p45_pfmBudgetPeak*_iter`, warning at the cap). Was: No GAMS peak-budget check next to `pm_pfmBudgetWarn` (`TODO.md` 32, `PITFALLS.md`
       §26). Add it in the P3 GAMS pass. *Analysis side in place: `extractCoupledResults` reports a
       budget-forced run that never peaks, and `runCoupledStage.R` prints it (F4).*
-- [x] **E12** — ✅ **Done 2026-10-07** (`p45_pfmBindShare_iter` in mode 1). Was: No bind-share diagnostic for mode R (`TODO.md` 21). Needed if ratio mode stays as
-      rule C's sensitivity (P3). Mode M is retired (D13).
+- [x] **E12** — ✅ **Done 2026-10-07** (`p45_pfmBindShare_iter` in mode 1). Was: No bind-share diagnostic for mode R (`TODO.md` 21). Needed if proportional mode stays as
+      the hold-the-budget sensitivity (P3). Mode M is retired (D13).
 - [x] **E13** — ✅ **Done 2026-10-02** (`pfm` 0.6.0). The sanity walk raises a severe
       `frontierVcov` flag for the statuses in `vcovGate` (default `likelihood-mismatch`, `flat`).
       `corrupt` is not gated, because the recomputed matrix replaces FRONTIER's (TODO 14f);
@@ -809,13 +809,13 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
 
 - [x] **F1 — Scenario matrix → generated config (D22).** ✅ **Done 2026-10-07**:
   `pfm::buildPFMScenarioConfig()` + `analysis/run-groups/scenario-matrix-v6.yml` →
-  `config/scenario_config_PFM_v6.csv`, 54 coupled runs (wave 1: 20, wave 2: 34), tags `V6W<wave><res>`;
+  `config/scenario_config_PFM_v6.csv`, 54 coupled runs (first batch: 20, second batch: 34), tags `V6W<wave><res>`;
   the bases, `-PFMgateRef` and the gate rows come out identical to the hand-written ones. The v6
   option columns are declared in the fork's `default.cfg` (REMIND's reader stops on unknown columns).
   κ was declared on 2026-10-08 (0.027, with 0.02 and 0.05; ADR 0050). One YAML lists:
   - the canonical parents per SSP and resolution;
-  - the arms (closure, θ, markup, ordering test, hold year, spread, κ);
-  - the Run-Group per arm;
+  - the sensitivity runs (closure, θ, markup, ordering test, hold year, spread, κ);
+  - the Run-Group per sensitivity run;
   - the warm-start chain and the start tags.
 
   `buildPFMScenarioConfig()` writes the CSV, and `validatePFMScenarioConfig()` runs on the output.
@@ -890,10 +890,10 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   2026-10-08** (author) at the Phase 3 gate. *Renumbered 2026-10-06: 0047 went
   to the prepared madrat cache (E24) and 0048 to the soft selection keys, so the planned records
   start at 0049.*
-  - 0049 anchored gap with logit hold and mean-gap strength (D1, D2, D4, D12);
-  - 0050 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ arm (D13);
+  - 0049 anchored gap with distance kept and mean-gap strength (D1, D2, D4, D12);
+  - 0050 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ sensitivity run (D13);
   - 0051 SSP-consistent scenario panel and accountability rule (D9, D10, D11);
-  - 0052 saturating actor power (family A in the main text, family B in the SI, the shape sensitivity), clamp policy and hold year (D6, D7, decision 6 of §7a);
+  - 0052 saturating actor power (the both-saturate family in the main text, the innovators-only family in the SI, the shape sensitivity), clamp policy and hold year (D6, D7, decision 6 of §7a);
   - 0053 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
   - 0054 time-indexed φ interface and convergence on the φ path (D5, D14);
   - 0055 the generated scenario config (D22).
@@ -907,7 +907,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   - `PITFALLS.md` gets the new traps (P3 lists them);
   - `TODO.md` is reset;
   - `EXPLAINER.md` and `PRESENTATION.md` get the new one-page story;
-  - `CONTEXT.md` gets the new terms: anchor year, strength factor, logit hold.
+  - `CONTEXT.md` gets the new terms: anchor year, strength factor, distance kept.
 - [ ] 🟢 **G4 — Update `../communication/methodology/PFM-Methodology.docx` to v6** once Phase 1 has numbers (B1–B7).
 
 ---
@@ -1027,8 +1027,8 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    `-PFMlevelC`. Answer: how much does REMIND's energy system move $k$ between pathways? That is the
    size of the v6 feedback.
 5. **Run the variants:**
-   - logit hold vs $E$ hold (D2);
-   - no hold (central) vs hold 2060 (D6), with the out-of-support share per year;
+   - Distance kept vs $E$ hold (D2);
+   - no hold (central) vs drivers stop in 2060 (D6), with the out-of-support share per year;
    - $d = k$ vs model-derived $d$ (D11);
    - regional $k_{r,s}$ (D16);
    - uniform and permuted $u$ (D15). This is the offline first read on GP-24 that replaces the
@@ -1048,10 +1048,10 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
 - ✅ **Steps 1–2.** `pfm::computeAnchorGap()`, `computeStrengthPath()` and `computeSharePath()`, with unit
   tests (`test-anchorGap.R`): $k(t_0) = 1$, θ = 0 gives φ ≡ 1, uniform $u$ gives one share, the
   ranking is invariant under $d = k$. η is built through the coupling's own preparation and guard,
-  with the deployed frontier coefficients. No ECM, no λ. The covered countries' η matches
+  with the selected frontier coefficients. No ECM, no λ. The covered countries' η matches
   `frontier.rds` exactly.
 - ✅ **Step 3 (acceptance).** On `v5`'s pre-fix panel with the prototype's anchoring
-  (`anchorRule = "t0-ceiling"`): Bulk 1.076 / 1.180 / 1.206 exactly, Diffuse 0.699 / 0.542 / 0.561
+  (`anchorRule = "t0-ceiling"`): power & industry 1.076 / 1.180 / 1.206 exactly, buildings & transport 0.699 / 0.542 / 0.561
   against 0.700 / 0.544 / 0.563. The 0.002 is the prototype's ECM scaling against the frontier's own.
   The §1 anchor-year rule gives practically the same on `v5`.
 - ✅ **Step 4** on `v6` (fixed panels, both resolutions; H12 within 0.003 of EU21). See `strength.rds`.
@@ -1059,30 +1059,30 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
   2026-10-06 on the annual-interpolated panel, `PITFALLS.md` §31).
 - ✅ **Cluster re-run, 2026-10-06** (lag in years, institution series harmonised; `v6` and `v6-annual`,
   `clean = "group"`). The fit side is unchanged: same selection (`v6`: X-1791 satAP; `v6-annual`:
-  X-1860 satInn), frontier coefficients identical, replay identical. `v6-annual`'s Bulk replay fails
+  X-1860 satInn), frontier coefficients identical, replay identical. `v6-annual`'s power & industry replay fails
   by 4e-5 in RMSE (the ceiling binds in 1 of 1104 rows), exactly as before the fixes. Sanity pool: 9 of
   40 pass, the same set as before; bootstrap unchanged. The offline coupling bound moved: median 2050
   price at θ = 0.5 went from 182 to 173. Phase 1 on the new artifacts reproduces the workstation
   numbers.
 - ⚠️ **The spec band (`analysis/v6/specBand.R`, `phase1/spec-band.rds`) splits on the actor-power
-  transform.** All 9 sanity-passing specs on the `v6` panel; Bulk $k_{2050}$ on PkBudg1000:
-  - satAP specs (bootstrap conditional wins 49%): 0.63 (deployed), 0.72, 0.90;
+  transform.** All 9 sanity-passing specs on the `v6` panel; power & industry $k_{2050}$ on PkBudg1000:
+  - satAP specs (bootstrap conditional wins 49%): 0.63 (selected), 0.72, 0.90;
   - satInn specs (51%): 0.86–1.22.
 
-  The deployed spec gives the strongest fall in the band. `v6-annual`'s opposite result is the spec
-  (X-1860 satInn gives 1.22 on the `v6` panel too), not the panel. The Bulk institution main effects
+  The selected specification gives the strongest fall in the band. `v6-annual`'s opposite result is the spec
+  (X-1860 satInn gives 1.22 on the `v6` panel too), not the panel. The power & industry institution main effects
   behind part of the fall are not identified: satP wild-cluster p = 0.6–0.9, and their signs differ
-  between satP and the frontier. **The Bulk mechanism must be reported as a band, not as the deployed
-  spec.** That makes the satInn rung of wave 2 (D7) a headline companion.
+  between satP and the frontier. **The power & industry mechanism must be reported as a band, not as the selected
+  spec.** That makes the satInn rung of second batch (D7) a headline companion.
 - ✅ **Step 6, governance part, 2026-10-07** (`analysis/v6/sspGovernanceSwap.R`, `phase1/ssp-governance.rds`).
   SSP1 and SSP3 institutions go on the SSP2 energy system: the storyline V-Dem series and the
   SSP-extension GE, rebuilt as `panelDataScenario` builds them (the SSP2 rebuild matches the panel to
   1e-16). Measure: the floor region's φ range across SSP1–3 (θ = 0.5) against θ's range
   (0.325–0.675).
-  - **Diffuse:** small at all horizons (ratio ≤ 0.46).
-  - **Bulk:** small to 2050 (ratio 0.15–0.25), then large (PkBudg1000: 1.2 in 2070, 1.9 in 2100).
-    SSP1 institutions *raise* Bulk $k$ (0.98 in 2100 against 0.48 under SSP2). That runs through the
-    Bulk institution terms, which are not identified (Phase 1 status above).
+  - **Buildings & transport:** small at all horizons (ratio ≤ 0.46).
+  - **Power & industry:** small to 2050 (ratio 0.15–0.25), then large (PkBudg1000: 1.2 in 2070, 1.9 in 2100).
+    SSP1 institutions *raise* power & industry $k$ (0.98 in 2100 against 0.48 under SSP2). That runs through the
+    power & industry institution terms, which are not identified (Phase 1 status above).
 
   The full version, with SSP GDP and population (SSP1 / SSP3 scenario panels, cluster,
   `pfmPrepareCache`), is **deferred with the SSP axis** (§7a decision 7).
@@ -1136,8 +1136,8 @@ Extend `analysis/v6/v6FormulationTests.R`, whose part E3b already builds the log
    $u$, floor regions. This becomes Methods and SI material for the new paper. ✅ **Done 2026-10-07:
    §8** (`analysis/v6/v5v6Comparison.R`).
 
-**Gate:** deployed `v6` spec diagnostics at least as clean as `v5` (γ, gates, influence, sign
-stability). *Passed 2026-10-06 with one disclosed exception (decision 4 of §7a):* the Bulk γ of
+**Gate:** selected `v6` spec diagnostics at least as clean as `v5` (γ, gates, influence, sign
+stability). *Passed 2026-10-06 with one disclosed exception (decision 4 of §7a):* the power & industry γ of
 0.997 is accepted, below the 0.999 `gammaBoundary` gate but close to it, and is reported as such. The 2023 coverage decision is recorded (`DATA.md` §4). D10 decided 2026-10-02; the
 re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law term kept or dropped).
 
@@ -1168,7 +1168,7 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
 2. `declarations.gms` / `datainput.gms`: the new symbols; the per-iteration record
    `p45_pfmPhiPath_iter`.
 3. `presolve.gms`: load the paths under the freshness stamp. **Mode R** uses the path. The
-   **rule-C rebuild** (`cm_pfmBoundRebuild = 1`) uses $\varphi_{r,m}(t)$. Mirror it in
+   **Hold-the-budget rebuild** (`cm_pfmBoundRebuild = 1`) uses $\varphi_{r,m}(t)$. Mirror it in
    `postsolve.gms` Step IV.4 (the `>>> MIRRORS` markers).
 4. E11 (the peak-budget check) and E12 (the mode-R bind share) in the same pass.
 5. Run `pfmReplayInterface()` with the negative control on the new symbols before any submission
@@ -1176,7 +1176,7 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
 
 **New pitfalls to document (G3):**
 - a φ path that loads with the wrong year labels (`y2030` vs `2030`) loads as zeros;
-- a rule-C run with `cm_pfmPhiPath = 0` on a `v6` group silently rebuilds from the $t_0$ value;
+- a hold-the-budget run with `cm_pfmPhiPath = 0` on a `v6` group silently rebuilds from the $t_0$ value;
 - an SSP mismatch between the row and `output/remind-inputs`;
 - comparing a `v6` φ with a `v5` φ across the θ dial (`TODO.md` 7a's θ-dial trap applies unchanged).
 
@@ -1206,7 +1206,7 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
   - `pfmReplayInterface()` covers the path symbols (positive and negative control pass, GAMS 51);
   - a GAMS harness on a real v6 gdx: the ratio equals the path, and the rebuild uses each period's
     share;
-  - `analysis/v6/couplingOffline.R`: the coupling call reproduces Phase 1's shares exactly (Bulk $k$
+  - `analysis/v6/couplingOffline.R`: the coupling call reproduces Phase 1's shares exactly (Power & industry $k$
     0.629 / 0.481) in 25 s.
 - **Found on the way:** the coupling's nested IEA reads used the `v5` panel definition
   (`PITFALLS.md` §32), fixed before any v6 run.
@@ -1217,51 +1217,51 @@ re-sweep only says whether it matters (an accountability or V-Dem Rule-of-Law te
 **Gate:**
 - 0. the uncoupled bases `SSP2-EU21-NPi2025`, `SSP2-EU21-PkBudg1000` and `-PFMgateRef` re-run on REMIND
   3.7.1 (start tag `EU21V371`, which also starts the four gate rows, chained);
-- the θ = 0 null on the v6 fork reproduces `-PFMgateRef` (uncoupled, uniform price) run on the **same REMIND version** within the `SCENARIOS.md` §3.1 tolerance. Since the fork moved to REMIND 3.7.1 (2026-10-07) the `v5` null (3.7.0.dev29) is a different model and is shown for information only; for scale, the `v5` pair `-PFMgate` / `-PFMgateRef` differs by at most $0.71 per cell (`PITFALLS.md` §34);
-- one EU21 rule-B test run converges, with the φ path and $k$ in its log and history;
-- one EU21 rule-C test run shows a rebuild error of about 1e-6 (`p45_pfmBoundCheck_iter`) with the
+- the no-politics reference (θ = 0) on the v6 fork reproduces `-PFMgateRef` (uncoupled, uniform price) run on the **same REMIND version** within the `SCENARIOS.md` §3.1 tolerance. Since the fork moved to REMIND 3.7.1 (2026-10-07) the `v5` no-politics reference (3.7.0.dev29) is a different model and is shown for information only; for scale, the `v5` pair `-PFMgate` / `-PFMgateRef` differs by at most $0.71 per cell (`PITFALLS.md` §34);
+- one EU21 hold-the-price test run converges, with the φ path and $k$ in its log and history;
+- one EU21 hold-the-budget test run shows a rebuild error of about 1e-6 (`p45_pfmBoundCheck_iter`) with the
   path loaded;
 - the call time is measured (E17).
 
 **Gate result: ✅ passed 2026-10-08** (batch `2026-10-07_12.30.39_EU21V371`, all seven runs on REMIND
 3-7-1; synced to `output/remind-runs/v6/EU21`; `Rscript analysis/v6/phase3Gate.R
 output/remind-runs/v6/EU21`, 18 of 18 checks):
-- the null `-PFMgate-v6` against `-PFMgateRef`: 0 of 231 `pm_taxCO2eq` cells differ (2030–2100),
-  cumulative CO2 2100 1000.91 Gt both, φ and the path exactly 1. Against the `v5` null (information
+- the no-politics reference `-PFMgate-v6` against `-PFMgateRef`: 0 of 231 `pm_taxCO2eq` cells differ (2030–2100),
+  cumulative CO2 2100 1000.91 Gt both, φ and the path exactly 1. Against the `v5` no-politics reference (information
   only, REMIND drift): max |dP| $68.81, 1000.91 vs 991.61 Gt;
-- the held-price null `-PFMgateBfix-v6`: 1003.2 Gt at 2100, +2.2 Gt on `-PFMgate-v6` (0.22%; `v5`
+- the no-politics reference with the price held `-PFMgateBfix-v6`: 1003.2 Gt at 2100, +2.2 Gt on `-PFMgate-v6` (0.22%; `v5`
   +2.1 Gt) — the pinning holds (`SCENARIOS.md` §4.2a);
-- rule B `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.00024 (all-period 0.0016), one damped call;
-  Bulk $k$ 0.686 / 0.525 and Diffuse 0.846 / 0.723 at 2050 / 2100; 2050 path min 0.577, median
+- Hold the price `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.00024 (all-period 0.0016), one damped call;
+  power & industry $k$ 0.686 / 0.525 and buildings & transport 0.846 / 0.723 at 2050 / 2100; 2050 path min 0.577, median
   0.699; bind share 0.986. Cumulative CO2 1121.4 Gt at 2100 (**+118.2 Gt** on `-PFMgateBfix-v6`;
   the `v5` quantity headline was +159.3) and still rising, 1183.5 Gt at 2150 — the E11 "never peaked"
-  flag, expected for a held price, not budget-forced;
-- rule C `-PFMlevelC-v6` (θ 0.50): 8 calls, last δ 0.0012, two damped calls; Bulk $k$ 0.619 / 0.500,
-  Diffuse 0.871 / 0.725; rebuild check max 9.1e-7; budget held (997.7 Gt at 2100, peak 1001.6 in
+  flag, expected under hold the price, not budget-forced;
+- Hold the budget `-PFMlevelC-v6` (θ 0.50): 8 calls, last δ 0.0012, two damped calls; power & industry $k$ 0.619 / 0.500,
+  buildings & transport 0.871 / 0.725; rebuild check max 9.1e-7; budget held (997.7 Gt at 2100, peak 1001.6 in
   2090); bind share 0.997;
 - call time on the cluster: 56–59 s for a run's first call, about 30 s for each later one (the
   workstation profile of E17 was 27 / 11 s).
 
-These are single test runs; the wave-1 batch supersedes their numbers.
+These are single test runs; the first batch batch supersedes their numbers.
 
 **H12 gate check (2026-10-09; `V6W1H12`, batch `2026-10-08_22.09.48`, all runs on REMIND 3-7-1;
 `Rscript analysis/v6/phase3Gate.R models/remind_pfm-H12/output --res H12`): 17 of 19, the two misses
 waived and disclosed.**
-- The null `-PFMgate-v6` against `-PFMgateRef`: **outside the §3.1 tolerance** ($1 / 0.2 Gt). All 132
+- The no-politics reference `-PFMgate-v6` against `-PFMgateRef`: **outside the §3.1 tolerance** ($1 / 0.2 Gt). All 132
   `pm_taxCO2eq` cells differ, by at most $1.57 (mean $0.81); cumulative CO2 2100 1000.07 vs 1000.81 Gt.
   **Waived:** the difference is the same in every region in every year (a spread of 0 across the 12
-  regions). The null's price is lower by 0.13% in 2030, rising to 0.32% in 2090, $0.121 more every
+  regions). The reference's price is lower by 0.13% in 2030, rising to 0.32% in 2090, $0.121 more every
   five years. That is one global, linear path drawn a little lower, i.e. REMIND's budget loop stopping
   at another point (35 vs 38 Nash iterations), not the political layer: φ and the path are exactly 1.
   Both runs meet the budget inside REMIND's own `cm_budgetCO2_absDevTol` (2 Gt). The lower price comes
   with *lower* cumulative CO2, so this is noise in where the solution stopped, not a price response.
   The limits in `phase3Gate.R` stay as they are; this is disclosed, not re-tuned.
-- The held-price null `-PFMgateBfix-v6`: 998.6 Gt at 2100, −1.5 Gt on the null (`v5` H12 +3.5).
-- Rule B `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.0019, one damped call; Bulk $k$ 0.684 / 0.516,
-  Diffuse 0.841 / 0.724 at 2050 / 2100; 2050 path min 0.579, median 0.733; bind share 0.994; never
+- The no-politics reference with the price held `-PFMgateBfix-v6`: 998.6 Gt at 2100, −1.5 Gt on the reference (`v5` H12 +3.5).
+- Hold the price `-PFMlevelBfix-v6` (θ 0.50): 7 calls, last δ 0.0019, one damped call; power & industry $k$ 0.684 / 0.516,
+  buildings & transport 0.841 / 0.724 at 2050 / 2100; 2050 path min 0.579, median 0.733; bind share 0.994; never
   peaks (1183.0 Gt in 2150, as at EU21).
-- Rule C `-PFMlevelC-v6` (θ 0.50): 6 calls, last δ 0.0012, one damped call; Bulk $k$ 0.621 / 0.489,
-  Diffuse 0.867 / 0.726; rebuild check max 9.1e-7; budget held (peak 998.8 Gt in 2090); bind share 1.000.
+- Hold the budget `-PFMlevelC-v6` (θ 0.50): 6 calls, last δ 0.0012, one damped call; power & industry $k$ 0.621 / 0.489,
+  buildings & transport 0.867 / 0.726; rebuild check max 9.1e-7; budget held (peak 998.8 Gt in 2090); bind share 1.000.
 
 **Offline analyses moved to the 3.7.1 bases (2026-10-08,** `Rscript analysis/v6/refreshBases.R
 --apply`; `PITFALLS.md` §34). `config.yml` now points the SSP2 pair at
@@ -1271,23 +1271,23 @@ The 3.7.0.dev29 results are kept in `output/pfm/v6/phase1-remind-3-7-0-dev29/`; 
 
 | quantity | 3.7.0.dev29 | 3.7.1 | change |
 |---|---:|---:|---:|
-| $k$ NPi Bulk 2050 / 2100 | 1.092 / 0.919 | 1.091 / 0.924 | −0.001 / +0.005 |
-| $k$ NPi Diffuse 2050 / 2100 | 0.665 / 0.706 | 0.656 / 0.701 | −0.009 / −0.005 |
-| $k$ PkBudg1000 Bulk 2050 / 2100 | 0.629 / 0.481 | 0.629 / 0.488 | 0.000 / +0.007 |
-| $k$ PkBudg1000 Diffuse 2050 / 2100 | 0.914 / 0.727 | 0.860 / 0.716 | −0.054 / −0.011 |
+| $k$ NPi power & industry 2050 / 2100 | 1.092 / 0.919 | 1.091 / 0.924 | −0.001 / +0.005 |
+| $k$ NPi buildings & transport 2050 / 2100 | 0.665 / 0.706 | 0.656 / 0.701 | −0.009 / −0.005 |
+| $k$ PkBudg1000 power & industry 2050 / 2100 | 0.629 / 0.481 | 0.629 / 0.488 | 0.000 / +0.007 |
+| $k$ PkBudg1000 buildings & transport 2050 / 2100 | 0.914 / 0.727 | 0.860 / 0.716 | −0.054 / −0.011 |
 | shortfall 2050, θ 0.5: φ(t), $k$ on PkBudg1000 | 18.0% | 17.8% | −0.2 |
 | shortfall 2050, θ 0.5: φ(t), $k$ on NPi | 22.7% | 22.5% | −0.2 |
 | shortfall 2050, θ 0.5: φ held at t₀ | 23.8% | 23.7% | −0.1 |
 | shortfall 2050, θ 0.5: φ(t) + `v5`-style λ | 48.6% | 47.9% | −0.7 |
-| ceiling gate Bulk / Diffuse | 1.215 / 1.271 | 1.215 / 1.271 | 0 |
+| ceiling gate power & industry / buildings & transport | 1.215 / 1.271 | 1.215 / 1.271 | 0 |
 
 The REMIND version moves nothing that a Phase 1 conclusion rests on. `couplingOffline.R` still
 reproduces the Phase 1 share path exactly (756 values, difference 0). Numbers quoted in §7a, §8 and the
 ADRs from `phase1/` before 2026-10-08 describe 3.7.0.dev29 and are left as written.
 
-**Offline against coupled $k$** (all 3.7.1, θ 0.50, Bulk 2050 / 2100): uncoupled PkBudg1000 0.629 /
-0.488; rule C 0.619 / 0.500; rule B 0.686 / 0.525. Rule C holds the budget and stays within 0.012 of
-the offline value. Rule B, whose energy system departs further from the base (+118 Gt), is 0.057
+**Offline against coupled $k$** (all 3.7.1, θ 0.50, power & industry 2050 / 2100): uncoupled PkBudg1000 0.629 /
+0.488; hold the budget 0.619 / 0.500; hold the price 0.686 / 0.525. Hold the budget holds the budget and stays within 0.012 of
+the offline value. Hold the price, whose energy system departs further from the base (+118 Gt), is 0.057
 higher in 2050. The gap is the feedback of the coupled energy system on $k$. Its mechanism is not
 decomposed here.
 
@@ -1303,29 +1303,29 @@ submit prints the expected rows, groups and commits.
 
 | wave | runs | per resolution | count | purpose |
 |---|---|---|---|---|
-| 1 | SSP2 nulls `-PFMgate`, `-PFMgateBfix` (+ NPi twin null if quoted) | EU21, H12 | 4–6 | D18 gate; anchors for rule B |
-| 1 | SSP2 `-PFMlevelBfix`, `-PFMlevelC` at θ 0.325 / 0.50 / 0.675 | EU21, H12 | 12 | the two horns with severity |
-| 1 | "institutions held" twin of each headline cell: `-PFMlevelBfix`, `-PFMlevelC` at θ 0.50 with `pfmInstitutions = hold` | EU21, H12 | 4 | D10, decision 1A of 2026-10-06: institutions carry about half of Bulk $k$'s 2100 fall on PkBudg1000 (Phase 1 C3), so the headline always travels with its held twin |
+| 1 | SSP2 no-politics references `-PFMgate`, `-PFMgateBfix` (+ NPi variant no-politics reference if quoted) | EU21, H12 | 4–6 | D18 gate; anchors for hold the price |
+| 1 | SSP2 `-PFMlevelBfix`, `-PFMlevelC` at θ 0.325 / 0.50 / 0.675 | EU21, H12 | 12 | the two closures with severity |
+| 1 | "institutions held" variant of each headline cell: `-PFMlevelBfix`, `-PFMlevelC` at θ 0.50 with `pfmInstitutions = hold` | EU21, H12 | 4 | D10, decision 1A of 2026-10-06: institutions carry about half of power & industry $k$'s 2100 fall on PkBudg1000 (Phase 1 C3), so the headline always travels with its held variant |
 | 2 | ordering tests: Bfix uniform, permuted 1–3, reversed; C uniform, permuted 1 | EU21 (H12 for Bfix uniform + 1 permuted) | 7 + 2 | D-M1 / GP-24 |
-| 2 | assignment rules: Bfix and C × all-median, all-low, nearest donors always (no "none" class); USA donor / low (Bfix) | EU21 | 8 | D-M2 (ii), GP-3 / 10; the nearest-donors arm is decision 3 of 2026-10-06 (§7a): it moves LAM and SSA in the ranking, not $k$ |
-| 2 | markup off (`-Min`) for B and C; ratio mode for C | EU21, H12 | 6 | v5 continuity |
-| 2 | family A shape twins (main-text robustness): Bfix at θ 0.50 on `v6-sat05` and `v6-sat2` (deployed spec, half-saturation 0.5× and 2× the median) | EU21 | 2 | D7, decision 6 of §7a |
-| 2 | family B (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
-| 2 | formulation arms: $E$ hold (Bfix), hold 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ at 0.027, 0.02 and 0.05 (Bfix and C each) | EU21 | 10 | D2, D6, D16, D13 |
-| ~~3~~ | ~~hold-2060 twin of each SSP's `-PFMlevelBfix`~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
+| 2 | assignment rules: Bfix and C × all-median, all-low, nearest donors always (no "none" class); USA donor / low (Bfix) | EU21 | 8 | D-M2 (ii), GP-3 / 10; the nearest-donors sensitivity run is decision 3 of 2026-10-06 (§7a): it moves LAM and SSA in the ranking, not $k$ |
+| 2 | markup off (`-Min`) for B and C; proportional mode for C | EU21, H12 | 6 | v5 continuity |
+| 2 | the both-saturate family shape variants (main-text robustness): Bfix at θ 0.50 on `v6-sat05` and `v6-sat2` (selected specification, half-saturation 0.5× and 2× the median) | EU21 | 2 | D7, decision 6 of §7a |
+| 2 | the innovators-only family (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
+| 2 | formulation sensitivity runs: $E$ hold (Bfix), drivers stop in 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ at 0.027, 0.02 and 0.05 (Bfix and C each) | EU21 | 10 | D2, D6, D16, D13 |
+| ~~3~~ | ~~hold-2060 variant of each SSP's `-PFMlevelBfix`~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
 | ~~3~~ | ~~SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC`~~ | EU21 | ~~12~~ | deferred (§7a decision 7) |
-| ~~3~~ | ~~declared spread arm per SSP~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
+| ~~3~~ | ~~declared spread sensitivity run per SSP~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
 
-About 62 runs in total (waves 1–2), the size of the `v5` core batch. Wave 3, the SSP axis, is
+About 62 runs in total (waves 1–2), the size of the `v5` core batch. Third batch, the SSP axis, is
 deferred to a later paper version (§7a decision 7).
 
 *(For the deferred SSP wave.)* **SSP3 at 1000 Gt may be infeasible in REMIND regardless of politics** (architecture note, H6).
 Test the uncoupled SSP3 PkBudg1000 first. If it fails, use a budget that SSP3 can meet and say so;
 do not reuse the SSP2 budget.
 
-**Results as they land.** **Phase 5 is complete (2026-10-10): EU21 waves 1 and 2 (39 coupled runs,
-2026-10-09) and H12 waves 1 and 2 (15 coupled runs, 2026-10-10), all admitted.** Run-Group `v6`, REMIND
-3.7.1, read from `output/pfm/v6/coupling/coupled-facts.json` (64 runs with the bases and nulls: 46 EU21,
+**Results as they land.** **Phase 5 is complete (2026-10-10): EU21 the first and second batches (39 coupled runs,
+2026-10-09) and H12 the first and second batches (15 coupled runs, 2026-10-10), all admitted.** Run-Group `v6`, REMIND
+3.7.1, read from `output/pfm/v6/coupling/coupled-facts.json` (64 runs with the bases and no-politics references: 46 EU21,
 18 H12), `coupled-costs.json` and `convergence-audit.rds`. The EU21 tables follow; H12 is under "H12"
 below.
 
@@ -1337,79 +1337,79 @@ markup written/seen difference in three runs (`-PFMlevelBfixTh675`, `-PFMlevelC-
 the start of the last presolve and `Written` from its end, so they differ when the markup moved in
 the final iteration, and in every such run it did (`PITFALLS.md` §16).
 
-*Rule B (held price), cumulative CO₂ 2100 against `-PFMgateBfix` (1003.2 Gt).* Deployed, θ = 0.50:
+*Hold the price, cumulative CO₂ 2100 against `-PFMgateBfix` (1003.2 Gt).* Selected, θ = 0.50:
 **+118.2 Gt**.
 
-| arm | Δ Gt | vs deployed | reading |
+| sensitivity run | Δ Gt | vs fading limit | reading |
 |---|---|---|---|
 | θ = 0.325 / 0.675 | +73.0 / +181.5 | | 264 Gt per unit θ, steeper above 0.50 |
-| institutions held | +117.3 | −0.9 | holding institutions moves Bulk $k_{2100}$ 0.525 → 0.417 and Diffuse 0.723 → 1.001, and the two cancel in the headline |
+| institutions held | +117.3 | −0.9 | holding institutions moves power & industry $k_{2100}$ 0.525 → 0.417 and buildings & transport 0.723 → 1.001, and the two cancel in the headline |
 | markup off (`Min`) | +159.7 | +41.5 | the sector markup buys back 26% |
 | κ = 0.02 / 0.027 / 0.05 | +53.5 / +41.2 / +22.1 | −64.7 / −77.1 / −96.1 | the central κ removes 65% of the headline |
-| $E$ hold (static share) | +189.1 | +70.9 | $k \approx 1$: the moving strength removes 37% of the static-share result |
-| hold 2060 / regional $k$ | +125.6 / +121.5 | +7.4 / +3.3 | small |
+| constant limit ($E$ held) | +189.1 | +70.9 | $k \approx 1$: the moving strength removes 37% of the constant-limit result |
+| drivers stop in 2060 / regional $k$ | +125.6 / +121.5 | +7.4 / +3.3 | small |
 | ordering: uniform / permuted 1–3 / reversed | +105.8 / +102.1, +126.4, +89.3 / +67.9 | −12.5 / −28.9 to +8.2 / −50.4 | size alone (uniform) gives 106 Gt; the model's ranking adds 12, within the range of random orders (89–126); reversing it costs 50 |
 | assignment: all-median / all-low / nearest / USA donor / USA low | +109.5 / +154.6 / +133.6 / +117.4 / +134.8 | −8.7 / +36.4 / +15.4 / −0.8 / +16.5 | the assignment of uncovered countries is the largest data-side band (110–155) |
 | saturation 0.5× / 2× | +115.2 / +130.0 | −3.0 / +11.8 | |
-| family B (`specalt`) / annual panel | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps Bulk $k$ above 1 (1.19 / 1.12) |
+| the innovators-only family (`specalt`) / annual panel | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry $k$ above 1 (1.19 / 1.12) |
 
-*Rule C (held budget).* Every run holds the budget (cumulative CO₂ 2100: 989–1001 Gt). 2050 regional
+*Hold the budget.* Every run holds the budget (cumulative CO₂ 2100: 989–1001 Gt). 2050 regional
 prices against the θ = 0 run, median (anchor):
 
-| arm | median ×, 2050 | anchor × | reading |
+| sensitivity run | median ×, 2050 | anchor × | reading |
 |---|---|---|---|
 | θ = 0.325 / 0.50 / 0.675 | 1.089 / 1.153 / 1.232 | 1.152 / 1.259 / 1.417 | monotone in θ; θ = 0.675 took 73 iterations and ends 11 Gt under |
-| institutions held | 1.158 | 1.261 | as deployed |
-| markup off / ratio mode | 1.120 / 1.060 | 1.351 / 1.287 | `Min` never peaks (above) |
+| fixed institutions | 1.158 | 1.261 | as the fading limit |
+| markup off / proportional mode | 1.120 / 1.060 | 1.351 / 1.287 | `Min` never peaks (above) |
 | κ = 0.02 / 0.027 / 0.05 | 1.069 / 1.055 / 1.031 | | κ removes most of the price relocation |
 | uniform / permuted 1 | 1.043 / 1.114 | | without the ranking, half the relocation goes (gross CO₂eq relocated 11.7 vs 22.7 Gt) |
 | all-median / all-low / nearest | 1.137 / 1.217 / 1.178 | | |
-| family B / hold 2060 | 1.136 / 1.163 | | |
+| the innovators-only family / drivers stop in 2060 | 1.136 / 1.163 | | |
 
-*Settling.* Four short rule-C runs were still moving in their last ten iterations, which overlap the
+*Settling.* Four short hold-the-budget runs were still moving in their last ten iterations, which overlap the
 budget loop's final adjustment: `-PFMlevelC-kappa05` (34 iterations; maximum price range 16.7%, budget
 miss up to 28.5 Gt), `-PFMlevelC-specalt` (29; 16.5%, 13.0 Gt), `-PFMlevelC-uniform` (40; 14.9%, 16.8 Gt) and
-`-PFMlevelCTh325` (38; 3.5%, 28.0 Gt). All ended within 1.6 Gt of the budget. The deployed rule-C run moved
+`-PFMlevelCTh325` (38; 3.5%, 28.0 Gt). All ended within 1.6 Gt of the budget. The headline hold-the-budget run moved
 0.6% and 3.2 Gt. Quote those four with that disclosure (`convergence-audit.rds`).
 
-*Costs and relocation* (`coupled-costs.json`; GHG in CO₂eq 2020–2100 against the matched null; GDP and
+*Costs and relocation* (`coupled-costs.json`; GHG in CO₂eq 2020–2100 against the matched no-politics reference; GDP and
 consumption discounted at 5%):
 
-- **Rule B**, deployed: **+127.9 Gt CO₂eq**, 66.7 Gt relocated between regions, GDP +0.19%, consumption
-  +0.20% (the cap lowers mitigation cost). Across the arms GDP moves from +0.06% (κ = 0.05) to +0.27%
+- **Hold the price**, fading limit: **+127.9 Gt CO₂eq**, 66.7 Gt relocated between regions, GDP +0.19%, consumption
+  +0.20% (the cap lowers mitigation cost). Across the sensitivity runs GDP moves from +0.06% (κ = 0.05) to +0.27%
   (θ = 0.675).
-- **Rule C**: net CO₂eq between −6.8 and +2.1 Gt, so the budget is met by moving abatement. Gross
-  relocation 22.7 Gt deployed; 15.0 / 45.0 at θ = 0.325 / 0.675; 11.7 with every region at the mean rank;
-  5.3–9.5 under κ. GDP +0.02% to +0.04%. Ratio mode relocates 19.7 Gt.
+- **Hold the budget**: net CO₂eq between −6.8 and +2.1 Gt, so the budget is met by moving abatement. Gross
+  relocation 22.7 Gt under the fading limit; 15.0 / 45.0 at θ = 0.325 / 0.675; 11.7 with every region at the mean rank;
+  5.3–9.5 under κ. GDP +0.02% to +0.04%. Proportional mode relocates 19.7 Gt.
 
-**H12 (waves 1 and 2, landed 2026-10-10).** 15 coupled runs plus the three 3.7.1 bases, all finished
+**H12 (the first and second batches, landed 2026-10-10).** 15 coupled runs plus the three 3.7.1 bases, all finished
 (modelstat 2), none at the cap, all admitted. The gate check is 17 of 19 with the null-vs-`-PFMgateRef`
-miss waived (Phase 3, "H12 gate check"). No early-period market cell over tolerance. Every rule-C run
+miss waived (Phase 3, "H12 gate check"). No early-period market cell over tolerance. Every hold-the-budget run
 settled: in the last ten iterations the anchor moved at most 1.4% and the budget miss at most 5.5 Gt
-(`-PFMlevelCTh325`), so H12 needs no settling disclosure. **The two resolutions agree on rule B** (every
-H12 number within about 10% of its EU21 twin) and on every sign and ordering. **Rule C agrees too**: the
+(`-PFMlevelCTh325`), so H12 needs no settling disclosure. **The two resolutions agree on hold the price** (every
+H12 number within about 10% of its EU21 variant) and on every sign and ordering. **Hold the budget agrees too**: the
 abatement it moves is 19.9 Gt (H12) against 22.7 (EU21). Its median 2050 price looked half as far from the
-null at H12, but that is the statistic, not the model (below).
+no-politics reference at H12, but that is the statistic, not the model (below).
 
 | | EU21 | H12 |
 |---|---|---|
-| rule B, deployed: Δ cumulative CO₂ 2100 vs `-PFMgateBfix` | +118.2 (null 1003.2) | **+112.8** (null 998.6) |
-| rule B, θ = 0.325 / 0.675; slope per unit θ | +73.0 / +181.5; 264 | +69.6 / +169.6; 247 |
-| rule B, institutions held | +117.3 (−0.9) | +107.8 (−5.0) |
-| rule B, markup off: buys back | +159.7: 41.5 (26%) | +154.2: 41.3 (27%) |
-| rule B, ordering: uniform / permuted 1 | +105.8 / +102.1 | +96.2 / +108.5 |
-| rule B, Bulk $k$ 2050 / 2100 | 0.686 / 0.525 | 0.684 / 0.516 |
-| rule C, cumulative CO₂ 2100 (peak) | 989–1001 | 989.7–998.2 (998.3–1000.7) |
-| rule C, median 2050 price × θ = 0: θ 0.325 / 0.50 / 0.675 | 1.089 / 1.153 / 1.232 | 1.039 / 1.075 / 1.115 |
-| rule C, anchor ×: θ 0.325 / 0.50 / 0.675 | 1.152 / 1.259 / 1.417 | 1.141 / 1.251 / 1.383 |
-| rule C, held / markup off / ratio: median (anchor) | 1.158 (1.261) / 1.120 (1.351) / 1.060 (1.287) | 1.068 (1.245) / 1.046 (1.343) / 1.048 (1.264) |
-| costs, rule B deployed: CO₂eq, relocated, GDP | +127.9, 66.7, +0.19% | +121.5, 60.7, +0.16% |
-| costs, rule C deployed: net CO₂eq, relocated | −0.1, 22.7 | −3.0, 19.9 |
+| hold the price, fading limit: Δ cumulative CO₂ 2100 vs `-PFMgateBfix` | +118.2 (reference 1003.2) | **+112.8** (reference 998.6) |
+| hold the price, θ = 0.325 / 0.675; slope per unit θ | +73.0 / +181.5; 264 | +69.6 / +169.6; 247 |
+| hold the price, institutions held | +117.3 (−0.9) | +107.8 (−5.0) |
+| hold the price, markup off: buys back | +159.7: 41.5 (26%) | +154.2: 41.3 (27%) |
+| hold the price, ordering: uniform / permuted 1 | +105.8 / +102.1 | +96.2 / +108.5 |
+| hold the price, power & industry $k$ 2050 / 2100 | 0.686 / 0.525 | 0.684 / 0.516 |
+| hold the budget, cumulative CO₂ 2100 (peak) | 989–1001 | 989.7–998.2 (998.3–1000.7) |
+| hold the budget, median 2050 price × θ = 0: θ 0.325 / 0.50 / 0.675 | 1.089 / 1.153 / 1.232 | 1.039 / 1.075 / 1.115 |
+| hold the budget, anchor ×: θ 0.325 / 0.50 / 0.675 | 1.152 / 1.259 / 1.417 | 1.141 / 1.251 / 1.383 |
+| hold the budget, held / markup off / ratio: median (anchor) | 1.158 (1.261) / 1.120 (1.351) / 1.060 (1.287) | 1.068 (1.245) / 1.046 (1.343) / 1.048 (1.264) |
+| costs, hold the price, fading limit: CO₂eq, relocated, GDP | +127.9, 66.7, +0.19% | +121.5, 60.7, +0.16% |
+| costs, hold the budget, fading limit: net CO₂eq, relocated | −0.1, 22.7 | −3.0, 19.9 |
 
 Reading:
 - **The quantity headline holds at both resolutions:** +118 (EU21) and +113 Gt (H12). The θ slope, the
   markup's buy-back (about 41 Gt) and the near-zero effect of holding institutions all repeat.
-- **The held-budget relocation is the same at both resolutions; the median 2050 price is not a fair
+- **The hold-the-budget relocation is the same at both resolutions; the median 2050 price is not a fair
   comparison** (checked 2026-10-10). The median moves ×1.075 (H12) against ×1.153 (EU21), but 11 of
   EU21's 21 regions are European and all sit at ×1.12–1.26, so the EU21 median is a European price.
   Counting Europe once, as H12 does (one value each for EUR and NEU), the EU21 median is ×1.037, below
@@ -1417,14 +1417,14 @@ Reading:
   the European regions all move the same way) against 19.9 (H12), with the same sign in every H12 region
   but USA (−0.7 vs +1.6 Gt). Largest movers, EU21 / H12: CHA −10.2 / −8.9, IND +8.1 / +7.0, MEA +7.9 /
   +5.1, EUR −6.0 / −3.8, SSA −3.7 / −5.9, REF +3.7 / +3.8. The cheapest region is REF at both (×0.91);
-  the dearest CHA (×1.25–1.26). **For rule C, quote the gross relocated abatement or the emissions-weighted
+  the dearest CHA (×1.25–1.26). **For hold the budget, quote the gross relocated abatement or the emissions-weighted
   price, not the regional median** (emissions-weighted: ×1.037 H12, ×0.984 EU21,
   `held-budget-prices-levelC.rds`).
 - **The ranking adds less at H12 than at EU21, and is again within the random-order range.** Uniform
   gives +96.2 and the model's ranking +112.8. Permuted 1 gives +108.5. EU21 has three permutations
   (89–126); H12 has one, so H12 alone cannot place the ranking in a distribution.
-- H12 costs: rule B across the arms from +74.5 (θ 0.325) to +184.1 Gt CO₂eq (θ 0.675), GDP +0.10% to
-  +0.23%; rule C net −6.1 to −0.5 Gt, relocated 11.2–37.0 Gt (θ 0.325–0.675), GDP +0.02% to +0.03%.
+- H12 costs: hold the price across the sensitivity runs from +74.5 (θ 0.325) to +184.1 Gt CO₂eq (θ 0.675), GDP +0.10% to
+  +0.23%; hold the budget net −6.1 to −0.5 Gt, relocated 11.2–37.0 Gt (θ 0.325–0.675), GDP +0.02% to +0.03%.
 
 **Admission:** every run is judged by the F4 stage against `PITFALLS.md` §25 / §25a. A run at the
 iteration cap is admitted only by the written rule.
@@ -1444,13 +1444,13 @@ converge is handled in one of two ways:
    the internal record of the formulation change; not paper material since §7b.*
    **Done 2026-10-10:** `Rscript analysis/v6/coupledV5V6Contrast.R` →
    `output/pfm/v6/coupling/v5-v6-coupled-contrast.rds` / `.json` (each headline against its own group's
-   θ = 0 null, so the REMIND drift between 3.7.0.dev29 and 3.7.1, +9 to +11 Gt on the nulls, cancels to
+   no-politics reference (θ = 0), so the REMIND drift between 3.7.0.dev29 and 3.7.1, +9 to +11 Gt on the no-politics references, cancels to
    first order). What changes, EU21 / H12:
    - **the quantity headline shrinks by a quarter to a third**: +159.3 → +118.2 Gt / +163.8 → +112.8 Gt;
      the θ slope 330 → 264 / 346 → 247 Gt per unit θ. ADR 0050 attributes the drop to removing λ offline;
      the coupled contrast shows its size, not its cause;
    - **the markup still buys back about 41 Gt** (46.2 → 41.5 / 58.6 → 41.3);
-   - **rule C's price relocation barely moves**: median 2050 price ×1.173 → 1.153 / 1.123 → 1.075, anchor
+   - **The hold-the-budget price relocation barely moves**: median 2050 price ×1.173 → 1.153 / 1.123 → 1.075, anchor
      ×1.305 → 1.259 / 1.326 → 1.251;
    - **but the abatement it moves between regions falls by about three quarters**: 76.7 → 22.7 / 84.5 →
      19.9 Gt CO₂eq. This is the "China absorbs" composition named in step 5: in `v5` CHA alone took
@@ -1461,35 +1461,35 @@ converge is handled in one of two ways:
      same in kind):
      1. **Almost all of the drop is after 2050.** Gross relocation 2020–2050 is 10.9 → 8.8 Gt; 2051–2100
         it is 66.2 → 16.7 Gt (H12: 12.5 → 8.3 and 73.2 → 13.4). Before 2050 `v6` is no weaker: its price
-        wedge is wider in 2030 (emissions-weighted SD of log price over null 0.238 vs 0.177).
-     2. **In `v6` the constrained regions' prices come back to the null's by about 2070; in `v5` they
-        stayed below it to 2100.** ETS price over the null's in 2030 / 2070: REF 0.58 / 1.03, MEA 0.56 /
+        wedge is wider in 2030 (emissions-weighted SD of log price over the reference 0.238 vs 0.177).
+     2. **In `v6` the constrained regions' prices come back to the reference's by about 2070; in `v5` they
+        stayed below it to 2100.** ETS price over the reference's in 2030 / 2070: REF 0.58 / 1.03, MEA 0.56 /
         1.03, IND 0.52 / 1.00, OAS 0.59 / 1.03 (`v6`), against REF 0.59 / 0.68, MEA 0.81 / 0.95, SSA
         0.76 / 0.89 (`v5`). In `v5` those regions kept a cheaper price for the whole second half of the
         century and emitted more there (2051–2100: SSA ETS +14.4, MEA ETS +17.3, REF ETS +10.2 Gt), which
         CHA's power sector absorbed (−42.6 Gt). In `v6` no region's ETS market stays cheap after about
-        2060; the one market that does (CHA's Diffuse, 0.71 of the null's in 2070) sits in the region
+        2060; the one market that does (CHA's buildings & transport, 0.71 of the reference's in 2070) sits in the region
         whose power sector pays most, so its extra emissions largely net out inside CHA (part 3). This is the moving strength k(t) of ADR 0049 at work (`v5` held φ fixed
-        after 2035). The κ arms show it dose by dose: a faster-fading strength relocates less, 22.7 Gt
-        deployed against 9.5 / 8.4 / 5.3 Gt at κ = 0.02 / 0.027 / 0.05, and the
-        post-2050 part goes 16.7 → 9.4 / 8.9 / 5.7 Gt as the 2070 price wedge narrows 0.117 → 0.037 / 0.026 / 0.008. Under rule B the static-share
-        arm (`-Ehold`, k ≈ 1) relocates 120.7 Gt, back at `v5`'s 114.3 (rule-B relocation mixes in the
+        after 2035). The κ sensitivity runs show it dose by dose: a faster-fading strength relocates less, 22.7 Gt
+        under the fading limit against 9.5 / 8.4 / 5.3 Gt at κ = 0.02 / 0.027 / 0.05, and the
+        post-2050 part goes 16.7 → 9.4 / 8.9 / 5.7 Gt as the 2070 price wedge narrows 0.117 → 0.037 / 0.026 / 0.008. Under hold the price the constant limit
+        sensitivity run (`-Ehold`, k ≈ 1) relocates 120.7 Gt, back at `v5`'s 114.3 (hold-the-price relocation mixes in the
         overshoot, so this is support, not a measure).
      3. **The ranking moved, and part of the relocation now nets out inside a region.** (φ as
-        `p45_regiDiff_phi` records it; in `v6` 0.50 at θ = 0.50 means u = 1.) CHA's Bulk market is
-        unconstrained in both versions (φ_ETS = 1; ETS price over null 1.37 `v5` / 1.32 `v6` in 2100), but
-        its Diffuse market went from φ 0.78 to 0.50, the most constrained: CHA ES+other now emits +8.6 Gt
-        (price 0.68–0.85 of the null's) against CHA ETS −18.8. IND's Bulk went from 0.78 to 0.50 (ETS
+        `p45_regiDiff_phi` records it; in `v6` 0.50 at θ = 0.50 means u = 1.) CHA's power & industry market is
+        unconstrained in both versions (φ_ETS = 1; ETS price over the reference 1.37 `v5` / 1.32 `v6` in 2100), but
+        its buildings & transport market went from φ 0.78 to 0.50, the most constrained: CHA ES+other now emits +8.6 Gt
+        (price 0.68–0.85 of the reference's) against CHA ETS −18.8. IND's power & industry went from 0.78 to 0.50 (ETS
         +7.6 Gt). Counted per region-market, gross relocation is 38.8 Gt in `v6`, of which 16.1 nets out
         inside regions (`v5`: 81.7, 5.0 netting). SSA turns from +30.0 to −3.7 Gt: its price goes above
-        the null's after 2050 (1.13 in 2070).
+        the reference's after 2050 (1.13 in 2070).
 
      Region by region, CHA (−22.0), SSA (−13.2), MEA (−8.7) and REF (−5.5) carry 49.4 of the 53.9 Gt
      fall in gross relocation.
 
-     **Separated 2026-10-11 by the static-share run** `-PFMlevelC-Ehold-v6` (matrix row `CEhold`, tag
-     `V6CEHOLD`; $k \approx 1$ throughout: Bulk 0.991 / 0.997, Diffuse 1.000 in 2050 / 2100; finished in 52
-     iterations, 2 PFM calls, budget met at 2100, 1001 Gt). With the strength held, rule C moves **65.6 Gt**
+     **Separated 2026-10-11 by the constant-limit run** `-PFMlevelC-Ehold-v6` (matrix row `CEhold`, tag
+     `V6CEHOLD`; $k \approx 1$ throughout: power & industry 0.991 / 0.997, buildings & transport 1.000 in 2050 / 2100; finished in 52
+     iterations, 2 PFM calls, budget met at 2100, 1001 Gt). With the strength held, hold the budget moves **65.6 Gt**
      (v5 76.7, v6 22.7), **56.6 Gt after 2050** (v5 66.2, v6 16.7); 2050 median regional price ×1.25 (v6
      ×1.153).
      - **The size is the strength.** Holding $k$ restores 42.9 of the 54.0 Gt the relocation lost between
@@ -1499,11 +1499,11 @@ converge is handled in one of two ways:
        power sector −48.4), as in v5 (−54.2). Who emits more follows the v6 ranking: MEA +23.7, IND
        +18.4, OAS +15.4, REF +7.0, mostly in their power sectors (IND, MEA, OAS ETS +22.5 / +24.7 / +27.1),
        where v5 sent it to SSA (+30.0), MEA (+25.4) and REF (+14.8); SSA now abates more (−7.1).
-     - So **"China absorbs" is a static-strength result**: it holds while the political drag does not fade,
-       and shrinks to −10.2 Gt when the drag fades as the energy transition proceeds.
+     - So **"China absorbs" is a constant-limit result**: it holds while the political limit does not fade,
+       and shrinks to −10.2 Gt when the limit fades as the energy transition proceeds.
      - ⚠️ Disclose: like `-PFMlevelCMin-v6`, the run's cumulative CO₂ is still rising at 2150 (1018.8 Gt),
        so it never peaks within the horizon although it meets the budget at 2100;
-   - rule B's relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
+   - The hold-the-price relocated abatement also falls (114.3 → 66.7 / 115.1 → 60.7 Gt), and its GDP gain stays
      small (+0.21 → +0.19% / +0.22 → +0.16%).
 2. Figures in the shared layer:
    - $k_s(t)$ with its decomposition (C3) and the out-of-support share;
@@ -1518,7 +1518,7 @@ converge is handled in one of two ways:
    - Port the design, claims (re-tiered on `v6`), glossary and literature; then build the bundle,
      figures and drafts.
    - Carry the review-v16 points (§3 D) as the opening checklist.
-   - Re-decide the spine with the results. Under v6 both horns survive, but the "China absorbs"
+   - Re-decide the spine with the results. Under v6 both closures survive, but the "China absorbs"
      composition and the ~160 Gt size will both change. *2026-10-12: the candidates are design note
      0006; the workspace is scaffolded without the v18 draft as text (§0a item 5, §7b).*
    - Mark `papers/pfm-paper-v5` as superseded in its own `CLAUDE.md` and `VERSIONS.md`, pointing to the new
@@ -1534,15 +1534,15 @@ converge is handled in one of two ways:
 |---|---|---|
 | $k_s(t)$ is mostly link-function curvature, not politics | Phase 1 step 5 ($E$ hold gives $k \approx 1$) | stated as the mechanism (D2); $E$ hold reported as the bound; C3 decomposition shows which drivers move $k$ |
 | The SSP signal is small after normalisation | Phase 1 step 6 | the gate demotes the SSP axis to the SI; the plan does not depend on a large fan |
-| With no hold year, late-century results are driven by extrapolated or clamped drivers | Phase 1 step 5, wave 2–3 | saturating innovator power (D7); out-of-support share reported per year; every headline and every SSP result travels with its hold-2060 twin; if the two differ materially, the paper says which part of the result comes after 2060 |
+| With no hold year, late-century results are driven by extrapolated or clamped drivers | Phase 1 step 5, second batch–3 | saturating innovator power (D7); out-of-support share reported per year; every headline and every SSP result travels with its hold-2060 variant; if the two differ materially, the paper says which part of the result comes after 2060 |
 | The rename breaks a `v5` reader or the `papers/pfm-paper-v5` bundle silently | Phase 0 | `v5-final` tags before the rename; read-aliases; the `papers/pfm-paper-v5` bundle rebuild must reproduce its manifest hashes |
 | The headline moves a lot from `v5` | Phase 1 step 9 | expected: v6 reads 2022, and $k_{Diffuse}$ falls to ~0.55 by 2050 in the methodology's offline numbers. Measured (Phase 6 step 1) and kept internal: the paper reports `v6` only (§7b) |
 | The re-sweep picks a different spec | Phase 2 | the `v5` spec refitted on the `v6` panel is kept as a rung, so the change can be split into "data" and "selection" |
-| Rule C oscillates with a time-varying cap | Phase 3 gate, wave 1 | damping, logged (D5); the checkpoint rule; the strict-rule fallback; the rule-C test run before the batch |
+| Hold the budget oscillates with a time-varying cap | Phase 3 gate, first batch | damping, logged (D5); the checkpoint rule; the strict-rule fallback; the hold-the-budget test run before the batch |
 | A silent interface failure (wrong rank or year labels) | Phase 3 | new symbols only (D14); replay harness plus negative control; preflight (F2) |
 | An unpushed fix or stale install on the cluster | every wave | preflight (F2), batch manifest (F3) |
 | Hand-edited config drift | every wave | generated config (D22, F1) |
-| SSP3 infeasible at 1000 Gt | wave 3 | test the uncoupled run first; declare the budget used |
+| SSP3 infeasible at 1000 Gt | third batch | test the uncoupled run first; declare the budget used |
 
 ---
 
@@ -1563,58 +1563,58 @@ converge is handled in one of two ways:
 
 1. **D6 — no hold year is the central case;** holding $k$ at 2060 is the sensitivity. This reverses
    the plan's recommendation. Its consequences are carried in D6, A1a, B4, Phase 1 step 5, the
-   wave 2–3 rows and the risks table.
+   second batch–3 rows and the risks table.
 2. **D19 — a new paper workspace,** built the same way `papers/pfm-paper-v5` was built for `v5`, with `papers/pfm-paper-v5`
    v18 as the draft. All other recommendations are agreed.
 3. **D21 — the `psm` → `pfm` rename comes before anything else** (Phase 0, step 1). Only the
    commit-and-tag snapshot of today's state precedes it, so the rename diff is isolated.
 4. **No `v5` runs.** v6 is the focus; the ordering tests (GP-24), and GP-23 where it still applies,
-   run on `v6` (wave 2).
+   run on `v6` (second batch).
 5. **The v6 paper replaces the `v5` paper.** `papers/pfm-paper-v5` is frozen at v18, not submitted, and kept
    reproducible as the `v5` record.
 
 ## 7a. Author decisions (2026-10-06), after the Phase 1 results
 
 1. **D10 stays: the storyline institution rule in the headline (option A).** Each headline cell
-   gets an "institutions held" twin in wave 1 (rule B and rule C at θ = 0.5, EU21 and H12; four
-   runs, Phase 5 table). Reason: with institutions held, Bulk $k_{2100}$ on PkBudg1000 is 0.28
+   gets an "institutions held" variant in first batch (hold the price and hold the budget at θ = 0.5, EU21 and H12; four
+   runs, Phase 5 table). Reason: with institutions held, power & industry $k_{2100}$ on PkBudg1000 is 0.28
    instead of 0.48 (Run-Group `v6`, lag in years, institution-harmonised panel). That is too large
    to leave to the SI alone.
 2. **The institution-rule series are harmonised to history like every other series (option B).**
    They start from the panel's anchor value and fade to the rule's path by 2040. $q$ stays anchored
    on history. Implemented in `panelDataScenario` (`DATA.md` §5.4–§5.5, `PITFALLS.md` §30). On a
-   lag-consistent seam test, the band-rule seam goes from Bulk 95th percentile 1.93 / maximum 6.2 to
+   lag-consistent seam test, the band-rule seam goes from power & industry 95th percentile 1.93 / maximum 6.2 to
    0.93 / 1.65 index points (`lag-seam.rds`, `v6`). Every scenario-side `v6` artifact built
    before it (the sanity walk's scenario gates, the projection, the coupling bound, the Phase 1
    outputs) is rebuilt.
-3. **Donor rule: the deployed rule stays** (9 base drivers weighted by $|eta|$; close ≤ q50,
+3. **Donor rule: the selected rule stays** (9 base drivers weighted by $|eta|$; close ≤ q50,
    far ≤ q90 of the covered nearest-neighbour distances). The alternatives were quantified
    (`analysis/v6/donorAlternatives.R`, `output/pfm/v6/phase1/donor-alternatives.rds`). Fewer
    drivers add few donors and match worse in the full space. Looser bounds add donors only by
    matching countries further apart than 90% of covered pairs. No rule moves $k$ by more than 0.01.
    What they move is the ranking: LAM's and SSA's $u$ rise when more of their weight gets donors.
-   That sensitivity is a wave 2 arm, "nearest donors always" (`qualityQuantiles = c(0.5, Inf)`),
-   for rule B and rule C.
-4. **The Bulk γ of 0.997 is accepted at the Phase 2 gate,** with disclosure in Methods and the SI.
+   That sensitivity is a second batch sensitivity run, "nearest donors always" (`qualityQuantiles = c(0.5, Inf)`),
+   for hold the price and hold the budget.
+4. **The power & industry γ of 0.997 is accepted at the Phase 2 gate,** with disclosure in Methods and the SI.
 5. **The driver lag counts years (fixed, author's go-ahead the same day).** It used to count panel
    rows, so on REMIND's time steps it was 5 to 20 years instead of the estimated 1 (`PITFALLS.md`
-   §31). The fit is unchanged. On the scenario side, Bulk $k_{2050}$ on PkBudg1000 is 0.63 instead
+   §31). The fit is unchanged. On the scenario side, power & industry $k_{2050}$ on PkBudg1000 is 0.63 instead
    of 0.87, and on NPi 1.09 instead of 1.37. Every scenario-side `v6` artifact is re-run on the
    cluster, together with decision 2: sweep (sanity walk scenario gates), sanity pool, bootstrap,
    downstream and the REMIND export.
-6. **Family A in the main text, family B in the SI (2026-10-07).** The sanity-passing specs split on
+6. **The both-saturate family in the main text, the innovators-only family in the SI (2026-10-07).** The sanity-passing specs split on
    the actor-power transform (Phase 1 status, `spec-band.rds`):
-   - family A, satAP: the saturating curve on innovators *and* incumbents. Bulk $k$ falls strongly on
+   - The both-saturate family, satAP: the saturating curve on innovators *and* incumbents. Power & industry $k$ falls strongly on
      PkBudg1000;
-   - family B, satInn: innovators only. Bulk $k$ flat or rising.
+   - The innovators-only family, satInn: innovators only. Power & industry $k$ flat or rising.
 
    The families differ only below the observed range: in PkBudg1000 2050, 56% of countries sit below
-   the training 5th percentile of the Bulk incumbent share, and 59% above its innovator maximum. No
+   the training 5th percentile of the power & industry incumbent share, and 59% above its innovator maximum. No
    re-sweep on 2000–2023 data can decide between them.
 
-   The main text uses family A (the deployed X-1791 satAP), for three reasons:
+   The main text uses the both-saturate family (the selected X-1791 satAP), for three reasons:
    - the joint fit of the shared spec: the best family-A specs beat the best family-B ones by about 50
-     BIC, from Diffuse; in Bulk alone family B is 14 BIC better;
+     BIC, from buildings & transport; in power & industry alone the innovators-only family is 14 BIC better;
    - treating both groups symmetrically;
    - ADR 0040's own rationale: no linear extrapolation of a share into a range no country occupied.
 
@@ -1624,33 +1624,33 @@ converge is handled in one of two ways:
    sets the half-saturation point to 0.5×, 1× and 2× the median. All three pass the sanity walk, and
    the ranking is stable (Spearman ≥ 0.97 with 1×):
 
-   | half-saturation | Bulk $k$ on PkBudg1000, 2050 / 2100 | ΔBIC vs 1×, Bulk / Diffuse |
+   | half-saturation | Power & industry $k$ on PkBudg1000, 2050 / 2100 | ΔBIC vs 1×, power & industry / buildings & transport |
    |---|---|---|
    | 0.5× median | 0.57 / 0.40 | +16 / −14 |
-   | 1× (deployed) | 0.63 / 0.48 | 0 / 0 |
+   | 1× (selected) | 0.63 / 0.48 | 0 / 0 |
    | 2× | 0.75 / 0.63 | −14 / +19 |
 
    The direction holds at every shape; the size is the band to quote. The sectors pull in opposite
-   directions, so the median is close to the joint optimum. Coupled runs: the two shape twins in wave
-   2 (main text), and family B's X-2079 as `v6-specalt` (SI). Both are built with
-   `analysis/run-groups/makeSpecVariantGroup.R` (sector `both`, `apSatScale=` for the twins). The main
-   text says in one sentence that the size of the Bulk loosening rests on how incumbent power behaves
+   directions, so the median is close to the joint optimum. Coupled runs: the two shape variants in wave
+   2 (main text), and the innovators-only family's X-2079 as `v6-specalt` (SI). Both are built with
+   `analysis/run-groups/makeSpecVariantGroup.R` (sector `both`, `apSatScale=` for the variants). The main
+   text says in one sentence that the size of the power & industry loosening rests on how incumbent power behaves
    below anything observed, and points to the SI.
 7. **The `v6` paper is SSP2 only (2026-10-07).** The SSP workflow stays: `ssp` arguments, the
    institution storyline rule, `calcSSPextensions(drivers_SSPx)`, `analysis/v6/sspGovernanceSwap.R`.
    It is not used for this paper version. Consequences:
    - Phase 1 step 6 and the gate's SSP clause are closed for `v6`; the governance-only measurement
      stays on record (`phase1/ssp-governance.rds`);
-   - wave 3 of Phase 5 (16 runs) is deferred, so the batch is about 62 runs;
+   - Third batch of Phase 5 (16 runs) is deferred, so the batch is about 62 runs;
    - A1d (SSP level and spread) is deferred;
    - nothing in the code is removed. The registry keeps `ssp: SSP2` explicit.
 8. **The ceiling-fall gate stays for `v6`, flagged for revision (2026-10-07).** ADR 0043's
    `ceilingFallGate = 0.90` is kept as set before any `v6` result. Its four sole rejections (family
-   A, Bulk $k$ rising) are reported in the SI with family B (C9). **Revisit it** when the future
+   A, power & industry $k$ rising) are reported in the SI with the innovators-only family (C9). **Revisit it** when the future
    projections are revised, above all the institution projections in the light of the PoliClim
    forecasts (`analysis/checks/policlimInstitutions.R`). Under v6 the ceiling path drives $k$, and
-   the institution paths move the ceiling: Bulk $k$ rises with better institutions under the
-   deployed frontier. So a new projection can move specs across the gate, and the gate's premise
+   the institution paths move the ceiling: power & industry $k$ rises with better institutions under the
+   selected frontier. So a new projection can move specs across the gate, and the gate's premise
    (a ceiling must not collapse as the transition succeeds) has to be re-argued for the projection
    actually used, not carried over.
 
@@ -1661,7 +1661,7 @@ converge is handled in one of two ways:
    E7 are dropped; Phase 6 step 1 and §8 stay as the internal record; the paper workspace is scaffolded
    without the `v5` v18 draft as text (amends D19, to be confirmed); the paper's figures are `v6`-only
    versions; E25 for `v5` is optional archival.
-2. **The backsliding rate stays at the proposed κ = −0.005 a year for now** (declaration pending; the
+2. **The growing limit rate stays at the proposed κ = −0.005 a year for now** (declaration pending; the
    `V6BACK` rows carry it).
 
 ## 8. The `v5` → `v6` comparison (Phase 2, step 6)
@@ -1679,41 +1679,41 @@ formulations.
 |---|---|---|
 | panel | 2000–2022, 5-year MA, IEA default edition, no geothermal (`f8845f66fb39d316`) | 2000–2023, 5-year MA, IEA 2025 edition, geothermal in the baseload control (`7aaa8f84eb630326`) |
 | covered countries | 48 | 48 |
-| deployed spec | X-2079 `WGIge|noRoL|VerAcc bothIncAP … linear` | X-1791 `WGIge|RoL|VerAcc bothIncAP … satAP` |
+| selected specification | X-2079 `WGIge|noRoL|VerAcc bothIncAP … linear` | X-1791 `WGIge|RoL|VerAcc bothIncAP … satAP` |
 | institutions | GovEff (WGI), Vertical Accountability | GovEff (WGI), **V-Dem Rule of Law**, Vertical Accountability |
 | actor power | innovator and incumbent shares, incumbent per capita, linear | the same, **saturating** (ADR 0040; decision 6) |
 | controls, FE | GDP pc (Q-centred), log population, hydro/nuclear; EU / OECD / other | the same; hydro/nuclear **+ geothermal** |
 
-**Selection statistics** (deployed spec; Bulk / Diffuse):
+**Selection statistics** (selected specification; power & industry / buildings & transport):
 - ΔR²(theory): `v5` 0.112 / 0.166; `v6` 0.131 / 0.175. Both Green.
 - max VIF: `v5` 3.4 / 2.9; `v6` 7.7 / 7.9. Rule of Law enters next to GovEff (r = 0.82); ADR 0048 keeps the
   soft VIF key off.
-- frontier γ: `v5` 0.987 / 0.982; `v6` 0.997 / 0.972. Bulk is accepted with disclosure, decision 4.
+- frontier γ: `v5` 0.987 / 0.982; `v6` 0.997 / 0.972. Power & industry is accepted with disclosure, decision 4.
 - bootstrap: `v6` wins 2.5% of 200 resamples, 15% among sanity-passing winners. `v5`'s 8.5% / 10% are
-  affected by PITFALLS §29 (twin cache) and are not comparable.
+  affected by PITFALLS §29 (variant cache) and are not comparable.
 
 **Coefficients** (main effects; frontier = what the coupling uses, satP with wild-cluster p =
 what is quotable):
-- **Bulk incumbency is stronger and now significant:** incumbent share satP −0.64 (p = 0.03; `v5`
+- **Power & industry incumbency is stronger and now significant:** incumbent share satP −0.64 (p = 0.03; `v5`
   −0.19, p = 0.42); per capita +0.48 (p = 0.007), unchanged in sign and size.
-- **Bulk GovEff changes sign in the frontier** (+0.06 → −0.31), while the satP estimate stays
-  positive and loses significance (+0.24, p = 0.05 → +0.11, p = 0.61). Bulk Vertical Accountability
+- **Power & industry GovEff changes sign in the frontier** (+0.06 → −0.31), while the satP estimate stays
+  positive and loses significance (+0.24, p = 0.05 → +0.11, p = 0.61). Power & industry Vertical Accountability
   does the same (frontier +0.03 → −0.29; satP p = 0.70). The new Rule of Law term is +0.39 in the
-  Bulk frontier, satP p = 0.89. **The Bulk institution terms are not identified in `v6`** (Phase 1
-  status); they are what makes better institutions raise Bulk $k$.
-- **Diffuse is stable and better identified:** GovEff +0.25 → +0.24 (p = 0.006 → < 0.001),
+  power & industry frontier, satP p = 0.89. **The power & industry institution terms are not identified in `v6`** (Phase 1
+  status); they are what makes better institutions raise power & industry $k$.
+- **Buildings & transport is stable and better identified:** GovEff +0.25 → +0.24 (p = 0.006 → < 0.001),
   incumbency −0.13 → −0.15 (p = 0.03 → 0.006), Vertical Accountability changes sign to +0.23
   (p = 0.08).
 
 **The efficiency ordering at the anchor year** (covered countries, `v5` 2022, `v6` 2023): Spearman
-0.82 (Bulk) and 0.87 (Diffuse) over the same 48 countries. The median $E$ rises slightly, 0.71 →
-0.74 and 0.75 → 0.78. The five least efficient: Bulk `v5` RUS, PER, ISL, IDN, ARG → `v6` IDN, PER,
-ISL, ARG, NZL; Diffuse PER, ISR, RUS, ROU, BGR → PER, ISR, LTU, ROU, CRI.
+0.82 (Power & industry) and 0.87 (Buildings & transport) over the same 48 countries. The median $E$ rises slightly, 0.71 →
+0.74 and 0.75 → 0.78. The five least efficient: power & industry `v5` RUS, PER, ISL, IDN, ARG → `v6` IDN, PER,
+ISL, ARG, NZL; buildings & transport PER, ISR, RUS, ROU, BGR → PER, ISR, LTU, ROU, CRI.
 
-**The regional ranking $u$ (EU21) changes more in Bulk than in Diffuse.** Spearman 0.58 (Bulk),
-0.82 (Diffuse).
+**The regional ranking $u$ (EU21) changes more in power & industry than in buildings & transport.** Spearman 0.58 (Power & industry),
+0.82 (Buildings & transport).
 
-| | Bulk | Diffuse |
+| | Power & industry | Buildings & transport |
 |---|---|---|
 | most constrained, `v5` | REF, MEA, JPN | REF, NES, CHA |
 | most constrained, `v6` | **IND**, ECE, OAS | CHA, ECS, ECE |
@@ -1721,8 +1721,8 @@ ISL, ARG, NZL; Diffuse PER, ISR, RUS, ROU, BGR → PER, ISR, LTU, ROU, CRI.
 | least constrained, `v6` | CHA, NEN, UKI | NEN, UKI, CAZ |
 | largest move | IND, Δu = 0.86 | NES, Δu = 0.48 |
 
-India moves from among the least to the most constrained Bulk region. China is the most constrained
-Diffuse region in `v6` and the least constrained Bulk one.
+India moves from among the least to the most constrained power & industry region. China is the most constrained
+Buildings & transport region in `v6` and the least constrained power & industry one.
 
 **Floor regions** (the share's minimum over sectors at θ = 0.5): `v6` at $t_0$, CHA and IND at 0.50,
 then ECE 0.52, OAS 0.54, MEA 0.54. `v5`'s operational shares (v5 formulation, `coupling-summary.rds`,

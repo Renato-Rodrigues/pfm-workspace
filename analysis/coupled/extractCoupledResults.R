@@ -388,7 +388,7 @@ extractCoupledResults <- function(gdxDir = "output/remind-runs/v5",
     for (x in inFlight) say("    ", x)
   }
   # Every run, finished or not, is reported against the same market-clearing measure - except
-  # superseded ones: their warnings describe a run nothing reads (2026-09-23, the pre-fix rule-C arms
+  # superseded ones: their warnings describe a run nothing reads (2026-09-23, the pre-fix hold-the-budget sensitivity runs
   # were being reported as live failures beside the re-runs that replaced them).
   live <- if (!is.null(art$runs)) art$runs[!art$runs$superseded, ] else NULL
   if (!is.null(live)) {

@@ -31,7 +31,7 @@
 # Form: small multiples again, same country ordering as `frontier-vs-observed` so the two
 # figures can be read side by side. Fixed y-scale, same 0-10 index.
 #
-# Colour: the two SCENARIOS are a categorical pair and get the validated Bulk/Diffuse hues
+# Colour: the two SCENARIOS are a categorical pair and get the validated power & industry / buildings & transport hues
 # (#1B6CA8 / #C2571A - CVD dE 20.3 protan, 27.8 normal, ALL PASS) reused as a generic
 # two-category pair. The historical half is not a third category: the fitted ceiling stays in
 # muted ink and the observed path in near-black, exactly as in the companion figure, so the eye

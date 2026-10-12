@@ -41,8 +41,8 @@ The scripts it runs, one by one:
 | `extractCoupledResults.R` | `coupling/coupled-runs.rds` | reads every run under `output/remind-runs/<group>/<res>/`; flags unfinished runs and admits them only by the `PITFALLS.md` §25a rule |
 | `coupledBatchFacts.R` | `coupling/coupled-facts.json` | the numbers the docs and the paper quote |
 | `coupledCostsAndAbatement.R` | `coupling/coupled-costs.json` | relocation, GDP and consumption per contrast |
-| `heldBudgetPrices.R` | `coupling/held-budget-prices*.rds` | realised prices under a held budget |
-| `ruleCBoundFreeze.R` | `coupling/rulec-bound-freeze.rds` | the rule-C cap rebuild check, per iteration |
+| `heldBudgetPrices.R` | `coupling/held-budget-prices*.rds` | realised prices under hold the budget |
+| `ruleCBoundFreeze.R` | `coupling/rulec-bound-freeze.rds` | the hold-the-budget cap rebuild check, per iteration |
 | `coupledRunConvergence.R` | `coupling/convergence-audit.rds` | every run against REMIND's own tolerances |
 | `runProvenance.R` | `coupling/run-provenance.rds` | the REMIND commit and modified files of each run |
 
@@ -54,9 +54,9 @@ and `steps = "pfm-coupling-bound"`.
 
 | script | what |
 |---|---|
-| `makeGroupVariants.R` | twin Run-Groups with one assumption changed (assignment rule, USA branch, φ override), exported to `output/remind-inputs/` |
+| `makeGroupVariants.R` | variant Run-Groups with one assumption changed (assignment rule, USA branch, φ override), exported to `output/remind-inputs/` |
 | `makeSpecVariantGroup.R`, `pinSpecInGroup.R` | a Run-Group with one sector's specification pinned |
-| `scenario-matrix-v6.yml` | **the v6 coupled batch** (waves 1-2, 54 runs) as a matrix: parents, rules, arms, start tags (ADR 0055). Edit this, never the CSV |
+| `scenario-matrix-v6.yml` | **the v6 coupled batch** (waves 1-2, 54 runs) as a matrix: parents, rules, sensitivity runs, start tags (ADR 0055). Edit this, never the CSV |
 | `buildPFMScenarioConfig.R` | builds `models/remind_pfm/config/scenario_config_PFM_v6.csv` from the matrix (`pfm::buildPFMScenarioConfig`), then runs the validator and REMIND's reader. `scenario_config_PFM.csv` stays the hand-maintained `v5` record |
 | `validatePFMScenarioConfig.R` | checks the scenario config before a submission (since 2026-10-07 also the v6 option columns and `cm_pfmPhiPath` against the group) |
 
@@ -102,17 +102,17 @@ Move them to new REMIND bases only with `refreshBases.R` (`PITFALLS.md` §34):
 |---|---|
 | `phase1.R` | anchors, $k_s(t)$ on every energy system, the formulation variants, the driver-group decomposition (C3), the anchor-year seam (C8) |
 | `donorAlternatives.R` | how many uncovered countries each donor-matching rule can match, how well, and what it does to $u$ and $k$ |
-| `specBand.R` | every sanity-passing spec through the same formulation: is the result the deployed spec's or the band's? Scratch Run-Groups in `output/pfm/specband-<group>/` |
-| `satShape.R` | family A's robustness: the deployed spec with the saturating curve's half-saturation point at 0.5x / 1x / 2x the median (sanity walk, fit, k, ranking). Scratch Run-Groups in `output/pfm/satshape-<group>/` |
+| `specBand.R` | every sanity-passing spec through the same formulation: is the result the selected specification's or the band's? Scratch Run-Groups in `output/pfm/specband-<group>/` |
+| `satShape.R` | the both-saturate family's robustness: the selected specification with the saturating curve's half-saturation point at 0.5x / 1x / 2x the median (sanity walk, fit, k, ranking). Scratch Run-Groups in `output/pfm/satshape-<group>/` |
 | `offlineHeadline.R` | step 9: the first-round bound with the v6 φ(t) from the anchor artifact against the v5 formulation, OFFLINE |
 | `sspGovernanceSwap.R` | step 6, governance part: SSP1 / SSP3 institutions on the SSP2 energy system; the SSP spread of $k$ against θ's range |
 | `ceilingGate.R` | C9: the ceiling-fall gate on the v6 spec, and what it removes from the band (`specBand.R v6 ceilingRejected`) |
 | `v5v6Comparison.R` | Phase 2 step 6: the `v5` → `v6` comparison (panel, spec, selection, coefficients, efficiency ordering, $u$, floor regions); design note 0005 §8 |
-| `coupledV5V6Contrast.R` | Phase 6 step 1: the `v5` → `v6` contrast of every coupled headline per resolution (rule B Δ and θ slope, the markup, rule C anchor and median 2050 price, costs and relocation), each against its group's own null → `output/pfm/v6/coupling/v5-v6-coupled-contrast.{rds,json}` |
-| `persistenceLadder.R` | Design note 0006: every result of both closures against how long the political drag lasts (backsliding, static, deployed, the κ arms) — rule B extra CO₂ by year and peak year, rule C global price, relocation by period, price wedge, China, GDP — and the dividend against the static rung → `output/pfm/v6/coupling/persistence-ladder.{rds,json}`. Run after `runCoupledStage.R` and `ruleCRelocationDecomp.R` |
-| `ruleCRelocationDecomp.R` | Phase 6: why rule C moves less abatement in `v6` than `v5` — gross relocation by region, market (`vm_co2eqMkt`) and period, the emissions-weighted price wedge, and each region's share of the change → `output/pfm/v6/coupling/rulec-relocation-decomp.rds` |
+| `coupledV5V6Contrast.R` | Phase 6 step 1: the `v5` → `v6` contrast of every coupled headline per resolution (hold the price Δ and θ slope, the markup, hold the budget anchor and median 2050 price, costs and relocation), each against its group's own no-politics reference → `output/pfm/v6/coupling/v5-v6-coupled-contrast.{rds,json}` |
+| `persistenceLadder.R` | Design note 0006: every result of both closures against how long the political limit lasts (growing limit, constant limit, fading limit, fading + erosion) — hold the price extra CO₂ by year and peak year, hold the budget global price, relocation by period, price wedge, China, GDP — and the dividend against the constant limit → `output/pfm/v6/coupling/persistence-ladder.{rds,json}`. Run after `runCoupledStage.R` and `ruleCRelocationDecomp.R` |
+| `ruleCRelocationDecomp.R` | Phase 6: why hold the budget moves less abatement in `v6` than `v5` — gross relocation by region, market (`vm_co2eqMkt`) and period, the emissions-weighted price wedge, and each region's share of the change → `output/pfm/v6/coupling/rulec-relocation-decomp.rds` |
 | `couplingOffline.R` | Phase 3: the v6 coupling call offline on a REMIND gdx, against the Phase 1 numbers |
-| `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V371` runs (the 3.7.1 bases, the null vs the same-version `-PFMgateRef`, rule B path and history, rule C rebuild) |
-| `variantGroups.R` | the wave-2 variant Run-Groups (spec, shape, assignment twins, annual rung) through the v6 formulation on the same scenario panels: k(t), the ranking u against v6, the floor region, Δφ at 2050 (offline) |
+| `phase3Gate.R` | Phase 3 gate: verdicts on the `EU21V371` runs (the 3.7.1 bases, the no-politics reference vs the same-version `-PFMgateRef`, hold the price path and history, hold the budget rebuild) |
+| `variantGroups.R` | the second batch variant Run-Groups (spec, shape, assignment variants, annual rung) through the v6 formulation on the same scenario panels: k(t), the ranking u against v6, the floor region, Δφ at 2050 (offline) |
 | `bases.R` | the registry's NPi / PkBudg1000 gdx (`v6Bases`), the REMIND version of a gdx, the stamped-panel reader (`v6ScenPanel`) |
 | `refreshBases.R` | moves every offline analysis to new REMIND bases in one call: snapshot `phase1/` as `phase1-remind-<version>/`, re-point the registry, re-run, print old vs new (dry run unless `--apply`) |

@@ -16,7 +16,7 @@ figV6Shares <- function(group = "v6", resolution = "EU21", theta = 0.5, run = "P
   d$assigned <- d$shareObserved < 0.5
   d$label <- paste0(d$region, ifelse(d$assigned, "*", ""))
   d$sector <- factor(d$sector, levels = c("Bulk", "Diffuse"),
-                     labels = c("Electricity & industry (Bulk)", "Buildings & transport (Diffuse)"))
+                     labels = c("Power & industry", "Buildings & transport"))
   # one y-order per sector: by u, most constrained at the bottom
   d$key <- paste(d$sector, d$label)
   ord <- unique(d[order(d$sector, -d$u), c("sector", "key")])$key

@@ -3,7 +3,7 @@
 #   Rscript analysis/checks/trendShapePhi.R [group]
 #
 # WHY.  Item 13 asks whether the hard-coded trend shape should become a swept dimension.
-# `analysis/checks/trendShapeGrid.R` showed the deployed shape is not the best fit -- `logi
+# `analysis/checks/trendShapeGrid.R` showed the selected shape is not the best fit -- `logi
 # 2005/0.20` beats it in both sectors. But fit is not the criterion the project judges on
 # (CLAUDE.md: "estimation improvements that do not change what the coupling delivers are
 # not the priority"), so the question that actually decides item 13 is whether phi moves.
@@ -19,7 +19,7 @@
 # the fixed choice can be defended in MODEL.md 2. If it is comparable, the trend is a
 # first-order uncertainty and belongs in the sweep.
 #
-# WHAT IS HELD FIXED.  The deployed specification, theta = 0.50, seed year 2022, and the
+# WHAT IS HELD FIXED.  The selected specification, theta = 0.50, seed year 2022, and the
 # weighting step -- pfmCouplingWeights() needs IEA energy balances that are not on the
 # workstation, so every statistic is reported under equal AND GDP weights. If the two
 # agree the conclusion does not depend on the weights that could not be rebuilt. This is
@@ -45,8 +45,8 @@ MAPPINGS  <- c(EU21 = "models/mrpfm/inst/extdata/regional/regionmapping_21_EU11.
 SETTINGS <- list(
   deployed  = list(logisticTimeTrend = TRUE, timeTrend = FALSE,
                    trendMidpoint = 2010, trendSteepness = 0.20),
-  # Best-fitting estimable shapes on v5 (trend-shape-grid.rds): Bulk 2005/0.10 (+4.1 logLik),
-  # Diffuse 2010/0.30 (+21.2). 2005/0.20 is NOT estimable in Bulk on v5 and hangs inside
+  # Best-fitting estimable shapes on v5 (trend-shape-grid.rds): power & industry 2005/0.10 (+4.1 logLik),
+  # Buildings & transport 2010/0.30 (+21.2). 2005/0.20 is NOT estimable in power & industry on v5 and hangs inside
   # FRONTIER's Fortran with no timeout, so it is not run here.
   `2005/0.10` = list(logisticTimeTrend = TRUE, timeTrend = FALSE,
                      trendMidpoint = 2005, trendSteepness = 0.10),
@@ -139,7 +139,7 @@ cat("benchmarks: specification band 0.110 | gamma rungs 0.026 / 0.060 / 0.061\n"
 out <- list(group = GROUP, seedYear = SEED_YEAR, theta = THETA, generated = Sys.time())
 for (res in names(MAPS)) for (wt in c("equal", "gdp")) {
   base <- NULL
-  cat("\n--- delivered phi = min(Bulk, Diffuse) [", res, " / ", wt, "] ---\n", sep = "")
+  cat("\n--- delivered phi = min(Power & industry, buildings & transport) [", res, " / ", wt, "] ---\n", sep = "")
   for (nm in names(SETTINGS)) {
     pb <- phiFromE(E[[nm]]$Bulk, wt, res = res)
     pd <- phiFromE(E[[nm]]$Diffuse, wt, res = res)

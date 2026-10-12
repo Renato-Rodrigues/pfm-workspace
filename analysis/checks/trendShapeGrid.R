@@ -1,4 +1,4 @@
-# Is the deployed logistic time-trend shape defensible? (TODO item 13)
+# Is the selected logistic time-trend shape defensible? (TODO item 13)
 #
 #   Rscript analysis/checks/trendShapeGrid.R [group]
 #   Rscript analysis/checks/trendShapeGrid.R v4
@@ -32,7 +32,7 @@
 #   medSE/nSig  frontier standard errors via the RECOMPUTED covariance matrix (TODO 14f).
 #               Before that fix these were not comparable across settings.
 #
-# WHAT IT DOES NOT DO.  It holds the deployed specification fixed and varies only the
+# WHAT IT DOES NOT DO.  It holds the selected specification fixed and varies only the
 # trend, so it answers "is the constant defensible", not "would the maximin winner
 # change" -- the latter needs the sweep re-run with a trend dimension.
 #
@@ -147,7 +147,7 @@ fmt <- function(r, d) sprintf("%-16s %10.1f %9s %8.4f %11.3f %8.4f %4d/%-2d %8s%
   r$id, r$logLik, d, r$gamma, r$trendShare, r$medSE, r$nSig, r$nTerms,
   substr(r$vcovStatus, 1, 7),
   if (!isTRUE(r$converged)) "  <- NOT converged" else
-    if (isTRUE(r$deployed)) "  <- deployed" else
+    if (isTRUE(r$deployed)) "  <- selected" else
       if (is.finite(r$gamma) && r$gamma >= 0.999) "  <- gamma AT BOUNDARY" else "")
 
 out <- list(group = GROUP, generated = Sys.time(), timeout = TIMEOUT, bySector = list())
@@ -175,7 +175,7 @@ for (sector in c("Bulk", "Diffuse")) {
     if (isTRUE(r$deployed)) ref <- r$logLik
     cat(fmt(r, "")); utils::flush.console()
   }
-  cat("  -- ", sector, ": ranked by fit, dLogLik vs the deployed shape --\n", sep = "")
+  cat("  -- ", sector, ": ranked by fit, dLogLik vs the selected shape --\n", sep = "")
   ok <- Filter(function(x) is.finite(x$logLik), rows)
   for (r in ok[order(-vapply(ok, function(x) x$logLik, numeric(1)))])
     cat(fmt(r, if (is.na(ref)) "-" else sprintf("%+.1f", r$logLik - ref)))

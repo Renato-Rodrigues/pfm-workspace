@@ -6,12 +6,12 @@ a single-page poster carrying the whole model.*
 This document is **derivative**: every number belongs to `MODEL.md`, every interface detail to
 `COUPLING.md`, every run to `SCENARIOS.md`. It adds only sequencing, emphasis and the asset
 spec. **Do not put a number here that is not in one of those** — re-read it from the artifact
-and cite the source file, per the Run-Group rule. Numbers here are Run-Group **`v5`**, deployed
+and cite the source file, per the Run-Group rule. Numbers here are Run-Group **`v5`**, selected
 spec `X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp`.
 
 > ⚠️ **This is the `v5` deck, and `v6` is now current (2026-10-10).** The spine below (§1) rests on
 > two `v5` results that changed in `v6`: the quantity headline is +118 / +113 Gt, not +159 / +164, and
-> the held-budget relocation ("China absorbs") is about 20 Gt, not 72–81 (`SCENARIOS.md` §4.10). The
+> the hold-the-budget relocation ("China absorbs") is about 20 Gt, not 72–81 (`SCENARIOS.md` §4.10). The
 > `v6` spine is to be re-decided with the results (0005 Phase 6 step 5); until then, do not build a
 > `v6` deck from this page. `v6` numbers: `SCENARIOS.md` and `MODEL.md`; `v6` coupled figures:
 > `v6-coupled-theta`, `v6-coupled-arms`, `v6-rulec-relocation`, `v6-price-catchup`
@@ -84,7 +84,7 @@ distance labelled *political slack*. The single most valuable slide in the deck.
 
 **S4 · The data**
 *Message:* 48 countries × 22 years (2001–2022), OECD CAPMF stringency 0–10, two sectors —
-Bulk (electricity + industry) and Diffuse (buildings + transport).
+Power & industry (electricity + industry) and buildings & transport (buildings + transport).
 *Figure:* CAPMF coverage map, with **out-of-coverage rendered as absent, never as zero**.
 *Rail:* 200 of 248 projected countries are outside the estimation sample. Say it here.
 
@@ -100,14 +100,14 @@ its **share** (dependence) goes with lower stringency, its **per-capita size** w
 both sectors faceted.
 *Rail:* significance on this slide comes from the **mean regression with wild-cluster bootstrap**
 (`inference.rds`), not from the frontier's ML standard errors — say which estimator each number
-is from. GovEff: +0.240 ($p_{\text{wild}}$ .048) Bulk, +0.333 (.006) Diffuse in the mean; on the
-Bulk frontier it is +0.064, $p$ .32. **Do not say capability raises the Bulk ceiling.**
+is from. GovEff: +0.240 ($p_{\text{wild}}$ .048) power & industry, +0.333 (.006) buildings & transport in the mean; on the
+Power & industry frontier it is +0.064, $p$ .32. **Do not say capability raises the power & industry ceiling.**
 *Rail:* Vertical Accountability is **not significant** as a main effect in either sector. Do not
 present an accountability finding.
-*Rail:* the positive per-capita Bulk incumbency term (+0.489, $p_{\text{wild}}$ < .001) is the
+*Rail:* the positive per-capita power & industry incumbency term (+0.489, $p_{\text{wild}}$ < .001) is the
 exposure confound — large, capable fossil economies also regulate more (`MODEL.md` §8.3). Do
 not present it as incumbents raising ambition.
-*Rail:* the trend is the largest single term and carries **74% (Bulk) / 55% (Diffuse)** of
+*Rail:* the trend is the largest single term and carries **74% (Power & industry) / 55% (Buildings & transport)** of
 linear-predictor variance. Volunteer it (`MODEL.md` §8.5).
 
 **S6 · Incumbency: dependence and scale**
@@ -115,13 +115,13 @@ linear-predictor variance. Volunteer it (`MODEL.md` §8.5).
 it, and how large it is per person — and the data separate them.
 *Figure:* **Fig 2b** — marginal effect of each incumbency term across the observed range of
 government effectiveness, over observed support only.
-*Rail:* one conditional term survives cluster-robust inference (`Incumb pc × VerAcc`, Bulk,
+*Rail:* one conditional term survives cluster-robust inference (`Incumb pc × VerAcc`, power & industry,
 $p_{\text{wild}}$ .015) and it depends on China and Saudi Arabia (`MODEL.md` §2.6). Say "partly
 conditional", not "works through institutions".
 
 **S7 · The ceiling and the gap**
 *Message:* every country-year gets a ceiling $S^{*}$ and a ratio $E = S/S^{*}$; the median country
-sits at about **71% (Bulk) / 75% (Diffuse)** of its own ceiling in 2022.
+sits at about **71% (Power & industry) / 75% (Buildings & transport)** of its own ceiling in 2022.
 *Equation:* $S^{*} = M\cdot\text{logit}^{-1}(\eta_F)$ and $E = S/S^{*}$ (§4, Eqs. 4–5).
 *Figure:* **Fig 1b** — observed stringency against the fitted frontier, both sectors, 2022.
 *Rail:* **tiers and rank intervals, never point ceilings or named country rankings** — slack
@@ -133,8 +133,8 @@ equilibrium — and the data cannot tell that speed from no adjustment at all.
 *Equation:* the ECM and its half-life (§4, Eq. 6).
 *Figure:* four-sector speeds as a dot plot, **skill-vs-persistence annotated on each point**, with
 the two-sector placebo null drawn as a band.
-*Rail:* 🔴 **only electricity beats "assume nothing changes"** (+0.140). The published Diffuse λ
-(0.077) sits **inside** a no-adjustment placebo null and Bulk (0.109) below it. That is why the
+*Rail:* 🔴 **only electricity beats "assume nothing changes"** (+0.140). The published buildings & transport λ
+(0.077) sits **inside** a no-adjustment placebo null and power & industry (0.109) below it. That is why the
 coupling assumes the gap persists. Both labels on the slide, not in the notes.
 
 ### Act III — coupling (slides 9–11)
@@ -160,7 +160,7 @@ its own sector's price over a common floor.
 which changes what the model may deploy next.
 *Figure:* the loop diagram — IAM → energy → actor power → ceiling → price → IAM.
 *Rail:* 🔴 **the feedback is not causal.** The shift-share IV confirms endogeneity overwhelmingly
-and cannot identify the effect (Bulk standard errors in the hundreds to thousands). Say
+and cannot identify the effect (Power & industry standard errors in the hundreds to thousands). Say
 "conditional scenario accounting", never "causes".
 
 ### Act IV — results and honesty (slides 12–14)
@@ -201,12 +201,12 @@ Russia) are *ranked last*, not measured at 50%.
 contribution.
 *Figure:* **Fig 2c** — selection-bootstrap frequencies against pool and menu base rates.
 Government Effectiveness is in **100%** of winners; the two-term incumbency form `bothIncAP` in
-**76%**; the deployed channel set `WGIge|noRoL|VerAcc` in **13%** (most over-selected per pool slot,
+**76%**; the selected channel set `WGIge|noRoL|VerAcc` in **13%** (most over-selected per pool slot,
 3.98×); the exact specification in **8.5%**.
 *Rail:* what may be claimed is **state capability belongs in the model** and **incumbency enters
-in both forms**. What may **not** be claimed is that the deployed channel set or specification was
-chosen by the data: Rule of Law is in 74% of winners and the deployed spec omits it; no
-accountability measure wins half the draws. Pair with the fact that the deployed spec ranks first
+in both forms**. What may **not** be claimed is that the selected channel set or specification was
+chosen by the data: Rule of Law is in 74% of winners and the selected specification omits it; no
+accountability measure wins half the draws. Pair with the fact that the selected specification ranks first
 only after a disclosed threshold choice (ADR 0045) and that each sector alone gives up about a
 fifth of its explanatory content to share one specification.
 
@@ -224,17 +224,17 @@ fifth of its explanatory content to share one specification.
   θ = 0 gate reproduces its reference **to a tolerance**, not bit-for-bit.
 - ✅ **The `v5` coupled batch is in**: 62 runs, EU21 + H12, all finished, zero early-period market
   failures. The unforced-anchor level cap adds +128 / +149 Gt (now an SI sensitivity; the quantity headline is re-measured on the pinned budget path, `FIXPRICE`, pending); mode R holds the budget with a 1.33× anchor and a within-region
-  split; rule C holds the budget in six of six runs; φ moves by up to 0.08 as the energy system
+  split; hold the budget holds the budget in six of six runs; φ moves by up to 0.08 as the energy system
   changes. The quantity headline — the ceiling on the price path that holds the budget — adds
   **+159 / +164 Gt CO₂** (`SCENARIOS.md` §4.2a). Every run that hit the iteration cap on 2026-09-16
   has been re-run and converges. **Where it lands is now measured too** (Fig 5d, §4.8): under a held
   budget the ceiling relocates 72–81 Gt of abatement rather than reducing it, and under the cap the
   extra emissions concentrate in the most constrained regions.
 - 🟠 The historical replay: on the country-years where the ceiling changes the path, the coupled
-  replay beats the uncoupled ECM by **6%** in Diffuse (190 rows, 9 countries) and ties in Bulk (88 rows,
+  replay beats the uncoupled ECM by **6%** in buildings & transport (190 rows, 9 countries) and ties in power & industry (88 rows,
   4 countries). An in-sample check, not validation. `MODEL.md` §8.4, claim C29.
 - 🔴 Under the raw multiplicative level cap there is **no admissible θ**: the revealed-preference
-  ceiling (0.159) sits below the resolution floor (0.183). The deployed mode L is anchored on
+  ceiling (0.159) sits below the resolution floor (0.183). The selected mode L is anchored on
   current policy and is unaffected (`MODEL.md` §5.3.1).
 
 If someone asks "what does the coupled model say?", the honest answer is: *respecting the political
@@ -300,7 +300,7 @@ $$\text{L (level)}\quad P_{t,r} = \min\big(A_t,\ P^{\text{ref}}_{t,r} + \varphi_
 $$\text{M (mild progression)}\quad P_{t+1,r} = P_{t,r}\Big(1+\lambda_r\tfrac{S^{*}_{t+1,r}-S_{t,r}}{S_{t,r}}\Big)$$
 
 *Rail:* mode M uses a **different gap definition** — $(S^{*}-S)/S$, unbounded — from everything
-else, which uses $1-E$. At the deployed `cm_pfmGapClosure = 0`, $\lambda_r = 0$ in R and L but not
+else, which uses $1-E$. At the selected `cm_pfmGapClosure = 0`, $\lambda_r = 0$ in R and L but not
 in M. Modes L and M must not be presented as corroborating each other.
 
 > **If you must cut, cut (1) and (9).** Equations 2–8 and 10 are the irreducible spine:
@@ -318,18 +318,18 @@ Three **bind modes** — alternatives, not variants, because they make different
 | **L** level | caps the price at current policy plus φ × the extra effort | politics caps **how much** a region can do | possible — *and that is the finding* |
 | **M** mild progression | generates the path from political momentum | **where does observed momentum take us?** | no anchor, no budget |
 
-$\theta$ is **declared and swept, never estimated**: 0 is the uncoupled null, 0.50 the central
+$\theta$ is **declared and swept, never estimated**: 0 is the uncoupled no-politics reference, 0.50 the central
 value, 0.325 and 0.675 the sweep.
 
 > ⚠️ **Do not call any θ "the efficiency anchor" on a slide.** The analogy that once motivated a
-> value is inadmissible for Bulk on `v5` (1.019) and gives 0.328 for Diffuse; it anchors nothing.
+> value is inadmissible for power & industry on `v5` (1.019) and gives 0.328 for buildings & transport; it anchors nothing.
 > Never quote a country-resolution figure for the coupling (`PITFALLS.md` §15). **If asked "where
 > does 0.50 come from?", the honest answer is "we declared it, and we sweep it — here is the
 > sweep."**
 
 **The ladder, in order**: `-PFMgate` at $\theta = 0$ must reproduce its reference within tolerance
 (an interface test, not a result) → `-PFMratio` → `-PFMlevelC` → `-PFMlevelB` → `-PFMmildProg` →
-the NPi twins → the `THETA` and `GAPCLOSE` sensitivities.
+the NPi variants → the `THETA` and `GAPCLOSE` sensitivities.
 
 *Figure for this section:* a small-multiples grid, one per scenario, each showing the anchor and the
 realised price, built from `output/pfm/v5/coupling/coupled-runs.rds`.
@@ -432,7 +432,7 @@ output dates against artifact dates rather than trusting a clean run (`TODO.md` 
 | Fig 4c | coverage inset per REMIND region | `coupling/coupling-summary.rds` | `coverage-by-region` — re-render |
 | **Fig 5a** | **ES vs ETS price by region, 2050** | `coupling/coupled-runs.rds` | `coupled-sector-split` — re-render on `v5` |
 | **Fig 5b** | **cumulative CO₂, `-PFMgateB` vs `-PFMlevelB`, both resolutions** | `coupling/coupled-runs.rds` | `coupled-budget-cost` — re-render on `v5` |
-| **Fig 5c** | **NPi twins vs the θ = 0 null** | `coupling/coupled-runs.rds` | `coupled-npi-twins` — re-render on `v5` |
+| **Fig 5c** | **NPi variants vs the no-politics reference (θ = 0)** | `coupling/coupled-runs.rds` | `coupled-npi-twins` — re-render on `v5` |
 | — | four-sector speeds with skill annotation | `sector-speeds.rds` | `sector-speeds` — re-render; add the placebo band |
 | — | driver correlation matrix | `frontier.rds` | `driver-correlations` — re-render |
 | — | the IV null | `iv.rds` | `iv-null` — re-render |
@@ -442,7 +442,7 @@ output dates against artifact dates rather than trusting a clean run (`TODO.md` 
 | — | the historical-replay gate | `historical-replay.rds` | `historical-replay` — re-render |
 | — | cost of one shared specification | `selection-variants.rds` | `sharing-cost` — re-render |
 
-> ⚠️ **The `saturating-map` figure no longer describes the deployed model** — the deployed spec
+> ⚠️ **The `saturating-map` figure no longer describes the selected model** — the selected specification
 > carries no saturating transform. Keep it out of the deck unless the talk is about the
 > specification menu.
 
@@ -461,22 +461,22 @@ answers to questions.
 | say the feedback "causes" anything | the IV is an endogeneity-confirmed **null** |
 | name countries in a slack ranking, in either sector | slack ranks do not survive the frontier robustness rungs |
 | present a point ceiling | $\gamma$ is close to 1 — tiers and intervals only |
-| say state capability raises the Bulk ceiling | absent from the Bulk frontier; fragile in the Bulk mean |
+| say state capability raises the power & industry ceiling | absent from the power & industry frontier; fragile in the power & industry mean |
 | present an accountability finding | Vertical Accountability is insignificant in both sectors, and no channel wins half the bootstrap |
 | present a speed as political catching-up | λ is inside or below its no-adjustment placebo null |
 | show a sector speed as a forecast | only electricity beats persistence |
 | quote frontier p-values as the paper's inference | ML at 48 clusters; use the wild-cluster mean regression |
 | pair modes L and M as "convergent validity" | they are anchored on the same NPi path; an earlier agreement was a defect |
-| call any $\theta$ the anchor | the analogy is inadmissible in Bulk; θ is declared |
+| call any $\theta$ the anchor | the analogy is inadmissible in power & industry; θ is declared |
 | quote a country-resolution anchor for the coupling | $u$ is normalised over 21 regions |
 | give the USA a point feasibility share | no covered country; it is set by an override |
 | say "the carbon price" of a coupled run | ETS and ES face different prices |
 | call the θ = 0 gate "bit-identical" | it matches to a tolerance |
-| cite the replay gate as validation | it is in-sample, and ties in Bulk |
+| cite the replay gate as validation | it is in-sample, and ties in power & industry |
 | show scenario differences past ~2060 | drivers out of support reach 43% of rows by 2100 |
 | give an out-of-coverage region a ceiling | they receive a transferred relative gap only |
 | say the constraint "lands on households" | households pay less than industry in 15 of 21 regions |
-| say rule C cannot hold the budget | it holds in six of six runs |
+| say hold the budget cannot hold the budget | it holds in six of six runs |
 | quote +128 / +149 Gt as the headline | that is the unforced-anchor SI sensitivity; the headline is +159 / +164 Gt on the pinned budget path (`SCENARIOS.md` §4.2a) |
 
 ---

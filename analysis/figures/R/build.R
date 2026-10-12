@@ -20,7 +20,7 @@
 #'
 #' `base_size` rises with viewing distance, not with figure width — a poster panel is read
 #' from ~1.5 m and needs proportionally larger type than a 183 mm journal figure read at
-#' arm's length.
+#' sensitivity run's length.
 renderSpec <- function(medium = NULL) {
   spec <- rbind(
     # cairo_pdf, NOT pdf: the default PDF device cannot encode the UTF-8 this project
@@ -79,6 +79,7 @@ buildFigure <- function(id, group = "v5", media = NULL, write = TRUE, quiet = FA
   if (!inherits(p, "ggplot")) {
     stop("builder ", e$builder, "() must return a ggplot, got ", class(p)[1], call. = FALSE)
   }
+  p <- pfmRelabelSectors(p)   # the sector keys Bulk / Diffuse are shown by their plain names
   if (!write) return(invisible(p))
 
   for (m in media) {

@@ -9,8 +9,8 @@
 
 ## Decision
 
-1. One YAML matrix lists the canonical parents per SSP and resolution, the arms (closure, θ, markup,
-   ordering test, hold year, spread, κ, institution rule, actor-power shape), the Run-Group per arm,
+1. One YAML matrix lists the canonical parents per SSP and resolution, the sensitivity runs (closure, θ, markup,
+   ordering test, hold year, spread, κ, institution rule, actor-power shape), the Run-Group per sensitivity run,
    the warm-start chain and the start tags.
 2. `buildPFMScenarioConfig()` writes `scenario_config_PFM.csv`, and `validatePFMScenarioConfig()` runs on
    the output. Section separators and `path_gdx` chains are generated, not typed. The CSV becomes a
@@ -24,13 +24,13 @@
   2026-09-18, and the old generator no longer reproduces it ("regenerating … DESTROYS work").
 - The failure the generator was written to prevent - a PkBudg1000 family carrying a PkBudg750 parent's
   switches - is therefore possible again.
-- The `v6` batch adds the institutions-held twins, the shape twins and family B as Run-Group variants
+- The `v6` batch adds the fixed-institutions variants, the shape variants and the innovators-only family as Run-Group variants
   (ADR 0051, 0052), and later an SSP axis.
 
 ## Consequences
 
-- Adding an arm or an SSP becomes one line of the matrix.
-- The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment-rule twins) are named in
+- Adding a sensitivity run or an SSP becomes one line of the matrix.
+- The variant Run-Groups (`v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment-rule variants) are named in
   the matrix, so `pfmPreflight` can check each one's export before submission.
 
 ## Alternatives rejected

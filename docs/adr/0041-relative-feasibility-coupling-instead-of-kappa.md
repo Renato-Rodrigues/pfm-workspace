@@ -104,13 +104,13 @@ not identified. It is declared, swept, and reported as a family:
 
 | θ | reading |
 |---:|---|
-| **0** | uncoupled null — reproduces the standard REMIND run exactly (the reference) |
+| **0** | uncoupled no-politics reference — reproduces the standard REMIND run exactly (the reference) |
 | 0.25 | mild — the largest-gap tier realizes 75% of the incremental effort |
 | 0.50 | central-low |
 | **0.79** | **efficiency-anchored** (see below) |
 
-**The efficiency anchor.** The median in-coverage polity operates at 62% (Bulk) /
-69% (Diffuse) of its own political ceiling, with a median gap 0.48 of the maximum
+**The efficiency anchor.** The median in-coverage polity operates at 62% (Power & industry) /
+69% (Buildings & transport) of its own political ceiling, with a median gap 0.48 of the maximum
 gap. Setting `1 − θ·0.48 = 0.624` gives **θ ≈ 0.79**: the value at which the median
 region's price discount equals its *observed* efficiency ratio. This is a
 transparent **anchor by analogy, not an estimate** — the index-space efficiency
@@ -118,11 +118,11 @@ ratio and the price-space effort share are different objects — and must be lab
 as such wherever it is quoted.
 
 > ⚠️ **Superseded on this point (2026-08-17) — see `MODEL.md` §5.3.** The derivation above
-> used the pre-`satAP` frontier (median Bulk E = 0.624, u ≈ 0.48) *and* anchored on Bulk. Two
-> things changed. The frontier was regenerated on the deployed spec, and **ADR 0042** made the
-> economy-wide price the **worse** sector's — whichever that is per region — so Bulk no
-> longer sets the headline price. Re-derived on the regenerated artifact: **Diffuse gives
-> θ ≈ 0.74**; Bulk gives θ = 1.19, **outside the admissible [0,1)**. The rest of this ADR —
+> used the pre-`satAP` frontier (median power & industry E = 0.624, u ≈ 0.48) *and* anchored on power & industry. Two
+> things changed. The frontier was regenerated on the selected specification, and **ADR 0042** made the
+> economy-wide price the **worse** sector's — whichever that is per region — so power & industry no
+> longer sets the headline price. Re-derived on the regenerated artifact: **Buildings & transport gives
+> θ ≈ 0.74**; power & industry gives θ = 1.19, **outside the admissible [0,1)**. The rest of this ADR —
 > the relative-gap coupling, the retirement of κ, θ as declared-and-swept — stands unchanged.
 > Runs already made at θ = 0.79 remain valid as a swept point; only the "efficiency-anchored"
 > label is withdrawn.
@@ -152,7 +152,7 @@ cannot block the coupling**, unlike κ, which could.
 - **κ becomes a diagnostic, not an input.** After a coupled run one can read the
   realized $/tCO₂ difference straight off REMIND's own output ("tier-4 regions ran
   $X below cost-optimal"). That is a *result*, not an assumption.
-- **θ = 0 is a free, exact null**, which makes the coupled-vs-uncoupled comparison
+- **θ = 0 is a free, exact no-politics reference**, which makes the coupled-vs-uncoupled comparison
   clean and gives the paper an honest reference case.
 - Scenario runs multiply by |θ|; with 4 values and the 3-member stochastic ensemble
   (ADR 0040 / TODO 2.2) budget the run count deliberately — the ensemble and the θ

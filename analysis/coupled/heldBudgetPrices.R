@@ -1,19 +1,19 @@
 # What does the average tonne pay when the budget is held under the ceiling? (review-v10 M1)
 #
-#   Rscript analysis/coupled/heldBudgetPrices.R v5 output/remind-runs/v5                          # ratio mode (-PFMratio)
-#   Rscript analysis/coupled/heldBudgetPrices.R v5 output/remind-runs/v5 PkBudg1000-PFMlevelC     # the level cap under rule C (GP-22)
+#   Rscript analysis/coupled/heldBudgetPrices.R v5 output/remind-runs/v5                          # Proportional mode (-PFMratio)
+#   Rscript analysis/coupled/heldBudgetPrices.R v5 output/remind-runs/v5 PkBudg1000-PFMlevelC     # the level cap under hold the budget (GP-22)
 #
-# For ratio mode the anchor is the highest 2050 market price, which is the anchor by construction (the
+# For proportional mode the anchor is the highest 2050 market price, which is the anchor by construction (the
 # least constrained market has phi = 1). Under the level cap no market need pay the anchor, so for any
 # other run it is read from the run's own p45_taxCO2eq_anchor, and "phi" below is the realised price over
 # that anchor - an effective share, not the coupling's phi. Output for a non-default run goes to
-# held-budget-prices-<run suffix>.rds so the ratio-mode artifact the paper quotes is never overwritten.
+# held-budget-prices-<run suffix>.rds so the proportional-mode artifact the paper quotes is never overwritten.
 #
-# In ratio mode each market pays its own sector's feasibility share times the common anchor, so the
+# In proportional mode each market pays its own sector's feasibility share times the common anchor, so the
 # anchor - which rises by about a third - is paid in full only where phi = 1. This script measures
-# the REALISED prices: the 2050 price of every region-market in the held-budget run (-PFMratio)
-# against the zero-severity null (-PFMgate), unweighted and weighted by that market's CO2eq
-# emissions in the null (vm_co2eqMkt; ES and "other" pay the Diffuse price, ETS the Bulk price, as
+# the REALISED prices: the 2050 price of every region-market in the hold-the-budget run (-PFMratio)
+# against the no-politics reference (-PFMgate), unweighted and weighted by that market's CO2eq
+# emissions in the null (vm_co2eqMkt; ES and "other" pay the buildings & transport price, ETS the power & industry price, as
 # in the coupling). It also records how close the anchor rise is to 1 / (emissions-weighted phi),
 # the arithmetic of keeping abatement constant when every market pays phi x anchor.
 
@@ -83,5 +83,5 @@ f <- file.path("output/pfm", group, "coupling",
                if (isRatio) "held-budget-prices.rds" else paste0("held-budget-prices-", sub("^PkBudg1000-PFM", "", runKey), ".rds"))
 saveRDS(list(summary = res, byRegion = do.call(rbind, tabs), year = YEAR, group = group, run = runKey,
              anchorFrom = if (isRatio) "highest 2050 market price" else "p45_taxCO2eq_anchor, 2050",
-             note = paste0("held-budget run ", runKey, " vs its zero-severity null, 2050; weights = null-run vm_co2eqMkt (ES+other -> Diffuse price, ETS -> Bulk price)")), f)
+             note = paste0("hold-the-budget run ", runKey, " vs its no-politics reference, 2050; weights = reference-run vm_co2eqMkt (ES+other -> buildings & transport price, ETS -> power & industry price)")), f)
 cat("wrote", f, "\n")

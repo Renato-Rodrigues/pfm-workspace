@@ -45,14 +45,14 @@ contrasts <- list(
   levelBfixGapC = c("PkBudg1000-PFMlevelBfixGapC", "PkBudg1000-PFMgateBfix"),
   levelBfixMin = c("PkBudg1000-PFMlevelBfixMin", "PkBudg1000-PFMgateBfix"),
   ratioBfix = c("PkBudg1000-PFMratioBfix", "PkBudg1000-PFMgateBfix"),
-  # rule C with the mode-2 cap rebuilt every iteration (cm_pfmBoundRebuild = 1, RULECFIX, 2026-09-22):
-  # the level cap's own held-budget closure, against the budget-forced null like ratio mode (GP-22)
+  # Hold the budget with the mode-2 cap rebuilt every iteration (cm_pfmBoundRebuild = 1, RULECFIX, 2026-09-22):
+  # the level cap's own hold-the-budget closure, against the budget-forced null like proportional mode (GP-22)
   levelCTh325 = c("PkBudg1000-PFMlevelCTh325", "PkBudg1000-PFMgate"),
   levelCTh675 = c("PkBudg1000-PFMlevelCTh675", "PkBudg1000-PFMgate"),
   levelCGapC = c("PkBudg1000-PFMlevelCGapC", "PkBudg1000-PFMgate"),
   levelCMin = c("PkBudg1000-PFMlevelCMin", "PkBudg1000-PFMgate"),
-  # the Run-Group variants of the held-price headline (GROUPVARIANTS, 2026-09-22): same run, feasibility
-  # shares from a twin group (GP-14 specification band, GP-10(b) US assignment, GP-3(b) assignment rule)
+  # the Run-Group variants of the hold-the-price headline (GROUPVARIANTS, 2026-09-22): same run, feasibility
+  # shares from a variant group (GP-14 specification band, GP-10(b) US assignment, GP-3(b) assignment rule)
   `levelBfix-specalt` = c("PkBudg1000-PFMlevelBfix-specalt", "PkBudg1000-PFMgateBfix"),
   `levelBfix-noinc` = c("PkBudg1000-PFMlevelBfix-noinc", "PkBudg1000-PFMgateBfix"),
   `levelBfix-usadonor` = c("PkBudg1000-PFMlevelBfix-usadonor", "PkBudg1000-PFMgateBfix"),
@@ -61,10 +61,10 @@ contrasts <- list(
   `levelBfix-alllow` = c("PkBudg1000-PFMlevelBfix-alllow", "PkBudg1000-PFMgateBfix"),
   # the pinning gate, as a cost contrast: -PFMgateBfix against the budget-forced -PFMgate
   gateBfix = c("PkBudg1000-PFMgateBfix", "PkBudg1000-PFMgate"))
-# v6: every -PFMlevel(Bfix|C)-<suffix> row (held twins, option and group arms) against its rule's null,
+# v6: every -PFMlevel(Bfix|C)-<suffix> row (fixed-institutions variants, option and group sensitivity runs) against its rule's null,
 # picked up from the titles. Not for v5, whose artifact the frozen paper quotes as it is.
 if (!isV5) {
-  # rows the v6 batch does not have (ADR 0050 retired GapC and mode M; no unforced rule B, no ratioBfix, no noinc)
+  # rows the v6 batch does not have (ADR 0050 retired GapC and mode M; no unforced hold the price, no ratioBfix, no noinc)
   contrasts <- contrasts[!grepl("GapC|^levelB($|Th)|^mildProg$|^ratioBfix$|^ratioTh|^ratioMin$|-noinc$", names(contrasts))]
   arms <-unique(R$key[grepl("^PkBudg1000-PFMlevel(Bfix|C)-[A-Za-z0-9]+$", R$key)])
   for (k in arms) { nm <- sub("^PkBudg1000-PFM", "", k)
@@ -73,7 +73,7 @@ if (!isV5) {
 have <- function(res, key) sum(R$resolution == res & R$key == key) == 1
 out <- list(group = GROUP, generated = format(Sys.time()), units = list(
   emissions = "GtCO2eq, vm_co2eq summed 2020-2100 (annual interpolation)",
-  gdp = "% change of GDP (vm_cesIO inco) discounted at 5%/yr, 2020-2100, vs matched theta = 0 null",
+  gdp = "% change of GDP (vm_cesIO inco) discounted at 5%/yr, 2020-2100, vs matched no-politics reference (theta = 0)",
   consumption = "% change of consumption (vm_cons) discounted at 5%/yr, 2020-2100, vs matched null"))
 for (res in c("EU21", "H12")) {
   # a batch that lands in parts (v6 waves): measure the contrasts whose two runs are there, list the rest
@@ -82,7 +82,7 @@ for (res in c("EU21", "H12")) {
   if (!any(ok)) next
   phi <- art$phi[art$phi$resolution == res & art$phi$scenario == R$scenario[R$resolution == res & R$key == "PkBudg1000-PFMratio"], ]
   out[[res]] <- lapply(contrasts[ok], function(k) {
-    # v5: the shares of the ratio-mode run for every contrast (as published); v6: the contrast's own run (t0 value)
+    # v5: the shares of the proportional-mode run for every contrast (as published); v6: the contrast's own run (t0 value)
     if (!isV5) phi <- art$phi[art$phi$resolution == res & art$phi$scenario == R$scenario[R$resolution == res & R$key == k[1]], ]
     e1 <- integrate(series(res, k[1], "vm_co2eq")); e0 <- integrate(series(res, k[2], "vm_co2eq"))
     m <- merge(e1, e0, by = "region"); m$d <- C2C * (m$total.x - m$total.y); m$base <- C2C * m$total.y

@@ -1,19 +1,19 @@
 # Every coupled-batch quantity of a v6 batch (design note 0005 Phase 5), for one Run-Group.
 #   Rscript analysis/coupled/coupledBatchFactsV6.R v6 [runsDir]        (runsDir default output/remind-runs/<group>)
 # The v6 counterpart of coupledBatchFacts.R, which stays as the v5 record: the v6 batch has other rows
-# (no mode M, no GapC, no NPi twins; the -v6 suffix; institutions-held twins; option arms) and its φ is a
+# (no mode M, no GapC, no NPi variants; the -v6 suffix; fixed-institutions variants; option sensitivity runs) and its φ is a
 # PATH, read from each run's pfm-phi-history.rds (last call: φ(t), k_s(t), the options it ran with).
 # Reads output/pfm/<group>/coupling/coupled-runs.rds (extractCoupledResults.R) plus the anchor path from
 # each gdx; writes output/pfm/<group>/coupling/coupled-facts.json.
 #
 # Built for a batch that lands in parts: a run that is not there yet gives NA (null in the JSON), never an
-# error, so wave 1 can be read before wave 2 exists. `missing` lists what each section looked for and did
+# error, so first batch can be read before second batch exists. `missing` lists what each section looked for and did
 # not find.
 #
 # Comparators (SCENARIOS.md 4.2a, 0005 Phase 5):
-#   rule B (held price):   every -PFMlevelBfix* row against the held-price null -PFMgateBfix (cumulative CO2 2100);
-#   rule C (held budget):  every -PFMlevelC* row against the theta = 0 null -PFMgate (2050 prices; the budget holds);
-#   option and group arms: against the deployed row of their rule at theta 0.50 ("deltaVsDeployed").
+#   Hold the price:   every -PFMlevelBfix* row against the no-politics reference -PFMgateBfix (price held) (cumulative CO2 2100);
+#   Hold the budget:  every -PFMlevelC* row against the no-politics reference (theta = 0) -PFMgate (2050 prices; the budget holds);
+#   option and group sensitivity runs: against the selected row of their rule at theta 0.50 ("deltaVsDeployed").
 suppressMessages(library(jsonlite))
 a <- commandArgs(trailingOnly = TRUE)
 GROUP  <- if (length(a) >= 1) a[1] else "v6"
@@ -82,7 +82,7 @@ F$qc <- list(
   finalDeltaRange = signif(range(R$finalDelta, na.rm = TRUE), 3),
   infesCodes = R[is.finite(R$infesCode) & R$infesCode != 0, c("resolution", "key", "infesCode")],
   budgetWarn = R[is.finite(R$budgetWarn) & R$budgetWarn != 0, c("resolution", "key", "budgetWarnDev")],
-  # E11: a BUDGET-FORCED run (adj 9) that never peaks is to be disclosed; held-price runs never peak by design
+  # E11: a BUDGET-FORCED run (adj 9) that never peaks is to be disclosed; hold-the-price runs never peak by design
   neverPeakBudgetForced = R[R$adj == 9 & is.finite(R$peakYear) & R$peakYear >= 2150, c("resolution", "key", "peak", "peakYear")],
   markupMismatch = R[is.finite(R$markupWritten) & abs(R$markupWritten - R$markupSeen) > 1e-3,
                      c("resolution", "key", "markupWritten", "markupSeen")])
@@ -104,7 +104,7 @@ F$runs <- lapply(stats::setNames(RES, RES), function(res) {
          floor2050Min = if (length(fp)) rd(min(fp), 3) else NA)
   }) })
 
-## ---- the theta = 0 null and the pinning (Phase 3 gate criteria, per resolution) -------------------
+## ---- the no-politics reference (theta = 0) and the pinning (Phase 3 gate criteria, per resolution) -------------------
 F$gate <- lapply(stats::setNames(RES, RES), function(res) {
   out <- list(cumGate = rd(cum(res, "PkBudg1000-PFMgate"), 2), cumGateRef = rd(cum(res, "PkBudg1000-PFMgateRef"), 2))
   if (has(res, "PkBudg1000-PFMgate") && has(res, "PkBudg1000-PFMgateRef")) {
@@ -121,7 +121,7 @@ F$gate <- lapply(stats::setNames(RES, RES), function(res) {
                              anchor2050gateBfix = rd(anchor2050(res, "PkBudg1000-PFMgateBfix"), 2))))
 })
 
-## ---- rule B, the quantity headline: theta sweep and the institutions-held twin --------------------
+## ---- Hold the price, the quantity headline: theta sweep and the fixed-institutions variant --------------------
 F$ruleB <- lapply(stats::setNames(RES, RES), function(res) {
   g <- cum(res, "PkBudg1000-PFMgateBfix"); dep <- cum(res, "PkBudg1000-PFMlevelBfix")
   th <- c(`0.325` = "PkBudg1000-PFMlevelBfixTh325", `0.50` = "PkBudg1000-PFMlevelBfix", `0.675` = "PkBudg1000-PFMlevelBfixTh675")
@@ -135,7 +135,7 @@ F$ruleB <- lapply(stats::setNames(RES, RES), function(res) {
        bindShare = rd(val(res, "PkBudg1000-PFMlevelBfix", "bindShare"), 3),
        k = list(Bulk2050 = kAt(e, "Bulk", 2050), Bulk2100 = kAt(e, "Bulk", 2100),
                 Diffuse2050 = kAt(e, "Diffuse", 2050), Diffuse2100 = kAt(e, "Diffuse", 2100)),
-       # decision 1A of 0005 section 7a: the headline always travels with its institutions-held twin
+       # decision 1A of 0005 section 7a: the headline always travels with its fixed-institutions variant
        held = list(cum2100 = rd(held, 1), delta = rd(held - g, 1), heldMinusDeployed = rd(held - dep, 1),
                    institutionsShareOfDelta = rd((dep - held) / (dep - g), 3),
                    kBulk2100 = kAt(eh, "Bulk", 2100), kDiffuse2100 = kAt(eh, "Diffuse", 2100)),
@@ -144,7 +144,7 @@ F$ruleB <- lapply(stats::setNames(RES, RES), function(res) {
               markupBuysBackShare = rd((m - dep) / (m - g), 3)) })
 })
 
-## ---- rule C, the held budget: where the price moves -----------------------------------------------
+## ---- Hold the budget, the held budget: where the price moves -----------------------------------------------
 F$ruleC <- lapply(stats::setNames(RES, RES), function(res) {
   pg <- price2050(res, "PkBudg1000-PFMgate"); ag <- anchor2050(res, "PkBudg1000-PFMgate")
   keys <- c(`0.50` = "PkBudg1000-PFMlevelC", `0.325` = "PkBudg1000-PFMlevelCTh325", `0.675` = "PkBudg1000-PFMlevelCTh675",
@@ -165,14 +165,14 @@ F$ruleC <- lapply(stats::setNames(RES, RES), function(res) {
   })
 })
 
-## ---- the arms: every -PFMlevel(Bfix|C)-<suffix> row (ordering, assignment, shape, family B, formulation) --
-## Picked up from the titles, so a new arm needs no code. Each carries the options and group its last call
+## ---- the sensitivity runs: every -PFMlevel(Bfix|C)-<suffix> row (ordering, assignment, shape, the innovators-only family, formulation) --
+## Picked up from the titles, so a new sensitivity run needs no code. Each carries the options and group its last call
 ## ran with, so an option that silently did not reach the coupling shows up here (0005 F8).
 F$arms <- lapply(stats::setNames(RES, RES), function(res) {
   ks <- R$key[R$resolution == res & grepl("^PkBudg1000-PFMlevel(Bfix|C)-[A-Za-z0-9]+$", R$key)]
   ks <- setdiff(ks, c("PkBudg1000-PFMlevelBfix-held", "PkBudg1000-PFMlevelC-held"))
   g <- cum(res, "PkBudg1000-PFMgateBfix"); pg <- price2050(res, "PkBudg1000-PFMgate")
-  ag <- anchor2050(res, "PkBudg1000-PFMgate")   # rule-C arms: the global price against the theta = 0 null
+  ag <- anchor2050(res, "PkBudg1000-PFMgate")   # Hold-the-budget sensitivity runs: the global price against the no-politics reference (theta = 0)
   lapply(stats::setNames(ks, sub("^PkBudg1000-PFMlevel", "", ks)), function(k) {
     x <- run(res, k); ruleB <- grepl("^PkBudg1000-PFMlevelBfix-", k)
     dep <- if (ruleB) "PkBudg1000-PFMlevelBfix" else "PkBudg1000-PFMlevelC"

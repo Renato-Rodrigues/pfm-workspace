@@ -10,13 +10,13 @@ CONTEXT.md.
 
 ## Context
 
-The PSM's wild-cluster survivors are thin (Bulk AP×RoL p=.042, Diffuse AP p=.040, AP×VerAcc
+The PSM's wild-cluster survivors are thin (Power & industry AP×RoL p=.042, buildings & transport AP p=.040, AP×VerAcc
 marginal at .059, no IQ mains), raising the request to "avoid terms being non-significant just by
 a little" at selection time. A hard p-value gate in the sweep would guarantee a clean coefficient
 table but is textbook selection-on-significance: the surviving p-values become uninterpretable
 *because* they were selected for, contradicting the project's report-failures-against-ourselves
 posture (pfm-paper CLAUDE.md) and, with 25 clusters, would gate out nearly everything including
-the deployed spec.
+the selected specification.
 
 ## Decision
 
@@ -27,7 +27,7 @@ the deployed spec.
    same soft-preference pattern as `softVifGate` / `dropIdleControls` / low-trend-reliance
    (ADR 0022/0023/0033). A mild, disclosed reordering; tier/ΔR² still drive selection.
 3. **Diagnose, don't launder, marginality post-selection:** a new influence diagnostic
-   (`computeInfluenceDiagnostics`, step `psm-influence`, artifact `influence.rds`) on the deployed
+   (`computeInfluenceDiagnostics`, step `psm-influence`, artifact `influence.rds`) on the selected
    spec, per sector and theory term: leave-one-country-out refits with analytic cluster-robust
    p-value and coefficient paths flagging **pivotal clusters** (removal crosses .05 in
    either direction), per-cluster DFBETA ranking, and a β-vs-SE decomposition (is marginality

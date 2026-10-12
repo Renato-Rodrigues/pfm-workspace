@@ -81,7 +81,7 @@ steps <- c(list(
   c(if (v5) "analysis/coupled/coupledBatchFacts.R" else "analysis/coupled/coupledBatchFactsV6.R", group, runsDir),
   c("analysis/coupled/coupledCostsAndAbatement.R", group, runsDir),
   c("analysis/coupled/heldBudgetPrices.R", group, runsDir)),
-  # v6: the held-budget horn is rule C (level cap, rebuilt); ratio mode is a wave-2 continuity arm
+  # v6: the hold-the-budget closure is hold the budget (level cap, rebuilt); proportional mode is a second batch continuity sensitivity run
   if (!v5) list(c("analysis/coupled/heldBudgetPrices.R", group, runsDir, "PkBudg1000-PFMlevelC")),
   list(
   c("analysis/coupled/ruleCBoundFreeze.R", group, runsDir),

@@ -2,10 +2,10 @@
 # Read from the two Run-Groups' coupling artifacts; nothing is re-extracted from a gdx.
 #   Rscript analysis/v6/coupledV5V6Contrast.R [old] [new]     (repo root; default v5 v6; after
 #                                                              runCoupledStage.R on both groups)
-# Each headline is a difference against the group's OWN theta = 0 null, so REMIND's drift between
+# Each headline is a difference against the group's OWN no-politics reference (theta = 0), so REMIND's drift between
 # the two groups' versions (v5 3.7.0.dev29, v6 3.7.1; PITFALLS.md §34) cancels to first order. The
 # nulls themselves are shown so that drift stays visible.
-# Rule C's 2050 price ratio is recomputed for BOTH groups by the v6 facts rule (the higher of the two
+# The hold-the-budget 2050 price ratio is recomputed for BOTH groups by the v6 facts rule (the higher of the two
 # market prices per region, over the theta = 0 run), since v5's facts did not record it.
 # Output: output/pfm/<new>/coupling/v5-v6-coupled-contrast.rds and .json, and a printed table.
 `%||%` <- function(a, b) if (is.null(a)) b else a
@@ -38,40 +38,40 @@ add <- function(res, what, old, new, unit = "") {
 for (res in RES) {
   qo <- fx$old$headlineQuantity[[res]]; bn <- fx$new$ruleB[[res]]
   co <- fx$old$ruleC[[res]]; cn <- fx$new$ruleC[[res]]
-  add(res, "theta = 0 null, cumulative CO2 2100 (gate)", fx$old$gate[[res]]$cumGate %||% NA, fx$new$gate[[res]]$cumGate, "Gt")
-  add(res, "held-price null -PFMgateBfix, cumulative CO2 2100", qo$gateBfix, bn$gateBfix, "Gt")
-  add(res, "rule B: delta, theta 0.50 (the quantity headline)", qo$delta, bn$delta[["0.50"]], "Gt")
-  add(res, "rule B: delta, theta 0.325", qo$deltaTh325, bn$delta[["0.325"]], "Gt")
-  add(res, "rule B: delta, theta 0.675", qo$deltaTh675, bn$delta[["0.675"]], "Gt")
-  add(res, "rule B: slope per unit theta", qo$slopePerUnitTheta, bn$slopePerUnitTheta, "Gt")
-  add(res, "rule B: markup off, delta", qo$deltaMin, bn$markupOff$delta, "Gt")
-  add(res, "rule B: what the markup buys back", qo$markupBuysBack, bn$markupOff$markupBuysBack, "Gt")
-  add(res, "rule B: bind share", qo$bindShare, bn$bindShare, "")
+  add(res, "no-politics reference (theta = 0), cumulative CO2 2100 (gate)", fx$old$gate[[res]]$cumGate %||% NA, fx$new$gate[[res]]$cumGate, "Gt")
+  add(res, "no-politics reference -PFMgateBfix (price held), cumulative CO2 2100", qo$gateBfix, bn$gateBfix, "Gt")
+  add(res, "hold the price: delta, theta 0.50 (the quantity headline)", qo$delta, bn$delta[["0.50"]], "Gt")
+  add(res, "hold the price: delta, theta 0.325", qo$deltaTh325, bn$delta[["0.325"]], "Gt")
+  add(res, "hold the price: delta, theta 0.675", qo$deltaTh675, bn$delta[["0.675"]], "Gt")
+  add(res, "hold the price: slope per unit theta", qo$slopePerUnitTheta, bn$slopePerUnitTheta, "Gt")
+  add(res, "hold the price: markup off, delta", qo$deltaMin, bn$markupOff$delta, "Gt")
+  add(res, "hold the price: what the markup buys back", qo$markupBuysBack, bn$markupOff$markupBuysBack, "Gt")
+  add(res, "hold the price: bind share", qo$bindShare, bn$bindShare, "")
   for (th in c(`0.325` = "Th325", `0.50` = "", `0.675` = "Th675")) {
     k <- paste0("PkBudg1000-PFMlevelC", th); nm <- names(th)
     on <- if (th == "") "levelC" else th
-    add(res, sprintf("rule C, theta %s: anchor 2050 x null", if (th == "") "0.50" else sub("Th", "0.", th)),
+    add(res, sprintf("hold the budget, theta %s: anchor 2050 x reference", if (th == "") "0.50" else sub("Th", "0.", th)),
         co[[on]]$anchorOverGate %||% NA, cn[[if (th == "") "0.50" else sub("Th", "0.", th)]]$anchorOverGate, "x")
-    add(res, sprintf("rule C, theta %s: median regional 2050 price x null", if (th == "") "0.50" else sub("Th", "0.", th)),
+    add(res, sprintf("hold the budget, theta %s: median regional 2050 price x reference", if (th == "") "0.50" else sub("Th", "0.", th)),
         med2050("old", res, k), med2050("new", res, k), "x")
   }
-  add(res, "rule C: cumulative CO2 2100", co$levelC$cum2100, cn[["0.50"]]$cum2100, "Gt")
-  add(res, "costs, rule B: global CO2eq 2020-2100", cost("old", res, "levelBfix", "globalDeltaEmissions"),
+  add(res, "hold the budget: cumulative CO2 2100", co$levelC$cum2100, cn[["0.50"]]$cum2100, "Gt")
+  add(res, "costs, hold the price: global CO2eq 2020-2100", cost("old", res, "levelBfix", "globalDeltaEmissions"),
       cost("new", res, "levelBfix", "globalDeltaEmissions"), "Gt CO2eq")
-  add(res, "costs, rule B: gross relocated", cost("old", res, "levelBfix", "grossRelocated"),
+  add(res, "costs, hold the price: gross relocated", cost("old", res, "levelBfix", "grossRelocated"),
       cost("new", res, "levelBfix", "grossRelocated"), "Gt CO2eq")
-  add(res, "costs, rule B: GDP", cost("old", res, "levelBfix", "gdpChangePct"), cost("new", res, "levelBfix", "gdpChangePct"), "%")
-  add(res, "costs, rule C: global CO2eq 2020-2100", cost("old", res, "levelC", "globalDeltaEmissions"),
+  add(res, "costs, hold the price: GDP", cost("old", res, "levelBfix", "gdpChangePct"), cost("new", res, "levelBfix", "gdpChangePct"), "%")
+  add(res, "costs, hold the budget: global CO2eq 2020-2100", cost("old", res, "levelC", "globalDeltaEmissions"),
       cost("new", res, "levelC", "globalDeltaEmissions"), "Gt CO2eq")
-  add(res, "costs, rule C: gross relocated", cost("old", res, "levelC", "grossRelocated"),
+  add(res, "costs, hold the budget: gross relocated", cost("old", res, "levelC", "grossRelocated"),
       cost("new", res, "levelC", "grossRelocated"), "Gt CO2eq")
-  add(res, "costs, rule C: GDP", cost("old", res, "levelC", "gdpChangePct"), cost("new", res, "levelC", "gdpChangePct"), "%")
+  add(res, "costs, hold the budget: GDP", cost("old", res, "levelC", "gdpChangePct"), cost("new", res, "levelC", "gdpChangePct"), "%")
 }
 out <- do.call(rbind, rows)
 names(out)[3:4] <- c(OLD, NEW)
 res <- list(groups = c(OLD, NEW), generated = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), table = out,
-            note = paste("Differences against each group's own theta = 0 null; the groups run on different REMIND",
-                         "versions (PITFALLS.md 34). Rule C's median 2050 ratio recomputed for both by the v6 facts rule."))
+            note = paste("Differences against each group's own no-politics reference (theta = 0); the groups run on different REMIND",
+                         "versions (PITFALLS.md 34). The hold-the-budget median 2050 ratio recomputed for both by the v6 facts rule."))
 saveRDS(res, file.path(cd(NEW), "v5-v6-coupled-contrast.rds"))
 jsonlite::write_json(res, file.path(cd(NEW), "v5-v6-coupled-contrast.json"), auto_unbox = TRUE, pretty = TRUE, digits = NA)
 op <- options(width = 200); print(out, row.names = FALSE); options(op)

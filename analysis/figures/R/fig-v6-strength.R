@@ -12,7 +12,7 @@ figV6Strength <- function(group = "v6", resolution = "EU21") {
   s$system <- factor(ifelse(s$run == "NPi", "current policies (NPi)", "1000 Gt budget (PkBudg1000)"),
                      levels = c("1000 Gt budget (PkBudg1000)", "current policies (NPi)"))
   s$sector <- factor(s$sector, levels = c("Bulk", "Diffuse"),
-                     labels = c("Electricity & industry (Bulk)", "Buildings & transport (Diffuse)"))
+                     labels = c("Power & industry", "Buildings & transport"))
   end <- s[s$year == max(s$year), ]
   end$lab <- sprintf("%.2f", end$k)
   # the higher of the two end values sits above its point, the lower below: no collision

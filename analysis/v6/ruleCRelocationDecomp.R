@@ -1,7 +1,7 @@
-# Design note 0005 Phase 6: why rule C (held budget) moves far less abatement between regions in v6
+# Design note 0005 Phase 6: why hold the budget moves far less abatement between regions in v6
 # than in v5, although its 2050 regional prices move about as much (coupledV5V6Contrast.R).
 #   Rscript analysis/v6/ruleCRelocationDecomp.R [old] [new]     (repo root; default v5 v6)
-# For each group and resolution it compares -PFMlevelC with its theta = 0 null -PFMgate:
+# For each group and resolution it compares -PFMlevelC with its no-politics reference (theta = 0) -PFMgate:
 #   1. where the abatement moves: cumulative GHG change 2020-2100 per region and market (ETS, ES,
 #      other; vm_co2eqMkt) and the remainder outside the markets (vm_co2eq minus their sum), by period;
 #   2. how much nets out inside a region: gross relocation counted per region vs per region-market;
@@ -9,8 +9,8 @@
 #      dispersion across region-markets weighted by the null's emissions (relocation needs the price to
 #      differ BETWEEN places; a uniform rise moves nothing);
 #   4. the change between the groups, region by region: 1/2 (|d_new| - |d_old|).
-# Also, when present in <new>: the rule-C arms that test the cause (-PFMlevelC-Ehold, the static share,
-# k close to 1: strength vs ranking; the kappa arms: a faster-fading strength; -backslide: today's strength
+# Also, when present in <new>: the hold-the-budget sensitivity runs that test the cause (-PFMlevelC-Ehold, the constant limit,
+# k close to 1: strength vs ranking; the kappa sensitivity runs: a faster-fading strength; -growing limit: today's strength
 # growing, design note 0006), reported beside the rest, at each resolution where they ran.
 # Emissions as coupledCostsAndAbatement.R: GtCeq x 44/12, annual interpolation, summed 2020-2100.
 # Prices as the facts: the coupled-runs.rds market prices (ets, es; "other" pays the ES price).
@@ -58,7 +58,7 @@ prices <- function(g, res, title) {
 }
 gross <- function(d) round(sum(abs(d)) / 2, 1)
 
-ARMS <- c("Ehold", "kappa02", "kappa", "kappa05", "backslide")   # rule-C arms of <new>, used when present
+ARMS <- c("Ehold", "kappa02", "kappa", "kappa05", "backslide")   # Hold-the-budget sensitivity runs of <new>, used when present
 cases <- c(lapply(c(OLD, NEW), function(g) list(g = g, arm = "")),
            lapply(ARMS, function(x) list(g = NEW, arm = x)))
 out <- list(); summ <- list()
@@ -99,7 +99,7 @@ for (cs in cases) for (res in RES) {
     wedgeMean2050 = wedge$meanRatio[wedge$year == 2050])
 }
 S <- do.call(rbind, summ)
-cat("\n== Rule C against its null: gross relocation (Gt CO2eq, 2020-2100) and the price wedge\n")
+cat("\n== Hold the budget against its null: gross relocation (Gt CO2eq, 2020-2100) and the price wedge\n")
 cat("   grossRegion = 1/2 sum_r |d_r| (as coupled-costs.json); grossRegionMarket counts the same per market;\n")
 cat("   wedgeSd = emissions-weighted SD across region-markets of log(price / null price)\n")
 print(S, row.names = FALSE)

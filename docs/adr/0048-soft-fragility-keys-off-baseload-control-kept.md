@@ -35,16 +35,16 @@ break ties. They select:
 
 - The first near-tie band of `v6` holds **147** specs. **143** have a max VIF above 6, and **126**
   have a significant theory term below |t| 2.33. Only **2** carry neither flag:
-  `X-1950 WGIge|RoL|noAcc splitAPpc lev ctl:GDPq` and its `GDPq.sq` twin. They lead the band
-  although they have its highest trend share (0.853 Bulk).
-- `X-1950`'s clean status rests on a Bulk |t| of **2.37** against 2.33. In the selection
+  `X-1950 WGIge|RoL|noAcc splitAPpc lev ctl:GDPq` and its `GDPq.sq` variant. They lead the band
+  although they have its highest trend share (0.853 power & industry).
+- `X-1950`'s clean status rests on a power & industry |t| of **2.37** against 2.33. In the selection
   bootstrap it wins **1.6%** of resamples (3 of 184).
 - Moving the soft VIF limit alone does not settle it. Each threshold deploys a different spec, and
   none of them is one the bootstrap favours:
 
 | softVifGate | inferenceTGate | band leader | bootstrap win share (`v6`) |
 |---:|---:|---|---:|
-| 6 | 2.33 | `X-1950 RoL\|noAcc splitAPpc GDPq` *(deployed)* | 1.6% |
+| 6 | 2.33 | `X-1950 RoL\|noAcc splitAPpc GDPq` *(selected)* | 1.6% |
 | 7 | 2.33 | `X-1731 RoL\|VerAcc splitAPpc ctlNone satInn` | 3.3% |
 | 8 | 2.33 | `X-1908 RoL\|DiagAcc mixedAP Pop.Hyd satInc` | 1.1% |
 | off | 2.33 | `X-1914 RoL\|DiagAcc mixedAP GDPq.sq.Pop.Hyd satInc` | 0.5% |
@@ -63,13 +63,13 @@ The VIF that the soft key reads has two sources (`baseload-control.rds`, X-2079 
 
 | | `v5` | `v6` |
 |---|---:|---:|
-| Bulk VIF, incumbent share | 3.29 | **6.59** |
-| Bulk VIF, hydro/nuclear/geothermal share | 2.30 | **4.65** |
-| corr(Bulk incumbent share, baseload share) | −0.69 | **−0.84** |
+| Power & industry VIF, incumbent share | 3.29 | **6.59** |
+| Power & industry VIF, hydro/nuclear/geothermal share | 2.30 | **4.65** |
+| corr(Power & industry incumbent share, baseload share) | −0.69 | **−0.84** |
 | share of hard-gate passers with VIF > 6: baseload control, no RoL+accountability | 6% | **32%** |
 | share with VIF > 6: Rule of Law together with an accountability channel | 90–97% | 93–96% |
 
-1. **The baseload control against the Bulk incumbent share. New in `v6`.** Counting geothermal (A4)
+1. **The baseload control against the power & industry incumbent share. New in `v6`.** Counting geothermal (A4)
    makes the control a closer complement of the fossil share. Iceland moves from 0.18 to 0.70
    (dropping Iceland takes X-2079 from 6.59 to 5.11). This is **correct measurement, not a
    defect**: Iceland's clean baseload is 70%.
@@ -77,17 +77,17 @@ The VIF that the soft key reads has two sources (`baseload-control.rds`, X-2079 
    with each other and with Government Effectiveness. No control set changes it.
 
 **This is the key that decided the institutional channels.** It kept `X-2079` (`noRoL|VerAcc`,
-VIF 3.41) ahead in `v5` and demoted it to rank 24 in `v6` (VIF 6.63). It is why `v5` deployed
+VIF 3.41) ahead in `v5` and demoted it to rank 24 in `v6` (VIF 6.63). It is why `v5` selected
 "accountability without Rule of Law" and `v6` "Rule of Law without accountability". Neither
 version had evidence for that choice. The penalty only says the model cannot hold both
 comfortably. MODEL.md §6 already records that the accountability channel is not identified.
 
 ### Why the baseload control stays
 
-A control that is never significant (Bulk −0.25, p .13; Diffuse +0.02, p .69, X-2079 `v6`) looks
+A control that is never significant (Power & industry −0.25, p .13; buildings & transport +0.02, p .69, X-2079 `v6`) looks
 like the obvious thing to drop, and a population-only control set would remove the `v6` VIF
 problem (X-2079: 6.59 → 2.94). It would also remove the incumbency effect. Same design, population
-kept, `v6` Bulk mean regression:
+kept, `v6` power & industry mean regression:
 
 | | with control | population only |
 |---|---:|---:|
@@ -98,11 +98,11 @@ kept, `v6` Bulk mean regression:
 
 France, Sweden and Norway have a low fossil share because of legacy nuclear and hydro, not
 because of climate politics. With the control, the model can separate "low fossil dependence"
-from "inherited clean baseload". Without it, the incumbent-share effect vanishes in Bulk. The
+from "inherited clean baseload". Without it, the incumbent-share effect vanishes in power & industry. The
 countries it moves are the nuclear and hydro ones. France goes from 43rd to **46th** of 48 on the
 residual (observed − fitted, 2019–2023), Norway from 19th to 23rd, New Zealand from 22nd to 29th,
 Slovakia from 30th to 33rd. Finland (45 → 34) and Sweden (44 → 38) move the other way, because
-their fossil share is very low. The overall ranking holds (Spearman 0.959). Diffuse is unaffected
+their fossil share is very low. The overall ranking holds (Spearman 0.959). Buildings & transport is unaffected
 (incumbent share −0.183 vs −0.200, Spearman 0.996), because its incumbency is industrial fossil
 use. The collinearity is the price of identifying a partial effect the theory asks for. The hard
 gate at 10 bounds it.
@@ -115,12 +115,12 @@ gate at 10 bounds it.
 | Raise `softVifGate` to 7, 8, … | a knife-edge with a different winner at every value (table above) |
 | Drop only the VIF key | the \|t\| key then decides alone, and picks `X-1914`, a mixedAP + DiagAcc spec. Both elements are under-selected (0.45×, 0.48×) |
 | Drop only the \|t\| key | picks `X-1959` (the splitAPpc family again, 7.1%); the VIF key still decides the channels |
-| Population-only control sets (`Pop`, `GDPq.Pop`, `GDPq.sq.Pop`) | remove the Bulk incumbent-share effect (−0.268 → −0.020) and penalise nuclear/hydro countries |
+| Population-only control sets (`Pop`, `GDPq.Pop`, `GDPq.sq.Pop`) | remove the power & industry incumbent-share effect (−0.268 → −0.020) and penalise nuclear/hydro countries |
 | Hydro/nuclear without geothermal | undercounts Iceland's clean baseload (0.70 → 0.18); a new panel column changes the panel hash and refits every spec |
 
 ## Consequences
 
-- **The rule is fixed here, not the spec.** The deployed spec is still the first in this order
+- **The rule is fixed here, not the spec.** The selected specification is still the first in this order
   that clears the sanity walk on the corrected scenario panels (PITFALLS §28), now with
   `scenarioBlind` active. On today's `v6` ranking, the walk would start at `X-1791 … satInc`. No
   scenario gate has been run on it yet. Its `v5` relatives `X-1779` (linear and satAP) failed the
@@ -130,7 +130,7 @@ gate at 10 bounds it.
 - **Thinner terms.** `X-1791 satInc`'s weakest significant theory term is |t| 2.05 / 2.20. Only
   wild-cluster p-values are quoted (MODEL.md §2.5), and the influence diagnostics of ADR 0037
   item 3 report any pivotal cluster. VIF up to 10 means standard errors up to about 3× wider on
-  the affected terms. The terms concerned are the Bulk incumbent share, the baseload control and
+  the affected terms. The terms concerned are the power & industry incumbent share, the baseload control and
   the institutional mains. Report it.
 - 🔴 **Disclosure.** This rule is decided after the `v6` deployment under the old rule was known.
   Like ADR 0045's threshold move, the paper says so. What limits the damage: it is decided before
@@ -157,8 +157,8 @@ gate at 10 bounds it.
 
 ## Erratum (2026-10-06): the transform evidence came from a defective bootstrap cache
 
-The selection bootstrap's cache did not tell a spec from its actor-power transform twins
-(PITFALLS §29). Every statement above that compares **twins or transforms** is therefore void:
+The selection bootstrap's cache did not tell a spec from its actor-power transform variants
+(PITFALLS §29). Every statement above that compares **variants or transforms** is therefore void:
 "a favoured transform (`satInc`, 1.44×)", the 6.5% of `X-1791 satInc`, and the per-spec bootstrap
 shares in the soft-key table. The decision does not rest on them. It rests on what the soft keys
 do to the ordering (the table's band leaders), on the VIF sources, and on the baseload-control
@@ -166,16 +166,16 @@ evidence, all of which come from `sweep.rds` and the panel, not from the bootstr
 reading (Government Effectiveness, Rule of Law, `bothIncAP`, vertical accountability) is
 approximately right. It is re-derived once the bootstrap is re-run with the fixed key.
 
-The re-run of `v6` under this rule deployed `X-1791 … satAP`: the walk rejected ranks 1–5, each
+The re-run of `v6` under this rule selected `X-1791 … satAP`: the walk rejected ranks 1–5, each
 with a linear innovator term, on the actor-power extrapolation gate (0005 D7).
 
 **Re-derived (2026-10-06)** with the fixed key and a sanity verdict for every pool spec
 (`output/pfm/v6/sanity-pool.rds`, `selection-bootstrap.rds`, job 2420187). Of the 40 pool specs, 9
 pass the gates. All 9 are `bothIncAP` with a saturating innovator term; all linear and `satInc`
 specs fail the actor-power extrapolation gate. In 154 of 200 resamples one of the 9 passes the hard
-gates, and among those the deployed `X-1791 … satAP` wins 19.5%, level with its GDP-square twin
+gates, and among those the selected `X-1791 … satAP` wins 19.5%, level with its GDP-square variant
 `X-1794 … satAP` (19.5%; the family 39%), ahead of `X-2079 … satInn` (14.3%) and `X-2082 … satInn`
 (12.3%). Vertical accountability is in 82% of these wins, `RoL|VerAcc` in 49% (1.48× its share of the
-eligible specs), `satAP` in 49% (1.48×). The deployed spec passes the hard gates in 41% of resamples,
+eligible specs), `satAP` in 49% (1.48×). The selected specification passes the hard gates in 41% of resamples,
 at median rank 4 when it does. The transform comparison above that this erratum voids is replaced by
 these figures; the actor-power form is decided by the gates, not by the resampling.

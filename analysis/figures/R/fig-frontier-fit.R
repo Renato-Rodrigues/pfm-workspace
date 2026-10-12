@@ -18,7 +18,7 @@ figFrontierFit <- function(group = "v5", year = NULL) {
   }))
   d$slack <- d$ceiling - d$observed
 
-  # Label only Diffuse: Bulk slack ranks are not robust, so naming Bulk countries here
+  # Label only buildings & transport: power & industry slack ranks are not robust, so naming power & industry countries here
   # would invite exactly the country-level reading MODEL.md 3.4 forbids.
   lab <- d[d$sector == "Diffuse", ]
   lab <- lab[order(-lab$slack), ][1:5, ]

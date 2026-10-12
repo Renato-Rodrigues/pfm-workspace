@@ -1,11 +1,11 @@
-# The Phase 3 gate of design note 0005 on the EU21V6GATE runs, and the same checks on the H12 wave-1 runs (COUPLING.md 14):
+# The Phase 3 gate of design note 0005 on the EU21V6GATE runs, and the same checks on the H12 first batch runs (COUPLING.md 14):
 #   0. the REMIND 3.7.1 bases (-NPi2025, -PkBudg1000, -PFMgateRef) finished;
-#   1. the theta = 0 null on the v6 fork reproduces the uncoupled uniform-price run -PFMgateRef on the
+#   1. the no-politics reference (theta = 0) on the v6 fork reproduces the uncoupled uniform-price run -PFMgateRef on the
 #      SAME REMIND version within SCENARIOS.md 3.1 (max |dP| < $1 per pm_taxCO2eq cell, cumulative CO2
 #      within 0.2 Gt), with phi and the share path exactly 1. Since the fork moved to REMIND 3.7.1
 #      (2026-10-07) the v5 null (3.7.0.dev) is no longer a valid comparator; it is shown for information;
-#   2. one EU21 rule-B run (-PFMlevelBfix-v6) converges, with the share path loaded and k in its history;
-#   3. one EU21 rule-C run (-PFMlevelC-v6) converges with a rebuild error near 1e-6 on call iterations;
+#   2. one EU21 hold-the-price run (-PFMlevelBfix-v6) converges, with the share path loaded and k in its history;
+#   3. one EU21 hold-the-budget run (-PFMlevelC-v6) converges with a rebuild error near 1e-6 on call iterations;
 #   plus, for every run: no infeasibility code, the peak-budget record (E11), the mode bind share (E12).
 #   Rscript analysis/v6/phase3Gate.R [REMIND output folder] [--res EU21|H12]
 #   e.g. on the cluster:  Rscript analysis/v6/phase3Gate.R models/remind_pfm-EU21/output
@@ -94,7 +94,7 @@ for (k in c("npi", "base", "ref")) {
 pass("null and -PFMgateRef on the same REMIND version", !is.na(ver[["null"]]) && identical(ver[["null"]], ver[["ref"]]),
      sprintf("%s vs %s", ver[["null"]], ver[["ref"]]))
 
-say("\n== 1. the theta = 0 null on the v6 fork")
+say("\n== 1. the no-politics reference (theta = 0) on the v6 fork")
 common(path[["null"]], "null")
 if (!is.na(path[["null"]]) && !is.na(path[["ref"]])) compareNull(path[["null"]], path[["ref"]], "null vs -PFMgateRef:", TRUE)
 if (!is.na(path[["null"]]) && !is.na(v5null)) compareNull(path[["null"]], v5null, "null vs the v5 null (older REMIND, not gated)", FALSE)
@@ -103,14 +103,14 @@ if (!is.na(path[["null"]])) {
   pass("null: phi and the path are 1", isTRUE(all(abs(phi - 1) < 1e-12)) && isTRUE(all(abs(pp[pp != 0] - 1) < 1e-12)),
        sprintf("phi in [%s], path in [%s]", paste(signif(range(phi), 4), collapse = ", "), paste(signif(range(pp[pp != 0]), 4), collapse = ", ")))
 }
-say("\n== (the held-price null)"); common(path[["nullB"]], "nullB")
+say("\n== (the no-politics reference, price held)"); common(path[["nullB"]], "nullB")
 if (!is.na(path[["nullB"]]) && !is.na(path[["null"]])) {   # SCENARIOS.md 4.2a: "more than a few Gt" = the pinning failed
   cb <- num(rd(path[["nullB"]], "pm_actualbudgetco2")[, "y2100", ]); cn <- num(rd(path[["null"]], "pm_actualbudgetco2")[, "y2100", ])
   pass("nullB pinning (within 5 Gt of the null)", isTRUE(abs(cb - cn) < 5),
        sprintf("cumulative CO2 2100 %.1f vs %.1f Gt (%+.1f; v5 +2.1 EU21 / +3.5 H12)", cb, cn, cb - cn))
 }
 
-say("\n== 2. rule B with the share path")
+say("\n== 2. Hold the price with the share path")
 common(path[["ruleB"]], "ruleB")
 for (k in c("ruleB", "ruleC")) {
   run <- path[[k]]; if (is.na(run)) next
@@ -129,7 +129,7 @@ for (k in c("ruleB", "ruleC")) {
                               signif(last$deltaAll %||% NA, 3), paste(vapply(h, function(e) e$alpha %||% NA_real_, 1), collapse = ",")))
 }
 
-say("\n== 3. rule C: the rebuild from the share path")
+say("\n== 3. Hold the budget: the rebuild from the share path")
 common(path[["ruleC"]], "ruleC")
 if (!is.na(path[["ruleC"]])) {
   bc <- rd(path[["ruleC"]], "p45_pfmBoundCheck_iter"); bc <- if (is.null(bc)) numeric(0) else as.numeric(bc); bc <- bc[bc != 0]

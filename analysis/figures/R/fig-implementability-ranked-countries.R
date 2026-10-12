@@ -10,11 +10,11 @@
 # sectors on one axis is the point - it makes visible that a country can sit near its ceiling
 # in electricity and far below it in buildings, which is the split the whole coupling turns on.
 #
-# ⚠️ ORDERING IS BY DIFFUSE, DELIBERATELY. Bulk slack ranks do not survive the robustness
-# battery (rank correlation 0.154 on the panel rung against 0.854 / 0.579 for Diffuse,
-# MODEL.md 3.4), so a country ordering driven by Bulk would be an unquotable claim drawn as a
-# figure. Diffuse orders the rows; Bulk points are plotted against that ordering for
-# comparison and must never be read as a Bulk ranking. TODO item 1.
+# ⚠️ ORDERING IS BY DIFFUSE, DELIBERATELY. Power & industry slack ranks do not survive the robustness
+# battery (rank correlation 0.154 on the panel rung against 0.854 / 0.579 for buildings & transport,
+# MODEL.md 3.4), so a country ordering driven by power & industry would be an unquotable claim drawn as a
+# figure. Buildings & transport orders the rows; power & industry points are plotted against that ordering for
+# comparison and must never be read as a power & industry ranking. TODO item 1.
 #
 # The `region` column holds ISO3 COUNTRY codes, not REMIND regions - a madrat convention.
 # This figure is therefore 48 countries, not 21 regions.
@@ -55,7 +55,7 @@ figImplementabilityRankedCountries <- function(group = "v5", year = NULL) {
 
   # renderSpec fixes the canvas height per medium, so 48 rows in one column collide into an
   # unreadable stack. Two columns halve the rows and double the label space; the split is at
-  # the median of the Diffuse ordering, so each column is a contiguous block of the ranking.
+  # the median of the buildings & transport ordering, so each column is a contiguous block of the ranking.
   half <- ceiling(nlevels(d$region) / 2)
   rank <- match(as.character(d$region), levels(d$region))
   # Top of the ranking on the LEFT, so the panel reads left-to-right, top-to-bottom like
@@ -81,12 +81,12 @@ figImplementabilityRankedCountries <- function(group = "v5", year = NULL) {
       subtitle = sprintf(paste0(
         "Efficiency ratio E = S/S* at %d (last estimated year), %d in-coverage\n",
         "countries. Dashed lines are sector medians. Rows are ordered by DIFFUSE —\n",
-        "the Bulk points are for within-country comparison, NOT a Bulk ranking."),
+        "the power & industry points are for within-country comparison, NOT a power & industry ranking."),
         year, length(unique(d$region))),
       x = sprintf("share of own estimated ceiling used, %d", year), y = NULL)
   attr(p2, "pfmGrid") <- "x"
   attr(p2, "pfmTheme") <- ggplot2::theme(
     axis.text.y = ggplot2::element_text(size = ggplot2::rel(0.72)),
     panel.spacing.x = grid::unit(1.0, "lines"))
-  pfmStamp(p2, group, note = "ordered by Diffuse; do NOT read a Bulk country ranking off this")
+  pfmStamp(p2, group, note = "ordered by buildings & transport; do NOT read a power & industry country ranking off this")
 }

@@ -2,7 +2,7 @@
 
 Date: 2026-08-24; closed 2026-09-15
 Status: **Closed by [ADR 0044](../docs/adr/0044-actor-power-share-and-per-capita-level.md) and
-[ADR 0045](../docs/adr/0045-extrapolation-gate-at-0275-and-declared-theta-sweep.md).** The deployed form on
+[ADR 0045](../docs/adr/0045-extrapolation-gate-at-0275-and-declared-theta-sweep.md).** The selected form on
 Run-Group `v5` is **`bothIncAP`** — innovator power as a share, incumbent power as **both** a
 share and a per-capita level — in `X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
 fe:OECDp`. The theory below is kept because it is the reason both incumbent terms are carried;
@@ -129,9 +129,9 @@ with their own coefficients and their own institution interactions. The differen
 Not a theoretical argument, but decisive when both constructs are defensible.
 
 Coefficients are estimated on 2000–2022 and applied to 2100. Measured when this note was written
-(2026-08-24), on the share-only specification then deployed, median over covered countries:
+(2026-08-24), on the share-only specification then selected, median over covered countries:
 
-| Incumbent index | median z at 2100 | Bulk ceiling ratio 2100/2025 |
+| Incumbent index | median z at 2100 | Power & industry ceiling ratio 2100/2025 |
 |---|---:|---:|
 | fossil PE **share** | **−4.76** | 0.637 |
 | fossil PE **per capita** | −1.08 | 0.877 |
@@ -144,10 +144,10 @@ further out.
 
 **Two secondary findings from the same runs.** (a) Capacity and capital add nothing over the flow
 level — the trajectories correlate 0.983 and the ceiling ratios are within noise, so the gain is
-share → level, *not* flow → stock. (b) Changing the innovator index alone moves Bulk 0.624 → 0.615,
+share → level, *not* flow → stock. (b) Changing the innovator index alone moves power & industry 0.624 → 0.615,
 i.e. nothing. The whole effect is on incumbent.
 
-Diffuse for completeness: 1.047 (share) → 1.158 (per capita). Already rising; not the problem
+Buildings & transport for completeness: 1.047 (share) → 1.158 (per capita). Already rising; not the problem
 sector.
 
 ---
@@ -160,7 +160,7 @@ per capita), `mixedAP` (innovator share, incumbent per capita), `bothIncAP` (inn
 incumbent share **and** per capita — nesting the other two) and the share-only `splitAP`.
 
 **1. Selection.** `bothIncAP` holds maximin ranks 1, 2, 3, 5, 6 and 7 of 4,392
-(`output/pfm/v5/sweep.rds`) and is deployed. Of the gate-passing specifications, 124 are `bothIncAP`,
+(`output/pfm/v5/sweep.rds`) and is selected. Of the gate-passing specifications, 124 are `bothIncAP`,
 96 `splitAPpc`, 81 `mixedAP`, 194 `splitAP`.
 
 **2. Resampling** (`output/pfm/v5/selection-bootstrap.rds`, 196 winners, top-60 pool). `bothIncAP` takes
@@ -170,7 +170,7 @@ any element; `splitAPpc` 17.3% against 26.7% ($p$ = .003); `mixedAP` 6.6%.
 **3. What the two incumbent terms say** (`output/pfm/v5/inference.rds`, mean regression, wild-cluster
 $p$; `output/pfm/v5/frontier.rds`):
 
-| term | Bulk mean ($p_{wild}$) | Bulk frontier | Diffuse mean ($p_{wild}$) | Diffuse frontier |
+| term | Power & industry mean ($p_{wild}$) | Power & industry frontier | Buildings & transport mean ($p_{wild}$) | Buildings & transport frontier |
 |---|---:|---:|---:|---:|
 | Incumbent Power, share (structural) | −0.193 (.418) | **−0.190** | **−0.173 (.030)** | **−0.130** |
 | Incumbent Power, per capita (instrumental) | **+0.489 (<.001)** | **+0.308** | +0.069 (.593) | **+0.132** |
@@ -185,7 +185,7 @@ incumbent share by a per-capita level). The data never favoured dropping the sha
 least-selected form (6.6% of bootstrap winners). The theory above anticipated the reason — structural and
 instrumental power are different channels — but the recommendation then chose one of them.
 
-**5. Costs to disclose.** Carrying both incumbent terms adds collinearity (deployed max VIF 3.41
-Bulk, 2.89 Diffuse — well inside the gate) and two extra interactions per institution. Sign
-agreement across seven estimators is weak in Bulk (4 of 15 terms, `MODEL.md` §2.5.1), and neither
+**5. Costs to disclose.** Carrying both incumbent terms adds collinearity (selected max VIF 3.41
+Power & industry, 2.89 buildings & transport — well inside the gate) and two extra interactions per institution. Sign
+agreement across seven estimators is weak in power & industry (4 of 15 terms, `MODEL.md` §2.5.1), and neither
 incumbent main effect is among the stable ones there.

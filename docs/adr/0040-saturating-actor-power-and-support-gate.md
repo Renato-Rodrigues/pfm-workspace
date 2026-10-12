@@ -12,16 +12,16 @@ driver-support guard introduced 2026-07-06 (R3).
 ## Context
 
 The 0.1/0.2 diagnosis (`docs/psm-ceiling-feedback-diagnosis.md`) established that
-two symptoms of the deployed model share one cause, and that the cause is
+two symptoms of the selected model share one cause, and that the cause is
 functional form rather than politics:
 
 1. The ambitious pathway *lowered* the political ceiling for 65–83% of countries.
-2. Projected Bulk stringency *declined* over the century (median 6.96 → 3.75),
+2. Projected power & industry stringency *declined* over the century (median 6.96 → 3.75),
    despite the index being an accumulating policy stock.
 
 Mechanism, measured:
 
-- The actor-power drivers are energy-system shares. Bulk innovator power spans
+- The actor-power drivers are energy-system shares. Power & industry innovator power spans
   **0.029–0.433** in training (95th percentile 0.225; only 1.4% of rows above
   0.30) and REMIND takes it to **0.58–0.68**.
 - The model is **linear** in that share, so its slopes — including the negative
@@ -60,7 +60,7 @@ xTilde = x / (x + xBar),     xBar = training MEDIAN of x
   Power Index is a difference (innovator − incumbent, ~[−0.8, 0.1]); "diminishing
   returns in a share" is undefined for it, so it is skipped with a warning and
   `sat = NA`.
-- **Swept as an axis**, not imposed: `psmSpecs()` appends `" satAP"` twins for
+- **Swept as an axis**, not imposed: `psmSpecs()` appends `" satAP"` variants for
   split-AP specs only. Linear originals keep their X-numbers.
 
 Substantive reading for the paper: *political power saturates in economic weight —
@@ -76,7 +76,7 @@ than at the empirical sample range.
 Rationale: the guard is load-bearing under the *linear* form because the marginal
 effect is constant, so a 4-SD extrapolation moves the linear predictor by 4 SD
 worth of slope. Under `x/(x+xBar)` the marginal effect decays as `1/(x+xBar)²` —
-measured, the projections sit **0.33–0.48 SD (Bulk) / 0.77–1.66 SD (Diffuse)**
+measured, the projections sit **0.33–0.48 SD (Power & industry) / 0.77–1.66 SD (Buildings & transport)**
 past the training max and **100% inside the physical domain**. Clamping them at
 the empirical max would winsorize both scenarios to the same edge and re-create
 the exact artifact the transform exists to remove.
@@ -93,7 +93,7 @@ New severe rule `extrapolationDominated`: reject a spec whose mean
 exceeds `supportShareGate` (default **0.25**). A spec whose projection in the
 evaluation window is mostly winsorized is scoring the guard, not the model.
 
-Calibrated, not guessed — measured on the deployed spec over 2040–2060:
+Calibrated, not guessed — measured on the selected specification over 2040–2060:
 
 | Form | responsiveness delta | mean `driverOutOfSupport` | gate outcome |
 |---|---:|---:|---|
@@ -128,8 +128,8 @@ diagnostic is how we tell whether it worked.
 - **Selection re-opens a fifth time.** After the Phase-0.5 re-sweep it is frozen:
   no further re-selection before submission.
 - Cost is bounded: linear specs hit the existing fit cache (the transform changes
-  the data hash *and* the cache key only for twins), so only the ~744 split-AP
-  twins × 2 sectors are new fits.
+  the data hash *and* the cache key only for variants), so only the ~744 split-AP
+  variants × 2 sectors are new fits.
 - Every number in `PSM_EQUATIONS.md` must be refreshed from the new Run-Group.
 
 ## What this does NOT fix (stated so it is not rediscovered)

@@ -1,4 +1,4 @@
-# Why rule C relocates less in v6: the constrained regions' carbon price, relative to the theta = 0 run,
+# Why hold the budget relocates less in v6: the constrained regions' carbon price, relative to the theta = 0 run,
 # over time, v5 against v6 (design note 0005 Phase 6 step 1).
 #
 # In v5 the share was held fixed after 2035, so the constrained regions kept a cheaper price to 2100 and
@@ -37,7 +37,7 @@ figV6PriceCatchup <- function(group = "v6", old = "v5", resolution = "EU21") {
     ggplot2::scale_x_continuous(breaks = c(2030, 2050, 2070, 2100)) +
     ggplot2::labs(title = if (is.null(old)) "The constrained regions' price catches up by about 2070"
                           else "In v6 the constrained regions' price catches up by about 2070",
-                  subtitle = paste0("Rule C, θ = 0.50, ", resolution, ": carbon price over the θ = 0 run's, by market.\n",
+                  subtitle = paste0("Hold the budget, θ = 0.50, ", resolution, ": carbon price over the θ = 0 run's, by market.\n",
                                     "Below 1, the region pays less than in the unconstrained run and emits more."),
                   x = NULL, y = "price relative to the θ = 0 run")
   attr(p, "pfmGrid") <- "y"

@@ -8,7 +8,7 @@ Accepted. Implemented in `pfm` (2026-08-23, `ceilingFallGate = 0.90` by default)
 Run-Group re-sweep of TODO item 0b.
 
 **Review flag (2026-10-07).** Kept for `v6`, but under the v6 coupling the ceiling path drives the
-strength factor, so this gate now decides the sign of Bulk $k$ for the specs it alone rejects (design
+strength factor, so this gate now decides the sign of power & industry $k$ for the specs it alone rejects (design
 note 0005 C9, §7a decision 8). Revisit it when the future projections are revised, in particular the
 institution projections informed by the PoliClim forecasts.
 
@@ -21,8 +21,8 @@ Selection admits a specification on how well it *fits* — the maximin worse-sec
 ΔR²(theory) tier, plus the gates of 0033, 0037, 0039 and 0040. Nothing in that ladder looks at
 what the fitted frontier then *does* over the projection horizon.
 
-Measured on Run-Group `v1` (`analysis/ceilingTrajectoryBySpec.R`), the deployed spec X-0370
-produces a Bulk frontier ceiling that runs **6.95 → 4.34 over 2025–2100 — a 38% fall, with 96%
+Measured on Run-Group `v1` (`analysis/ceilingTrajectoryBySpec.R`), the selected specification X-0370
+produces a power & industry frontier ceiling that runs **6.95 → 4.34 over 2025–2100 — a 38% fall, with 96%
 of covered countries losing ceiling.** The decomposition (`analysis/ceilingDecomposition.R`)
 attributes it almost entirely to **Incumbent Power × Government Effectiveness**, which carries a
 *positive* coefficient: the model has learned that powerful fossil incumbents plus a capable
@@ -39,7 +39,7 @@ derived as `cm_startyear + 5` (`iterativePFM.R:161`), and 38 of the 40 configure
 seed. Holding S\* flat at its first projected value and re-deriving $\varphi$
 (`analysis/frozenCeilingPhiTest.R`, H12, θ = 0.5) gives:
 
-| tierYear | Bulk max \|Δφ\| | Bulk median | Diffuse max \|Δφ\| | Diffuse median |
+| tierYear | Power & industry max \|Δφ\| | Power & industry median | Buildings & transport max \|Δφ\| | Buildings & transport median |
 |---|---:|---:|---:|---:|
 | 2025 (seed) | 0.000 | 0.000 | 0.000 | 0.000 |
 | **2035 (operational)** | **0.152** | 0.020 | **0.250** | 0.044 |
@@ -91,7 +91,7 @@ admit it.
 
 **`apTransform` is doing much of the work, but is not sufficient.** The same X-0418 *without*
 `satAP` gives 0.633 rather than 1.005, so ADR 0040's saturating form is load-bearing here. It is
-not enough on its own: the deployed spec is also `satAP` and still falls to 0.62.
+not enough on its own: the selected specification is also `satAP` and still falls to 0.62.
 
 **Selection is now conditional on a scenario.** The gate needs `scenarioData`; without it the
 sanity walk does not run and selection is unchanged. A sweep run without a scenario panel and one

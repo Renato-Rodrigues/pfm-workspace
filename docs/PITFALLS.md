@@ -123,7 +123,7 @@ which the real selection machinery does not use. Applying the same crude tiebrea
 
 Two lasting consequences: **check a verdict against the machinery that actually decides**, and
 remember that a maximin rank is decided on secondary criteria wherever the primary one ties. The
-deployed spec is rank 1 on `v5`, but it is not first on fit, on mean ΔR²(theory) or on minimum
+selected specification is rank 1 on `v5`, but it is not first on fit, on mean ΔR²(theory) or on minimum
 ΔR²(theory) taken alone (`MODEL.md` §2.4). Any selection-stability wording must say so.
 
 ## 9. Numbers must name their Run-Group
@@ -166,14 +166,14 @@ Ranked by how long they went unnoticed:
 | φ stuck at 1 | nothing — GAMS keeps the previous φ by design | `p45_pfmDelta`, the runtime log |
 | price explosion | the solve **succeeds** and the numbers look like results | `p45_pfmInfesCode = 1` |
 | year UEL `"y2030"` | loads, every record dropped | record count |
-| a diagnostic fitted on the wrong spec | nothing — the artifact carries the deployed spec's *name* (§14) | its BIC must match that spec's row in `sweep.rds$results` |
+| a diagnostic fitted on the wrong spec | nothing — the artifact carries the selected specification's *name* (§14) | its BIC must match that spec's row in `sweep.rds$results` |
 | a country-resolution group diagnosed at R54 | nothing — plausible output, wrong clusters | check the region/cluster count against the group's own |
 | a normalised quantity quoted at the wrong resolution | nothing — a plausible number, wrong by ~50% | θ-anchor §15; check `resolution` on the artifact |
 | a cached fit reused after the spec moved | nothing — the run completes on the old model | cache keys must include the spec (§14) |
 | the sector markup degrading to the old `min` | nothing — by design it falls back silently | `p45_pfmMarkupShare_iter`; the liveness abort (`COUPLING.md` §11.4) |
 | a unit mismatch between history and scenario | nothing until 2040 — the harmonisation offset hides it at the seam | compare both sides in physical units past 2040 (§28) |
 | a scenario gate whose input was never passed | `0 severe … PASS` — the gate simply is not there | `responsivenessGate` / `sanityGate` in `manifest.json` (§28) |
-| a cache key that misses a fit-changing field | twins silently share results; one of them "never wins" | the key function vs every spec field that differs between variants (§29) |
+| a cache key that misses a fit-changing field | variants silently share results; one of them "never wins" | the key function vs every spec field that differs between variants (§29) |
 | a scenario series exempt from harmonisation | a seam at the anchor year, only for some countries | `.pfmHarmoniseScenario` covers every shared series (§30) |
 | a lag counted in rows on a panel with uneven steps | nothing — the scenario reads 5- to 20-year-old drivers | the lag counts years since 2026-10-06; compare η on the annual-interpolated panel (§31) |
 | a nested call reading the panel definition from a global option | nothing — the coupling uses another IEA edition than the estimation | `iterativePFM()` sets `pfm.panel` for the call (§32) |
@@ -185,13 +185,13 @@ Ranked by how long they went unnoticed:
 
 When something looks fine, these are what to check first.
 
-## 14. An artifact labelled with the deployed spec is not proof it fitted the deployed spec
+## 14. An artifact labelled with the selected specification is not proof it fitted the selected specification
 
 The post-selection steps read `selected-models-pfm.yml`, stamp `cfg$name` onto their output, and
 then call the estimator with a **hand-written argument list**. That list omitted `apTransform`,
-so the estimator fell back to its `"linear"` default while the artifact carried the deployed
+so the estimator fell back to its `"linear"` default while the artifact carried the selected
 spec's name — which ends in `satAP`. `estimator-agreement.rds`, `iv.rds` and `influence.rds`
-therefore described a different model from the deployed one, with nothing anywhere reporting it.
+therefore described a different model from the selected one, with nothing anywhere reporting it.
 
 Two rules follow:
 
@@ -224,7 +224,7 @@ only as `influence.rds` reporting 36 clusters named `ANZ`/`BELUX` rather than 48
 code's own comment above the `pfm-agreement` call had warned about exactly this.
 
 **Audited 2026-08-17 — the estimator call sites are clean.** All six sites that fit from a
-deployed spec now forward `apTransform`, including `iterativePFM()`, which is the coupling
+selected specification now forward `apTransform`, including `iterativePFM()`, which is the coupling
 itself.  What the audit *did* find was the same family one level up: the ECM fit cached inside
 `iterativePFM()` was named by **sector alone**, so a spec or panel change could not invalidate
 it and a stale fit would be reused under the new spec's name. It is now content-addressed on
@@ -238,12 +238,12 @@ The anchor-by-analogy solves $1-\theta\bar u = \bar E$, where $u$ is the gap **n
 the units in the frame**. The number it returns depends on which units those are: over 48
 countries a few extreme single-country gaps stretch the min–max range, while aggregation to
 regions compresses it, moving median $u$ and therefore θ. When this was first measured the
-country-level Bulk value fell outside $[0,1)$ and read as a finding — *"no legal θ reproduces
-median Bulk efficiency"* — that evaporated at region resolution.
+country-level power & industry value fell outside $[0,1)$ and read as a finding — *"no legal θ reproduces
+median power & industry efficiency"* — that evaporated at region resolution.
 
 Nothing is wrong with either number. What is wrong is quoting one at the resolution of the
-other. On `v5`, at the region resolution the coupling assigns φ on, the analogy gives Diffuse
-0.328 and Bulk **1.019** — inadmissible at the resolution that matters, which is why it may be
+other. On `v5`, at the region resolution the coupling assigns φ on, the analogy gives buildings & transport
+0.328 and power & industry **1.019** — inadmissible at the resolution that matters, which is why it may be
 reported (`MODEL.md` §5.3).
 
 **The rule:** any quantity normalised by a min–max over units — $u$, gap position, tier
@@ -314,7 +314,7 @@ the run hit the cap; anything else is the iteration it settled at. Do not read i
 postsolve statement that applies it
 (`45_carbonprice/functionalForm/postsolve.gms:432-433`) sits *inside* the
 `if((cm_emiscen eq 9) AND (cm_iterative_target_adj eq 5/7/9), ...)` block that closes at line
-480. Every `adj = 0` run — `-PFMgateB`, `-PFMlevelB`, `-PFMmildProg` and **all NPi twins** —
+480. Every `adj = 0` run — `-PFMgateB`, `-PFMlevelB`, `-PFMmildProg` and **all NPi variants** —
 skips it entirely, and nothing in the config or the log says so.
 
 Measured on the 2026-08-17 batch: 0 of 280 region-years below the floor in the `adj = 9` family,
@@ -528,10 +528,10 @@ of the coupling reads it.
 
 | consumer | what it claimed | what it plotted / quoted |
 |---|---|---|
-| `SCENARIOS.md` §1.1 | "Diffuse is the binding sector in 45 of 48 countries (94%)" | the sector with the lower **`S/10`** |
+| `SCENARIOS.md` §1.1 | "Buildings & transport is the binding sector in 45 of 48 countries (94%)" | the sector with the lower **`S/10`** |
 | Fig 4b `fig-implementability-ranked` | subtitle: "Efficiency ratio E = S/S*" | `implementability`, i.e. **`S/10`** |
 
-On the correct measure the ordering reverses: on $E$ Bulk is the more constrained sector in most
+On the correct measure the ordering reverses: on $E$ power & industry is the more constrained sector in most
 countries (32 of 48 at 2022 on `v5`, claim C10), the opposite of the retracted claim.
 `MODEL.md` §3.4.2.
 
@@ -559,7 +559,7 @@ the §20 shape again: **runtime correct, offline reporting artifact wrong.**
 
 ## 23. `library(pfm)` on the workstation can be months older than the working tree
 
-**Local twin of §2** (the cluster installs from the git remote, so unpushed fixes are invisible
+**Local variant of §2** (the cluster installs from the git remote, so unpushed fixes are invisible
 there). Same failure, different library path.
 
 On 2026-08-25 `analysis/checks/propagateFrontierRungsToPhi.R` opened with `library(pfm)` and got the
@@ -723,7 +723,7 @@ over the cycle band, not at its last iteration.
 
 `PkBudg1000` is a **peak** budget: cumulative CO₂ may peak at 1000 Gt and then fall as emissions go
 net-negative. `pm_actualbudgetco2("2100")` is therefore not the budget test. On the `v5` batch the
-gap-closure rule-C runs end 2100 at 954 / 963 Gt with a peak of 998.6 / 1001.8 — the budget held,
+gap-closure hold-the-budget runs end 2100 at 954 / 963 Gt with a peak of 998.6 / 1001.8 — the budget held,
 the 2100 figure just looks 40 Gt short. The opposite trap is worse: H12 `-PFMratioMin` reads 1003.7 Gt
 at 2100 but keeps rising to **1068 Gt at 2150**, never peaking, and **`pm_pfmBudgetWarn` stayed 0**.
 The warning fires on `p80_globalBudget_absDev_iter` at the iteration cap; it did fire on EU21
@@ -736,7 +736,7 @@ The warning fires on `p80_globalBudget_absDev_iter` at the iteration cap; it did
 
 **The rule:** judge budget adherence on the maximum of `pm_actualbudgetco2` and its year
 (`coupled-runs.rds$peak`, `$peakYear`). A peak year at the horizon end is a failed budget whatever
-the 2100 figure or the warning says. Differences between rule-B runs, which have no budget, stay on
+the 2100 figure or the warning says. Differences between hold-the-price runs, which have no budget, stay on
 the 2100 figure. `TODO.md` item 32.
 
 
@@ -775,7 +775,7 @@ same negative values are also the likely source of `toolAggregateWeighted`'s
   from every estimation.
 - Every exclusion is reported at fit time: `[preparePanelData] excluding <n> row(s) for EST`.
 - When upstream is fixed, set `options(pfm.excludeCountries = character(0))`, refit, and compare
-  the deployed spec's coefficients with the current ones.
+  the selected specification's coefficients with the current ones.
 
 ## 28. History is EJ, a REMIND gdx is TWa — and a scenario gate that is not passed does not run
 
@@ -802,11 +802,11 @@ to 0.65. The implied energy per capita fits the unit exactly: Germany is 0.14 EJ
 What it broke (estimation, the frontier and the 2023 anchor read history only, so they are intact):
 - **every scenario panel since the per-capita forms entered (2026-08-24)**: `v5` and `v6`,
   offline and inside the coupled REMIND runs (`iterativePFM` builds the same panel). After 2040
-  any per-capita term carried no scenario signal. `v5`'s deployed `X-2079` has `Incumbent Power pc`
+  any per-capita term carried no scenario signal. `v5`'s selected `X-2079` has `Incumbent Power pc`
   in it;
 - **every scenario-side selection gate**, which scored projections built on those drivers. `v6`'s
-  deployed `X-1950 … splitAPpc` uses only per-capita actor power. Its ambitious and reference
-  projections differed by a median **0.004** (Bulk) and **0.001** (Diffuse) index points over
+  selected `X-1950 … splitAPpc` uses only per-capita actor power. Its ambitious and reference
+  projections differed by a median **0.004** (Power & industry) and **0.001** (Buildings & transport) index points over
   2040–2060, against `scenarioBlind`'s 0.05 (`v5`'s `X-2079`: 0.236 / 0.104). It passed
   `ceilingCollapse` most likely *because* its actor-power drivers went flat in both scenarios;
 - **`v5`'s `scenarioBlind` rejections of `X-1746` and `X-1743` (splitAPpc, ~0.005)**: most likely
@@ -841,28 +841,28 @@ defect. Only the retired model reads `Energy Intensity`, so it is left as it is.
 ## 29. A cache key must hold every field that changes the fit — the bootstrap's did not hold `apTransform`
 
 Found 2026-10-06 on Run-Group `v6`, whose selection bootstrap reported **0% wins and 0% gate passes**
-for the deployed `X-1791 … satAP`, while the same spec's resample refits all succeed.
+for the selected `X-1791 … satAP`, while the same spec's resample refits all succeed.
 
 `.pfmBootCacheKey()` hashed the spec's drivers, controls, FE and trend, but not `apTransform`. The
-four actor-power twins of a spec (`linear`, `satAP`, `satInn`, `satInc`) differ **only** there, so
-they shared one cache file per sector. The first twin computed wrote its 200 resample rows,
-labelled with its own name. Each later twin found that file, counted it as a full hit, and fed
-those rows into the re-ranking. In every resample the table therefore held one twin's rows several
-times and the other twins not at all. The sweep's own Fit Cache keys the twins correctly: their
+four actor-power variants of a spec (`linear`, `satAP`, `satInn`, `satInc`) differ **only** there, so
+they shared one cache file per sector. The first variant computed wrote its 200 resample rows,
+labelled with its own name. Each later variant found that file, counted it as a full hit, and fed
+those rows into the re-ranking. In every resample the table therefore held one variant's rows several
+times and the other variants not at all. The sweep's own Fit Cache keys the variants correctly: their
 full-sample results differ.
 
 What it invalidated (rankings across *different* specs are mostly unaffected; the comparison
-*between twins* is meaningless):
-- `v6` (both runs): every win share and gate-pass share of a spec whose twin was cached first,
-  the deployed one included, and the actor-power **transform** shares (e.g. "satInc 54% of wins").
-- ADR 0048's bootstrap figures for transforms and twins ("satInc 1.44×", "satAP 0.24×", the 6.5%
+*between variants* is meaningless):
+- `v6` (both runs): every win share and gate-pass share of a spec whose variant was cached first,
+  the selected one included, and the actor-power **transform** shares (e.g. "satInc 54% of wins").
+- ADR 0048's bootstrap figures for transforms and variants ("satInc 1.44×", "satAP 0.24×", the 6.5%
   of `X-1791 satInc`). See the erratum there.
 - `v5` (`MODEL.md` §6): the linear vs `satAP` comparison ("satAP 45.9% vs 43.3%", the modal winner
   `X-2010 satAP` at 12.2%). Channel-set and actor-power-form shares are approximately right.
 
 **The rules:**
 - The key includes `apTransform` (a spec without one is `linear`). This orphans every earlier
-  `pfmboot_` file, which is deliberate: any of them may hold a twin's rows.
+  `pfmboot_` file, which is deliberate: any of them may hold a variant's rows.
 - Cached rows must carry the spec's own name. A file whose rows name another model is ignored and
   refit, with a message, so a future key gap cannot relabel silently.
 - **Any new field that changes a fit goes into every cache key that covers that fit.** Grep for
@@ -885,8 +885,8 @@ scale. That moved the country's frontier at the anchor seam by up to 6 index poi
 **The rule:** every series the scenario panel shares with history is harmonised
 (`.pfmHarmoniseScenario`). A country with no history value keeps its projection. Derived series
 (the state-capacity principal component) are computed from the harmonised inputs. Effect on `v6`
-(seam test with the lag in years, §31): band-rule countries' seam, Bulk 95th percentile 1.93 → 0.93
-index points, maximum 6.2 → 1.65; Bulk $k$ +0.02 to +0.05 (`output/pfm/v6/phase1/lag-seam.rds`).
+(seam test with the lag in years, §31): band-rule countries' seam, power & industry 95th percentile 1.93 → 0.93
+index points, maximum 6.2 → 1.65; power & industry $k$ +0.02 to +0.05 (`output/pfm/v6/phase1/lag-seam.rds`).
 Scenario panels built before 2026-10-06 carry the seam. The coupling bound's panel cache is renamed
 `<group>-scen-ca-peEJ-harm.rds` so it can never read one.
 
@@ -907,9 +907,9 @@ EU21, institution-harmonised panels; `output/pfm/v6/phase1/strength.rds`; H12 wi
 
 | $k$ | row lag (before) | year lag (now) |
 |---|---|---|
-| Bulk PkBudg1000, 2050 / 2100 | 0.87 / 0.54 | 0.63 / 0.48 |
-| Bulk NPi, 2050 / 2100 | 1.37 / 1.10 | 1.09 / 0.92 |
-| Diffuse PkBudg1000, 2050 / 2100 | 0.78 / 0.71 | 0.91 / 0.73 |
+| Power & industry PkBudg1000, 2050 / 2100 | 0.87 / 0.54 | 0.63 / 0.48 |
+| Power & industry NPi, 2050 / 2100 | 1.37 / 1.10 | 1.09 / 0.92 |
+| Buildings & transport PkBudg1000, 2050 / 2100 | 0.78 / 0.71 | 0.91 / 0.73 |
 
 It also confounded the anchor-year seam test: the scenario side read another year than history.
 The C8 seam figures quoted before 2026-10-06 (Myanmar −6.6, Qatar +5.6) mix this lag with §30.
@@ -951,7 +951,7 @@ these would run, converge and report a v6 result while GAMS used something else:
 - **A period without a record loads as zero.** The scenario panel starts in 2010; REMIND's `ttot`
   starts in 1900. The R side completes the path over every `ttot` of the gdx (2025 value before,
   last value after). Do not filter the export to the scenario's years.
-- **`cm_pfmPhiPath = 0` on a v6 group.** Mode 1 and the rule-C rebuild then use the one-dimensional
+- **`cm_pfmPhiPath = 0` on a v6 group.** Mode 1 and the hold-the-budget rebuild then use the one-dimensional
   symbols, which carry the 2025 value: a constant share. The R side stops such a call (the runtime
   file carries `phiPath`), and `pfmPreflight(checks = "groups")` fails the row before submission.
   The reverse (a v5 group with 1) fails there too: GAMS would wait for a path that never comes and
@@ -960,12 +960,12 @@ these would run, converge and report a v6 result while GAMS used something else:
   scenario panel and weights would describe another world. The runtime file carries `ssp` and the R
   side stops.
 
-- **A variant Run-Group carrying its base's anchor.** An assignment twin is a copy of `output/pfm/v6`
+- **A variant Run-Group carrying its base's anchor.** An assignment variant is a copy of `output/pfm/v6`
   with only the donor step re-run; the copy also holds v6's `phi-anchor.rds`, whose ranking $u$ was
-  built from v6's assignment. Exported as it is, the twin couples exactly like v6. Since 2026-10-07
+  built from v6's assignment. Exported as it is, the variant couples exactly like v6. Since 2026-10-07
   `makeGroupVariants.R` deletes the copied anchor, rebuilds it (`pfm-anchor`) and stops if it equals
   the base's; `makeSpecVariantGroup.R` copies no anchor and prints a step list with `pfm-anchor` (the
-  export refuses a manifest that records the step without the file). A shape twin keeps the spec's
+  export refuses a manifest that records the step without the file). A shape variant keeps the spec's
   name, so the spec check in the coupling would not have caught a stale anchor.
 
 And one for reading results: a `v6` φ and a `v5` φ at the same θ are not the same severity (θ means
@@ -975,8 +975,8 @@ And one for reading results: a `v6` φ and a `v5` φ at the same θ are not the 
 
 On 2026-10-07 the fork moved from REMIND 3.7.0.dev29 to 3.7.1 (`remind_pfm` merge `41f21ec3b`; 343
 upstream commits; `v5-final` keeps the old state). Three consequences, all silent:
-- **Nulls compare within one version.** A θ = 0 run on 3.7.1 against a θ = 0 run on 3.7.0.dev measures
-  REMIND's drift, not the coupling. The Phase 3 null is gated against `-PFMgateRef` re-run on 3.7.1;
+- **No-politics references compare within one version.** A θ = 0 run on 3.7.1 against a θ = 0 run on 3.7.0.dev measures
+  REMIND's drift, not the coupling. The Phase 3 no-politics reference is gated against `-PFMgateRef` re-run on 3.7.1;
   `phase3Gate.R` reads `c_model_version` from every gdx and fails a mixed pair. For scale, the
   same-version `v5` pair `-PFMgate` / `-PFMgateRef` differs by at most $0.71 per `pm_taxCO2eq` cell.
 - **The scenario registry is a model version too.** `config.yml` `scenarios:` points at the `v5`

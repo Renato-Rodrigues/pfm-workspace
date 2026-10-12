@@ -73,7 +73,7 @@ figCoupledBudgetCost <- function(group = "v5",
       # computed, never asserted: this title once carried a previous batch's number
       title = sprintf("Political feasibility costs about %.0f-%.0f Gt CO₂", min(d$gap), max(d$gap)),
       subtitle = sprintf(paste0(
-        "Cumulative CO₂ 2020-2100 under the level cap, against its matched θ = 0 null on ",
+        "Cumulative CO₂ 2020-2100 under the level cap, against its matched no-politics reference (θ = 0) on ",
         "the same pinned price path, θ = 0.50.\nThe two region aggregations are independent and ",
         "differ by %.0f%% - agreement in size, not a replication."),
         agree),

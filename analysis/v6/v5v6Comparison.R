@@ -37,7 +37,7 @@ info <- lapply(c(OLD, NEW), function(g) {
 })
 names(info) <- c(OLD, NEW)
 
-# ── 2. selection statistics of the deployed spec ──────────────────────────────────────────────
+# ── 2. selection statistics of the selected specification ──────────────────────────────────────────────
 selStats <- do.call(rbind, lapply(c(OLD, NEW), function(g) {
   sw <- readRDS(file.path(gd(g), "sweep.rds")); r <- sw$results
   st <- if ("stage" %in% names(r)) r$stage else rep("PolicyStringency", nrow(r))
@@ -108,7 +108,7 @@ saveRDS(res, file.path(gd(NEW), "phase1", "v5-v6-comparison.rds"))
 
 options(width = 220)
 cat("\n== 1. panel and spec\n"); print(do.call(rbind, lapply(info, as.data.frame)), row.names = FALSE)
-cat("\n== 2. selection statistics of the deployed spec\n"); print(selStats, row.names = FALSE, digits = 3)
+cat("\n== 2. selection statistics of the selected specification\n"); print(selStats, row.names = FALSE, digits = 3)
 cat("\n== 3. institution and actor-power coefficients (frontier | satP, wild-cluster p, sign agreement over 7 estimators)\n")
 ck <- coefs[!grepl("_x_", coefs$term) & !grepl("Trend|Population|GDP|Hydro", coefs$term), ]
 print(ck[order(ck$sector, ck$term, ck$group), ], row.names = FALSE, digits = 3)

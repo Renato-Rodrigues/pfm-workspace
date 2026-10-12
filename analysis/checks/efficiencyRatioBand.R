@@ -70,7 +70,7 @@ for (sec in c("Bulk", "Diffuse")) {
   se <- sqrt(pmax(rowSums((mm[, keep, drop = FALSE] %*% Vb) * mm[, keep, drop = FALSE]), 0))
 
   # NOTE (2026-08-26, TODO 14f): before that date `fr$bySector[[sec]]$vcov` could not be
-  # trusted -- FRONTIER 4.1 returned a matrix 14.8x too large for v4 Bulk, which would
+  # trusted -- FRONTIER 4.1 returned a matrix 14.8x too large for v4 power & industry, which would
   # have made the band below ~15x too wide and the theta lower bound meaningless. It is
   # now recomputed from the likelihood's own Hessian and the artifact records the check
   # on `fr$bySector[[sec]]$vcovCheck`. An artifact with NO vcovCheck field predates the
@@ -127,7 +127,7 @@ for (sec in names(out$bySector)) {
               sec, x$year, x$medianWidth, x$designEffect, x$medianWidthClustered))
 }
 cat(sprintf("\npooled median width on E : ML %.3f   cluster-scaled %.3f\n", pooled, pooledC))
-cat(  "quoted in MODEL.md 5.3.1 (on S/10) : 0.214 Bulk / 0.153 Diffuse / 0.186 pooled\n")
+cat(  "quoted in MODEL.md 5.3.1 (on S/10) : 0.214 power & industry / 0.153 buildings & transport / 0.186 pooled\n")
 # The upper bound is READ FROM THE GROUP, not hard-coded. It was pinned at 0.135 -- a
 # `v1` number -- which silently mis-stated the verdict for any other Run-Group: on `v4`
 # the bound is 0.1717, and the empty/non-empty answer turns on exactly that difference.

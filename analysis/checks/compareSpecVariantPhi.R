@@ -106,7 +106,7 @@ compareSpecVariantPhi <- function(a = "v1", b = "v1-specalt", resultsDir = "outp
     say("\nwrote ", f)
   }
 
-  say("\n>>> CURRENT, v5 vs v5-specalt (Bulk pinned to X-1791, its per-sector optimum):")
+  say("\n>>> CURRENT, v5 vs v5-specalt (Power & industry pinned to X-1791, its per-sector optimum):")
   say(">>> Spearman 0.775, median |dphi| 0.0001, max 0.271 (IND), median rank shift 1 of 21,")
   say(">>> 2 of 21 unaffected, floor regions CHA+REF (v5) -> CHA+IND (v5-specalt). MODEL.md 5.3.0.")
   say(">>> READ IT AS A FEW BIG MOVES, NOT A SMALL BAND: the median is ~0, but IND -0.271,")

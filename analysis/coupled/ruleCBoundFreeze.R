@@ -1,19 +1,19 @@
-# Did the political cap follow the budget loop in the rule-C runs? One artifact that answers it.
+# Did the political cap follow the budget loop in the hold-the-budget runs? One artifact that answers it.
 #
 # Why this exists
 # ---------------
-# Rule C keeps budget forcing ON under a binding political cap (COUPLING.md 4). In bind mode 2 the
+# Hold the budget keeps budget forcing ON under a binding political cap (COUPLING.md 4). In bind mode 2 the
 # cap reaches GAMS as an ABSOLUTE price, P_ref + phi (P0 - P_ref), computed on the R side at the
 # anchor P0 of that call (presolve.gms loads p45_pfmPriceBound). R is called only on the
 # iterations in pfmIter up to phi convergence; after that the absolute bound is never recomputed,
 # while the budget iteration keeps rescaling the anchor. So the cap stops following the formula it
 # is documented by.
 #
-# Found 2026-09-21 on the rule-C severity arms (-PFMlevelCTh325/-Th675): at theta 0.325 the anchor
+# Found 2026-09-21 on the hold-the-budget severity sensitivity runs (-PFMlevelCTh325/-Th675): at theta 0.325 the anchor
 # doubles after the last call, the realised maximum price stays flat, the cap binds in every region,
 # pm_pfmInfesCode = 4 fires on every check, and the budget miss is constant for ~65 iterations.
 #
-# Rule B is unaffected by construction (budget forcing off, the anchor does not move).
+# Hold the price is unaffected by construction (budget forcing off, the anchor does not move).
 #
 # Output: output/pfm/<group>/coupling/rulec-bound-freeze.rds, one row per run, plus the per-iteration
 # traces. The paper reads it through paper-data; nothing here is quoted by hand.
@@ -48,9 +48,9 @@ scalar <- function(gdx, s) { d <- sym(gdx, s); if (is.null(d)) NA_real_ else as.
 # One level below each resolution folder, never recursive: gdxDir is ONE Run-Group's batch
 # (output/remind-runs/<group>/<resolution>/<run>/), and reading deeper would pick up anything nested below a run.
 dirs <- unlist(lapply(file.path(gdxDir, c("EU21", "H12")), list.dirs, recursive = FALSE, full.names = TRUE))
-# Ratio-mode runs (-PFMratio*) are included as the control: their price is rho * anchor, rebuilt in
+# Proportional-mode runs (-PFMratio*) are included as the control: their price is rho * anchor, rebuilt in
 # GAMS every iteration, so their realised price should follow the anchor after the last call. That
-# is the evidence that the held-budget price results (which are ratio-mode) are not affected
+# is the evidence that the hold-the-budget price results (which are proportional-mode) are not affected
 # (referee v08, M3).
 dirs <- dirs[grepl("PkBudg1000-PFM(level[BC]|ratio)", basename(dirs)) & file.exists(file.path(dirs, "fulldata.gdx"))]
 scen <- sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(dirs))
@@ -71,7 +71,7 @@ for (d in dirs) {
   diffB  <- iterSeries(g, "o45_diff_to_Budg")
   bind   <- iterSeries(g, "p45_pfmBindShare_iter")
   infes  <- iterSeries(g, "p45_pfmInfes_iter")
-  # Rule B runs have budget forcing off and carry no budget trace; fall back to the anchor's.
+  # Hold the price runs have budget forcing off and carry no budget trace; fall back to the anchor's.
   if (!length(diffB)) diffB <- setNames(rep(NA_real_, length(anchor)), names(anchor))
   it <- as.integer(names(diffB)); last <- max(it)
   # Length of the terminal stall: trailing iterations whose budget miss stays within 3 Gt of the

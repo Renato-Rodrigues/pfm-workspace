@@ -12,8 +12,8 @@
 # compare that gap across regions - which grouped bars make hard and a dual axis would make
 # impossible. The anchor is a reference rule, not a third series.
 #
-# Colour: pfmSectorColours(), unchanged - ETS is Bulk (electricity + industry), ES is
-# Diffuse (buildings + transport). Validated as a categorical pair (CVD dE 20.3 protan,
+# Colour: pfmSectorColours(), unchanged - ETS is power & industry (electricity + industry), ES is
+# Buildings & transport (buildings + transport). Validated as a categorical pair (CVD dE 20.3 protan,
 # 27.8 normal, both PASS), and identity is carried by direct labels as well as hue.
 
 figCoupledSectorSplit <- function(group = "v5",
@@ -82,7 +82,7 @@ figCoupledSectorSplit <- function(group = "v5",
                                 expand = ggplot2::expansion(mult = c(0.10, 0.10))) +
     # TITLE. Until 2026-09-14 this read "The political constraint lands on households, not on
     # industry". That was true of the lambda = 1 batch, where ES/ETS ran 0.907-1.019 and the
-    # sign was the same everywhere. It is NOT true at the deployed lambda = 0: the split is
+    # sign was the same everywhere. It is NOT true at the selected lambda = 0: the split is
     # three times wider and runs BOTH ways - 14 of 21 EU21 regions price households below
     # industry and 7 above, by up to 1.73x. The direction is region-specific, and that IS the
     # result. Every number in the subtitle is computed from the data, never asserted.

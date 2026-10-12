@@ -4,7 +4,7 @@
 mathematics is `MODEL.md`; the traps that cost whole runs are `PITFALLS.md`.*
 
 **Current state.** Both sides are built and the interface is verified against GAMS itself (§12).
-The Run-Group is **`v6`** (deployed spec `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
+The Run-Group is **`v6`** (selected specification `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
 fe:OECDp satAP`, `output/remind-inputs/v6/`), coupled through the **share path φ(t)** (§14; ADR 0049,
 0050, 0054) on REMIND 3.7.1. The `v6` batch is complete: 64 runs (46 EU21, 18 H12), all finished and
 admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v6/coupling/`. The `v5` version of this
@@ -19,11 +19,11 @@ What the `v6` batch established about the **interface** (`SCENARIOS.md` §3):
 
 - **The share path reaches GAMS and converges**: every θ > 0 run loads the path with formulation
   `v6-anchor` and converges on it in 2–15 calls, final change ≤ 0.0019 over the checkpoint years.
-- **Rule C's rebuild reproduces the R-side cap** to 9.1e-7 (`p45_pfmBoundCheck_iter`) at both
+- **The hold-the-budget rebuild reproduces the R-side cap** to 9.1e-7 (`p45_pfmBoundCheck_iter`) at both
   resolutions.
 - **The θ = 0 gate**: EU21 reproduces `-PFMgateRef` exactly (0 of 231 cells); H12 differs by at most
   \$1.57, identically in every region (the budget loop stopping elsewhere; waived and disclosed,
-  `SCENARIOS.md` §3.1). The held-price pinning holds within 2.2 Gt.
+  `SCENARIOS.md` §3.1). The hold-the-price pinning holds within 2.2 Gt.
 - **Markup written vs seen** differ only where the markup moved in the final iteration: the two are
   read in different iterations (`PITFALLS.md` §16).
 - **The detectors are operative**: `pm_pfmInfesCode = 0` in every coupled run. The extractor's
@@ -78,15 +78,15 @@ before every call and R overrides its own settings from it — no hand-kept copy
 | switch | meaning |
 |---|---|
 | `cm_pfmBindMode` | 1 ratio · 2 absolute cap · 3 mild progression (§4; **`v5` only**, retired in `v6`) |
-| `cm_pfmTheta` | coupling severity $\theta$; **0 is the uncoupled null** |
-| `cm_pfmConvTol` | convergence tolerance on $\varphi$. **0.002** since 2026-08-18; the 2026-08-17 batch used 0.01, at which the 2-call runs cross tolerance on their first comparison and can only *assert* convergence. Governs the PFM loop ONLY — it has no bearing on REMIND's budget-adjustment loop, which is what caps a rule-C run that does not converge (`SCENARIOS.md` §4.3, `TODO.md` item 17) |
+| `cm_pfmTheta` | coupling severity $\theta$; **0 is the uncoupled no-politics reference** |
+| `cm_pfmConvTol` | convergence tolerance on $\varphi$. **0.002** since 2026-08-18; the 2026-08-17 batch used 0.01, at which the 2-call runs cross tolerance on their first comparison and can only *assert* convergence. Governs the PFM loop ONLY — it has no bearing on REMIND's budget-adjustment loop, which is what caps a hold-the-budget run that does not converge (`SCENARIOS.md` §4.3, `TODO.md` item 17) |
 | `cm_pfmMaxPrice` | price-explosion guard, **US$/tCO2**. Until 2026-09-11 it was compared against a T$/GtC quantity, i.e. 272x too lax to ever fire (`TODO.md` item 16) |
 | `c_pfmIter` | which Nash iterations call PFM — disjoint from `c_edgeTransportIter` |
-| `cm_pfmSectorMarkup` | 1 = deliver Bulk/Diffuse as floor + per-market markups (§11) · **0 = collapse with `min`**, bit-identical to pre-ADR-0042 |
+| `cm_pfmSectorMarkup` | 1 = deliver power & industry / buildings & transport as floor + per-market markups (§11) · **0 = collapse with `min`**, bit-identical to pre-ADR-0042 |
 | `cm_pfmPhiPath` | **1 on every `v6` row**: load and apply the share path φ(t) (§14); 0 = the `v5` single share. The preflight fails a row whose value does not match its group |
-| `cm_pfmBoundRebuild` | 1 = rule C: rebuild the mode-2 cap every iteration from the live anchor and that period's share (§14) |
-| `cm_pfmAnchorFromGdx` | on = rule B: pin the anchor to another run's converged anchor (`path_gdx_carbonprice`, §11.7) |
-| `cm_pfmGapClosure` | **`v6`: always 0** — λ is out of the coupling (ADR 0050); a `v6` call exports λ = 0 whatever is set. In `v5`: **0 (deployed since 2026-09-11)** = the political gap PERSISTS, every gap-closure rate forced to zero · 1 = it closes at the frontier's estimated rates, the declared sensitivity (`startgroup=GAPCLOSE`). Reaches bind modes 1 and 2 **only** — §11.2b |
+| `cm_pfmBoundRebuild` | 1 = hold the budget: rebuild the mode-2 cap every iteration from the live anchor and that period's share (§14) |
+| `cm_pfmAnchorFromGdx` | on = hold the price: pin the anchor to another run's converged anchor (`path_gdx_carbonprice`, §11.7) |
+| `cm_pfmGapClosure` | **`v6`: always 0** — λ is out of the coupling (ADR 0050); a `v6` call exports λ = 0 whatever is set. In `v5`: **0 (selected since 2026-09-11)** = the political gap PERSISTS, every gap-closure rate forced to zero · 1 = it closes at the frontier's estimated rates, the declared sensitivity (`startgroup=GAPCLOSE`). Reaches bind modes 1 and 2 **only** — §11.2b |
 
 **What GAMS reports back** (read these, not only `o_modelstat`):
 
@@ -154,7 +154,7 @@ arguments, whose defaults read these R options. None of them plays any part in a
 | `pfm.couplingMapping` | `regionmapping_21_EU11.csv` | delivery resolution |
 | `pfm.gdxRegionMapping` | `regionmapping_21_EU11.csv` | the gdx's **own** native resolution (a property of the gdx, not a target) |
 | `pfm.couplingWeightScenario` | `"SSP2"` | SSP for the weight projection; **must match the gdx's SSP** |
-| `pfm.couplingWeightYear` | `2025` | year the weights represent, as in the deployed runs |
+| `pfm.couplingWeightYear` | `2025` | year the weights represent, as in the headline runs |
 | `pfm.couplingInstitutions` | `"storyline"` | institution rule of the scenario panel (`DATA.md` §5.4) |
 
 ---
@@ -189,21 +189,21 @@ shipped and produced a run that looked fine, most importantly `carbonprice` not 
 > against a genuinely-1000 Gt baseline.
 
 **The `v6` batch** (`SCENARIOS.md` §2 has every row and what it is for): the uncoupled 3.7.1 bases
-(`NPi2025`, `PkBudg1000`, `-PFMgateRef`), two nulls (`-PFMgate-v6` budget-held, `-PFMgateBfix-v6`
-price-held), rules B and C at θ 0.325 / 0.50 / 0.675 with institutions-held twins (wave 1, both
-resolutions), and the wave-2 arms (ranking, assignment, markup, shape, family B, formulation, κ),
+(`NPi2025`, `PkBudg1000`, `-PFMgateRef`), two no-politics references (`-PFMgate-v6` budget-held, `-PFMgateBfix-v6`
+price-held), both closures at θ 0.325 / 0.50 / 0.675 with fixed-institutions variants (first batch, both
+resolutions), and the second batch sensitivity runs (ranking, assignment, markup, shape, the innovators-only family, formulation, κ),
 mostly EU21. Start tags `V6W<wave><res>`, `<res>BASE`, and one tag per row added after its wave
 (`V6CEHOLD`); `submitPFM()` submits a tag after a preflight (`RUNNING.md` step 7c).
 
-**Three nulls, and they are not interchangeable**:
+**Three no-politics references, and they are not interchangeable**:
 
-| null | what it holds fixed | what a difference against it means |
+| no-politics reference | what it holds fixed | what a difference against it means |
 |---|---|---|
 | `-PkBudg1000-PFMgateRef` | `regiDiff = 0`, uniform price | the *interface* is wrong (§6.6) — not a finding |
-| `-PkBudg1000-PFMgate-v6` | `regiDiff = 11`, θ = 0, `adj = 9` | the effect of φ under a **held budget** (rule C, ratio mode) |
-| `-PkBudg1000-PFMgateBfix-v6` | `regiDiff = 11`, θ = 0, `adj = 0`, anchor pinned to `-PFMgate-v6` | the effect of the political **cap** on the budget path (rule B) |
+| `-PkBudg1000-PFMgate-v6` | `regiDiff = 11`, θ = 0, `adj = 9` | the effect of φ when the **budget is held** (hold the budget, proportional mode) |
+| `-PkBudg1000-PFMgateBfix-v6` | `regiDiff = 11`, θ = 0, `adj = 0`, anchor pinned to `-PFMgate-v6` | the effect of the political **cap** on the budget path (hold the price) |
 
-The `v5` nulls `-PFMgateB` (unforced anchor) and `-NPi2025-PFMgate` have no `v6` counterpart.
+The `v5` no-politics references `-PFMgateB` (unforced anchor) and `-NPi2025-PFMgate` have no `v6` counterpart.
 
 **Mixing resolutions in one model folder is safe**, for three reasons:
 
@@ -374,7 +374,7 @@ What to check:
 | emissions | **identical** to `-PkBudg1000-PFMgateRef` |
 
 Then work up the ladder: `-PFMratio` → `-PFMlevelC` → `-PFMgateB` → `-PFMlevelB` →
-`-PFMmildProg` → the NPi twins.
+`-PFMmildProg` → the NPi variants.
 
 ### 6.7 Failure modes
 
@@ -431,7 +431,7 @@ confusion the order defect was made of, so both are pinned by tests:
 | `p45_pfmMPPriceMkt` | 3 | `(ttot, all_regi, all_emiMkt)` |
 
 The four original defects, for the record: magpie matrix indexing (`pb[cbind(...)]` is invalid
-on a 3-D magpie); bind mode 2 running at a zero carbon price for iterations 1–14; the NPi twins
+on a 3-D magpie); bind mode 2 running at a zero carbon price for iterations 1–14; the NPi variants
 never reaching the solver (`carbonprice = functionalForm` needs a positive
 `cm_taxCO2_startyear`/`peakBudgYr`, a `path_gdx_ref`, and `cm_startyear > 2005`); and the gdx
 rank/order defect above.
@@ -512,7 +512,7 @@ and PkBudg1000 ($P^{\circ}$) gdxs recorded in `$refGdx` / `$optGdx`: 21 regions,
 
 | $\theta$ | median 2050 feasible price | 2050 shortfall vs cost-optimal | max regional shortfall |
 |---:|---:|---:|---:|
-| 0 (null) | \$228.7 | 35.5% | \$131.1 |
+| 0 (no-politics reference) | \$228.7 | 35.5% | \$131.1 |
 | 0.25 | \$221.6 | 37.5% | \$178.5 |
 | **0.50** (declared) | **\$215.1** | **39.4%** | **\$226.0** |
 | 0.75 | \$205.5 | 42.1% | \$273.5 |
@@ -528,7 +528,7 @@ the paths, not by the severity parameter; $\theta$ sets how far below the bound 
 > ⚠️ **At $\theta = 0$ the bound is not the cost-optimal path.** It still shows a 35.5% shortfall,
 > because the speed limit $\lambda$ binds even when $\varphi = 1$. The $\theta = 0$ **REMIND run**
 > reproduces the reference; the $\theta = 0$ **bound** does not. Two different objects — say which
-> one is meant wherever the null is discussed. Note also that inside REMIND at the deployed
+> one is meant wherever the no-politics reference is discussed. Note also that inside REMIND at the selected
 > `cm_pfmGapClosure = 0` the speed limit is off, and φ is read at 2035, not 2025.
 
 > ⚠️ **The offline grid is not the coupled sweep.** The bound sweeps 0 / 0.25 / 0.50 / 0.75 / 0.95 /
@@ -599,9 +599,9 @@ low — *in the direction that inflates the paper's headline*.
 $$P^{m} = \texttt{pm\_taxCO2eq} + \max\!\big(P^{\text{sector}(m)} - \texttt{pm\_taxCO2eq},\ 0\big)$$
 
 **Symmetric since 2026-08-17.** The first version added the markup on ETS only and set
-ES and other to zero. That capped the demand side at the Bulk price wherever **Bulk** was
-the worse sector — **14 of 48 countries** on the deployed frontier, discarding up to 0.30
-of Diffuse $\varphi$ (ISL 0.30, ZAF 0.27, RUS 0.21) — reintroducing on the other sector
+ES and other to zero. That capped the demand side at the power & industry price wherever **Power & industry** was
+the worse sector — **14 of 48 countries** on the selected frontier, discarding up to 0.30
+of buildings & transport $\varphi$ (ISL 0.30, ZAF 0.27, RUS 0.21) — reintroducing on the other sector
 exactly the information loss ADR 0042 exists to remove.
 
 > **The invariant:** floor + markup(*m*) reproduces market *m*'s own sector price
@@ -628,15 +628,15 @@ have required auditing all of them.
 
 | PFM sector | markets |
 |---|---|
-| Bulk (electricity + industry) | `ETS` |
-| Diffuse (buildings + transport) | `ES`, `other` |
+| Power & industry (electricity + industry) | `ETS` |
+| Buildings & transport (buildings + transport) | `ES`, `other` |
 
 `other` follows `ES` deliberately — REMIND's own convention
 (`47_regipol/regiCarbonPrice/postsolve.gms:409` does `other = ES`) and it matches the
 mapping this ADR states. Under the asymmetric version `other` silently kept the floor.
 
 Not a bijection: `sector2emiMkt` puts `indst` in **both** ETS and ES, so industry's ES
-slice receives the Diffuse price. Deliberate, and it errs toward *less* differentiation —
+slice receives the buildings & transport price. Deliberate, and it errs toward *less* differentiation —
 i.e. toward the old `min`.
 
 **Why `pm_taxCO2eq` is not simply zeroed** (the "put the whole price in `pm_taxemiMkt`,
@@ -657,7 +657,7 @@ coupled run**, which is why module 47 can take that route and the PFM cannot.
 Modes 2 and 3 receive finished **per-sector price paths** from R, built with
 `sectorRule = <sector>` and that sector's own $\lambda$. **Mode 1 rebuilds its path inside GAMS** from
 $\varphi$ and a rate, and originally reused `p45_regiDiff_lambda` — which, having come
-through `sectorRule = "min"`, is the **slower** speed (on `v5`: Diffuse 0.0769/yr against Bulk's
+through `sectorRule = "min"`, is the **slower** speed (on `v5`: buildings & transport 0.0769/yr against power & industry's
 0.1094/yr). The mode-1 markup therefore closed on the anchor too slowly for the faster sector.
 
 Fixed by exporting `p45_pfmLambdaMkt` and using it at the mode-1 branch. It defaults to
@@ -681,7 +681,7 @@ had come through nothing at all:
 So every coupled run up to and including the 2026-08-26/29 batch built the mode-1 **floor** at
 $\lambda = 0$ — `ratio(t) = φ`, flat for the whole horizon — while the markup block closed each
 market on the anchor at the per-sector rates. Fixed in code 2026-09-11 and then made moot by §11.2b:
-at the deployed setting every rate is zero by decision, so floor and markets agree trivially.
+at the selected setting every rate is zero by decision, so floor and markets agree trivially.
 
 **Be precise about what that broke; the obvious reading is wrong.** A market pays
 `pm_taxCO2eq + max(priceMkt − pm_taxCO2eq, 0)` = `max(floor, priceMkt)`, and `priceMkt` was always
@@ -692,7 +692,7 @@ them.** It moves the floor, up onto the same path. What was actually wrong:
 |---|---|
 | **(a)** | `pm_taxCO2eq` was the price nobody paid — yet `core/presolve.gms` turns it into `p_priceCO2forMAC`, so **every MAC curve, i.e. all non-CO₂ and process abatement**, priced off it. In the batch that exposed it, EU21 `-PFMratio` 2050 had a floor of roughly half the market prices, because the floor sat at φ while the markets had closed most of their gap. |
 | **(b)** | `pm_taxemiMkt` conflated a **speed** gap with a **sector** gap. Most of the markup was "λ_m > λ_floor = 0", not "this sector can bear more than the worse one", and the *binding* sector — whose markup is zero by ADR 0042's own invariant — carried a large one. |
-| **(c)** | the `-Min` twins were **not a clean counterfactual**: `cm_pfmSectorMarkup = 0` also moved λ from the per-sector rates to 0, so the markup-off comparison measured both changes at once. At the deployed `cm_pfmGapClosure = 0` every rate is 0 in both arms and the confound is gone. |
+| **(c)** | the `-Min` variants were **not a clean counterfactual**: `cm_pfmSectorMarkup = 0` also moved λ from the per-sector rates to 0, so the markup-off comparison measured both changes at once. At the selected `cm_pfmGapClosure = 0` every rate is 0 in both sensitivity runs and the confound is gone. |
 
 
 Fixed by giving the economy-wide rate the same treatment as every other coupled symbol:
@@ -711,12 +711,12 @@ markets' per-sector lookup cannot drift apart again.
 ### 11.2b `cm_pfmGapClosure` — λ is a declared switch, decided 2026-09-11
 
 The fix above did not settle whether the gap should close at all, and that question is worth
-more than the plumbing was. At the estimated Diffuse rate most of a region's political gap closes
+more than the plumbing was. At the estimated buildings & transport rate most of a region's political gap closes
 by mid-century, so φ = 0.50 ends up paying close to the full anchor; at λ = 0 it keeps paying
 0.50 × anchor. **DECIDED: the gap PERSISTS (`cm_pfmGapClosure = 0`), with the estimated rates run
 as a declared sensitivity (`GAPCLOSE`)**, because the estimate cannot carry the claim — neither
 two-sector rate beats persistence (−0.180 / −0.698 on `v5`) and a placebo battery on panels with
-*no adjustment by construction* returns λ̂ = 0.291 / 0.104 on the deployed right-hand side, above
+*no adjustment by construction* returns λ̂ = 0.291 / 0.104 on the selected right-hand side, above
 or around the estimates 0.1094 / 0.0769 (`MODEL.md` §4.3.2).
 
 **Validated on the `v5` batch.** `-PFMmildProgGapC` is **identical** to `-PFMmildProg` at both
@@ -741,9 +741,9 @@ at each call site rather than implied. Getting it wrong in either direction is s
 would still solve and still report a number. `TODO.md` item 1e-a.
 
 > ✅ **The `v5` batch is the first full batch on the fix** with `cm_pfmGapClosure` set explicitly in
-> every row, so the `-Min` twins are a clean markup-off counterfactual: markups and
+> every row, so the `-Min` variants are a clean markup-off counterfactual: markups and
 > `p45_pfmPhiMktSpread` are exactly 0 in all six, and the markup buys back 17.7% (EU21) / 21.6% (H12)
-> of the rule-B cost (`SCENARIOS.md` §4.5).
+> of the hold-the-price cost (`SCENARIOS.md` §4.5).
 
 ### 11.3 Load guards — freshness, not positivity
 
@@ -751,9 +751,9 @@ The economy-wide loads guard each element on `> 0`, because *their* failure mode
 "revert to $\varphi = 1$", i.e. silently uncoupling a coupled run, and no legitimate
 economy-wide $\varphi$ is ever 0.
 
-**Neither holds for the Bulk companions.** $\varphi^{\text{Bulk}} = 0$ is a legitimate value
-($\theta \to 1$ with Bulk at the bottom of the gap distribution), and `> 0` would discard it
-and fall back to the floor — reading a *maximally* constrained Bulk sector as an
+**Neither holds for the power & industry companions.** $\varphi^{\text{Bulk}} = 0$ is a legitimate value
+($\theta \to 1$ with power & industry at the bottom of the gap distribution), and `> 0` would discard it
+and fall back to the floor — reading a *maximally* constrained power & industry sector as an
 unconstrained one, the wrong direction. So the companions are gated on the **iteration
 stamp** the R side echoes back (`p45_pfmFresh`), which answers the question `> 0` was really
 asking — *is this gdx this call's?* — without conflating it with the value being zero. This
@@ -805,7 +805,7 @@ without this ADR — they are simply incompatible with a coupled run.
 
 ### 11.7 Pinning the anchor from another run — `cm_pfmAnchorFromGdx` (added 2026-09-17)
 
-The quantity headline (`TODO.md` 14g) needs rule B on the price path that **holds** the budget,
+The quantity headline (`TODO.md` 14g) needs hold the price on the price path that **holds** the budget,
 with nothing allowed to raise it. `cm_regiExoPrice_fromFile` is the obvious tool and the wrong
 one: it overwrites the *regional* price in `47_regipol` postsolve and zeroes `pm_taxemiMkt`, which
 erases φ and the markup (§11.5). `cm_pfmAnchorFromGdx` takes the idea and applies it to the anchor
@@ -841,7 +841,7 @@ full REMIND run** — `-PFMgateBfix` reproducing `-PFMgate` is that test.
 Diagnostics written every iteration: `p45_pfmMarkupShare_iter` (share of region-periods with
 a positive markup) and `p45_pfmMarkupMean_iter` (mean markup, T$/GtC). A share near 0 means
 the markup is doing nothing — either the switch is off, the companions are not arriving, or
-Bulk is genuinely the worse sector everywhere.
+Power & industry is genuinely the worse sector everywhere.
 
 ---
 
@@ -907,11 +907,11 @@ it is right.
 
 ## 13. Test overrides of the feasibility share — `phi-override.yml` (added 2026-09-23)
 
-**What it is for.** Two questions the paper cannot answer from the deployed runs (paper gap plan
+**What it is for.** Two questions the paper cannot answer from the headline runs (paper gap plan
 GP-23, GP-24): what does the *estimated* ordering add to either coupled result, and does the
-held-budget result depend on China's 2035 reading? Both need coupled runs whose shares carry no
+hold-the-budget result depend on China's 2035 reading? Both need coupled runs whose shares carry no
 estimated information, or one region's share replaced, with everything else — energy-system feedback,
-severity, bind mode, level-cap bound — computed exactly as in the deployed run.
+severity, bind mode, level-cap bound — computed exactly as in the headline run.
 
 **How.** A Run-Group may carry `phi-override.yml`. `pfm::iterativePFM()` (pfm ≥ 0.4.1,
 `R/pfmPhiOverride.R`) applies it to `feas$phi` — the per-sector regional share — right after it is
@@ -919,7 +919,7 @@ computed and before the economy-wide share, the per-market shares and the mode-2
 so every symbol GAMS loads sees the same values. No file, no change. `preparePFM.R` copies the file
 into the run folder when present and prints `PHI OVERRIDE in this Run-Group: …` in the run log; the
 coupling prints `PHI OVERRIDE (…)` on every call. A run with an override must never be read as a
-deployed run — the group name and the log line are the markers.
+headline run — the group name and the log line are the markers.
 
 | mode | effect | groups |
 |---|---|---|
@@ -932,12 +932,12 @@ the yml; nothing is re-estimated. Scenario rows: start tags `<res>GP24` (`-PFMle
 `-permuted1..3`, `-PFMlevelC-uniform`, `-permuted1`) and `<res>GP23` (`-PFMlevelC-allmedian`,
 `-alllow`, `-chinaseed`).
 
-The same script builds the **assignment-rule twins**. They are real Run-Groups, not overrides: the
+The same script builds the **assignment-rule variants**. They are real Run-Groups, not overrides: the
 group is a copy of the base with only the donor step re-run. `-usadonor` and `-usalow` change the
 USA's basis; `-allmedian` and `-alllow` put every uncovered country on one band. `-nearest`
 (2026-10-06, design note 0005 §7a decision 3) matches every uncovered country to its nearest donors,
 with no "none" class (`runPFMDonorAssumptions(qualityQuantiles = c(0.5, Inf))`; the USA keeps its
-median override). The base defaults to `v5`; `PFM_VARIANT_BASE=v6` builds `v6-…` twins (the
+median override). The base defaults to `v5`; `PFM_VARIANT_BASE=v6` builds `v6-…` variants (the
 China-seed groups exist for `v5` only).
 
 **Caveats.** Under `uniform` there is no floor region and no least-constrained region: every region
@@ -951,7 +951,7 @@ follows its donor's feedback, not its own.
 > **Status:** implemented on both sides, verified offline, and **run in REMIND: the Phase 3 gate of
 > design note 0005 passed on 2026-10-08** (batch `EU21V371`, REMIND 3.7.1; `analysis/v6/phase3Gate.R
 > output/remind-runs/v6/EU21`, 18 of 18 checks). The θ = 0 null reproduces `-PFMgateRef` exactly (0
-> of 231 price cells differ; 1000.91 Gt both); rule B (`-PFMlevelBfix-v6`) converges in 7 calls, rule
+> of 231 price cells differ; 1000.91 Gt both); hold the price (`-PFMlevelBfix-v6`) converges in 7 calls, rule
 > C (`-PFMlevelC-v6`) in 8 with `p45_pfmBoundCheck_iter` at most 9.1e-7. A call takes 56–59 s first and
 > about 30 s after on the cluster (E17). **The full `v6` batch ran on it (2026-10-10)**: 64 runs at EU21
 > and H12, all admitted (`SCENARIOS.md`).
@@ -990,7 +990,7 @@ carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v
 - presolve loads both paths, gated on the freshness stamp and on the symbol being present;
 - mode 1: the ratio **is** the path, $\varphi(t)$ · anchor, and each market's price is its own path
   · anchor (presolve and the postsolve Step III.3 mirror);
-- mode 2 rebuild (`cm_pfmBoundRebuild = 1`, rule C): the target of each period uses that period's
+- mode 2 rebuild (`cm_pfmBoundRebuild = 1`, hold the budget): the target of each period uses that period's
   share (presolve and the postsolve Step IV.4 mirror);
 - mode 3 is retired from v6: the R side stops a v6 call in mode 3;
 - the runtime file carries `ssp` and `phiPath`, so the R side stops on an SSP mismatch (D9) and on a
@@ -998,7 +998,7 @@ carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v
 
 **Options** (`pfm::pfmV6CouplingDefaults()`; scenario columns, written into `pfm-coupling.yml` by
 `preparePFM.R` only when set): `pfmFormulation`, `pfmPhiHoldYear` (2100 | 2060), `pfmPhiHold`
-(logit | ratio = E-hold), `pfmPhiSpread` (k | model), `pfmPhiOrdering` (model | uniform | reversed |
+(logit | ratio = constant limit), `pfmPhiSpread` (k | model), `pfmPhiOrdering` (model | uniform | reversed |
 permuted), `pfmPhiOrderingSeed`, `pfmPhiKappa` (closure on the strength), `pfmPhiStrength`
 (common | regional). Each is echoed in the log. `phi-override.yml` is refused for v6 groups: the
 ordering tests are the `pfmPhiOrdering` option, which keeps $k(t)$.
@@ -1014,9 +1014,9 @@ whose price the ratio holds below the anchor).
 
 **Verified offline (2026-10-07).**
 - A v6 call on the v6 export and the `v5` EU21 PkBudg1000 gdx (`analysis/v6/couplingOffline.R`, 25 s) gives
-  a share path identical to Phase 1's (756 values, difference 0) and Bulk $k$ 0.629 / 0.481 in 2050 /
+  a share path identical to Phase 1's (756 values, difference 0) and power & industry $k$ 0.629 / 0.481 in 2050 /
   2100. Re-run on the REMIND 3.7.1 PkBudg1000 base (2026-10-08, `refreshBases.R`): difference 0
-  again, Bulk $k$ 0.629 / 0.488.
+  again, power & industry $k$ 0.629 / 0.488.
 - A GAMS harness loading that gdx: the mode-1 ratio equals the path exactly, and the rebuild target
   uses each period's share.
 - `pfmReplayInterface()` with the path symbols: positive replay OK, negative control caught.

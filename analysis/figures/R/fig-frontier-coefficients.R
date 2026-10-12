@@ -12,21 +12,21 @@
 # The visible consequence was that the trend at 10.3 compressed every political term into an
 # unreadable sliver at zero, and a reader comparing 10.3 against Government Effectiveness's
 # 0.26 would conclude the trend is ~39x the largest institutional channel. On a common footing
-# it is ~3x in Bulk and ~1x in Diffuse. Do not revert.
+# it is ~3x in power & industry and ~1x in buildings & transport. Do not revert.
 #
 # REFERENCE VALUES, for anyone reading this file rather than the plot. Deliberately NOT drawn
 # on the figure - the plot carries positions, the documents carry numbers (MODEL.md 8.5,
 # claims C25). Run-Group v1:
 #
 #            raw beta   SD(x)    contribution   GovEff contribution   ratio
-#   Bulk      10.279    0.0796      0.818              0.264          3.10x
-#   Diffuse    5.124    0.0796      0.408              0.389          1.05x
+#   Power & industry      10.279    0.0796      0.818              0.264          3.10x
+#   Buildings & transport    5.124    0.0796      0.408              0.389          1.05x
 #
-#   trend share of linear-predictor variance: 0.658 Bulk / 0.405 Diffuse (MODEL.md 2.4)
-#   shift across the estimation window:       2.63 logits Bulk / 1.31 Diffuse
+#   trend share of linear-predictor variance: 0.658 power & industry / 0.405 buildings & transport (MODEL.md 2.4)
+#   shift across the estimation window:       2.63 logits power & industry / 1.31 buildings & transport
 #
 # Two design obligations beyond the usual:
-#   1. interactions must be visually separable from main effects, because on the Bulk side the
+#   1. interactions must be visually separable from main effects, because on the power & industry side the
 #      whole story is in the interactions and neither actor-power MAIN effect is significant;
 #   2. the intercept is dropped — not interpretable here and it dominates the scale.
 #

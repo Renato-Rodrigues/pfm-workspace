@@ -11,7 +11,7 @@
 #
 # Dying was the LUCKY outcome. A stale install that merely lacks a later refinement
 # runs to completion and writes a plausible artifact from a specification nobody is
-# looking at. This is the local twin of PITFALLS 2 (the cluster installs from the git
+# looking at. This is the local variant of PITFALLS 2 (the cluster installs from the git
 # remote, so unpushed fixes are invisible there).
 #
 # So: prefer the source tree, and always ANNOUNCE which build was used, because the
