@@ -142,8 +142,8 @@ outside it. IDs such as E13 or D17 refer to that note.
      follows the specification family** (Bulk in 15 of 21 EU21 regions under family A, 3 of 21 under
      family B, `SCENARIOS.md` §6.2a), so no sector story can be a headline; and US numbers stand on a
      negative reference price (REMIND's own `NPi2025` input, §6.1). Step 6, the deposit.
-     **The candidate spines are written up in design note 0006** (2026-10-12): five frames and six further
-     messages, with the persistence ladder (`analysis/v6/persistenceLadder.R` →
+     **The candidate spines are written up in design note 0006** (2026-10-12): eight frames, each with its
+     evidence, with the persistence ladder (`analysis/v6/persistenceLadder.R` →
      `output/pfm/v6/coupling/persistence-ladder.{rds,json}`) as their common evidence. Recommended: frame 2,
      today's politics versus tomorrow's. Before writing, two small batches (matrix rows added 2026-10-12):
      - 🟠 **`V6BACK`** (EU21, 2 runs, rules B and C): backsliding, today's strength growing. **The rate is
