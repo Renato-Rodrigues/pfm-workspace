@@ -1,6 +1,7 @@
 # 0005 — v6: implementation plan for the model, the coupling and the next paper version
 
-**Status: Open — plan agreed, nothing implemented.** It turns `../communication/methodology/PFM-Methodology.docx`
+**Status: Open — Phases 0–5 done; Phase 6 in progress.** §0a (2026-10-12) lists what is still to do,
+what was dropped and what is deferred; read it first. It turns `../communication/methodology/PFM-Methodology.docx`
 ("Next implementation steps" 1–5) into an ordered work plan. It also folds in the open referee
 points from `papers/pfm-paper-v5/`, the defects found in the current code, and the refactors that would make
 coupled runs easier to set up and submit.
@@ -59,6 +60,86 @@ The work is front-loaded with things that are cheap and decisive:
 | **4** | Run tooling: scenario matrix → generated config, preflight, submit wrapper, post-batch stage | workstation (in parallel with 3) | the v6 batch config is generated, not hand-edited |
 | **5** | Coupled batch `v6`: SSP2 core → sensitivities → SSP1 / SSP3 | cluster | every run converged or admitted by the §25a rule |
 | **6** | Analysis, figures, governed docs, ADRs, new paper workspace (replaces `papers/pfm-paper-v5`), deposit | workstation | `paper-check` READY on the first v6 draft |
+
+---
+
+## 0a. Status review (2026-10-12): what is still to be done
+
+Reviewed against the code, the artifacts and `TODO.md` on 2026-10-12. Since that day the `v6` paper
+reports `v6` only (§7b), which retires the items whose point was a `v5` → `v6` comparison in the paper.
+The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ deferred, 🟠 / 🟢 open.
+
+| phase | status |
+|---|---|
+| 0 — rename, unblock, clean | ✅ 2026-10-02 |
+| 1 — offline prototype | ✅ 2026-10-07 (anchor artifact, offline headline, spec band, ceiling gate, ADR drafts) |
+| 2 — data and estimation, Run-Group `v6` | ✅ 2026-10-06 (`v6`, `v6-annual`; Bulk γ accepted) |
+| 3 — coupling code | ✅ gate passed 2026-10-08 (EU21); H12 check 17 of 19, waived and disclosed 2026-10-10 |
+| 4 — run tooling | ✅ F1–F4, F6–F9; F5 open (optional) |
+| 5 — the coupled batch | ✅ 2026-10-10 (64 runs), plus the rule-C static-share run 2026-10-11 (65). Two follow-up batches set up 2026-10-12 (below) |
+| 6 — analysis, documents, paper | steps 1–4 ✅; step 5 (the paper) waits for the spine; step 6 (the deposit) after it |
+
+**Open, in order** (🟠 needed for the paper, 🟢 improves it, ⚪ optional):
+
+1. 🟠 **Choose the spine** (author). The candidates are in design note 0006; recommended: today's politics
+   versus tomorrow's, led by "net zero slips unless politics changes".
+2. 🟠 **`V6PERSH12`**, 4 H12 runs: the static-share and central-κ arms under both rules, so the
+   persistence ladder is not EU21 only. Ready to submit (`RUNNING.md` step 7c).
+3. 🟠 **`V6BACK`**, 2 EU21 runs: backsliding, today's strength growing (κ < 0, accepted by `pfm` since
+   2026-10-12). The rate is the author's to declare; it stays at the proposed −0.005 a year for now.
+4. 🟠 **When they land:** `runCoupledStage.R v6`, `ruleCRelocationDecomp.R`, `persistenceLadder.R v6`;
+   update 0006.
+5. 🟠 **Phase 6 step 5, the paper workspace (D19, amended by §7b).** Scaffold it **without** the `v5` v18
+   draft as text: that draft is built on the `v5` specification and results. Port only what is
+   version-independent: the literature (with item 35's sources), the glossary, the drafting rules.
+   Write Methods fresh for the `v6` formulation (D-A1…A7), with the held-budget arithmetic (D-M2 (i))
+   and the sector-ordering caveat (D-M4). *The amendment needs the author's confirmation.*
+6. 🟠 **The paper's figures, `v6` only.** The ladder under both closures; the peak-year / net-zero figure
+   if frame 6 leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
+   C10). Three of the four coupled figures of 2026-10-10 (`v6-coupled-theta`, `v6-rulec-relocation`,
+   `v6-price-catchup`) show `v5` beside `v6` and need `v6`-only versions for the paper.
+7. 🟠 **The deposit** (D-M3, Phase 6 step 6): a Zenodo archive at tags of `pfm`, `mrpfm`, the fork and the
+   project repo, with the `v6` artifacts, the batch manifests and the `v6` input archive of 2026-10-10
+   (copy it off the cluster).
+8. 🟢 **C10:** the out-of-support share per year beside each coupled $k_s(t)$. It is measured offline
+   (11% of weighted drivers by 2100, `MODEL.md` §5.2), not yet per coupled run.
+9. 🟢 **D-GP8 / GP-11 / GP-13 on `v6`:** the income screen, the GovEff correlate of the shortfall and the
+   residual ordering. The scripts exist (`analysis/checks/incomeScreen.R`, `orderingChecks.R`,
+   `residualOrderingPhi.R`), but no `v6` output does. Needed if the paper keeps the frontier claims they
+   defend.
+10. 🟢 **G2:** close 0004 (its ADRs 0049, 0052 and 0053 are accepted); close 0006 with the spine and this
+    note at the end of Phase 6.
+11. 🟢 **G3, the rest:** `CONTEXT.md` lacks the `v6` terms (anchor year, strength factor, logit hold,
+    static share, persistence, backsliding); `PRESENTATION.md` is rewritten once the spine is chosen.
+12. 🟢 **G4, the rest (author):** the v6 methodology document's *Against v5* and *What changed from v5*
+    sections. Under §7b, remove them or mark them as internal background.
+13. 🟢 **Workstation housekeeping:** the installed `pfm` is older than the repository
+    (`tools/setup.sh --install --no-cache`); `test-couplingV6.R:101` expects Bulk $k_{2100}$ 0.4809 and
+    gets 0.4884 since the scenario panel was rebuilt on 2026-10-08 (the same with the code before the κ
+    change).
+14. 🟢 **F5:** promote the reproduction-chain scripts into `pfm`. The deposit can ship `analysis/` as it
+    is, so this improves the deposit but does not block it.
+15. ⚪ **C11:** the price–efficiency elasticity, a separate workstream.
+
+**Dropped (⛔), and why:**
+- **D-GP20 / GP-26** (report the `v5` → `v6` ordering change in the paper) and **E7** (name `v5`'s
+  inconsistency there): the paper does not report `v5` (§7b).
+- **Phase 6 step 1 and §8**, the `v5` → `v6` contrasts: done, and kept as the internal record of why the
+  formulation changed. They are not paper material, and the risk row "the headline moves a lot from `v5`"
+  no longer leads to a contrast in the paper.
+- **E25 for `v5`** (fetch the shared-cache files `v5`'s runs read): not needed for the `v6` paper. `v5`
+  stays frozen at its `v5-final` tags; fetching them is optional archival.
+- **B7** (mark the `v5` sections of the methodology document): replaced by item 12.
+- **The `v5`-manuscript minors of D-m1…m10**: the near-1:1 point in Fig. 1b, the rule that moves the cost
+  by 8.3%, the stale claims header and `REPRODUCE.md` paths. The general ones carry into the new
+  workspace's drafting checklist: one denominator per share, the convergence-audit criterion, roundings at
+  the bundle's precision, an abstract of at most 150 words with no undefined terms, a relabelled limits
+  list, both resolutions where a number has two.
+- **E6**: superseded by the anchor artifact (C6).
+
+**Deferred (⏸) beyond this paper:** the SSP axis (A1d, wave 3, φ(t) fans by SSP; §7a decision 7); the
+PoliClim-informed institution projections, after which the ceiling-fall gate is revisited (§7a decision
+8); version control for `../communication/` (E4; the new paper workspace is its own repository).
 
 ---
 
@@ -412,23 +493,25 @@ next to an unexplained drift in every contrast. The gate reuses `COUPLING.md` §
 
 ## 3. Master checklist — every item this plan must cover
 
-Each item names the phase that closes it (P0–P6) and its source.
+Each item names the phase that closes it (P0–P6) and its source. **Status marks of 2026-10-12** (§0a
+gives the reason for each): ✅ done, ⛔ dropped, ⏸ deferred, 🟠 open and needed for the paper, 🟢 open
+and improving it. Items ticked earlier keep their own notes.
 
 ### A. The methodology document's own "Next implementation steps"
 
-- [ ] **A1 — Next step 1: the anchored gap with mean-gap strength.** Implement $q$, $u$, $G_s$,
+- [x] ✅ **A1 — Next step 1: the anchored gap with mean-gap strength.** Implement $q$, $u$, $G_s$,
       $k_s$, φ(t) in R (P1 prototype, P3 coupling), with the checkpoint convergence rule and the
       all-period diagnostic (D5). Run held-price and held-budget at both resolutions (P5).
-- [ ] **A1a — time horizon:** no hold year in the central case; hold-2060 as the sensitivity (D6;
+- [x] ✅ **A1a — time horizon:** no hold year in the central case; hold-2060 as the sensitivity (D6;
       P5). Revise `MODEL.md` §7 through ADR 0052.
 - [x] **A1b — stability and damping:** damping in R, logged, used only on oscillation (D5; P3).
       ✅ Code 2026-10-07 (`.pfmV6Damp`), awaiting the Phase 3 gate runs.
 - [x] **A1c — interface changes:** history file stores φ(t) and $k_s(t)$ per call; time-indexed
       φ for ratio mode and the rule-C rebuild (D14; P3). ✅ Code 2026-10-07 (`COUPLING.md` §14).
-- [ ] **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI arm (D11; P5).
+- [ ] ⏸ **A1d — SSP level and spread:** $k_s$ per SSP; declared spread as an SI arm (D11; P5).
       **Deferred beyond this paper version** (decision 7 of §7a): the SSP machinery stays, the
       `v6` paper is SSP2 only.
-- [ ] **A2 — Next step 2a: panel to 2023.** Verify that CAPMF, WGI, V-Dem and the energy data
+- [x] ✅ **A2 — Next step 2a: panel to 2023.** Verify that CAPMF, WGI, V-Dem and the energy data
       cover 2023 without imputation (CAPMF is in the vintages through 2023: GP-19 /
       `input-vintages.rds`). Move the anchor and the trend freeze year to 2023 (D8; P2).
       **Coverage verified and the panel definition built, 2026-10-02:** every source covers 2023;
@@ -448,48 +531,48 @@ Each item names the phase that closes it (P0–P6) and its source.
       four actor-power forms selected under the actor-power extrapolation gate, composite specs
       dropped, other clamps kept (`config.yml` `sweep:`). Open: report `driverOutOfSupport` per year
       with every run (P3).
-- [ ] **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2). The sibling
+- [x] ✅ **A6 — Next step 5: annual estimation** as a robustness rung on `v6` (D3; P2). The sibling
       group `v6-annual` is declared in `config.yml` (`panel: groups:`); it runs with the sweep.
 
 ### B. Problems in the methodology document itself (fix before it is used as the spec)
 
-- [ ] **B1** — The spread $d_s$ is defined twice: as model-derived ($D_s(t)/D_s(2025)$) and as
+- [x] ✅ **B1** — The spread $d_s$ is defined twice: as model-derived ($D_s(t)/D_s(2025)$) and as
       declared per storyline. Adopt D11 and rewrite the section.
-- [ ] **B2** — The convergence tolerance $\text{cm\_pfmConvTol}/\theta$ is undefined at θ = 0 (the
+- [x] ✅ **B2** — The convergence tolerance $\text{cm\_pfmConvTol}/\theta$ is undefined at θ = 0 (the
       nulls). Adopt D5.
-- [ ] **B3** — $\varphi_{r,s}(2022)$ and $k_s(2025) = 1$ are mixed. Adopt D4 and write it once.
-- [ ] **B4** — "No hold year (default)" conflicts with `MODEL.md` §7 ("no scenario differences past
+- [x] ✅ **B3** — $\varphi_{r,s}(2022)$ and $k_s(2025) = 1$ are mixed. Adopt D4 and write it once.
+- [x] ✅ **B4** — "No hold year (default)" conflicts with `MODEL.md` §7 ("no scenario differences past
       ~2060"). Resolved by D6 in favour of the methodology: `MODEL.md` §7 is revised, and the
       prohibition becomes the per-year out-of-support reporting duty.
-- [ ] **B5** — The logit-scale hold is presented as one limitation among six. It is the source of
+- [x] ✅ **B5** — The logit-scale hold is presented as one limitation among six. It is the source of
       every movement in $k$ (D2). Promote it to the formulation section, and add the $E$-hold bound.
-- [ ] **B6** — φ can leave [0, 1] once $k_s > 1$ or $d \ne k$. Add the clip and θ's new meaning (D12).
-- [ ] **B7** — The "Current scenarios" and walkthrough sections describe `v5`. Mark them as `v5`
+- [x] ✅ **B6** — φ can leave [0, 1] once $k_s > 1$ or $d \ne k$. Add the clip and θ's new meaning (D12).
+- [x] ⛔ **B7** — The "Current scenarios" and walkthrough sections describe `v5`. Mark them as `v5`
       when the v6 version of the document is written. Several paragraphs appear twice in the docx
       (text-box duplication in the extraction; check in Word).
 
 ### C. Further model improvements proposed for v6
 
-- [ ] **C1** — Built-in ordering tests on $u$ (uniform, permuted ×3, reversed) at both closures (D15;
+- [x] ✅ **C1** — Built-in ordering tests on $u$ (uniform, permuted ×3, reversed) at both closures (D15;
       P3/P5). This is the v6 form of GP-24.
-- [ ] **C2** — A declared closure arm on the strength, $\kappa$ (D13; P5), replacing `GAPCLOSE`.
+- [x] ✅ **C2** — A declared closure arm on the strength, $\kappa$ (D13; P5), replacing `GAPCLOSE`.
       **κ declared 2026-10-08:** 0.027 a year (the drag halves by mid-century), sensitivities 0.02 and
       0.05, rule B and C each (ADR 0050 decision 5). Open: the six wave-2 runs.
-- [ ] **C3** — Decompose $k_s(t)$ by driver group: actor power (the REMIND feedback), institutions
+- [ ] 🟠 **C3** — Decompose $k_s(t)$ by driver group: actor power (the REMIND feedback), institutions
       (SSP), controls (income, population), plus a composition term. This is the mechanism figure,
       and the v6 form of `TODO.md` 4 (P1 prototype, P6 figure).
-- [ ] **C4** — Regional strength $k_{r,s}$ as one SI arm (D16; P5).
-- [ ] **C5** — $E$-hold (static-share) bound as one SI arm (D2; P5).
+- [x] ✅ **C4** — Regional strength $k_{r,s}$ as one SI arm (D16; P5).
+- [x] ✅ **C5** — $E$-hold (static-share) bound as one SI arm (D2; P5).
 - [x] **C6** — ✅ **Done 2026-10-07** (`pfm::runPFMAnchor`, step `pfm-anchor` after `pfm-donor`;
       `pfmAnchorFor()` reads it). 28 KB on `v6`; $k(t)$ from the artifact alone equals Phase 1's
       exactly, at both resolutions. Was: a precomputed **anchor artifact** per Run-Group (`phi-anchor.rds`: $q_{c,s}$,
       $u_{r,s}$ per resolution, weights, provenance shares). It is written by a new step after
       `psm-donor`, so the in-REMIND call no longer needs the ECM, `temporal-validation.rds` or the
       seed panel (P2/P3).
-- [ ] **C7** — Propagate the anchor-year uncertainty to the coupled share: rank intervals,
+- [x] ✅ **C7** — Propagate the anchor-year uncertainty to the coupled share: rank intervals,
       frontier rungs and the spec band, all now on the delivered object. Offline first (P1/P6);
       coupled only for the rung that moves the floor region.
-- [ ] **C8** — Seam test at the anchor: $\eta^{scen}_{c,s,t_a} = \eta^{hist}_{c,s,t_a}$ per country,
+- [x] ✅ **C8** — Seam test at the anchor: $\eta^{scen}_{c,s,t_a} = \eta^{hist}_{c,s,t_a}$ per country,
       after `panelDataScenario()`'s harmonisation. A seam would enter $k$ directly (P1 acceptance
       test, `PITFALLS.md` §21).
 - [x] **C9** — ✅ **Re-examined 2026-10-07** (`analysis/v6/ceilingGate.R`, `phase1/ceiling-gate.rds`).
@@ -504,27 +587,27 @@ Each item names the phase that closes it (P0–P6) and its source.
       re-examine the ceiling-fall gate (`TODO.md` 11a). Under v6 the ceiling trajectory
       *is* the driver of $k$: 75% of Bulk ceilings fall by 2100 on `v5`, and the gate passes by
       0.003. Re-check it on the `v6` spec (P2).
-- [ ] **C10** — Report the out-of-support share per year beside every $k_s(t)$ (P3/P6).
-- [ ] **C11 (optional)** — The price–efficiency elasticity, the only empirical route to θ
+- [ ] 🟢 **C10** — Report the out-of-support share per year beside every $k_s(t)$ (P3/P6).
+- [ ] ⏸ **C11 (optional)** — The price–efficiency elasticity, the only empirical route to θ
       (`TODO.md` 8, GP-6). A separate workstream; it cannot block v6.
 
 ### D. Referee and gap-plan points from `papers/pfm-paper-v5` that belong in v6
 
-- [ ] **D-M1 (review-v16 M1, GP-24)** — What the *estimated* ordering adds to size and location.
+- [x] ✅ **D-M1 (review-v16 M1, GP-24)** — What the *estimated* ordering adds to size and location.
       Run the uniform and permuted arms in the v6 core batch (C1; wave 2). **Not run on `v5`**
       (author's decision, 2026-10-01). Phase 1 gives an offline first read on `v5` artifacts at
       no cluster cost.
-- [ ] **D-M2 (v16 M2, GP-23)** — The held-budget horn.
+- [ ] 🟠 **D-M2 (v16 M2, GP-23)** — The held-budget horn.
   - (i) State the arithmetic: implied $1/\bar\varphi$ against the realised anchor (wording).
   - (ii) Run rule C under the all-median and all-low assignment rules (P5).
   - (iii) `chinaseed` is moot under v6, which reads 2022 by construction. Record that as the answer.
-- [ ] **D-M3 (v16 M3, GP-4/9/16)** — The deposit. Build it into v6 from the start: version
+- [ ] 🟠 **D-M3 (v16 M3, GP-4/9/16)** — The deposit. Build it into v6 from the start: version
       control (D20), tagged `pfm` / `mrpfm` / fork commits per batch, run configurations,
       `analysis/` promoted to package code (F5), a Zenodo deposit at submission (P6).
-- [ ] **D-M4 (v16 M4)** — The within-region split is read against a sector ordering it does not
+- [ ] 🟠 **D-M4 (v16 M4)** — The within-region split is read against a sector ordering it does not
       share, because of the per-sector min–max. Write it into Methods and Results of the new paper,
       and add a diagnostic: which sector binds per region, country vs region (P6).
-- [ ] **D-m1…m10 (v16 minors)** — Carry them as a drafting checklist into the new workspace:
+- [ ] 🟠 **D-m1…m10 (v16 minors)** — Carry them as a drafting checklist into the new workspace:
   - one denominator per share;
   - the convergence-audit criterion, not "stopped before the cap";
   - "machinery changes nothing" scoped to the budget family;
@@ -535,20 +618,20 @@ Each item names the phase that closes it (P0–P6) and its source.
   - the limits list relabelled;
   - name which rule moves the cost by 8.3%;
   - the stale claims header and `REPRODUCE.md` paths.
-- [ ] **D-GP2** — The offline bound at a held gap. Under v6 the offline bound is λ-free
+- [x] ✅ **D-GP2** — The offline bound at a held gap. Under v6 the offline bound is λ-free
       automatically. Recompute it with the v6 formulation so it is consistent with the coupled
       result (P6).
-- [ ] **D-GP5** — The binding-sector attribution across frontier variants. Under v6 the ranking is
+- [x] ✅ **D-GP5** — The binding-sector attribution across frontier variants. Under v6 the ranking is
       at 2022, so the rung propagation is offline and cheap (P1/P6). Coupled only if the floor
       region changes.
-- [ ] **D-GP8 / GP-11 / GP-13 / GP-15** — The income screen, the GovEff correlate of the shortfall,
+- [ ] 🟢 **D-GP8 / GP-11 / GP-13 / GP-15** — The income screen, the GovEff correlate of the shortfall,
       the residual ordering and the trend cancellation. Re-run each on `v6` with the existing
       scripts. Under v6 the GP-13 "coupled version" needs no code hook, because the delivered
       ranking *is* the 2022 regional ranking (P6).
-- [ ] **D-GP20 / GP-26** — Dissolved by D1. The new paper reports the `v5` → `v6` ordering change
+- [x] ⛔ **D-GP20 / GP-26** — Dissolved by D1. The new paper reports the `v5` → `v6` ordering change
       as the evidence for the switch (P6).
-- [ ] **D-GP27** — Implemented by v6 (A1, A3).
-- [ ] **D-A1…A7 (decisions-v18)** — The Methods account of the projection to the tier year is
+- [x] ✅ **D-GP27** — Implemented by v6 (A1, A3).
+- [ ] 🟠 **D-A1…A7 (decisions-v18)** — The Methods account of the projection to the tier year is
       replaced: no projection, logit-scale hold, strength factor. Rewrite M6 and SI S2 / S13 in the
       new workspace (P6).
 
@@ -564,7 +647,7 @@ Blocking for Phase 0:
       `v5`). Commit them as they stand, before the rename, then push. The v6 config is generated
       (D22) and drops those rows.
 - [x] **E3** — `models/pfm-reports` was deprecated and archived on 2026-10-01 (`../_archive/_wip/2026-10-01/models/pfm-reports`); `pfm` no longer shells out to it.
-- [ ] **E4** — partly done: `analysis/`, `analysis/figures/` (code) and the governed docs are in the project repo since 2026-10-01; still outside version control: `../communication/` and `papers/pfm-paper-v5/` (author: deferred to the v6 paper). Was: `analysis/`, `analysis/figures/`, `../communication/`, `papers/pfm-paper-v5/` and the governed docs are not
+- [ ] ⏸ **E4** — partly done: `analysis/`, `analysis/figures/` (code) and the governed docs are in the project repo since 2026-10-01; still outside version control: `../communication/` and `papers/pfm-paper-v5/` (author: deferred to the v6 paper). Was: `analysis/`, `analysis/figures/`, `../communication/`, `papers/pfm-paper-v5/` and the governed docs are not
       under version control (`TODO.md` 39) → D20. (`paper/` was archived on 2026-10-01.)
 
 Latent defects (P0 unless noted):
@@ -575,10 +658,10 @@ Latent defects (P0 unless noted):
       different weights. The help text points to `docs/psm-coupling-scenario-design.md`, which does
       not exist. Comments say "phi is time-invariant by construction (tiers fixed at 2022)". `nTiers`
       is unused under the continuous rule. Fix the defaults and comments.
-- [ ] **E6** — `projectFeasiblePath(rule = "frozen-gap")` returns NA on the coupled scenario frame:
+- [x] ⛔ **E6** — `projectFeasiblePath(rule = "frozen-gap")` returns NA on the coupled scenario frame:
       the seed ceiling comes from the earliest frame year (0004 caveats). Replace it with the v6
       anchor computation (C6) rather than patching it (P1). *Waits for Phase 1 (C6).*
-- [ ] **E7** — `v5` inconsistency: covered countries are λ-projected while uncovered ones hold
+- [x] ⛔ **E7** — `v5` inconsistency: covered countries are λ-projected while uncovered ones hold
       $E$, inside one regional aggregate (D1). Removed in v6. `papers/pfm-paper-v5` is not submitted (D19), so it
       needs no disclosure. The new paper's `v5` → `v6` comparison names it as one reason for the
       change.
@@ -702,7 +785,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
       holds 49 countries. General lesson (`PITFALLS.md` §3): under `forcecache` a copied file is
       trusted on its name alone - anything a calculation reads from the global madrat configuration
       must be an argument.
-- [ ] **E25** — Under `forcecache`, madrat reads the newest-timestamped file among those whose
+- [x] ⛔ **E25** — Under `forcecache`, madrat reads the newest-timestamped file among those whose
       arguments match. **For new groups, solved by ADR 0047**: the prepared cache holds one
       version of each calculation, and its `cache-manifest.tsv` is the record. Deposit those
       files with the version. **Still open for `v5`:** fetch the 48 shared-cache files its
@@ -759,7 +842,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   It writes `coupled-facts.json` stamped with the Run-Group, and **stops on the §25 / §25a
   admission rules** instead of leaving them to the reader. This is today's checklist after a batch
   lands, as one command.
-- [ ] **F5 — Promote the reproduction-chain scripts into package code.** *After Phase 3: the
+- [ ] 🟢 **F5 — Promote the reproduction-chain scripts into package code.** *After Phase 3: the
       extraction reads the coupling symbols, which the time-indexed φ interface (D14) changes.* Move the `analysis/`
       scripts the paper's numbers depend on (the F4 list, `makeGroupVariants.R`,
       `buildPFMScenarioConfig.R`, `validatePFMScenarioConfig.R`) into `pfm` (compute: extraction,
@@ -778,7 +861,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
       keep in step. The institution projections no longer need a cache (0.2 s). 27 s → 11 s per
       later call; the second call's shares are identical to the first's.
       Was: cache it in `preparePFM`; measure before and after.
-- [ ] **F8 — Typed options instead of side files.** *The institution rule is already typed
+- [x] ✅ **F8 — Typed options instead of side files.** *The institution rule is already typed
       (`pfm-coupling.yml` `institutions`); the rest are Phase 3 switches.* Ordering tests (D15), hold year (D6), spread
       (D11), κ (D13) and the formulation switch become `pfm-coupling.yml` or runtime-config fields.
       Each is echoed in the log and recorded in `pfm-phi-history.rds`. `phi-override.yml` is kept
@@ -801,9 +884,9 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   - 0053 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
   - 0054 time-indexed φ interface and convergence on the φ path (D5, D14);
   - 0055 the generated scenario config (D22).
-- [ ] **G2 — Close the design notes.** 0003 (λ in or out) → ADR 0050. 0004 → ADRs 0049 / 0052 /
+- [ ] 🟢 **G2 — Close the design notes.** 0003 (λ in or out) → ADR 0050. 0004 → ADRs 0049 / 0052 /
       0053. 0002 stays open, informed by the re-sweep. This note → closed when Phase 6 ends.
-- [ ] **G3 — Archive the governed documents first** (`_archive/<date>/docs-pre-v6/`), then rewrite
+- [ ] 🟢 **G3 — Archive the governed documents first** (`_archive/<date>/docs-pre-v6/`), then rewrite
       them for `v6`:
   - `MODEL.md` §4 shrinks to "diagnostic only"; §5 gets the v6 φ(t); §7 gets the hold-year rule;
   - `COUPLING.md` gets the new symbols, switches and convergence rule;
@@ -812,7 +895,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   - `TODO.md` is reset;
   - `EXPLAINER.md` and `PRESENTATION.md` get the new one-page story;
   - `CONTEXT.md` gets the new terms: anchor year, strength factor, logit hold.
-- [ ] **G4 — Update `../communication/methodology/PFM-Methodology.docx` to v6** once Phase 1 has numbers (B1–B7).
+- [ ] 🟢 **G4 — Update `../communication/methodology/PFM-Methodology.docx` to v6** once Phase 1 has numbers (B1–B7).
 
 ---
 
@@ -1344,7 +1427,8 @@ converge is handled in one of two ways:
 
 ### Phase 6 — Analysis, documents, paper (three to six weeks)
 
-1. `pfmRun(stage = "coupled")` per wave (F4). The `v5` → `v6` contrasts for every headline.
+1. `pfmRun(stage = "coupled")` per wave (F4). The `v5` → `v6` contrasts for every headline. *Kept as
+   the internal record of the formulation change; not paper material since §7b.*
    **Done 2026-10-10:** `Rscript analysis/v6/coupledV5V6Contrast.R` →
    `output/pfm/v6/coupling/v5-v6-coupled-contrast.rds` / `.json` (each headline against its own group's
    θ = 0 null, so the REMIND drift between 3.7.0.dev29 and 3.7.1, +9 to +11 Gt on the nulls, cancels to
@@ -1422,7 +1506,8 @@ converge is handled in one of two ways:
      figures and drafts.
    - Carry the review-v16 points (§3 D) as the opening checklist.
    - Re-decide the spine with the results. Under v6 both horns survive, but the "China absorbs"
-     composition and the ~160 Gt size will both change.
+     composition and the ~160 Gt size will both change. *2026-10-12: the candidates are design note
+     0006; the workspace is scaffolded without the v18 draft as text (§0a item 5, §7b).*
    - Mark `papers/pfm-paper-v5` as superseded in its own `CLAUDE.md` and `VERSIONS.md`, pointing to the new
      workspace.
 6. **The deposit (D-M3):** a Zenodo archive at a tag of `pfm`, `mrpfm`, the fork and the project
@@ -1438,7 +1523,7 @@ converge is handled in one of two ways:
 | The SSP signal is small after normalisation | Phase 1 step 6 | the gate demotes the SSP axis to the SI; the plan does not depend on a large fan |
 | With no hold year, late-century results are driven by extrapolated or clamped drivers | Phase 1 step 5, wave 2–3 | saturating innovator power (D7); out-of-support share reported per year; every headline and every SSP result travels with its hold-2060 twin; if the two differ materially, the paper says which part of the result comes after 2060 |
 | The rename breaks a `v5` reader or the `papers/pfm-paper-v5` bundle silently | Phase 0 | `v5-final` tags before the rename; read-aliases; the `papers/pfm-paper-v5` bundle rebuild must reproduce its manifest hashes |
-| The headline moves a lot from `v5` | Phase 1 step 9 | expected: v6 reads 2022, and $k_{Diffuse}$ falls to ~0.55 by 2050 in the methodology's offline numbers. Reported as a formulation change, with the `v5` → `v6` contrast |
+| The headline moves a lot from `v5` | Phase 1 step 9 | expected: v6 reads 2022, and $k_{Diffuse}$ falls to ~0.55 by 2050 in the methodology's offline numbers. Measured (Phase 6 step 1) and kept internal: the paper reports `v6` only (§7b) |
 | The re-sweep picks a different spec | Phase 2 | the `v5` spec refitted on the `v6` panel is kept as a rung, so the change can be split into "data" and "selection" |
 | Rule C oscillates with a time-varying cap | Phase 3 gate, wave 1 | damping, logged (D5); the checkpoint rule; the strict-rule fallback; the rule-C test run before the batch |
 | A silent interface failure (wrong rank or year labels) | Phase 3 | new symbols only (D14); replay harness plus negative control; preflight (F2) |
@@ -1556,9 +1641,20 @@ converge is handled in one of two ways:
    (a ceiling must not collapse as the transition succeeds) has to be re-argued for the projection
    actually used, not carried over.
 
+## 7b. Author decision (2026-10-12)
+
+1. **The `v6` paper reports `v6` only.** No `v5` specification, result or contrast appears in it; the
+   frames are built on `v6` evidence alone (design note 0006). Consequences (§0a): D-GP20 / GP-26 and
+   E7 are dropped; Phase 6 step 1 and §8 stay as the internal record; the paper workspace is scaffolded
+   without the `v5` v18 draft as text (amends D19, to be confirmed); the paper's figures are `v6`-only
+   versions; E25 for `v5` is optional archival.
+2. **The backsliding rate stays at the proposed κ = −0.005 a year for now** (declaration pending; the
+   `V6BACK` rows carry it).
+
 ## 8. The `v5` → `v6` comparison (Phase 2, step 6)
 
-Methods / SI material for the `v6` paper. Every number is from `analysis/v6/v5v6Comparison.R`
+*Since §7b (2026-10-12) this is the internal record of why the formulation changed, not Methods / SI
+material: the `v6` paper does not report `v5`.* Every number is from `analysis/v6/v5v6Comparison.R`
 (`output/pfm/v6/phase1/v5-v6-comparison.rds`), read from Run-Groups `v5` and `v6`. The regional
 ranking $u$ is computed **by the v6 rule for both groups** (each at its own anchor year, the same 2025
 final-energy weights, the REMIND-consistent EU21 mapping), so it compares the models, not the

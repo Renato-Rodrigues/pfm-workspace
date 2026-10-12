@@ -12,7 +12,8 @@ every design note it is not authoritative: re-derive a number from its artifact 
 
 **Revisions.** 2026-10-12: first version, five frames and six further messages. Same day: messages A–C
 promoted to frames 6–8, an evidence subsection added to every frame, and the estimated range corrected
-to 68–164 Gt (it now includes the annual-data variant).
+to 68–164 Gt (it now includes the annual-data variant). Same day: every frame rests on `v6` results only,
+since the paper does not report the earlier model version (author, 2026-10-12; 0005 §7b).
 
 ## Purpose and basis
 
@@ -79,8 +80,9 @@ Other quantities the frames cite:
 - **Weakness:**
   - The numbers change 5–9× with the persistence assumption, so a referee will ask "under which
     persistence?"
-  - The budget horn is small in v6.
-  - The frame has no account of why v6 differs from v5.
+  - The budget horn is small (23 Gt moved).
+  - It treats persistence as a robustness check, although persistence is the main condition on both
+    numbers.
 
 ## Frame 2. Today's politics versus tomorrow's (persistence, made concrete)
 
@@ -114,8 +116,9 @@ those constraints erode as the transition proceeds.
   | κ = 0.027 | 147.9 | 57.2 |
   | κ = 0.05 | 167.0 | 60.3 |
 
-- *Cross-check from v5 → v6.* Holding k restores 42.9 of the 54.0 Gt by which the relocation fell
-  (79%). The v5 model behaved like frozen politics.
+- *Strength, not ranking.* The frozen and deployed runs share the ranking and differ only in the
+  strength. Abatement moved is 65.6 against 22.7 Gt, and the 2100 regional price gap 0.138 against
+  0.081.
 - *Limits:* the ladder is EU21 only (`V6PERSH12` pending), and the worse-than-today side is not run yet
   (`V6BACK`). The causal feedback from policy to politics is not identified.
 
@@ -149,8 +152,8 @@ lasts.
 **Evidence.**
 - *One order, every measure.* Down the ladder, each rung is lower than the one above on all four
   measures: extra CO₂, global price, abatement moved and price gap.
-- *Size and direction separate.* Persistence sets the size: holding k accounts for 79% of the v5 → v6
-  drop in relocation. The ranking sets the direction: the rank correlation between a region's share φ
+- *Size and direction separate.* Persistence sets the size: the frozen and deployed runs share the
+  ranking, and the abatement moved is 65.6 against 22.7 Gt. The ranking sets the direction: the rank correlation between a region's share φ
   and its relative change in emissions is −0.47 with today's politics frozen and −0.465 as deployed.
 - *Not identified.* The estimation fixes the 2023 ranking and the drivers' effect; the future path of
   the drag comes from projections (k) and declarations (κ).
@@ -172,17 +175,18 @@ lasts.
 
 **Evidence** (hold the budget, cumulative 2020–2100 against `-PFMgate-v6`, Gt CO₂eq):
 
-| Region | Frozen politics | Deployed | v5 |
+| Region | Frozen politics | Deployed | κ = 0.027 |
 | --- | --- | --- | --- |
-| China (CHA) | −45.1 (power sector −48.4) | −10.2 | −54.2 |
-| Sub-Saharan Africa (SSA) | −7.1 | −3.7 | +30.0 |
-| Middle East (MEA) | +23.7 | +7.9 | +25.4 |
-| India (IND) | +18.4 | +8.1 | −5.4 |
-| Other Asia (OAS) | +15.4 | +2.8 | −5.2 |
-| Russia and reforming (REF) | +7.0 | +3.7 | +14.8 |
+| China (CHA) | −45.1 (power sector −48.4) | −10.2 | −1.0 |
+| Sub-Saharan Africa (SSA) | −7.1 | −3.7 | −2.4 |
+| Middle East (MEA) | +23.7 | +7.9 | −2.8 |
+| India (IND) | +18.4 | +8.1 | +3.2 |
+| Other Asia (OAS) | +15.4 | +2.8 | −0.2 |
+| Russia and reforming (REF) | +7.0 | +3.7 | +2.5 |
 
-India and Other Asia abated more in v5 and emit more in v6: the new ranking moves them, as the static run
-shows. Under frozen politics, 5 regions emit more and 12 less (deployed: 4 and 10). The binding sector depends on
+Frozen and deployed politics send the extra emissions to the same regions, in different amounts. Under
+declared erosion little moves at all (8.4 Gt), and the Middle East and Other Asia turn to abating more.
+Under frozen politics, 5 regions emit more and 12 less (deployed: 4 and 10). The binding sector depends on
 the specification family: Bulk binds in 15 of 21 regions under family A and 3 of 21 under family B
 (`SCENARIOS.md` §6.2a).
 
