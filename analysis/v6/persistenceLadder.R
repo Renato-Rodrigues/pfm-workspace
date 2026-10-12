@@ -14,7 +14,8 @@
 # GDP and consumption. Rule C (held budget) against -PFMgate: the global price (anchor, 2050), relocated
 # abatement by period, the regional price wedge, China's change, GDP and consumption (all regions).
 # "dividend" = the static rung minus each rung: what the ladder says politics that develops is worth.
-# Writes output/pfm/<group>/coupling/persistence-ladder.{rds,json} and prints both tables.
+# Writes output/pfm/<group>/coupling/persistence-ladder.{rds,json} (with `paths`, each run's cumulative CO2
+# by year, 2020-2150) and prints both tables.
 suppressMessages(library(jsonlite))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 a <- commandArgs(trailingOnly = TRUE)
@@ -48,15 +49,25 @@ kOf <- function(res, rule, rung) {
   c(kBulk2050 = num(e$kBulk2050), kBulk2100 = num(e$kBulk2100), kDiffuse2050 = num(e$kDiffuse2050), kDiffuse2100 = num(e$kDiffuse2100))
 }
 costOf <- function(res, rule, rung) CO[[res]][[sub("^PkBudg1000-PFM", "", title(rule, rung))]]
+# the whole cumulative-CO2 path of a run, 2020-2150 (for the peak / net-zero figure)
+pathOf <- function(res, x, rule, rung) {
+  d <- ex$readSymbol(file.path("output/remind-runs", GROUP, res, x$dir, "fulldata.gdx"), "pm_actualbudgetco2", bin)
+  y <- suppressWarnings(as.integer(d[[1]])); v <- as.numeric(d[[ncol(d)]]); ok <- is.finite(y) & y >= 2020
+  data.frame(res = res, rule = rule, rung = rung, year = y[ok], cum = round(v[ok], 2))
+}
+PATHS <- list()
 
 B <- list(); C <- list()
 for (res in RES) {
   nB <- row(res, "PkBudg1000-PFMgateBfix"); nC <- row(res, "PkBudg1000-PFMgate")
   cB0 <- if (!is.null(nB)) cumPath(res, nB)
+  if (!is.null(nB)) PATHS[[length(PATHS) + 1]] <- pathOf(res, nB, "B", "null")
+  if (!is.null(nC)) PATHS[[length(PATHS) + 1]] <- pathOf(res, nC, "C", "null")
   for (rung in names(RUNGS)) {
     x <- row(res, title("Bfix", rung))
     if (!is.null(x) && !is.null(nB)) {
       cp <- cumPath(res, x); co <- costOf(res, "Bfix", rung)
+      PATHS[[length(PATHS) + 1]] <- pathOf(res, x, "B", rung)
       B[[length(B) + 1]] <- data.frame(res = res, rung = rung, meaning = RUNGS[[rung]], t(kOf(res, "Bfix", rung)),
         t(stats::setNames(round(cp - cB0, 1), paste0("extra", YEARS))), cum2150 = round(cp[["2150"]], 1),
         peakYear = x$peakYear, neverPeaks = x$peakYear >= 2150,
@@ -65,6 +76,7 @@ for (res in RES) {
     x <- row(res, title("C", rung))
     if (!is.null(x) && !is.null(nC)) {
       co <- costOf(res, "C", rung)
+      PATHS[[length(PATHS) + 1]] <- pathOf(res, x, "C", rung)
       lab <- if (rung == "deployed") GROUP else paste0(GROUP, " C-", rung)
       d <- if (!is.null(DEC)) DEC[DEC$group == lab & DEC$res == res, , drop = FALSE] else NULL
       anc <- if (rung == "deployed") FA$ruleC[[res]][["0.50"]]$anchorOverGate else FA$arms[[res]][[paste0("C-", rung)]]$anchorOverGate
@@ -104,7 +116,8 @@ out <- list(group = GROUP, generated = format(Sys.time(), "%Y-%m-%d %H:%M:%S"), 
             units = list(extra = "Gt CO2, pm_actualbudgetco2 of the run minus -PFMgateBfix in that year",
                          relocated = "Gt CO2eq, 1/2 sum_r |d_r| 2020-2100 (ruleCRelocationDecomp.R)",
                          gdp = "% discounted (5%/yr) 2020-2100 vs the matched null (coupled-costs.json)"),
-            ruleB = B, ruleC = C, dividend = D)
+            ruleB = B, ruleC = C, dividend = D,
+            paths = do.call(rbind, PATHS))   # cumulative CO2 by year, every run of the ladder and its nulls
 saveRDS(out, file.path(CPL, "persistence-ladder.rds"))
 write(toJSON(out, auto_unbox = TRUE, pretty = TRUE, digits = NA, na = "null", dataframe = "rows"), file.path(CPL, "persistence-ladder.json"))
 cat("\nwrote", file.path(CPL, "persistence-ladder.{rds,json}"), "\n")
