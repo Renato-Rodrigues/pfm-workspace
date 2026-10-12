@@ -50,9 +50,6 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
 **Improves the work:**
 - 🟢 **C10:** the out-of-support share per year beside each coupled $k_s(t)$ (offline: 11% of weighted
   drivers by 2100, `MODEL.md` §5.2).
-- 🟢 **D-GP8 / GP-11 / GP-13 on `v6`:** the income screen, the GovEff correlate and the residual ordering
-  (`analysis/checks/incomeScreen.R`, `orderingChecks.R`, `residualOrderingPhi.R`). No `v6` output yet.
-  Needed if the paper keeps the frontier claims they defend.
 - 🟢 **G2:** close design note 0004 (ADRs 0049, 0052, 0053 accepted); 0006 closes with the spine, 0005 at
   the end of Phase 6.
 - 🟢 **G3:** add the `v6` terms to `CONTEXT.md` (anchor year, strength factor, logit hold, static share,
@@ -65,6 +62,9 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
   skipped on the cluster). R on the workstation is back on 4.3.2 (reinstalled 2026-10-12 after an
   update to 4.6.1 removed it); 4.6.1 is still installed and registered as the machine default.
 - 🟢 **F5:** promote the reproduction-chain scripts into `pfm` (improves the deposit, does not block it).
+
+**Done since the review:** ✅ D-GP8 / GP-11 / GP-13 run on `v6` (2026-10-12; results in 0005 §0a item 9,
+files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`).
 
 **Optional:** ⚪ C11, the price–efficiency elasticity (a separate workstream).
 

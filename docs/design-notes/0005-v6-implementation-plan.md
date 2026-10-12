@@ -103,10 +103,23 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
    (copy it off the cluster).
 8. 🟢 **C10:** the out-of-support share per year beside each coupled $k_s(t)$. It is measured offline
    (11% of weighted drivers by 2100, `MODEL.md` §5.2), not yet per coupled run.
-9. 🟢 **D-GP8 / GP-11 / GP-13 on `v6`:** the income screen, the GovEff correlate of the shortfall and the
-   residual ordering. The scripts exist (`analysis/checks/incomeScreen.R`, `orderingChecks.R`,
-   `residualOrderingPhi.R`), but no `v6` output does. Needed if the paper keeps the frontier claims they
-   defend.
+9. ✅ **D-GP8 / GP-11 / GP-13 on `v6`, run 2026-10-12** (the three scripts take the Run-Group since that
+   day; offline, covered countries, the last panel year 2023). Results on file for when the paper needs
+   them:
+   - *Income (GP-8, `income-screen.rds`).* The ceiling tracks income in Diffuse (Spearman of $S^*$ with
+     GDP per head +0.62; Bulk +0.15), the shortfall $E$ the coupling reads much less (+0.37 Bulk, +0.30
+     Diffuse). Refitting without the income control (X-1788) leaves $E$ almost unchanged: Spearman with
+     the deployed $E$ +0.984 / +0.997, median rank shift 1 / 0 of 48, median |Δφ| 0.014 / 0.003.
+   - *State capability (GP-11, same file).* $E$ rises with Government Effectiveness: +0.36 Bulk, +0.22
+     Diffuse. The shortfall is smaller where the state is stronger, more clearly in Bulk.
+   - *Prediction error (GP-13, `ordering-checks.rds`, `residual-ordering-phi.rds`).* At country level the
+     shortfall tracks the mean regression's residual (Spearman of $E$ with the residual ratio 0.80 Bulk,
+     0.85 Diffuse in 2023). The regional ordering keeps more of its own: Spearman 0.82 (Bulk), 0.62
+     (Diffuse) and 0.83 (combined share) over 20 EU21 regions, equal weights. The floor region is the
+     same under both. The proxy floor (OAS, CHA) is not the coupled one (CHA, IND): the screen leaves
+     out the 200 uncovered countries.
+   - *Trend shape (GP-15, `ordering-checks.rds` B).* The 2010 / 0.30 shape keeps the delivered ordering
+     (Spearman 0.97); the 2005 / 0.10 shape moves it most (0.77, OAS).
 10. 🟢 **G2:** close 0004 (its ADRs 0049, 0052 and 0053 are accepted); close 0006 with the spine and this
     note at the end of Phase 6.
 11. 🟢 **G3, the rest:** `CONTEXT.md` lacks the `v6` terms (anchor year, strength factor, logit hold,
@@ -624,7 +637,7 @@ and improving it. Items ticked earlier keep their own notes.
 - [x] ✅ **D-GP5** — The binding-sector attribution across frontier variants. Under v6 the ranking is
       at 2022, so the rung propagation is offline and cheap (P1/P6). Coupled only if the floor
       region changes.
-- [ ] 🟢 **D-GP8 / GP-11 / GP-13 / GP-15** — The income screen, the GovEff correlate of the shortfall,
+- [x] ✅ **D-GP8 / GP-11 / GP-13 / GP-15** — The income screen, the GovEff correlate of the shortfall,
       the residual ordering and the trend cancellation. Re-run each on `v6` with the existing
       scripts. Under v6 the GP-13 "coupled version" needs no code hook, because the delivered
       ranking *is* the 2022 regional ranking (P6).

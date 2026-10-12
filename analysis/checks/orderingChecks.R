@@ -15,14 +15,15 @@
 #    trend existing. Removing the trend altogether is not an admissible comparison here, because
 #    the no-trend specifications are more weakly identified and, on the demand side, not estimable.
 #
-# Run from the project root:  Rscript analysis/checks/orderingChecks.R
-# Writes: output/pfm/v5/ordering-checks.rds
+# Run from the project root:  Rscript analysis/checks/orderingChecks.R [group]   (default v5)
+# Writes: output/pfm/<group>/ordering-checks.rds  (B needs <group>'s trend-shape-phi.rds)
 
 options(repos = c(CRAN = "@CRAN@", pik = "https://rse.pik-potsdam.de/r/packages"))
-suppressMessages(devtools::load_all("pfm", quiet = TRUE))
+suppressMessages(devtools::load_all("models/pfm", quiet = TRUE))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
-GROUP <- "v5"; GDIR <- file.path("output/pfm", GROUP)
+args  <- commandArgs(trailingOnly = TRUE)
+GROUP <- if (length(args) >= 1) args[[1]] else "v5"; GDIR <- file.path("output/pfm", GROUP)
 M <- 10
 
 fr <- readRDS(file.path(GDIR, "frontier.rds"))

@@ -12,9 +12,12 @@
 #   1. DESCRIPTIVE - how strongly S* and E track income per capita. S* can be income-graded while
 #      E is not, because income cancels between numerator and denominator. That distinction is the
 #      whole argument, and it needs no refit.
-#   2. THE NO-INCOME TWIN - the deployed spec is X-2079 ... ctl:GDPq.Pop.Hyd; its twin without the
-#      income control, X-2076 ... ctl:Pop.Hyd, is already fitted in the v5 sweep. Refit both as
-#      frontiers, and compare E, the rank ordering, and a country-level phi proxy.
+#   2. THE NO-INCOME TWIN - the deployed spec's twin without the income control: the sweep spec whose
+#      name is the deployed one with ctl:GDPq.Pop.Hyd -> ctl:Pop.Hyd (v5: X-2079 -> X-2076; v6: X-1791
+#      -> X-1788). Refit both as frontiers, and compare E, the rank ordering, and a country-level phi
+#      proxy.
+#   The same pass gives GP-11, the GovEff correlate of the shortfall (Spearman of E with Government
+#   Effectiveness).
 #
 # >>> THIS IS A LOCAL SCREEN, NOT A QUOTABLE NUMBER. It inherits the three approximations of
 # >>> analysis/testSectorSpecificSpec.R, and for the same reasons:
@@ -26,20 +29,22 @@
 # >>> Use it to decide whether the full propagation is worth running, and to see the SIGN and the
 # >>> order of magnitude. The quotable version is the full chain (see the footer of this file).
 #
-# Run from the project root:  Rscript analysis/checks/incomeScreen.R
-# Writes: output/pfm/v5/income-screen.rds  (+ a printed summary)
+# Run from the project root:  Rscript analysis/checks/incomeScreen.R [group]     (default v5)
+# Writes: output/pfm/<group>/income-screen.rds  (+ a printed summary)
 
 options(repos = c(CRAN = "@CRAN@", pik = "https://rse.pik-potsdam.de/r/packages"))
-suppressMessages(devtools::load_all("pfm", quiet = TRUE))
+suppressMessages(devtools::load_all("models/pfm", quiet = TRUE))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
-GROUP <- "v5"
+args  <- commandArgs(trailingOnly = TRUE)
+GROUP <- if (length(args) >= 1) args[[1]] else "v5"
 GDIR  <- file.path("output/pfm", GROUP)
 
 s  <- readRDS(file.path(GDIR, "sweep.rds"))
 nm <- vapply(s$specs, function(z) as.character(z$name %||% NA), character(1))
 depName <- s$selected$PolicyStringency
-altName <- grep("^X-2076 .*ctl:Pop\\.Hyd fe:OECDp$", nm, value = TRUE)[1]
+specKey <- function(x) sub("^X-[0-9]+ ", "", x)   # the name without its sweep number
+altName <- nm[!is.na(nm) & specKey(nm) == sub("ctl:GDPq.", "ctl:", specKey(depName), fixed = TRUE)][1]
 if (is.na(altName)) stop("no no-income twin found in the sweep")
 cat("deployed (with income)   :", depName, "\n")
 cat("twin     (no income)     :", altName, "\n\n")
@@ -151,10 +156,11 @@ saveRDS(list(byCountry = res, deployed = depName, alternative = altName,
 cat("written:", file.path(GDIR, "income-screen.rds"), "\n\n")
 
 cat("--- the quotable version, if this screen says the ordering is worth defending ----------\n")
-cat("Rscript analysis/run-groups/makeSpecVariantGroup.R v5 v5-noinc Bulk    \"", altName, "\"\n", sep = "")
-cat("Rscript analysis/run-groups/makeSpecVariantGroup.R v5-noinc v5-noinc Diffuse \"", altName, "\"\n", sep = "")
-cat("Rscript -e 'library(pfm); pfmRun(group = \"v5-noinc\",\n")
+NOINC <- paste0(GROUP, "-noinc")
+cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", GROUP, " ", NOINC, " Bulk    \"", altName, "\"\n", sep = "")
+cat("Rscript analysis/run-groups/makeSpecVariantGroup.R ", NOINC, " ", NOINC, " Diffuse \"", altName, "\"\n", sep = "")
+cat("Rscript -e 'library(pfm); pfmRun(group = \"", NOINC, "\",\n", sep = "")
 cat("                        steps = c(\"pfm-frontier\",\"pfm-temporal\",\"pfm-donor\",\n")
 cat("                                  \"pfm-projection\",\"pfm-coupling-bound\"),\n")
 cat("                        cluster = \"slurm\")'\n")
-cat("Rscript analysis/checks/compareSpecVariantPhi.R v5 v5-noinc\n")
+cat("Rscript analysis/checks/compareSpecVariantPhi.R ", GROUP, " ", NOINC, "\n", sep = "")

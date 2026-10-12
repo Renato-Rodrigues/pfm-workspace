@@ -70,9 +70,9 @@ and `steps = "pfm-coupling-bound"`.
 | `compareSpecVariantPhi.R` | the specification band (φ across spec variants) |
 | `computeThetaBounds.R`, `efficiencyRatioBand.R` | θ bounds; the efficiency-ratio band |
 | `frontierSECheck.R` | audit of the frontier standard errors |
-| `incomeScreen.R` | is the ordering an income gradient? |
+| `incomeScreen.R` | is the ordering an income gradient? Also the GovEff correlate of the shortfall (GP-11). `Rscript analysis/checks/incomeScreen.R [group]` (default `v5`) → `output/pfm/<group>/income-screen.rds` |
 | `inputVintages.R` | which WGI / V-Dem / CAPMF releases built the panel |
-| `orderingChecks.R`, `residualOrderingPhi.R` | the ordering vs the model's own prediction error |
+| `orderingChecks.R`, `residualOrderingPhi.R` | the ordering vs the model's own prediction error; both take `[group]` (default `v5`) → `ordering-checks.rds`, `residual-ordering-phi.rds` |
 | `phiReadingYear.R` | how the reading year moves the ordering |
 | `propagateFrontierRungsToPhi.R` | φ under the alternative frontier error structures |
 | `replayRescoped.R` | the historical-replay gate on the rows where the ceiling acts |

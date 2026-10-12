@@ -8,7 +8,8 @@
 # ordering, several transformations away. This script asks the regional question directly.
 #
 # WHAT. Two country-level ratios, pushed through the SAME offline route Fig. 3b's rank spans use
-# (propagateFrontierRungsToPhi.R: seed year 2022, covered countries aggregated to EU21 regions with
+# (propagateFrontierRungsToPhi.R: seed year = the group's last panel year, 2022 on v5 and 2023 on v6
+# (v6's anchor year); covered countries aggregated to EU21 regions with
 # equal and with GDP weights, min-max over regions, severity 0.50):
 #   deployed   E     = S / S*          observed over the frontier ceiling (what the coupling uses)
 #   residual   E_res = S / S_mean      observed over the MEAN regression's fitted level, i.e. a pure
@@ -26,14 +27,15 @@
 args  <- commandArgs(trailingOnly = TRUE)
 GROUP <- if (length(args) >= 1) args[[1]] else "v5"
 GDIR  <- file.path("output/pfm", GROUP)
-SEED  <- 2022; THETA <- 0.50; M <- 10
+THETA <- 0.50; M <- 10
 MAPF  <- "models/mrpfm/inst/extdata/regional/regionmapping_21_EU11.csv"
 
 options(repos = c(CRAN = "@CRAN@", pik = "https://rse.pik-potsdam.de/r/packages"))
-suppressMessages(devtools::load_all("pfm", quiet = TRUE))
+suppressMessages(devtools::load_all("models/pfm", quiet = TRUE))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
 fr <- readRDS(file.path(GDIR, "frontier.rds"))
+SEED <- max(fr$bySector$Bulk$scores$year)   # the last panel year: 2022 (v5), 2023 (v6)
 s  <- readRDS(file.path(GDIR, "sweep.rds"))
 nm <- vapply(s$specs, function(z) as.character(z$name %||% NA), character(1))
 cfg <- s$specs[[which(nm == s$selected$PolicyStringency)]]
@@ -123,7 +125,7 @@ cat("\nRegional ordering, EU21, severity ", THETA, ", deployed E versus predicti
 print(res, row.names = FALSE, digits = 3)
 out <- list(comparisons = res, countryLevel = cty, phi = phis, country = country,
             seedYear = SEED, theta = THETA, group = GROUP,
-            note = paste("Offline, covered countries only, seed year 2022, as Fig. 3b. E_res = observed / mean-regression",
+            note = paste("Offline, covered countries only, seed year", SEED, "(the last panel year). E_res = observed / mean-regression",
                          "fitted level. Regions split by coupled coverage (>= 0.5 of final energy measured)."))
 saveRDS(out, file.path(GDIR, "residual-ordering-phi.rds"))
 cat("\nwrote", file.path(GDIR, "residual-ordering-phi.rds"), "\n")
