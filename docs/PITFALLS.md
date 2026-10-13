@@ -795,7 +795,7 @@ the last panel year and faded to zero by 2040, so the error **appeared gradually
 | `Innovator Power pc|Bulk`, after (PkBudg1000) | 0.0206 | 0.0429 | 0.0655 | 0.0672 |
 | `Incumbent Power pc|Bulk`, after (PkBudg1000 / NPi) | 0.0457 | 0.0416 / 0.0412 | 0.0280 / 0.0335 | 0.0166 / 0.0236 |
 
-Before the fix, innovator power per capita **fell** tenfold while the innovator share rose from 0.17
+Before the fix, clean-energy build-out per person **fell** tenfold while the clean-energy build-out rose from 0.17
 to 0.65. The implied energy per capita fits the unit exactly: Germany is 0.14 EJ per million in
 2023 and 0.0033 in 2050, and 0.0033 × 31.536 = 0.10.
 

@@ -70,7 +70,7 @@ ever legislated.
 
 **S2 · The chain: polity → politics → policy**
 *Message:* institutions (state capability, accountability) and actor coalitions (clean
-innovators vs fossil incumbents) jointly bound what policy is possible.
+clean-energy interests vs fossil interests) jointly bound what policy is possible.
 *Figure:* **Fig 1a** — schematic of the chain resolving into $\varphi$. Conceptual, no data.
 *Rail:* this is a *bound*, not a prediction of what a country will do.
 
@@ -93,7 +93,7 @@ Power & industry (electricity + industry) and buildings & transport (buildings +
 **S5 · The estimating equation**
 *Message:* stringency responds to actor power, institutional quality, and **their
 interactions**. State capability is the one institutional channel supported in both sectors —
-strongly for buildings and transport, fragilely for power and industry. Incumbency enters twice:
+strongly for buildings and transport, fragilely for power and industry. Fossil interests enter twice:
 its **share** (dependence) goes with lower stringency, its **per-capita size** with higher.
 *Equation:* the linear predictor (§4, Eq. 2) with the bounded-response transform (Eq. 1).
 *Figure:* **Fig 2a** — each frontier term's contribution to the ceiling, $\hat\beta\times\mathrm{SD}(x)$,
@@ -104,16 +104,16 @@ is from. GovEff: +0.240 ($p_{\text{wild}}$ .048) power & industry, +0.333 (.006)
 Power & industry frontier it is +0.064, $p$ .32. **Do not say capability raises the power & industry ceiling.**
 *Rail:* Vertical Accountability is **not significant** as a main effect in either sector. Do not
 present an accountability finding.
-*Rail:* the positive per-capita power & industry incumbency term (+0.489, $p_{\text{wild}}$ < .001) is the
+*Rail:* the positive per-capita power & industry fossil term (+0.489, $p_{\text{wild}}$ < .001) is the
 exposure confound — large, capable fossil economies also regulate more (`MODEL.md` §8.3). Do
-not present it as incumbents raising ambition.
+not present it as fossil interests raising ambition.
 *Rail:* the trend is the largest single term and carries **74% (Power & industry) / 55% (Buildings & transport)** of
 linear-predictor variance. Volunteer it (`MODEL.md` §8.5).
 
-**S6 · Incumbency: dependence and scale**
+**S6 · Fossil interests: dependence and scale**
 *Message:* the same fossil interest shows up two ways — how much of the energy system depends on
 it, and how large it is per person — and the data separate them.
-*Figure:* **Fig 2b** — marginal effect of each incumbency term across the observed range of
+*Figure:* **Fig 2b** — marginal effect of each fossil term across the observed range of
 government effectiveness, over observed support only.
 *Rail:* one conditional term survives cluster-robust inference (`Incumb pc × VerAcc`, power & industry,
 $p_{\text{wild}}$ .015) and it depends on China and Saudi Arabia (`MODEL.md` §2.6). Say "partly
@@ -200,10 +200,10 @@ Russia) are *ranked last*, not measured at 50%.
 *Message:* several central quantities are deliberately not identified, and saying so is the
 contribution.
 *Figure:* **Fig 2c** — selection-bootstrap frequencies against pool and menu base rates.
-Government Effectiveness is in **100%** of winners; the two-term incumbency form `bothIncAP` in
+Government Effectiveness is in **100%** of winners; the two fossil terms form `bothIncAP` in
 **76%**; the selected channel set `WGIge|noRoL|VerAcc` in **13%** (most over-selected per pool slot,
 3.98×); the exact specification in **8.5%**.
-*Rail:* what may be claimed is **state capability belongs in the model** and **incumbency enters
+*Rail:* what may be claimed is **state capability belongs in the model** and **fossil interests enter
 in both forms**. What may **not** be claimed is that the selected channel set or specification was
 chosen by the data: Rule of Law is in 74% of winners and the selected specification omits it; no
 accountability measure wins half the draws. Pair with the fact that the selected specification ranks first
@@ -422,7 +422,7 @@ output dates against artifact dates rather than trusting a clean run (`TODO.md` 
 | Fig 1b | observed vs fitted frontier, 2022 | `frontier.rds` | `frontier-fit` — re-render |
 | Fig 1c | efficiency-ratio distribution, by provenance | `frontier.rds`, donor bands | `efficiency-distribution` — re-render |
 | Fig 2a | term contributions β×SD(x) | `frontier.rds` (+ `inference.rds` for significance) | `frontier-coefficients` — re-render; mark significance from the mean regression |
-| Fig 2b | marginal effect of incumbency across GovEff | `frontier.rds` (`$vcov`, `$support`) | `marginal-effect-incumbency` — re-render; must name which of the two incumbency terms |
+| Fig 2b | marginal effect of fossil interests across GovEff | `frontier.rds` (`$vcov`, `$support`) | `marginal-effect-incumbency` — re-render; must name which of the two fossil terms |
 | Fig 2c | selection-bootstrap frequencies | `selection-bootstrap.rds` | `selection-stability` — re-render |
 | Fig 3a | anchor vs bound vs gap, 2025–2100 | `coupling/coupling-summary.rds` | `anchor-bound-gap` — re-render |
 | Fig 3b | 2050 regional shortfall distribution | `coupling/coupling-summary.rds` | `shortfall-regions` — re-render |

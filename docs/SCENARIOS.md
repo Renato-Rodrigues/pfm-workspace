@@ -99,7 +99,7 @@ Each sector gets its own ranking u and its own strength k(t). REMIND needs the t
 
 **Which sector binds depends on the specification family** (§6.2a). Under the selected both-saturate family the
 **Power & industry** sector is the more constrained one in **15 of 21 EU21 regions and 11 of 12 H12 regions**; under
-the innovators-only family and the annual-data rung it is the buildings & transport sector in 17 and 18 of 21, close to `v5` (14). Neither "the limit on
+the clean-energy-only family and the annual-data rung it is the buildings & transport sector in 17 and 18 of 21, close to `v5` (14). Neither "the limit on
 household energy costs constrains the economy-wide price" nor its opposite is a robust statement.
 
 ### 1.2 Two closures: hold the price, or hold the budget
@@ -168,7 +168,7 @@ institutions carried about half of the power & industry strength's fall by 2100.
 | uncovered countries | all-median, all-low, nearest donors (both); USA donor, USA low (price) | variant Run-Groups `v6-<rule>` | EU21 |
 | markup and proportional mode | `-Min` (both), `-PFMratio` | `cm_pfmSectorMarkup = 0`; bind mode 1 | EU21 and H12 |
 | curve shape (main-text robustness) | saturation 0.5× and 2× (price) | `v6-sat05`, `v6-sat2` | EU21 |
-| only innovators saturate / annual data (SI) | `specalt` (both), `annual` (price) | `v6-specalt`, `v6-annual` | EU21 |
+| only clean-energy interests saturate / annual data (SI) | `specalt` (both), `annual` (price) | `v6-specalt`, `v6-annual` | EU21 |
 | formulation | constant limit (price), drivers stop in 2060 (both), regional k (price) | `pfmPhiHold`, `pfmPhiHoldYear`, `pfmPhiStrength` | EU21 |
 | erosion rate κ | 0.027, 0.02, 0.05 (both) | `pfmPhiKappa` | EU21 |
 | strength vs ranking (added 2026-10-10) | constant limit (budget) | `pfmPhiHold` | EU21, tag `V6CEHOLD` |
@@ -229,7 +229,7 @@ a title is quoted in code font when it is needed. The old labels are listed in
 | `-allmedian`, `-alllow`, `-nearest`, `-usadonor`, `-usalow` | uncovered countries: all at the median, all low, nearest donors, the USA as a donor, the USA low | variant Run-Groups `v6-<name>` |
 | `Min`, e.g. `-PFMlevelBfixMin-v6` | markup off: one price across a region's markets | `cm_pfmSectorMarkup = 0` |
 | `-sat05`, `-sat2` | saturation at 0.5× / 2× the median | `v6-sat05`, `v6-sat2` |
-| `-specalt` | only innovators saturate (SI) | `v6-specalt` |
+| `-specalt` | only clean-energy interests saturate (SI) | `v6-specalt` |
 | `-annual` | annual data (SI) | `v6-annual` |
 | `-EU21-` infix / none | 21 regions with the EU split / 12 regions (H12) | `regionmapping` |
 | start tag `V6W1<res>` / `V6W2<res>` | first / second batch | — |
@@ -455,10 +455,10 @@ the declared one would make the sensitivity run unusable, and none does. Figure:
 | ranking: reversed | +67.9 | −50.3 | the ranking is not irrelevant: reversing it costs 50 Gt |
 | uncovered countries: all median / all low / nearest donors / USA donor / USA low | +109.5 / +154.6 / +133.6 / +117.4 / +134.8 | −8.7 to +36.4 | **the widest data-side band, 110–155 Gt** |
 | saturation 0.5× / 2× | +115.2 / +130.0 | −3.0 / +11.8 | curve shape: small |
-| the innovators-only family (`specalt`) / annual data | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry k above 1 (1.19 / 1.12 in 2050 / 2100) |
+| the clean-energy-only family (`specalt`) / annual data | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry k above 1 (1.19 / 1.12 in 2050 / 2100) |
 
 Hold the budget under the same sensitivity runs (median 2050 regional price, EU21): κ ×1.069 / 1.055 / 1.031, uniform ×1.043,
-permuted 1 ×1.114, all-median ×1.137, all-low ×1.217, nearest ×1.178, the innovators-only family ×1.136, drivers stop in 2060 ×1.163.
+permuted 1 ×1.114, all-median ×1.137, all-low ×1.217, nearest ×1.178, the clean-energy-only family ×1.136, drivers stop in 2060 ×1.163.
 
 ### 4.10 Against `v5`
 
@@ -520,7 +520,7 @@ Figure: `v6-rulec-relocation` (the constant limit bar beside v5 and v6).
    evidence; say so wherever the two are compared (§4.10).
 3. **Two regions per sector are pinned by the parameter, not by data.** φ = 1 − θ·k(t) exactly for the
    region at u = 1 in each sector (**CHA** in buildings & transport, **IND** in power & industry, at both resolutions, under the
-   selected specification; REF under the innovators-only family, REF and ECS under the annual rung), and 1 for the region at u = 0.
+   selected specification; REF under the clean-energy-only family, REF and ECS under the annual rung), and 1 for the region at u = 0.
    φ is a *ranking* (§6.2).
 4. **Legislated prices may be rolled back in every run** (§6.3), and rarely are: from 2030 to 2100 both
    market prices sit below the current-policy reference in 1.7% of region-years under hold the price at EU21
@@ -537,10 +537,10 @@ Figure: `v6-rulec-relocation` (the constant limit bar beside v5 and v6).
 9. **Four short hold-the-budget runs were still settling** (§3.4); two budget-forced runs never peak before 2150
    (`-PFMlevelCMin-v6`, §4.5, and `-PFMlevelC-Ehold-v6`, §4.10).
 10. **Every φ is conditional on modelling choices the data do not settle** — the frontier family
-    (the innovators-only family in §4.9), the curve shape, the institution projections (fixed-institutions variants), the hold rule
+    (the clean-energy-only family in §4.9), the curve shape, the institution projections (fixed-institutions variants), the hold rule
     (Constant limit). No φ here is a measured property of a region.
 11. **Which sector binds** is a property of the specification family: power & industry in 15 of 21 EU21 regions
-    under the both-saturate family, in 3 of 21 under the innovators-only family and the annual rung (§6.2a). Do not write it as a fact
+    under the both-saturate family, in 3 of 21 under the clean-energy-only family and the annual rung (§6.2a). Do not write it as a fact
     about regions.
 
 ---
@@ -622,14 +622,14 @@ The clearest cases at EU21:
 |---|---:|---|
 | selected (the both-saturate family) | 15 of 21 | CHA, IND |
 | saturation 0.5× / 2× (the both-saturate family) | 13 / 14 | CHA, IND / CHA, ECE |
-| **the innovators-only family** (`specalt`) | **3** (CAZ, ENC, NEN) | REF |
+| **the clean-energy-only family** (`specalt`) | **3** (CAZ, ENC, NEN) | REF |
 | **annual data** | **3** (CAZ, NEN, REF) | REF, ECS |
 | all-median / all-low / nearest donors | 15 / 15 / 15 | CHA, IND / MEA, CHA / CHA, IND |
 
 Eight regions keep their binding sector in every run (CAZ, NEN on power & industry; CHA, ECS, ESW, EWN, FRA, NES on
-Buildings & transport); thirteen change with the specification. Under the innovators-only family the attribution is close to `v5`
-(Buildings & transport in 14 of 21): buildings & transport binds in 17 of 21 under the innovators-only family (REF ties) and 18 under the annual rung. The assignment of uncovered countries does not move it. **So which sector binds
-is decided by how incumbent power is assumed to behave below the observed range** (the both-saturate family vs B,
+Buildings & transport); thirteen change with the specification. Under the clean-energy-only family the attribution is close to `v5`
+(Buildings & transport in 14 of 21): buildings & transport binds in 17 of 21 under the clean-energy-only family (REF ties) and 18 under the annual rung. The assignment of uncovered countries does not move it. **So which sector binds
+is decided by how fossil dependence is assumed to behave below the observed range** (the both-saturate family vs the clean-energy-only family,
 `MODEL.md` §2.3) — not by the data. A sector φ of exactly 1.000 is a ceiling clamp, not a measurement —
 do not report "China's electricity and industry face no political constraint". Never quote a
 country-level figure for a coupled regional result.

@@ -191,7 +191,7 @@ shipped and produced a run that looked fine, most importantly `carbonprice` not 
 **The `v6` batch** (`SCENARIOS.md` §2 has every row and what it is for): the uncoupled 3.7.1 bases
 (`NPi2025`, `PkBudg1000`, `-PFMgateRef`), two no-politics references (`-PFMgate-v6` budget-held, `-PFMgateBfix-v6`
 price-held), both closures at θ 0.325 / 0.50 / 0.675 with fixed-institutions variants (first batch, both
-resolutions), and the second batch sensitivity runs (ranking, assignment, markup, shape, the innovators-only family, formulation, κ),
+resolutions), and the second batch sensitivity runs (ranking, assignment, markup, shape, the clean-energy-only family, formulation, κ),
 mostly EU21. Start tags `V6W<wave><res>`, `<res>BASE`, and one tag per row added after its wave
 (`V6CEHOLD`); `submitPFM()` submits a tag after a preflight (`RUNNING.md` step 7c).
 

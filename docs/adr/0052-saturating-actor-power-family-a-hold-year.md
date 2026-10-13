@@ -1,4 +1,4 @@
-# ADR 0052 — Saturating actor power: the both-saturate family in the main text, the innovators-only family in the SI; the curve's shape; no hold year
+# ADR 0052 — Saturating actor power: the both-saturate family in the main text, the clean-energy-only family in the SI; the curve's shape; no hold year
 
 - **Status:** **Accepted 2026-10-07** (author) — the decisions are the author's (0005 D6,
   2026-10-01; D7, 2026-10-02; §7a decisions 6 and 8, 2026-10-07) and the Phase 2 gate is passed.
@@ -13,12 +13,12 @@
 ## Decision
 
 1. **The actor-power form is selected, under an extrapolation gate** (D7). Every split spec is fitted
-   linear, both-saturating (`satAP`), innovator-only (`satInn`) and incumbent-only (`satInc`); the
+   linear, both-saturating (`satAP`), clean-energy-only (`satInn`) and fossil-only (`satInc`); the
    composite Actor Power Index is dropped. A severe gate rejects specs whose actor-power drivers lie
    more than 1 training SD beyond support in more than 27.5% of in-coverage country-years, 2025–2100.
    The other clamps stay.
-2. **The both-saturate family in the main text, the innovators-only family in the SI** (decision 6). The selected `X-1791 … satAP`
-   saturates innovators *and* incumbents (the both-saturate family). The innovators-only family (`satInn`) is reported through its most
+2. **The both-saturate family in the main text, the clean-energy-only family in the SI** (decision 6). The selected `X-1791 … satAP`
+   saturates clean-energy interests *and* fossil interests (the both-saturate family). The clean-energy-only family (`satInn`) is reported through its most
    frequent bootstrap winner, `X-2079 … satInn` (Run-Group `v6-specalt`).
 3. **The curve's shape is a main-text robustness check.** The half-saturation point is set to 0.5×,
    1× and 2× the training median (`apSatScale`; Run-Groups `v6-sat05`, `v6-sat2`).
@@ -33,11 +33,11 @@
   B (51%) 0.86–1.22. The annual rung `v6-annual` selected `X-1860 satInn`, which gives 1.22 on the
   `v6` panel too: the rung's opposite result is the spec, not the panel.
 - **The families differ only below the observed range.** In PkBudg1000 2050, 56% of countries sit below
-  the training 5th percentile of the power & industry incumbent share (20% below its minimum), and 59% above the
-  innovator maximum. The both-saturate family's curve $x/(x+\bar x)$ is steepest at zero, so incumbent power collapses
-  fast as incumbents vanish; the innovators-only family keeps incumbents linear.
+  the training 5th percentile of the power & industry fossil dependence (20% below its minimum), and 59% above the
+  clean-energy maximum. The both-saturate family's curve $x/(x+\bar x)$ is steepest at zero, so fossil dependence collapses
+  fast as fossil interests vanish; the clean-energy-only family keeps fossil interests linear.
 - **Why the both-saturate family:** the joint fit of the shared spec (the best family-A specs beat the best family-B
-  ones by about 50 BIC, from buildings & transport; in power & industry alone the innovators-only family is 14 better); symmetric treatment of the
+  ones by about 50 BIC, from buildings & transport; in power & industry alone the clean-energy-only family is 14 better); symmetric treatment of the
   two actor groups; and ADR 0040's own rationale, that no share should extrapolate linearly into a
   range no country has occupied. Disclosed: the bootstrap splits about 49 / 51.
 - **The shape check:** all three shapes pass the sanity walk; ranking Spearman ≥ 0.97 with 1×.
@@ -58,8 +58,8 @@
 
 ## Consequences
 
-- The paper says in one sentence that the size of the power & industry loosening rests on how incumbent power
-  behaves below anything observed, and reports the innovators-only family and the gate-rejected family-A specs in the SI.
+- The paper says in one sentence that the size of the power & industry loosening rests on how fossil dependence
+  behaves below anything observed, and reports the clean-energy-only family and the gate-rejected family-A specs in the SI.
 - Quote the power & industry result as a band (the shape range 0.57–0.75 in 2050), not as the selected value
   alone.
 - `apSatScale` enters the fit and bootstrap cache keys only when it is not 1, so every existing cache
@@ -70,8 +70,8 @@
 
 ## Alternatives rejected
 
-- Declare the innovator-only form (the earlier recommendation), or saturate both groups by
+- Declare the clean-energy-only form (the earlier recommendation), or saturate both groups by
   declaration (D7).
 - Keep the composite Actor Power Index.
-- Present the selected specification alone, or put the innovators-only family in the main text.
+- Present the selected specification alone, or put the clean-energy-only family in the main text.
 - Hold $k$ from 2060 in the central case (D6).

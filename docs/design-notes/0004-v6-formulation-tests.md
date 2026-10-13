@@ -23,11 +23,11 @@ excess in training SDs; `guard.rds$audit`):
 
 | driver | 2035 out | 2050 out | 2100 out | typical excess | reading |
 |---|---:|---:|---:|---|---|
-| **Innovator power** (above) | 8 / 10% | 56 / 65% | 63 / 78% | p95 **5–9 SD** | **the clamp that shapes results after 2035** |
-| Innovator power (below) | 19 / 20% | 15% | 15% | < 1 SD | low-VRE uncovered countries |
-| Incumbent share (below) | 17% | 19–21% | 37–38% | ≤ 1.3 SD | bounded by 0; harmless |
-| Incumbent per capita (below) | 52–54% | 98% | 98% | ≤ 0.2 SD | harmless |
-| Incumbent per capita (**above**) | 1% | 0 | 0 | **up to 40–75 SD** in 2025–35 | a few extreme per-capita fossil economies — **keep** |
+| **Clean-energy build-out** (above) | 8 / 10% | 56 / 65% | 63 / 78% | p95 **5–9 SD** | **the clamp that shapes results after 2035** |
+| Clean-energy build-out (below) | 19 / 20% | 15% | 15% | < 1 SD | low-VRE uncovered countries |
+| Fossil dependence (below) | 17% | 19–21% | 37–38% | ≤ 1.3 SD | bounded by 0; harmless |
+| Fossil interests per person (below) | 52–54% | 98% | 98% | ≤ 0.2 SD | harmless |
+| Fossil interests per person (**above**) | 1% | 0 | 0 | **up to 40–75 SD** in 2025–35 | a few extreme per-capita fossil economies — **keep** |
 | Log population (below) | 26% | 26% | 26% | up to **130 SD** | tiny territories, structural — **keep** |
 | GDP per capita (above) | 4% | 15% | 60% | p95 5.7 SD by 2100 | grows with SSP income — **keep** |
 | GovEff (above) | 0.4% | 6% | 16% | ≤ 0.12 SD | already clamped upstream |
@@ -40,33 +40,33 @@ excess in training SDs; `guard.rds$audit`):
 
 | variant | φ 2035 vs selected | φ 2050 | φ 2070 | Buildings & transport ceiling 2100 (median; share > 9) | Power & industry median E 2100 |
 |---|---|---|---|---|---|
-| innovator unclamped | Spearman **0.977**, median \|Δφ\| 0.005, max 0.031, same floor | 0.878 / 0.100 / 0.238 | 0.824 / 0.116 / 0.286 | 9.00; **50%** (selected 7.43; 0%) | **0.18** (selected 0.45) |
+| clean-energy unclamped | Spearman **0.977**, median \|Δφ\| 0.005, max 0.031, same floor | 0.878 / 0.100 / 0.238 | 0.824 / 0.116 / 0.286 | 9.00; **50%** (selected 7.43; 0%) | **0.18** (selected 0.45) |
 | all actor power unclamped | 0.977 / 0.006 / 0.031 | 0.885 / 0.101 / 0.252 | 0.840 / 0.118 / 0.279 | 8.99; 50% | 0.17 |
 | no guard at all | 0.979 / 0.006 / 0.072 | 0.876 / 0.101 / 0.252 | 0.835 / 0.120 / 0.284 | 8.99; 50% | 0.19 |
 
 **Answers.**
 
-- **Can the innovator clamp go?** *For the selected single 2035 reading, yes, at almost no cost*:
+- **Can the clean-energy clamp go?** *For the selected single 2035 reading, yes, at almost no cost*:
   φ moves by a median 0.005 and at most 0.03, and the floor is unchanged. By 2035 few countries have
-  left the innovator range.
+  left the clean-energy range.
 - **What plays against it** — everything after 2035. Most countries end up 5–9 SD beyond any observed
-  innovator share, and a *linear* coefficient is then extrapolated that far:
+  clean-energy build-out, and a *linear* coefficient is then extrapolated that far:
   - the buildings & transport ceiling runs into the logit bound: half of all countries above 9 by 2100, so the
     ordering compresses at the top and stops discriminating;
   - Power & industry stringency is projected to **fall** as renewables grow (median E 0.45 → 0.18), because the
-    power & industry ECM innovator coefficient is negative (−0.077, not significant). An insignificant sign
+    power & industry ECM clean-energy coefficient is negative (−0.077, not significant). An insignificant sign
     becomes a first-order projection.
 - **Relaxing the other clamps** changes nothing measurable (`noGuard` ≈ `noActorPower` at every
   tier year), because in this SSP2 run they barely bind. That is also why they should **stay**: they
   cost nothing now and are exactly what stops explosions once SSP inputs move. Keep, in order of
-  importance: log population (structural, 130 SD), incumbent per capita *upper* bound (40–75 SD
+  importance: log population (structural, 130 SD), fossil interests per person *upper* bound (40–75 SD
   outliers), GDP per capita (60% out by 2100, more under SSP5), GovEff upper bound (SSP1/5 reach the
   scale maximum by 2070, §4). VerAcc and hydro/nuclear never bind and can stay as insurance.
-- **The principled way to "unclamp" innovators** is the saturating transform already in the code
+- **The principled way to "unclamp" clean-energy interests** is the saturating transform already in the code
   (`apTransform = "saturating"`, ADR 0040): `x / (x + x̄)` has a marginal effect that decays, and the
   guard then clamps it only at the *physical* domain (share = 1), not the sample edge. It is in the
   sweep's menu (`satAP`); the best per-sector buildings & transport spec `X-1854` uses it. A v6 with later tier
-  years should adopt it for innovator power, and re-run selection to do so; dropping the clamp on a
+  years should adopt it for clean-energy build-out, and re-run selection to do so; dropping the clamp on a
   linear term is not a defensible alternative.
 
 ## 2. Annual data instead of the 5-year moving average
@@ -125,8 +125,8 @@ as `papers/pfm-paper-v5/docs/gap-plan.md` GP-26, now answered offline.
 
 - **Under the selected rule, later tiers reorder the world** — by 2070 the ordering is unrelated to
   2035's (0.10). What drives it is not politics: the power & industry gap widens because the projected power & industry
-  equilibrium falls with decarbonisation (the incumbency and innovator coefficients of §1), and by
-  2070 88% of buildings & transport innovator values are out of support. That is `MODEL.md` §7's "no scenario
+  equilibrium falls with decarbonisation (the fossil interests and clean-energy coefficients of §1), and by
+  2070 88% of buildings & transport clean-energy values are out of support. That is `MODEL.md` §7's "no scenario
   differences past ~2060" in numbers.
 - **Under a frozen gap, extra tiers are redundant** — and the energy-system feedback almost vanishes
   with them, because a fixed E moves the regional gap only through composition.
@@ -181,7 +181,7 @@ through the same projection. But the three questions are one question:
 |---|---|---|---|
 | 1 | a projection-rule switch in `iterativePFM()` (frozen 2022 E vs λ) and a frozen-gap `v5` sensitivity run | small code, 2 runs per resolution | 2035 floor and ordering depend on it (Spearman 0.52) — the paper's own open GP-26 |
 | 2 | frontier on the annual panel as a rung (or as the selected fit) | one re-fit | removes the smoothing choice; ordering already robust |
-| 3 | innovator power on the saturating transform, re-select | a sweep | prerequisite for any reading after 2035 |
+| 3 | clean-energy build-out on the saturating transform, re-select | a sweep | prerequisite for any reading after 2035 |
 | 4 | a 2050 tier as an SI sensitivity: linear 2035 → 2050, held after | GDX symbol for hold the budget / ratio | only after 1–3 |
 | 5 | SSP governance swap (SSP1 / SSP3) on the SSP2 energy system, offline | a day | measures whether the SSP signal survives normalisation before any SSP run |
 

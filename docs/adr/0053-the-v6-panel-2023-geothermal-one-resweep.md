@@ -31,7 +31,7 @@
   ΔR²(theory) 0.131 / 0.175 (`v5`: 0.112 / 0.166), 48 covered countries. Rule of Law enters next to
   GovEff, so max VIF rises to 7.7 / 7.9 (ADR 0048 keeps the soft VIF key off). Over the same 48
   countries the efficiency ordering at the anchor keeps a Spearman of 0.82 / 0.87 with `v5`.
-- **The annual rung** selects `X-1860 WGIge|RoL|HorAcc … satInn` (the innovators-only family, ADR 0052). Its power & industry
+- **The annual rung** selects `X-1860 WGIge|RoL|HorAcc … satInn` (the clean-energy-only family, ADR 0052). Its power & industry
   historical replay fails by 4e-5 in RMSE (the ceiling binds in 1 of 1104 rows), identically before
   and after the fixes of ADR 0051.
 

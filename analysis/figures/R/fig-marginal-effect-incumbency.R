@@ -1,10 +1,10 @@
 # Fig 2b — does actor power act THROUGH institutions, or around them?
 #
-# The claim (C9) is that the effect of incumbent power on the ceiling is conditional on state
+# The claim (C9) is that the effect of fossil dependence on the ceiling is conditional on state
 # capability rather than additive. That is a statement about a marginal effect, not about a
 # coefficient, and it cannot be read off the coefficient table:
 #
-#     d(eta)/d(Incumbent) = beta_Inc + beta_(Inc x GovEff) * GovEff
+#     d(eta)/d(Fossil) = beta_Inc + beta_(Inc x GovEff) * GovEff
 #
 # so its variance is
 #
@@ -16,7 +16,7 @@
 # runPFMFrontier() started persisting $vcov and $support (2026-08-18).
 #
 # BOTH INCUMBENCY TERMS, ONE ROW EACH (added 2026-09-18, TODO item 37). The selected specification is
-# `bothIncAP`: incumbency enters twice, as a SHARE of the energy system and PER CAPITA, and the
+# `bothIncAP`: Fossil interests enter twice, as a SHARE of the energy system and PER CAPITA, and the
 # two are different claims about how fossil interests bind. Drawing only the share term showed
 # half the mechanism, and the half that was drawn was the one whose sign is easier to read.
 # Each row carries its own interaction with the moderator; a spec with only one of the two
@@ -27,7 +27,7 @@
 # extrapolation, not a finding. The interquartile range is marked so a reader can see where
 # the data actually are rather than only where they stop.
 #
-# Note the model carries a SECOND interaction, Incumbent x Horizontal Accountability. It is
+# Note the model carries a SECOND interaction, Fossil x Horizontal Accountability. It is
 # held at its sample mean, which is stated on the figure - the curve is a conditional slice,
 # not a total derivative.
 
@@ -50,10 +50,10 @@ figMarginalEffectIncumbency <- function(group = "v5",
     cand[paste0(cand, "_x_", moderator) %in% allTerms]
   }
   if (!length(focals)) {
-    stop("figMarginalEffectIncumbency: no incumbency term with an interaction on '", moderator,
+    stop("figMarginalEffectIncumbency: no fossil term with an interaction on '", moderator,
          "' in this spec (", fr$spec, ").", call. = FALSE)
   }
-  # name the term: a bothIncAP spec carries incumbency twice (share and per capita)
+  # name the term: a bothIncAP spec carries fossil interests twice (share and per capita)
   # SHORT strip labels: the long names are clipped at panel height, and the subtitle already
   # says what "share" and "per capita" mean.
   termLabel <- function(x) if (grepl("[.]pc$", x)) "per capita" else "share"
@@ -88,7 +88,7 @@ figMarginalEffectIncumbency <- function(group = "v5",
     }))
   }))
   if (is.null(d) || !nrow(d)) {
-    stop("figMarginalEffectIncumbency: the incumbency interactions are not in this spec.",
+    stop("figMarginalEffectIncumbency: the fossil interests interactions are not in this spec.",
          call. = FALSE)
   }
   # share on top, per capita below - the share term is the one the text leads with
@@ -117,18 +117,18 @@ figMarginalEffectIncumbency <- function(group = "v5",
     ggplot2::geom_hline(yintercept = 0, colour = "grey40", linewidth = 0.4) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = lo, ymax = hi, fill = sector), alpha = 0.18) +
     ggplot2::geom_line(ggplot2::aes(y = me, colour = sector), linewidth = 0.8) +
-    # rows = the two incumbency terms, columns = the two sectors. Free y because the two terms
+    # rows = the two fossil terms, columns = the two sectors. Free y because the two terms
     # are on different scales: a share and a per-capita quantity are not comparable in level,
     # and forcing one axis would flatten whichever row is smaller into a line.
     ggplot2::facet_grid(termLabel ~ sector, scales = "free_y", switch = "y") +
     ggplot2::scale_colour_manual(values = pfmSectorColours(), guide = "none") +
     ggplot2::scale_fill_manual(values = pfmSectorColours(), guide = "none") +
     ggplot2::labs(
-      title = "Fossil incumbency bites differently depending on state capability",
+      title = "Fossil interests bite differently depending on state capability",
       subtitle = paste0(
-        "Marginal effect of incumbent power on the ceiling as government effectiveness varies, ",
+        "Marginal effect of fossil dependence on the ceiling as government effectiveness varies, ",
         "with 95% ML intervals\nfrom the frontier covariance matrix. The selected specification carries ",
-        "incumbency TWICE - as a share of the energy system\nand per capita - and each row is one ",
+        "fossil interests TWICE - as a share of the energy system\nand per capita - and each row is one ",
         "of them. Shaded band is the observed interquartile range of the moderator;\nthe axis ",
         "spans its observed range and stops there. The second interaction is held at its sample mean."),
       x = "government effectiveness (standard deviations from the sample mean)",

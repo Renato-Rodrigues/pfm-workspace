@@ -54,10 +54,10 @@ p = 3e−08; buildings & transport −0.404, p = 2e−17) — and Vertical Accou
 both (p = .78, p = .37). On `v5` the only significant institutional main effect anywhere is
 Government Effectiveness in buildings & transport.
 
-🟢 **What it buys.** Actor power becomes theory-consistent. The power & industry incumbency term was
+🟢 **What it buys.** Actor power becomes theory-consistent. The power & industry fossil term was
 **+0.592 and significant against theory** on `v4`; on `v5` the structural (share) term is
 **−0.190, p = .004** in power & industry and **−0.130, p = 1e−09** in buildings & transport, with the instrumental
-(per-capita) term positive. Separating structural from instrumental incumbency is doing real
+(per-capita) term positive. Separating the structural (share) from the instrumental (per-person) fossil term is doing real
 work, which is what ADR 0044 argued it would.
 
 ### Why the θ sweep is declared rather than anchored

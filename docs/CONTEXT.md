@@ -42,7 +42,7 @@ large, organised actors. **Buildings & transport** = buildings + transport: cost
 directly. The four-sector split (electricity, industry, buildings, transport) is used only for
 adjustment speeds.
 
-### Actor power — Innovator and Incumbent
+### Actor power — clean-energy and fossil interests
 Two shares computed from the IAM's own energy system: how far the clean transition has gone,
 and how much fossil capital is still in place. **This is the channel through which a REMIND
 pathway talks back to the model.** They must enter **split**, never as a composite difference —

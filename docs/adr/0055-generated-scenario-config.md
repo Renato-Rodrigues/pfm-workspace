@@ -24,7 +24,7 @@
   2026-09-18, and the old generator no longer reproduces it ("regenerating … DESTROYS work").
 - The failure the generator was written to prevent - a PkBudg1000 family carrying a PkBudg750 parent's
   switches - is therefore possible again.
-- The `v6` batch adds the fixed-institutions variants, the shape variants and the innovators-only family as Run-Group variants
+- The `v6` batch adds the fixed-institutions variants, the shape variants and the clean-energy-only family as Run-Group variants
   (ADR 0051, 0052), and later an SSP axis.
 
 ## Consequences

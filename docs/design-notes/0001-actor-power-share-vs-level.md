@@ -3,9 +3,9 @@
 Date: 2026-08-24; closed 2026-09-15
 Status: **Closed by [ADR 0044](../docs/adr/0044-actor-power-share-and-per-capita-level.md) and
 [ADR 0045](../docs/adr/0045-extrapolation-gate-at-0275-and-declared-theta-sweep.md).** The selected form on
-Run-Group `v5` is **`bothIncAP`** — innovator power as a share, incumbent power as **both** a
+Run-Group `v5` is **`bothIncAP`** — clean-energy build-out as a share, fossil dependence as **both** a
 share and a per-capita level — in `X-2079 WGIge|noRoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
-fe:OECDp`. The theory below is kept because it is the reason both incumbent terms are carried;
+fe:OECDp`. The theory below is kept because it is the reason both fossil terms are carried;
 the outcome is at the end. Earlier sweep-by-sweep evidence is in
 `../_archive/_wip/2026-09-16/docs-pre-v5-sweep/design-notes/`.
 Related: ADR 0040 (saturating actor power), ADR 0043 (ceiling gate), `MODEL.md` §2.3.
@@ -65,12 +65,12 @@ share-only model represents structural power only.**
 
 **Against**
 
-- Implies a small, poor, mostly-fossil country has *maximal* incumbent power — Nigeria above
+- Implies a small, poor, mostly-fossil country has *maximal* fossil dependence — Nigeria above
   Germany. Defensible as dependence; indefensible as capacity to influence.
 - Insensitive to absolute resources: 20% of a vast system funds far more lobbying than 90% of a
   small one.
 - **Denominator contamination.** The share falls when clean energy grows even if the fossil sector
-  is untouched, so "incumbents lost relative position" and "incumbents shrank" are the same number.
+  is untouched, so "fossil interests lost relative position" and "fossil interests shrank" are the same number.
 - In a deep-mitigation scenario it is driven to a floor **by construction**, not by politics.
 
 ## Per-capita level
@@ -107,16 +107,16 @@ structure, development stage and climate at once. Theoretically attractive, empi
 
 ## The two sides are not symmetric
 
-- **Incumbents** have both structural and instrumental power. The structural component is real and
+- **Fossil interests** have both structural and instrumental power. The structural component is real and
   share-like.
-- **Innovators** have almost **no structural power** — the economy does not yet depend on them.
+- **Clean-energy interests** have almost **no structural power** — the economy does not yet depend on them.
   Their influence is instrumental plus a policy-feedback channel: deployment creates constituencies
   that defend and extend policy (green spirals — Jacobs & Weaver, Aklin & Urpelainen; Meckling's
   carbon coalitions). That literature conventionally operationalises this as **deployment share**,
   because what matters is how established and normalised the clean sector has become.
 
-So the theoretically clean position may be the opposite of uniform: **share for innovators, level
-for incumbents.**
+So the theoretically clean position may be the opposite of uniform: **share for clean-energy interests, level
+for fossil interests.**
 
 The usual objection to mixed forms — that the composite `innovator − incumbent` becomes incoherent
 across scales — **does not apply here.** The split forms enter the two separately
@@ -131,21 +131,21 @@ Not a theoretical argument, but decisive when both constructs are defensible.
 Coefficients are estimated on 2000–2022 and applied to 2100. Measured when this note was written
 (2026-08-24), on the share-only specification then selected, median over covered countries:
 
-| Incumbent index | median z at 2100 | Power & industry ceiling ratio 2100/2025 |
+| Fossil index | median z at 2100 | Power & industry ceiling ratio 2100/2025 |
 |---|---:|---:|
 | fossil PE **share** | **−4.76** | 0.637 |
 | fossil PE **per capita** | −1.08 | 0.877 |
 | fossil **capacity** per capita | −1.07 | 0.876 |
 | fossil **capital** per capita | −1.02 | 0.885 |
 
-A share-based incumbent index is extrapolated roughly **five standard deviations** beyond its
+A share-based fossil index is extrapolated roughly **five standard deviations** beyond its
 estimation range; a per-capita level about **one**. Both are extrapolation; one is five times
 further out.
 
 **Two secondary findings from the same runs.** (a) Capacity and capital add nothing over the flow
 level — the trajectories correlate 0.983 and the ceiling ratios are within noise, so the gain is
-share → level, *not* flow → stock. (b) Changing the innovator index alone moves power & industry 0.624 → 0.615,
-i.e. nothing. The whole effect is on incumbent.
+share → level, *not* flow → stock. (b) Changing the clean-energy index alone moves power & industry 0.624 → 0.615,
+i.e. nothing. The whole effect is on fossil.
 
 Buildings & transport for completeness: 1.047 (share) → 1.158 (per capita). Already rising; not the problem
 sector.
@@ -156,8 +156,8 @@ sector.
 ## Outcome on `v5`
 
 **The sweep carries four per-capita-aware forms** (`createChannelConfigs.R`): `splitAPpc` (both
-per capita), `mixedAP` (innovator share, incumbent per capita), `bothIncAP` (innovator share,
-incumbent share **and** per capita — nesting the other two) and the share-only `splitAP`.
+per capita), `mixedAP` (clean-energy build-out, fossil interests per person), `bothIncAP` (clean-energy build-out,
+fossil dependence **and** per capita — nesting the other two) and the share-only `splitAP`.
 
 **1. Selection.** `bothIncAP` holds maximin ranks 1, 2, 3, 5, 6 and 7 of 4,392
 (`output/pfm/v5/sweep.rds`) and is selected. Of the gate-passing specifications, 124 are `bothIncAP`,
@@ -167,25 +167,25 @@ incumbent share **and** per capita — nesting the other two) and the share-only
 **76.0%** of winners against a 43.3% pool share (exact binomial $p$ < 1e-19) — the largest drift of
 any element; `splitAPpc` 17.3% against 26.7% ($p$ = .003); `mixedAP` 6.6%.
 
-**3. What the two incumbent terms say** (`output/pfm/v5/inference.rds`, mean regression, wild-cluster
+**3. What the two fossil terms say** (`output/pfm/v5/inference.rds`, mean regression, wild-cluster
 $p$; `output/pfm/v5/frontier.rds`):
 
 | term | Power & industry mean ($p_{wild}$) | Power & industry frontier | Buildings & transport mean ($p_{wild}$) | Buildings & transport frontier |
 |---|---:|---:|---:|---:|
-| Incumbent Power, share (structural) | −0.193 (.418) | **−0.190** | **−0.173 (.030)** | **−0.130** |
-| Incumbent Power, per capita (instrumental) | **+0.489 (<.001)** | **+0.308** | +0.069 (.593) | **+0.132** |
+| Fossil dependence, share (structural) | −0.193 (.418) | **−0.190** | **−0.173 (.030)** | **−0.130** |
+| Fossil dependence, per capita (instrumental) | **+0.489 (<.001)** | **+0.308** | +0.069 (.593) | **+0.132** |
 
 The two carry **opposite signs**, which is what separating them was for: dependence goes with lower
 stringency, size with higher. The structural term is theory-signed in both sectors and both
 estimators. The positive instrumental term is the exposure confound (`MODEL.md` §8.3) — large,
-capable fossil economies also regulate more — and is not evidence that incumbents raise ambition.
+capable fossil economies also regulate more — and is not evidence that fossil interests raise ambition.
 
 **4. What was wrong in this note's original recommendation.** It proposed `mixedAP` (replace the
-incumbent share by a per-capita level). The data never favoured dropping the share: `mixedAP` is the
+fossil dependence by a per-capita level). The data never favoured dropping the share: `mixedAP` is the
 least-selected form (6.6% of bootstrap winners). The theory above anticipated the reason — structural and
 instrumental power are different channels — but the recommendation then chose one of them.
 
-**5. Costs to disclose.** Carrying both incumbent terms adds collinearity (selected max VIF 3.41
+**5. Costs to disclose.** Carrying both fossil terms adds collinearity (selected max VIF 3.41
 Power & industry, 2.89 buildings & transport — well inside the gate) and two extra interactions per institution. Sign
 agreement across seven estimators is weak in power & industry (4 of 15 terms, `MODEL.md` §2.5.1), and neither
-incumbent main effect is among the stable ones there.
+fossil main effect is among the stable ones there.

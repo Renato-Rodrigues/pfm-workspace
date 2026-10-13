@@ -54,7 +54,7 @@ Other quantities the frames cite:
   | Uniform ranking | 105.8 |
   | Assignment band | 110–155 |
   | Frontier shape (saturation 0.5×, 2×) | 115–130 |
-  | Specification: only innovators saturate | 107.5 |
+  | Specification: only clean-energy interests saturate | 107.5 |
   | Annual data | 164.4 |
 
 ## Budget or price: what gives, the budget or the price (the current spine)
@@ -191,8 +191,8 @@ limit lasts.
 The constant and fading limits send the extra emissions to the same regions, in different amounts. With
 erosion little moves at all (8.4 Gt), and the Middle East and Other Asia turn to abating more. Under the
 constant limit, 5 regions emit more and 12 less (fading limit: 4 and 10). The binding sector depends on
-the specification: power & industry binds in 15 of 21 regions when innovators and incumbents both
-saturate, and in 3 of 21 when only innovators saturate (`SCENARIOS.md` §6.2a).
+the specification: power & industry binds in 15 of 21 regions when clean-energy and fossil interests both
+saturate, and in 3 of 21 when only clean-energy interests saturate (`SCENARIOS.md` §6.2a).
 
 - **Appeal:** concrete and geopolitical, with a story about equity and burden-sharing.
 - **Weakness:**

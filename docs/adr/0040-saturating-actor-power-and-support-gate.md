@@ -21,16 +21,16 @@ functional form rather than politics:
 
 Mechanism, measured:
 
-- The actor-power drivers are energy-system shares. Power & industry innovator power spans
+- The actor-power drivers are energy-system shares. Power & industry clean-energy build-out spans
   **0.029–0.433** in training (95th percentile 0.225; only 1.4% of rows above
   0.30) and REMIND takes it to **0.58–0.68**.
 - The model is **linear** in that share, so its slopes — including the negative
   `Innovator × GovEff` interaction (−0.232) — are extrapolated ~3× beyond the
   range that identifies them.
-- The extrapolation guard then clamps innovator power at the empirical maximum.
+- The extrapolation guard then clamps clean-energy build-out at the empirical maximum.
   By 2050 **78–100%** of countries are above it in *both* scenarios, so both
   clamp to the same value and the guarded scenario delta is **exactly 0.000**.
-  The whole scenario signal is left to travel through incumbent power, whose
+  The whole scenario signal is left to travel through fossil dependence, whose
   interaction with state capability is **positively** signed for 70% of
   countries — hence "less fossil ⇒ lower ceiling".
 - The trend freeze is *not* implicated: the trend regressor is constant (0.345)
@@ -57,7 +57,7 @@ xTilde = x / (x + xBar),     xBar = training MEDIAN of x
   (which already passes `driverScaling = fit$driverScaling`) reproduces it with no
   signature change.
 - **Applied only to strictly-positive actor-power columns.** The composite Actor
-  Power Index is a difference (innovator − incumbent, ~[−0.8, 0.1]); "diminishing
+  Power Index is a difference (clean-energy − fossil, ~[−0.8, 0.1]); "diminishing
   returns in a share" is undefined for it, so it is skipped with a warning and
   `sat = NA`.
 - **Swept as an axis**, not imposed: `psmSpecs()` appends `" satAP"` variants for
@@ -142,7 +142,7 @@ fossil rents / employment / reserves as pre-determined exposure — **no such
 reader exists in `mrpfm`** (checked 2026-08-10), so it is a data-acquisition
 project (item 5.3), not a sweep option. It stays a stated limitation, and it also
 explains why the shift-share IV returns a null: the instrument targets
-incumbency-as-power while the coefficient is partly incumbency-as-exposure.
+fossil-interests-as-power while the coefficient is partly fossil-dependence-as-exposure.
 
 **A strong feedback.** The scenarios differ from history precisely where there is
 no data, so no transform can create information there. Expect a bounded, honest,

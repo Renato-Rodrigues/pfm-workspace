@@ -49,13 +49,13 @@ The work is front-loaded with things that are cheap and decisive:
 1. **Phase 0:** the `psm` → `pfm` rename first, then commit, push and clean up. No `v5` runs.
 2. **Phase 1:** prove the formulation offline on existing `v5` gdx files before writing GAMS code.
 3. **Phase 2:** pay for **one** re-sweep that carries every specification change at once (panel to
-   2023, geothermal, saturating innovator power).
+   2023, geothermal, saturating clean-energy build-out).
 
 | phase | what | where | gate to the next phase |
 |---|---|---|---|
 | **0** | `psm` → `pfm` rename first; then commit and push, version control, small code fixes | workstation | the rename is one isolated commit per repo; `v5` artifacts still read through aliases; everything is pushed |
 | **1** | Offline prototype of the v6 formulation on `v5` artifacts and gdx files | workstation | the prototype reproduces the methodology's $k_s(t)$ values; ADRs drafted |
-| **2** | Data and estimation, Run-Group **`v6`**: SSP-aware panel, accountability rule, geothermal, panel to 2023, re-sweep with saturating innovator power | cluster (sweep) | spec selected; diagnostics pass; v5→v6 ordering comparison written |
+| **2** | Data and estimation, Run-Group **`v6`**: SSP-aware panel, accountability rule, geothermal, panel to 2023, re-sweep with saturating clean-energy build-out | cluster (sweep) | spec selected; diagnostics pass; v5→v6 ordering comparison written |
 | **3** | Coupling code: R (`iterativePFM` v6 path) and GAMS (time-indexed φ, hold-the-budget rebuild, mode R) | workstation + test runs | replay harness and negative control pass; θ = 0 gate run passes |
 | **4** | Run tooling: scenario matrix → generated config, preflight, submit wrapper, post-batch stage | workstation (in parallel with 3) | the v6 batch config is generated, not hand-edited |
 | **5** | Coupled batch `v6`: SSP2 core → sensitivities → SSP1 / SSP3 | cluster | every run converged or admitted by the §25a rule |
@@ -196,8 +196,8 @@ here (D1).
 | D4 | Normalise $k$ at $t_0 = 2025$ in every scenario; $u$ from anchor-year data; $\varphi(t_0) = 1 - \theta u$ | normalise at 2022 | recommended |
 | D5 | Converge on the **φ path** (max over regions, markets and checkpoint years) at the existing tolerance 0.002; log the all-period δ; switch to the strict rule if it ends above 2 × tol | converge on $k$ with tolerance tol/θ | agreed |
 | D6 | **No hold year in the central case:** $k_s$ follows the ceilings to 2100. **Hold at 2060 is the sensitivity.** The out-of-support share is reported per year with every run | hold at 2060 as the central case | **decided by the author, 2026-10-01** |
-| D7 | Actor-power form **selected, under an extrapolation gate**: every split actor-power spec is fitted linear, both-saturating, innovator-only and incumbent-only saturating; the composite Actor Power Index is dropped; a new sanity gate rejects specs whose actor-power drivers extrapolate beyond the training support over 2025–2100 (gating and reference). Every other clamp kept | innovator saturating, declared (the earlier recommendation); saturate both groups; keep the composite | **decided by the author, 2026-10-02** (options 1C, 2C, 3A); implemented |
-| D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating innovator power together. 2023 comes from the **IEA 2025 edition**, which also revises earlier years | three separate refits; a 2022-only fit on the 2025 edition | **decided by the author, 2026-10-02** (2023 and its edition) |
+| D7 | Actor-power form **selected, under an extrapolation gate**: every split actor-power spec is fitted linear, both-saturating, clean-energy-only and fossil-only saturating; the composite Actor Power Index is dropped; a new sanity gate rejects specs whose actor-power drivers extrapolate beyond the training support over 2025–2100 (gating and reference). Every other clamp kept | clean-energy saturating, declared (the earlier recommendation); saturate both groups; keep the composite | **decided by the author, 2026-10-02** (options 1C, 2C, 3A); implemented |
+| D8 | **One** re-sweep (Run-Group `v6`) carrying panel-to-2023, geothermal and saturating clean-energy build-out together. 2023 comes from the **IEA 2025 edition**, which also revises earlier years | three separate refits; a 2022-only fit on the 2025 edition | **decided by the author, 2026-10-02** (2023 and its edition) |
 | D9 | One SSP per run, taken from `cm_GDPpopScen` and threaded to the panel, the weights, $P^{ref}$ and the anchor donor; **asserted** | SSP2 everywhere (today) | recommended |
 | D10 | Institutions with no SSP projection (all V-Dem series, Rule of Law included; WGI Voice and Accountability, Political Stability, Regulatory Quality): **(b) declared storyline convergence** (target percentile and speed per SSP, SSP2 unchanged) in the headline; **(a)** the same convergence for every SSP and **(d)** hold at the last observed value as sensitivities. Rule of Law stays V-Dem, not WGI | (c) map from the Andrijevic composite index; WGI Rule of Law | **decided by the author, 2026-10-02**; implemented (`pfmInstitutionProjection`, `DATA.md` §5.4) |
 | D11 | Spread: $d_s = k_s$ in every headline run; a declared storyline spread $d_s = \rho_{SSP}(t)\,k_s$ only as an SI sensitivity run; the model-derived $D_s(t)/D_s(t_0)$ reported as a diagnostic only | model-derived spread in the headline | recommended |
@@ -289,8 +289,8 @@ here (D1).
   - **Revise `MODEL.md` §7.** Its prohibition of "scenario differences past ~2060" no longer holds
     for the delivered share. ADR 0052 records the change and its reason. The rule is replaced by
     a reporting duty: the out-of-support share per year travels with every $k_s(t)$ and φ(t).
-  - **Saturating innovator power becomes necessary, not optional (D7).** Without a hold, $k_s$
-    reads ceilings to 2100. By 2050, 56–65% of countries are above the innovator range on `v5`
+  - **Saturating clean-energy build-out becomes necessary, not optional (D7).** Without a hold, $k_s$
+    reads ceilings to 2100. By 2050, 56–65% of countries are above the clean-energy range on `v5`
     (0004 §1).
   - **The hold-2060 sensitivity run is the honest bound** on how much of each headline comes from late-century
     extrapolation. It runs for both closures at EU21 (Phase 5, second batch).
@@ -301,9 +301,9 @@ here (D1).
 **D7 — the actor-power form: selected, under an extrapolation gate (decided 2026-10-02).**
 
 - **Decision** (author, options 1C, 2C, 3A of the D7 brief):
-  - *1C, incumbents:* selection chooses whether incumbent power (share and per capita) is
-    saturated, as for innovators.
-  - *2C, innovators:* the linear form stays in the grid; what removes the extrapolation problem is
+  - *1C, fossil interests:* selection chooses whether fossil dependence (share and per capita) is
+    saturated, as for clean-energy interests.
+  - *2C, clean-energy interests:* the linear form stays in the grid; what removes the extrapolation problem is
     a gate, not a declaration. **Actor-power extrapolation gate:** severe when more than 27.5% of
     the in-coverage country-years in 2025–2100 have an actor-power driver more than 1 training SD
     beyond its support, on the gating or the reference projection. Saturating columns are guarded
@@ -311,7 +311,7 @@ here (D1).
     scenario keeps it near the data. 0.275 is the existing support-share gate's tolerance
     (ADR 0045); both thresholds are declared, and recorded per group.
   - *3A:* the composite Actor Power Index specs leave the grid: a difference cannot be saturated
-    and would extrapolate innovators linearly through the back door (≤ 6.7% of `v5` bootstrap
+    and would extrapolate clean-energy interests linearly through the back door (≤ 6.7% of `v5` bootstrap
     winners used any form other than `bothIncAP` / `splitAPpc`).
   - **Why selection rather than declaration:** in sample the data are indifferent between linear and
     saturating (`satAP` 45.9% of `v5` bootstrap winners against 43.3% of the pool, p = 0.47,
@@ -323,20 +323,20 @@ here (D1).
     `apExtrapolationWindow`); all set in `config.yml` `sweep:` and recorded in the group's
     manifest (`sweepOptions`), so `v5` keeps its grid.
 - **What it does not cover:** the gate is scored on the registry's gating and reference gdxs
-  (SSP2). An SSP3/SSP5 run can push incumbent per capita further; Phase 1 step 4 measures that on
+  (SSP2). An SSP3/SSP5 run can push fossil interests per person further; Phase 1 step 4 measures that on
   the `v5` gdxs, and the out-of-support share is reported per year with every run (C10).
 - Background, unchanged:
-- v6 reads ceilings to 2060–2100. The linear innovator term is then extrapolated 5–9 SD beyond the
+- v6 reads ceilings to 2060–2100. The linear clean-energy term is then extrapolated 5–9 SD beyond the
   data for most countries (0004 §1). Without the clamp, half of all buildings & transport ceilings exceed 9 by
   2100 and the ordering compresses.
 - The saturating form $x/(x + \bar x)$ already exists (ADR 0040, `satAP`). It decays at the
   physical domain, not at the sample edge.
-- The other clamps stay: log population (up to 130 SD), the upper bound on incumbent power per
+- The other clamps stay: log population (up to 130 SD), the upper bound on fossil dependence per
   capita (40–75 SD outliers), GDP and GovEff. They cost nothing today and stop explosions under
   SSP inputs (0004 §1).
 - **Rungs:** the selected spec's other actor-power forms (its linear and saturating variants) are
   reported as SI rungs, so the effect of the form is shown, whichever wins. (`bothIncAP`, 76% of
-  `v5` bootstrap winners, is the incumbency *structure*, share plus per capita; it is independent of
+  `v5` bootstrap winners, is the fossil interests *structure*, share plus per capita; it is independent of
   the linear/saturating form.)
 
 **D8 — one re-sweep.** Each of panel-to-2023, geothermal and the saturating transform changes the
@@ -595,8 +595,8 @@ and improving it. Items ticked earlier keep their own notes.
       (satAP; three `splitAPpc`, plus X-1860 satAP), with power & industry ceilings at 0.64–0.72 and power & industry
       $k_{2050}$ on PkBudg1000 of 1.31–1.54 (`phase1/spec-band-ceilingRejected.rds`). The gate is
       ADR 0043's (2026-08-23, before any `v6` result), and it targets the same thing as decision 6:
-      incumbent interactions extrapolated below the observed incumbency. **Kept for `v6`, flagged
-      for revision** (§7a decision 8): its consequence is reported in the SI with the innovators-only family. Was:
+      fossil interactions extrapolated below the observed fossil interests. **Kept for `v6`, flagged
+      for revision** (§7a decision 8): its consequence is reported in the SI with the clean-energy-only family. Was:
       re-examine the ceiling-fall gate (`TODO.md` 11a). Under v6 the ceiling trajectory
       *is* the driver of $k$: 75% of power & industry ceilings fall by 2100 on `v5`, and the gate passes by
       0.003. Re-check it on the `v6` spec (P2).
@@ -893,7 +893,7 @@ Found by the local reproduction test of 2026-10-01 (`../_archive/_wip/2026-10-01
   - 0049 anchored gap with distance kept and mean-gap strength (D1, D2, D4, D12);
   - 0050 λ removed from the coupling, mode M and `GAPCLOSE` retired, the κ sensitivity run (D13);
   - 0051 SSP-consistent scenario panel and accountability rule (D9, D10, D11);
-  - 0052 saturating actor power (the both-saturate family in the main text, the innovators-only family in the SI, the shape sensitivity), clamp policy and hold year (D6, D7, decision 6 of §7a);
+  - 0052 saturating actor power (the both-saturate family in the main text, the clean-energy-only family in the SI, the shape sensitivity), clamp policy and hold year (D6, D7, decision 6 of §7a);
   - 0053 the `v6` panel: 2023, geothermal, one re-sweep (D3, D8);
   - 0054 time-indexed φ interface and convergence on the φ path (D5, D14);
   - 0055 the generated scenario config (D22).
@@ -1310,7 +1310,7 @@ submit prints the expected rows, groups and commits.
 | 2 | assignment rules: Bfix and C × all-median, all-low, nearest donors always (no "none" class); USA donor / low (Bfix) | EU21 | 8 | D-M2 (ii), GP-3 / 10; the nearest-donors sensitivity run is decision 3 of 2026-10-06 (§7a): it moves LAM and SSA in the ranking, not $k$ |
 | 2 | markup off (`-Min`) for B and C; proportional mode for C | EU21, H12 | 6 | v5 continuity |
 | 2 | the both-saturate family shape variants (main-text robustness): Bfix at θ 0.50 on `v6-sat05` and `v6-sat2` (selected specification, half-saturation 0.5× and 2× the median) | EU21 | 2 | D7, decision 6 of §7a |
-| 2 | the innovators-only family (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
+| 2 | the clean-energy-only family (SI): Bfix and C at θ 0.50 on `v6-specalt` (X-2079 satInn, the bootstrap's most frequent family-B winner); annual rung | EU21 | 3 | D7, D3, decision 6 of §7a |
 | 2 | formulation sensitivity runs: $E$ hold (Bfix), drivers stop in 2060 (Bfix **and** C), regional $k$ (Bfix), closure κ at 0.027, 0.02 and 0.05 (Bfix and C each) | EU21 | 10 | D2, D6, D16, D13 |
 | ~~3~~ | ~~hold-2060 variant of each SSP's `-PFMlevelBfix`~~ | EU21 | ~~2~~ | deferred (§7a decision 7) |
 | ~~3~~ | ~~SSP1, SSP3: uncoupled NPi and PkBudg1000 (if not canonical), `-PFMgate`, `-PFMgateBfix`, `-PFMlevelBfix`, `-PFMlevelC`~~ | EU21 | ~~12~~ | deferred (§7a decision 7) |
@@ -1351,7 +1351,7 @@ the final iteration, and in every such run it did (`PITFALLS.md` §16).
 | ordering: uniform / permuted 1–3 / reversed | +105.8 / +102.1, +126.4, +89.3 / +67.9 | −12.5 / −28.9 to +8.2 / −50.4 | size alone (uniform) gives 106 Gt; the model's ranking adds 12, within the range of random orders (89–126); reversing it costs 50 |
 | assignment: all-median / all-low / nearest / USA donor / USA low | +109.5 / +154.6 / +133.6 / +117.4 / +134.8 | −8.7 / +36.4 / +15.4 / −0.8 / +16.5 | the assignment of uncovered countries is the largest data-side band (110–155) |
 | saturation 0.5× / 2× | +115.2 / +130.0 | −3.0 / +11.8 | |
-| the innovators-only family (`specalt`) / annual panel | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry $k$ above 1 (1.19 / 1.12) |
+| the clean-energy-only family (`specalt`) / annual panel | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry $k$ above 1 (1.19 / 1.12) |
 
 *Hold the budget.* Every run holds the budget (cumulative CO₂ 2100: 989–1001 Gt). 2050 regional
 prices against the θ = 0 run, median (anchor):
@@ -1364,7 +1364,7 @@ prices against the θ = 0 run, median (anchor):
 | κ = 0.02 / 0.027 / 0.05 | 1.069 / 1.055 / 1.031 | | κ removes most of the price relocation |
 | uniform / permuted 1 | 1.043 / 1.114 | | without the ranking, half the relocation goes (gross CO₂eq relocated 11.7 vs 22.7 Gt) |
 | all-median / all-low / nearest | 1.137 / 1.217 / 1.178 | | |
-| the innovators-only family / drivers stop in 2060 | 1.136 / 1.163 | | |
+| the clean-energy-only family / drivers stop in 2060 | 1.136 / 1.163 | | |
 
 *Settling.* Four short hold-the-budget runs were still moving in their last ten iterations, which overlap the
 budget loop's final adjustment: `-PFMlevelC-kappa05` (34 iterations; maximum price range 16.7%, budget
@@ -1534,7 +1534,7 @@ converge is handled in one of two ways:
 |---|---|---|
 | $k_s(t)$ is mostly link-function curvature, not politics | Phase 1 step 5 ($E$ hold gives $k \approx 1$) | stated as the mechanism (D2); $E$ hold reported as the bound; C3 decomposition shows which drivers move $k$ |
 | The SSP signal is small after normalisation | Phase 1 step 6 | the gate demotes the SSP axis to the SI; the plan does not depend on a large fan |
-| With no hold year, late-century results are driven by extrapolated or clamped drivers | Phase 1 step 5, second batch–3 | saturating innovator power (D7); out-of-support share reported per year; every headline and every SSP result travels with its hold-2060 variant; if the two differ materially, the paper says which part of the result comes after 2060 |
+| With no hold year, late-century results are driven by extrapolated or clamped drivers | Phase 1 step 5, second batch–3 | saturating clean-energy build-out (D7); out-of-support share reported per year; every headline and every SSP result travels with its hold-2060 variant; if the two differ materially, the paper says which part of the result comes after 2060 |
 | The rename breaks a `v5` reader or the `papers/pfm-paper-v5` bundle silently | Phase 0 | `v5-final` tags before the rename; read-aliases; the `papers/pfm-paper-v5` bundle rebuild must reproduce its manifest hashes |
 | The headline moves a lot from `v5` | Phase 1 step 9 | expected: v6 reads 2022, and $k_{Diffuse}$ falls to ~0.55 by 2050 in the methodology's offline numbers. Measured (Phase 6 step 1) and kept internal: the paper reports `v6` only (§7b) |
 | The re-sweep picks a different spec | Phase 2 | the `v5` spec refitted on the `v6` panel is kept as a rung, so the change can be split into "data" and "selection" |
@@ -1552,7 +1552,7 @@ converge is handled in one of two ways:
 - An estimated θ. The price–efficiency elasticity (C11) is a separate workstream.
 - Making the feedback causal. The IV stays an endogeneity-confirmed null (`MODEL.md` §8.1); "causes"
   stays out of the loop's description.
-- Unclamping drivers other than innovator power (0004 §1: they bind only where they protect).
+- Unclamping drivers other than clean-energy build-out (0004 §1: they bind only where they protect).
 - A new estimator for the shortfall (JLMS $E[u \mid \varepsilon]$ instead of the composed residual
   $u - v$). The composed residual is what the methodology defines; JLMS is not consistent
   (Jondrow et al. 1982, appraised in `papers/pfm-paper-v5/literature/`).
@@ -1602,19 +1602,19 @@ converge is handled in one of two ways:
    of 0.87, and on NPi 1.09 instead of 1.37. Every scenario-side `v6` artifact is re-run on the
    cluster, together with decision 2: sweep (sanity walk scenario gates), sanity pool, bootstrap,
    downstream and the REMIND export.
-6. **The both-saturate family in the main text, the innovators-only family in the SI (2026-10-07).** The sanity-passing specs split on
+6. **The both-saturate family in the main text, the clean-energy-only family in the SI (2026-10-07).** The sanity-passing specs split on
    the actor-power transform (Phase 1 status, `spec-band.rds`):
-   - The both-saturate family, satAP: the saturating curve on innovators *and* incumbents. Power & industry $k$ falls strongly on
+   - The both-saturate family, satAP: the saturating curve on clean-energy interests *and* fossil interests. Power & industry $k$ falls strongly on
      PkBudg1000;
-   - The innovators-only family, satInn: innovators only. Power & industry $k$ flat or rising.
+   - The clean-energy-only family, satInn: clean-energy interests only. Power & industry $k$ flat or rising.
 
    The families differ only below the observed range: in PkBudg1000 2050, 56% of countries sit below
-   the training 5th percentile of the power & industry incumbent share, and 59% above its innovator maximum. No
+   the training 5th percentile of the power & industry fossil dependence, and 59% above its clean-energy maximum. No
    re-sweep on 2000–2023 data can decide between them.
 
    The main text uses the both-saturate family (the selected X-1791 satAP), for three reasons:
    - the joint fit of the shared spec: the best family-A specs beat the best family-B ones by about 50
-     BIC, from buildings & transport; in power & industry alone the innovators-only family is 14 BIC better;
+     BIC, from buildings & transport; in power & industry alone the clean-energy-only family is 14 BIC better;
    - treating both groups symmetrically;
    - ADR 0040's own rationale: no linear extrapolation of a share into a range no country occupied.
 
@@ -1632,9 +1632,9 @@ converge is handled in one of two ways:
 
    The direction holds at every shape; the size is the band to quote. The sectors pull in opposite
    directions, so the median is close to the joint optimum. Coupled runs: the two shape variants in wave
-   2 (main text), and the innovators-only family's X-2079 as `v6-specalt` (SI). Both are built with
+   2 (main text), and the clean-energy-only family's X-2079 as `v6-specalt` (SI). Both are built with
    `analysis/run-groups/makeSpecVariantGroup.R` (sector `both`, `apSatScale=` for the variants). The main
-   text says in one sentence that the size of the power & industry loosening rests on how incumbent power behaves
+   text says in one sentence that the size of the power & industry loosening rests on how fossil dependence behaves
    below anything observed, and points to the SI.
 7. **The `v6` paper is SSP2 only (2026-10-07).** The SSP workflow stays: `ssp` arguments, the
    institution storyline rule, `calcSSPextensions(drivers_SSPx)`, `analysis/v6/sspGovernanceSwap.R`.
@@ -1646,7 +1646,7 @@ converge is handled in one of two ways:
    - nothing in the code is removed. The registry keeps `ssp: SSP2` explicit.
 8. **The ceiling-fall gate stays for `v6`, flagged for revision (2026-10-07).** ADR 0043's
    `ceilingFallGate = 0.90` is kept as set before any `v6` result. Its four sole rejections (family
-   A, power & industry $k$ rising) are reported in the SI with the innovators-only family (C9). **Revisit it** when the future
+   A, power & industry $k$ rising) are reported in the SI with the clean-energy-only family (C9). **Revisit it** when the future
    projections are revised, above all the institution projections in the light of the PoliClim
    forecasts (`analysis/checks/policlimInstitutions.R`). Under v6 the ceiling path drives $k$, and
    the institution paths move the ceiling: power & industry $k$ rises with better institutions under the
@@ -1681,7 +1681,7 @@ formulations.
 | covered countries | 48 | 48 |
 | selected specification | X-2079 `WGIge|noRoL|VerAcc bothIncAP … linear` | X-1791 `WGIge|RoL|VerAcc bothIncAP … satAP` |
 | institutions | GovEff (WGI), Vertical Accountability | GovEff (WGI), **V-Dem Rule of Law**, Vertical Accountability |
-| actor power | innovator and incumbent shares, incumbent per capita, linear | the same, **saturating** (ADR 0040; decision 6) |
+| actor power | clean-energy build-out and fossil dependence, fossil interests per person, linear | the same, **saturating** (ADR 0040; decision 6) |
 | controls, FE | GDP pc (Q-centred), log population, hydro/nuclear; EU / OECD / other | the same; hydro/nuclear **+ geothermal** |
 
 **Selection statistics** (selected specification; power & industry / buildings & transport):
@@ -1694,7 +1694,7 @@ formulations.
 
 **Coefficients** (main effects; frontier = what the coupling uses, satP with wild-cluster p =
 what is quotable):
-- **Power & industry incumbency is stronger and now significant:** incumbent share satP −0.64 (p = 0.03; `v5`
+- **Power & industry fossil interests are stronger and now significant:** fossil dependence satP −0.64 (p = 0.03; `v5`
   −0.19, p = 0.42); per capita +0.48 (p = 0.007), unchanged in sign and size.
 - **Power & industry GovEff changes sign in the frontier** (+0.06 → −0.31), while the satP estimate stays
   positive and loses significance (+0.24, p = 0.05 → +0.11, p = 0.61). Power & industry Vertical Accountability
@@ -1702,7 +1702,7 @@ what is quotable):
   power & industry frontier, satP p = 0.89. **The power & industry institution terms are not identified in `v6`** (Phase 1
   status); they are what makes better institutions raise power & industry $k$.
 - **Buildings & transport is stable and better identified:** GovEff +0.25 → +0.24 (p = 0.006 → < 0.001),
-  incumbency −0.13 → −0.15 (p = 0.03 → 0.006), Vertical Accountability changes sign to +0.23
+  fossil interests −0.13 → −0.15 (p = 0.03 → 0.006), Vertical Accountability changes sign to +0.23
   (p = 0.08).
 
 **The efficiency ordering at the anchor year** (covered countries, `v5` 2022, `v6` 2023): Spearman

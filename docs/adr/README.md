@@ -64,7 +64,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0041 | Relative feasibility coupling instead of κ | **Active** — supersedes the κ mechanism of 0024 |
 | 0042 | Sector-differentiated price via emission markets | **Active** — refines 0041's delivery step; `min` survives only when `cm_pfmSectorMarkup = 0` |
 | 0043 | Ceiling-collapse selection gate | **Active, flagged for review (2026-10-07)** — extends 0036/0039/0040; `ceilingFallGate = 0.90` by default, unsafe without 0040's support gate. Under v6 it decides the sign of power & industry $k$ for the specs it alone rejects; revisit with the revised (PoliClim-informed) projections (0005 §7a decision 8) |
-| 0044 | Actor power = incumbent share **and** per-capita level (`bothIncAP`) | **Active** — selected as `X-2367` in `v3`, and again as `X-2079` in **`v5`** via ADR 0045. `MODEL.md` §2 still describes the old share form |
+| 0044 | Actor power = fossil dependence **and** per-capita level (`bothIncAP`) | **Active** — selected as `X-2367` in `v3`, and again as `X-2079` in **`v5`** via ADR 0045. `MODEL.md` §2 still describes the old share form |
 | 0045 | Extrapolation gate at **0.275**; θ sweep **declared** `{0.325, 0.50, 0.675}`, not anchored | **Active** — deploys `X-2079 bothIncAP` in `v5`. Threshold moved *after* candidates were known; power & industry has no admissible θ anchor. Both disclosed in the ADR |
 | 0046 | γ-boundary gate **on at 0.999** | **Active** — completes ADR 0043, which asked for this and implemented nothing. Rejects 7 of 19 surveyed specs incl. maximin rank 3; the `v5` deployment is unaffected (γ 0.987/0.982) |
 | 0047 | One prepared madrat cache per Run-Group, staged into every coupled run | **Active** from `v6` — estimation and coupling read one set of data versions (`data/madrat/<group>/cache-manifest.tsv`); `v5`'s runs read the shared PIK cache |
@@ -72,7 +72,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0049 | The v6 coupling: anchored gap, distance kept, mean-gap strength, anchor artifact | **Accepted** (2026-10-08, at the 0005 Phase 3 gate) — refines 0041 (φ becomes a path) |
 | 0050 | λ leaves the coupling; mode M and `GAPCLOSE` retire; κ sensitivity run | **Accepted** (2026-10-08, at the 0005 Phase 3 gate) — closes design note 0003; offline, most of the v5 → v6 change in the bound; κ = 0.027 (0.02, 0.05 sensitivities) declared 2026-10-08 |
 | 0051 | Scenario panel: one SSP per run, institution rule, every series harmonised, driver lag in years | **Accepted** (2026-10-07); items 1–4 implemented and in the `v6` re-run; the `v6` paper is SSP2 only |
-| 0052 | Saturating actor power: the both-saturate family main text, the innovators-only family SI, curve-shape check, no hold year | **Accepted** (2026-10-07; author's decisions D6, D7, 0005 §7a 6 and 8); keeps 0043, flagged |
+| 0052 | Saturating actor power: the both-saturate family main text, the clean-energy-only family SI, curve-shape check, no hold year | **Accepted** (2026-10-07; author's decisions D6, D7, 0005 §7a 6 and 8); keeps 0043, flagged |
 | 0053 | The `v6` panel: 2023 (IEA 2025), geothermal, one re-sweep; power & industry γ 0.997 accepted | **Accepted** (2026-10-07; D3, D8 decided; Phase 2 gate passed) |
 | 0054 | Time-indexed φ interface; convergence on the φ path | **Accepted** (2026-10-08, at the 0005 Phase 3 gate, runs `EU21V371`) — implemented 2026-10-07 |
 | 0055 | Generated scenario config | **Accepted** (2026-10-07), implemented: `pfm::buildPFMScenarioConfig()`, `analysis/run-groups/scenario-matrix-v6.yml` |

@@ -44,9 +44,9 @@ never from this page.
 | $M$ | structural index ceiling, `indexMax` | $10$ |
 | $y^{*}$ | transformed response, $\operatorname{logit}(S/M)$ squeezed | $\mathbb{R}$ |
 | $\eta$ | linear predictor | $\mathbb{R}$ |
-| $A^{\text{in}}$ | Innovator Power, **share**, saturating (§2.3) | standardized |
-| $A^{\text{ic}}$ | Incumbent Power, **share** — the dependence / lock-in channel, saturating | standardized |
-| $A^{\text{ic,pc}}$ | Incumbent Power **per capita** = share × primary energy per capita — the scale channel, saturating | standardized |
+| $A^{\text{in}}$ | Clean-energy build-out, **share**, saturating (§2.3) | standardized |
+| $A^{\text{ic}}$ | Fossil dependence, **share** — the dependence / lock-in channel, saturating | standardized |
+| $A^{\text{ic,pc}}$ | Fossil dependence **per capita** = share × primary energy per capita — the scale channel, saturating | standardized |
 | $G$ | Government Effectiveness (WGI) — state capability | standardized |
 | $R$ | **Rule of Law (V-Dem)** — new in `v6` | standardized |
 | $V$ | Vertical Accountability (V-Dem) — electoral accountability of rulers to citizens | standardized |
@@ -123,7 +123,7 @@ The coupling consumes only the frontier. The mean regression is the inferential 
 the selection metrics (ΔR²(theory), significance counts) are computed on.
 
 > *In words:* stringency is explained by how strong the clean-energy coalition is, how dependent
-> the economy is on fossil incumbents and how large they are per person, how capable the state is,
+> the economy is on fossil interests and how large they are per person, how capable the state is,
 > how firmly the rule of law holds, how accountable rulers are to voters, **how those forces
 > multiply each other**, a common time trend, and a coarse three-way group effect.
 
@@ -145,17 +145,17 @@ Weights are fixed design constants, not estimated.
 **Saturation (`satAP`, the both-saturate family; ADR 0040, 0052).** Each actor-power driver enters as
 $x/(x+\bar x)$, with $\bar x$ the training median, before standardization. The curve is steepest at
 zero and flattens above the median, so no share extrapolates linearly into a range no country has
-occupied. The both-saturate family saturates innovators **and** incumbents; the innovators-only family (`satInn`, innovators only) is
+occupied. The both-saturate family saturates clean-energy interests **and** fossil interests; the clean-energy-only family (`satInn`, clean-energy only) is
 the SI alternative (`v6-specalt`, §5.3.0). The two families differ only below the observed range:
 in the 1000 Gt pathway in 2050, 56% of countries sit below the training 5th percentile of the power & industry
-incumbent share and 59% above the innovator maximum (ADR 0052). The half-saturation point ($\bar x$
+fossil dependence and 59% above the clean-energy maximum (ADR 0052). The half-saturation point ($\bar x$
 at 0.5×, 1×, 2× the median) is a main-text robustness check.
 
-**The `bothIncAP` form (ADR 0044, ADR 0045).** Incumbency enters twice — as a share (how
-dependent the energy system is) and per capita (how large the incumbent interest is) — which
-nests both the share-only and per-capita-only forms. Innovator power enters as a share.
+**The `bothIncAP` form (ADR 0044, ADR 0045).** Fossil interests enter twice — as a share (how
+dependent the energy system is) and per capita (how large the fossil interest is) — which
+nests both the share-only and per-capita-only forms. Clean-energy build-out enters as a share.
 
-> 🔴 **The two incumbency channels pull in OPPOSITE directions, and only the pair is
+> 🔴 **The two fossil channels pull in OPPOSITE directions, and only the pair is
 > interpretable.** On the frontier the power & industry share is **−0.615** and the per-capita term **+0.352**;
 > in buildings & transport −0.154 and +0.100 (§3.3). Their interactions with the institutions differ in sign too.
 > A sentence that names one channel and not the other inverts the sign of the other half. The
@@ -277,9 +277,9 @@ average marginal effect in index points per SD (§2.7).
 
 | Term | Power & industry $\hat\beta$ | $p_{\text{asym}}$ | $p_{\text{wild}}$ | AME | Buildings & transport $\hat\beta$ | $p_{\text{asym}}$ | $p_{\text{wild}}$ | AME |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Innovator Power | −0.194 | .065 | .079 | −0.288 | 0.015 | .825 | .847 | 0.029 |
-| Incumbent Power (share) | **−0.645** | .010 | **.030** | −0.956 | **−0.180** | .001 | **.006** | −0.349 |
-| Incumbent Power (pc) | **0.478** | <.001 | **.007** | 0.709 | 0.110 | .183 | .298 | 0.214 |
+| Clean-energy build-out | −0.194 | .065 | .079 | −0.288 | 0.015 | .825 | .847 | 0.029 |
+| Fossil dependence (share) | **−0.645** | .010 | **.030** | −0.956 | **−0.180** | .001 | **.006** | −0.349 |
+| Fossil dependence (pc) | **0.478** | <.001 | **.007** | 0.709 | 0.110 | .183 | .298 | 0.214 |
 | Gov. Effectiveness | 0.113 | .536 | .608 | 0.168 | **0.279** | .002 | **<.001** | 0.541 |
 | Rule of Law | 0.049 | .858 | .893 | 0.073 | −0.161 | .076 | .073 | −0.312 |
 | Vertical Accountability | 0.136 | .630 | .703 | 0.202 | 0.208 | .086 | .076 | 0.402 |
@@ -307,12 +307,12 @@ average marginal effect in index points per SD (§2.7).
   not identified** (ADR 0052) — and part of the power & industry strength's fall rests on them (§5.2a).
 - **State capability is significant in buildings & transport** (GovEff +0.279, $p_{\text{wild}}$ <.001; positive in
   6 of 7 estimators in both sectors, §2.5.1).
-- **Incumbency, as a share, lowers stringency in both sectors** (−0.645 power & industry, −0.180 buildings & transport);
+- **Fossil interests, as a share, lowers stringency in both sectors** (−0.645 power & industry, −0.180 buildings & transport);
   **per capita it raises power & industry stringency** (+0.478) — the dependence and scale readings the design
   carries both for, and the positive scale term is a disclosed tension (§8.3).
-- **The interactions carry most of the institutional signal**: in power & industry the per-capita incumbency
-  terms with GovEff (−0.565) and RoL (+0.737); in buildings & transport the incumbency share with RoL (+0.317) and
-  VerAcc (−0.492), the per-capita term with VerAcc (+0.290), and innovators with VerAcc (−0.296).
+- **The interactions carry most of the institutional signal**: in power & industry the fossil interests per person
+  terms with GovEff (−0.565) and RoL (+0.737); in buildings & transport the fossil dependence with RoL (+0.317) and
+  VerAcc (−0.492), the per-capita term with VerAcc (+0.290), and clean-energy interests with VerAcc (−0.296).
 - **Population and the trend are significant in both sectors.**
 
 #### 2.5.1 Sign stability across estimators (`estimator-agreement.rds`)
@@ -324,7 +324,7 @@ absent from the year-FE estimators):
 | | Power & industry | Buildings & transport |
 |---|---|---|
 | terms with every sign agreeing | **7 of 19** | **9 of 19** |
-| which | `Incumb pc × GovEff` (−), `Incumb pc × RoL` (+), `Incumb × GovEff` (+), `Incumb × RoL` (+), `Incumb × VerAcc` (−), `Innov × VerAcc` (−), trend (+) | GDP (−), `Incumb` share (−), `Incumb pc` (+), `Incumb pc × GovEff` (−), `Incumb pc × VerAcc` (+), Innovator (+), `Innov × GovEff` (+), `Innov × VerAcc` (−), trend (+) |
+| which | `Incumb pc × GovEff` (−), `Incumb pc × RoL` (+), `Incumb × GovEff` (+), `Incumb × RoL` (+), `Incumb × VerAcc` (−), `Innov × VerAcc` (−), trend (+) | GDP (−), `Incumb` share (−), `Incumb pc` (+), `Incumb pc × GovEff` (−), `Incumb pc × VerAcc` (+), Clean-energy (+), `Innov × GovEff` (+), `Innov × VerAcc` (−), trend (+) |
 | GovEff | + in 6, − in 1 | + in 6, − in 1 |
 
 > ⚠️ **Sign agreement is weak in power & industry.** Twelve of nineteen power & industry terms change sign somewhere in the
@@ -338,13 +338,13 @@ significant at full sample:
 
 | Term | $p$ | $p_{\max}$ over refits | pivotal | verdict |
 |---|---:|---:|---|---|
-| **Power & industry** Incumbent Power (pc) | .001 | .049 | — | robust |
+| **Power & industry** fossil interests per person | .001 | .049 | — | robust |
 | Power & industry Incumb pc × GovEff | <.001 | .005 | — | robust |
 | Power & industry Incumb pc × RoL | <.001 | .0007 | — | robust |
 | Power & industry Innov × GovEff | .008 | .041 | — | robust |
-| Power & industry Incumbent Power (share) | .013 | .243 | 2 — IND, RUS | 🟠 holds except two |
+| Power & industry fossil dependence | .013 | .243 | 2 — IND, RUS | 🟠 holds except two |
 | Power & industry Incumb × VerAcc | .035 | **.522** | **7** — CHN, CRI, HUN, IND, ISL, LTU, ZAF | 🔴 fragile |
-| **Buildings & transport** Incumbent Power (share) | .002 | .195 | 1 — RUS | 🟠 borderline |
+| **Buildings & transport** fossil dependence | .002 | .195 | 1 — RUS | 🟠 borderline |
 | Buildings & transport GovEff | .003 | .193 | 1 — ISL | 🟠 borderline |
 | Buildings & transport Incumb × VerAcc | <.001 | .051 | 1 — CRI | 🟠 borderline |
 | Buildings & transport Incumb pc × VerAcc | <.001 | .761 | 2 — CHN, SAU | 🟠 holds except two |
@@ -352,17 +352,17 @@ significant at full sample:
 | Buildings & transport Innov × VerAcc | .027 | .897 | 2 — CRI, SAU | 🟠 holds except two |
 
 Terms not significant at full sample whose removal of one country would *create* significance
-exist in both sectors (Power & industry Innovator Power: seven countries; buildings & transport RoL: six; buildings & transport VerAcc: five).
+exist in both sectors (Power & industry clean-energy build-out: seven countries; buildings & transport RoL: six; buildings & transport VerAcc: five).
 **No claim rests on any of them, and dropping a country to obtain a result is exactly what must
 not be done.**
 
 #### 2.6.1 One country with leverage: Saudi Arabia
 
-SAU is the top influencer on **six of fifteen** buildings & transport theory terms (every innovator and per-capita
+SAU is the top influencer on **six of fifteen** buildings & transport theory terms (every clean-energy and per-capita
 interaction) and on three power & industry terms, and pivotal in buildings & transport `Incumb pc × VerAcc`, `Innov × VerAcc`,
 `Innov × GovEff` and `Incumb pc × GovEff`. On the `v5` panel it combined the lowest Vertical
-Accountability in the sample (z −4.63) with the highest incumbency per capita in both sectors (z
-+3.50 buildings & transport, +3.21 power & industry) — the exact plane the accountability × incumbency interactions identify.
+Accountability in the sample (z −4.63) with the highest fossil interests per person in both sectors (z
++3.50 buildings & transport, +3.21 power & industry) — the exact plane the accountability × fossil interests interactions identify.
 The conjunction has n = 1. **No control fixes this**: the binding constraint is support, and no
 covariate creates data where there is none (§2.7).
 
@@ -374,7 +374,7 @@ $$\text{AME}_k = \frac{1}{N}\sum_{c,t} M\,\operatorname{logit}^{-1}(\eta)\big(1-
 
 with $\partial\eta/\partial x_k$ including interaction terms and delta-method clustered SEs;
 tabulated in §2.5 and persisted in `inference.rds`. Every driver is standardized, so every AME is per
-SD. Examples: buildings & transport **GovEff** AME **0.541** index points per SD (SE 0.172); power & industry **Incumbent Power
+SD. Examples: buildings & transport **GovEff** AME **0.541** index points per SD (SE 0.172); power & industry **Fossil dependence
 (pc)** **0.709** (SE 0.197), the largest identified power & industry main-effect AME and the one whose sign needs
 the §8.3 caveat.
 
@@ -429,9 +429,9 @@ clustered alternative):
 
 | Term | Power & industry $\hat\beta_F$ | $p$ | Buildings & transport $\hat\beta_F$ | $p$ |
 |---|---:|---:|---:|---:|
-| Innovator Power | −0.032 | .20 | **0.101** | <.001 |
-| Incumbent Power (share) | **−0.615** | <.001 | **−0.154** | <.001 |
-| Incumbent Power (pc) | **0.352** | <.001 | **0.100** | <.001 |
+| Clean-energy build-out | −0.032 | .20 | **0.101** | <.001 |
+| Fossil dependence (share) | **−0.615** | <.001 | **−0.154** | <.001 |
+| Fossil dependence (pc) | **0.352** | <.001 | **0.100** | <.001 |
 | Gov. Effectiveness | **−0.308** | <.001 | **0.241** | <.001 |
 | Rule of Law | **0.393** | <.001 | −0.090 | .056 |
 | Vertical Accountability | **−0.289** | .008 | **0.231** | <.001 |
@@ -525,7 +525,7 @@ one rung and one weighting.**
 
 On $E$ read straight out of `frontier.rds`, **Power & industry is the more constrained sector in 32 of 48
 countries at 2023** (median $E$: power & industry 0.736, buildings & transport 0.780). The coupled regional ranking agrees under
-the selected both-saturate family (Power & industry binds in 15 of 21 EU21 regions, 11 of 12 H12) and not under the innovators-only family or the
+the selected both-saturate family (Power & industry binds in 15 of 21 EU21 regions, 11 of 12 H12) and not under the clean-energy-only family or the
 annual rung (3 of 21; `SCENARIOS.md` §6.2a): the regional attribution follows the specification family.
 
 **`projection.rds$implementability` is $S/10$, not $E$** (`computeImplementabilityFactor()` is
@@ -717,16 +717,16 @@ with φ held at 2025 ($k = 1$) 24%; `v6` with a `v5`-style λ speed limit 48%. *
 The specification is as undetermined as θ: the selected specification wins **2.5%** of bootstrap resamples
 (15% conditional on sanity-eligible winners, §6). Nine specifications pass every gate, and they split
 on the actor-power transform (ADR 0052; `phase1/spec-band.rds`): **the both-saturate family** (both groups saturate,
-selected) gives a power & industry $k_{2050}$ of **0.63–0.90** on the 1000 Gt energy system, **the innovators-only family**
-(innovators only) **0.86–1.22**. The bootstrap splits about 49 / 51 between them. The half-saturation
+selected) gives a power & industry $k_{2050}$ of **0.63–0.90** on the 1000 Gt energy system, **the clean-energy-only family**
+(clean-energy interests only) **0.86–1.22**. The bootstrap splits about 49 / 51 between them. The half-saturation
 point moves power & industry $k$ to 0.57 / 0.40 (0.5×) and 0.75 / 0.63 (2×) in 2050 / 2100 against 0.63 / 0.48.
 
-**Coupled** (hold the price, θ = 0.50, EU21, `SCENARIOS.md` §4.9): the innovators-only family `X-2079 satInn` +107.5 Gt against
+**Coupled** (hold the price, θ = 0.50, EU21, `SCENARIOS.md` §4.9): the clean-energy-only family `X-2079 satInn` +107.5 Gt against
 +118.2 selected; saturation 0.5× / 2× +115.2 / +130.0; annual data +164.4 (its power & industry $k$ stays above 1).
 
 > **The discipline this implies.** $\varphi$ is a property of a region **given a specification, a
 > frontier error structure and a declared severity**, never a measured property of the region.
-> Report it as a declared choice with a disclosed band. The both-saturate family is the main text; the innovators-only family, the
+> Report it as a declared choice with a disclosed band. The both-saturate family is the main text; the clean-energy-only family, the
 > shape and the annual rung are the band.
 
 #### 5.3.1 Routes to θ other than declaring it
@@ -769,7 +769,7 @@ $$\boxed{\;\theta \in [0.134,\ 0.164]\;}\qquad\text{non-empty on `v6` (on `v5` i
 |---|---|---|---|
 | **1. Severity θ** | declared, 0.325 / 0.50 / 0.675 | the whole spread; hold the price +73 to +182 Gt | **main text** |
 | **2. Erosion rate κ** | 0.02 / 0.027 / 0.05 | hold the price +54 / +41 / +22 Gt against +118 | **main text** (the largest single sensitivity) |
-| 3. Specification family | A (selected) vs B | Power & industry $k_{2050}$ 0.63–0.90 vs 0.86–1.22; hold the price −11 Gt for B | main text robustness (the both-saturate family), SI (the innovators-only family) |
+| 3. Specification family | A (selected) vs B | Power & industry $k_{2050}$ 0.63–0.90 vs 0.86–1.22; hold the price −11 Gt for B | main text robustness (the both-saturate family), SI (the clean-energy-only family) |
 | 4. Curve shape | half-saturation 0.5× / 2× | hold the price −3 / +12 Gt | main text robustness |
 | 5. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.164, Spearman down to 0.47 (EU21, offline, §3.4.1) | SI — rank intervals |
 | 6. Out-of-coverage assignment | donor / low band / median; nearest donors; USA | hold the price 110–155 Gt | SI (the widest data-side band) |
@@ -881,16 +881,16 @@ full-sample sanity walk and are never eligible.
 
 **The selected specification.** Wins **2.5%** of resamples (**15%** conditional), tied for the modal
 conditional winner with `X-1794 … satAP` (19.5% each of the conditional, by spec), ahead of `X-2079 …
-satInn` (14.3%), the family-B spec. The both-saturate family and the innovators-only family split the conditional wins about 49 / 51.
+satInn` (14.3%), the family-B spec. The both-saturate family and the clean-energy-only family split the conditional wins about 49 / 51.
 
-> ✅ **State capability belongs**: 100% of winners. ✅ **Incumbency in both share and per-capita
+> ✅ **State capability belongs**: 100% of winners. ✅ **Fossil interests in both share and per-capita
 > form belongs**: `bothIncAP` 85% of winners, 100% conditional. ✅ **Rule of Law belongs** (86%) — it
 > was absent from `v5`'s selected specification.
 >
 > 🔴 **Which accountability channel, and which actor-power transform, are not identified.** The
 > Selected channel set is the plurality, not a majority; the transform splits evenly.
 
-> **What may be claimed.** *State capability, Rule of Law and two-form incumbency belong.* **Neither
+> **What may be claimed.** *State capability, Rule of Law and two fossil terms belong.* **Neither
 > the channel set nor the specification is uniquely selected**; the selected specification is a 2.5% (15%
 > conditional) winner. Any sentence asserting the model *is* `X-1791` rather than *was run at*
 > `X-1791` is false.
@@ -926,11 +926,11 @@ Validated exclusions — each rejected by this project's own tests, not by prefe
 
 ## 8. Open scientific questions
 
-**8.1 Causal status of the feedback.** The shift-share IV (base-year incumbency × leave-one-out
-global VRE diffusion) **confirms endogeneity** but **identifies no causal incumbency effect**
+**8.1 Causal status of the feedback.** The shift-share IV (base-year fossil interests × leave-one-out
+global VRE diffusion) **confirms endogeneity** but **identifies no causal fossil effect**
 (`iv.rds`, $n = 1152$):
 
-| rung | Incumbency $\hat\beta$ (2SLS) | SE | $p$ | first-stage $F$ | Wu–Hausman $p$ |
+| rung | Fossil interests $\hat\beta$ (2SLS) | SE | $p$ | first-stage $F$ | Wu–Hausman $p$ |
 |---|---:|---:|---:|---:|---:|
 | Power & industry, with trend | −64.4 | **354** | .86 | 5.8 | 3e−31 |
 | Power & industry, no trend | −18.5 | 20.0 | .36 | 9.1 | 3e−87 |
@@ -946,12 +946,12 @@ cannot show what it is.* Label the feedback **conditional scenario accounting**,
 **8.2 The ceiling-feedback sign.** The feedback is live and large in power & industry: on the 1000 Gt energy
 system the power & industry strength falls to 0.63 by 2050, on current policies it is 1.09 (§5.2). The median
 covered ceiling rises on the 1000 Gt pathway in both sectors (to 1.21 / 1.27 of its 2025 value,
-ADR 0052). The power & industry direction rests on how incumbent power behaves below anything observed (the both-saturate family
+ADR 0052). The power & industry direction rests on how fossil dependence behaves below anything observed (the both-saturate family
 vs B, §5.3.0) and on power & industry institution terms that are not identified. It is not causal (§8.1).
 
 **8.3 The exposure confound.** `Incumb × GovEff` (share) is **positive** where theory expects
 negative — +0.180 in the power & industry mean regression, +0.194 on the power & industry frontier, positive in all seven
-Power & industry estimators — and power & industry per-capita incumbency is positive and significant. Large, capable
+Power & industry estimators — and power & industry fossil interests per person is positive and significant. Large, capable
 fossil economies also regulate more; the model cannot tell exposure from resistance. A
 fossil-rents reader would be needed and none exists.
 

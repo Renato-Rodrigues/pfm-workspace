@@ -110,8 +110,8 @@ Horizontal 13.3% of winners. No option reaches half.
 - **Capability carries the institutional signal**, robustly in buildings & transport, fragilely in power & industry (14
   pivotal countries) and absent from the power & industry frontier.
 - **Vertical Accountability carries no main effect** in either sector or estimator. Its role is one
-  power & industry interaction with per-capita incumbency, which depends on China and Saudi Arabia; Saudi Arabia
-  is the sample's extreme on exactly this plane (lowest accountability, highest incumbency;
+  power & industry interaction with fossil interests per person, which depends on China and Saudi Arabia; Saudi Arabia
+  is the sample's extreme on exactly this plane (lowest accountability, highest fossil interests;
   `MODEL.md` §2.6.1).
 - **Capability and vertical accountability correlate at 0.45** in both sectors
   (`frontier.rds$bySector$<s>$correlation`) — enough to share variance, not enough to be redundant.

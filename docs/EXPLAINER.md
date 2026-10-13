@@ -53,13 +53,13 @@ predict a stringency of 14.
 
 | group | in the model | idea |
 |---|---|---|
-| **actor power** | clean-energy (innovator) share; fossil incumbent share; fossil incumbency per person | who wins the fight, and how big the losers are |
+| **actor power** | clean-energy build-out; fossil dependence; fossil interests per person | who wins the fight, and how big the losers are |
 | **institutional quality** | government effectiveness; rule of law; vertical accountability (can voters hold rulers to account) | can the state deliver, are its rules kept, and does it have to answer for it |
 | **how they combine** | each actor-power term multiplied by each institution | the same lobby matters differently in different states |
 | **controls** | income, population, clean baseload (hydro, nuclear, geothermal), a common time trend | structure |
 
-Incumbency enters **twice** on purpose. The *share* of fossil fuels in the energy system measures
-dependence; incumbency *per person* measures how large the fossil interest is. They pull in
+Fossil interests enter **twice** on purpose. The *share* of fossil fuels in the energy system measures
+dependence; fossil interests per person measures how large the fossil interest is. They pull in
 different directions — dependence goes with less stringent policy, scale in power and industry
 with more — and carrying both lets the model tell them apart.
 
@@ -81,7 +81,7 @@ $S^{*}$.
 What sets the frontier: **state capability** is the clearest institutional channel in buildings
 and transport; in power and industry the institution terms are **not identified** (they are
 insignificant on average and flip sign at the frontier). Most of the institutional signal runs
-through how institutions combine with incumbency. A common upward time trend does a large share of
+through how institutions combine with fossil interests. A common upward time trend does a large share of
 the work, which is why the model is used to *rank* countries, not to explain how policy rose.
 
 ## Step 4 — Define the gap
@@ -277,7 +277,7 @@ observed among comparable countries, not a law.
    strength moves rests on them. Every headline run has a variant with institutions held, and the
    headline barely moves.
 4. **The specification is not unique.** Across resampled data, state capability and rule of law are
-   in the winning model almost every time, and incumbency-in-two-forms in most; but the exact
+   in the winning model almost every time, and fossil interests in two forms in most; but the exact
    selected model wins about one draw in seven among the admissible ones, and two families of
    saturation split the wins evenly. We report the other family and the curve's shape alongside.
 5. **Some regions are pinned by the dial, not by their data.** The construction guarantees that

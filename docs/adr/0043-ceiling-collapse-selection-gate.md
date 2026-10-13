@@ -24,9 +24,9 @@ what the fitted frontier then *does* over the projection horizon.
 Measured on Run-Group `v1` (`analysis/ceilingTrajectoryBySpec.R`), the selected specification X-0370
 produces a power & industry frontier ceiling that runs **6.95 → 4.34 over 2025–2100 — a 38% fall, with 96%
 of covered countries losing ceiling.** The decomposition (`analysis/ceilingDecomposition.R`)
-attributes it almost entirely to **Incumbent Power × Government Effectiveness**, which carries a
-*positive* coefficient: the model has learned that powerful fossil incumbents plus a capable
-state raise the ceiling. A decarbonisation scenario removes incumbents by construction, so the
+attributes it almost entirely to **Fossil dependence × Government Effectiveness**, which carries a
+*positive* coefficient: the model has learned that powerful fossil interests plus a capable
+state raise the ceiling. A decarbonisation scenario removes fossil interests by construction, so the
 model contains a feedback that lowers the political ceiling as the transition succeeds.
 
 Two things had to be established before making this a gate.
@@ -53,7 +53,7 @@ operational tier year is **30–50% of the entire available range**. The median 
 **2. Is a non-collapsing specification available, and at what cost?** Yes. Of the top 60
 gate-passing specs of `v1`, **6 hold the median ceiling at ≥ 0.90 and 3 at ≥ 1.00**. The best
 admissible one, X-0418 `satAP`, is Green in both sectors at maximin rank 11 against the
-incumbent's rank 1, costing **≈ 8% of the mean ΔR²(theory)** (0.110 against 0.1195) — a
+the current winner's rank 1, costing **≈ 8% of the mean ΔR²(theory)** (0.110 against 0.1195) — a
 within-tier trade, not a tier concession.
 
 ## Decision
@@ -74,14 +74,14 @@ countries** falls below 90% of its first projected value by the end of the horiz
 **It does not eliminate the behaviour, and must not be described as doing so.** The best
 `shareCountriesFalling` anywhere in the scanned pool is 44%; **no spec gets below 25%**. A passing
 specification holds the *median* ceiling flat while roughly half its countries still lose theirs
-(X-0418: median 1.005, 46% falling — against the incumbent's 0.62 and 96%). The gate buys a large
+(X-0418: median 1.005, 46% falling — against the current winner's 0.62 and 96%). The gate buys a large
 improvement, not a fix. TODO item 11's other three options remain open.
 
 **It is unsafe alone and must never be run without ADR 0040's `supportShareGate` and ADR 0039's
 `minScenarioDelta`.** The cheapest way to hold a ceiling flat is to stop responding to the
 scenario. Measured across the 60: corr(median ceiling ratio, cross-country ceiling SD) =
 **−0.42**. Flatter ceilings really do come with less cross-country signal. X-0418 is not one of
-these — its spread is 0.88 against the incumbent's 0.79, with *lower* out-of-support — but the
+these — its spread is 0.88 against the current winner's 0.79, with *lower* out-of-support — but the
 correlation is why the three gates are a set.
 
 **Screen γ on any winner.** X-0170 has the second-best ceiling (1.002) and frontier γ =

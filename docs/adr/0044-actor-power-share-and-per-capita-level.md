@@ -1,4 +1,4 @@
-# 44. Actor power carries the incumbent share **and** its per-capita level (`bothIncAP`)
+# 44. Actor power carries the fossil dependence **and** its per-capita level (`bothIncAP`)
 
 Date: 2026-08-25
 
@@ -22,10 +22,10 @@ whether or not anyone lobbies; Lindblom/Block, Unruh's lock-in) is inherently a 
 **instrumental power** (lobbying, campaign finance, litigation — agency that costs resources;
 Stigler/Peltzman, Grossman–Helpman) is inherently a level.
 
-The note concluded that the incumbent index should **switch** from share to per-capita level
-(`mixedAP`: innovator share, incumbent per-capita), on two grounds: the interaction the model
-relies on is Incumbent × Government Effectiveness, which is the instrumental channel; and a
-share-based incumbent index is extrapolated ~5 SD beyond its estimation range at 2100 against ~1 SD
+The note concluded that the fossil index should **switch** from share to per-capita level
+(`mixedAP`: clean-energy build-out, fossil per-capita), on two grounds: the interaction the model
+relies on is Fossil × Government Effectiveness, which is the instrumental channel; and a
+share-based fossil index is extrapolated ~5 SD beyond its estimation range at 2100 against ~1 SD
 for a level.
 
 That recommendation was put into the sweep as four competing forms rather than adopted directly.
@@ -113,12 +113,12 @@ Buildings & transport 1.25). The gate cost **0.8% of mean ΔR² and rank 1 → 2
 ## Consequences
 
 **The theory changes, not just the fit.** Structural dependence and instrumental capacity are
-measuring different things about incumbent power, and the data wants both. `design-notes/0001`'s
+measuring different things about fossil dependence, and the data wants both. `design-notes/0001`'s
 error was treating them as rival operationalisations of one construct. **`docs/MODEL.md` §2 still
 describes actor power as a share and is now wrong** — it is the one document this ADR obliges
 someone to rewrite.
 
-**Report the incumbent block, never its two coefficients separately.** `bothIncAP` runs at median
+**Report the fossil block, never its two coefficients separately.** `bothIncAP` runs at median
 `maxVIF` **18.4** against `splitAP`'s 15.6. Entering a share and its level is collinear by
 construction. The block is identified; the individual coefficients are not. **A claim of the form
 "the per-capita channel contributes X and the share Y" is not supported at VIF 18.**

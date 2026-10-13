@@ -14,7 +14,7 @@ figV6CoupledArms <- function(group = "v6", resolution = "EU21") {
     "uncovered countries" = c(`all median` = "Bfix-allmedian", `all low` = "Bfix-alllow", `nearest donors` = "Bfix-nearest",
                               `USA donor` = "Bfix-usadonor", `USA low` = "Bfix-usalow"),
     "specification" = c(`saturation 0.5×` = "Bfix-sat05", `saturation 2×` = "Bfix-sat2",
-                        `only innovators saturate` = "Bfix-specalt", `annual data` = "Bfix-annual"),
+                        `only clean-energy saturates` = "Bfix-specalt", `annual data` = "Bfix-annual"),
     "formulation" = c(`constant limit` = "Bfix-Ehold", `drivers stop in 2060` = "Bfix-hold2060", `regional strength` = "Bfix-regk"))
   d <- do.call(rbind, lapply(names(fam), function(f) {
     k <- fam[[f]]; k <- k[k %in% names(A)]
