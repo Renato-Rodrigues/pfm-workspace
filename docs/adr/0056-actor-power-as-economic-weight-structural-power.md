@@ -12,9 +12,13 @@
    - **fossil dependence:** the incumbents' share;
    - **fossil interests per person:** the per-capita term;
    - **clean-energy build-out:** the innovators' share.
-2. **Methods, one sentence.** "In political-economy terms this is a proxy for structural power, the
-   leverage that comes from economic importance, not for instrumental power such as lobbying, finance
-   or access, which we do not observe (Lindblom 1977; Culpepper & Reinke 2014; Fairfield 2015)."
+2. **Methods, one sentence** (reconciled with ADR 0044 on 2026-10-13): "In political-economy terms,
+   fossil dependence is a proxy for structural power, the leverage that comes from economic importance,
+   and the size of the fossil interest per person a proxy for the resources behind instrumental power;
+   actual lobbying, finance or access is not observed (Lindblom 1977; Culpepper & Reinke 2014;
+   Fairfield 2015)." The first version said the whole measure proxies structural power and not
+   instrumental power; that contradicted ADR 0044, which reads the per-capita term as instrumental
+   capacity, and was replaced the next day.
    "Actor power" may appear once, as the model's own term.
 3. **Discussion.**
    - The **fading limit** is read as structural power shifting with the energy system.

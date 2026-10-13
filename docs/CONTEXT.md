@@ -49,9 +49,9 @@ pathway talks back to the model.** They must enter **split**, never as a composi
 the composite makes projections scenario-blind under the extrapolation guard.
 **How to name it outside the model (ADR 0056):** "the economic weight of fossil and clean-energy
 interests"; incumbents = **fossil interests** (measured by fossil dependence), innovators =
-**clean-energy interests** (measured by clean-energy build-out). It is a proxy for **structural power**
-(leverage from economic importance), not for **instrumental power** (lobbying, finance, access), which
-is not observed. Avoid bare "incumbent": in political science it means the officeholder.
+**clean-energy interests** (measured by clean-energy build-out). Fossil dependence is a proxy for **structural power**
+(leverage from economic importance), the fossil interest per person for the resources behind
+**instrumental power** (ADR 0044); actual lobbying, finance or access is not observed. Avoid bare "incumbent": in political science it means the officeholder.
 
 ### Saturating transform
 Actor power enters as $\tilde A = A/(A+\bar A)$, with $\bar A$ the frozen training median.
