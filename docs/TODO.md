@@ -65,6 +65,11 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 - **Institution projections informed by the PoliClim forecasts** (`analysis/checks/policlimInstitutions.R`);
   then revisit the ceiling-fall gate (ADR 0043; 0005 §7a decision 8).
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
+- **Edge-of-data evaluation (`v7`; author, 2026-10-13; design note 0007).** Interest × institution terms evaluated
+  far from the sample reverse drivers in some regions (China, Middle East, Turkey, Russia; in power & industry also
+  poor countries with very low fossil energy per person). Run `analysis/checks/edgeOfData.R <group>` on the
+  selected specification and the passing band, apply 0007 §5's acceptance criteria, and record the chosen option
+  as an ADR. `v6` baseline: `output/pfm/v6/edge-of-data.rds`.
 - **Estonia back into the estimation (`v7`; author, 2026-10-13).** The negative `PE|Coal` behind its exclusion is
   gone in the `v6` energy data (IEA 2025 edition, `data/madrat/v6`: Estonia's coal +0.0004 EJ in 2022–2023, no
   country negative), but `pfm.excludeCountries` still defaults to `"EST"`, so `v6` was fitted without it. For `v7`:
