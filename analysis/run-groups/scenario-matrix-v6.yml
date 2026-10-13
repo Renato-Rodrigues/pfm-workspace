@@ -271,9 +271,9 @@ runs:
      description: "Hold the budget, fading + erosion 5% a year (kappa = 0.05)."}
   # Added 2026-10-12 for the paper frames (design note 0006): the persistence ladder at H12 (start tag
   # V6PERSH12 on the H12 variants of BEhold, CEhold, Bkappa, Ckappa above) and the growing limit, the strength
-  # GROWING above today's: the constant limit (k = 1) times (1 - kappa)^(t - 2025) with kappa < 0. PROPOSED VALUE
-  # -0.005 a year (k = 1.13 in 2050, 1.45 in 2100; the top-ranked share 1 - 0.5 k stays above 0.27) - the
-  # author declares it before submission, as kappa was declared (ADR 0050). Own tag, EU21 only.
+  # GROWING above today's: the constant limit (k = 1) times (1 - kappa)^(t - 2025) with kappa < 0. Proposed 2026-10-12,
+  # DECLARED 2026-10-13 as a bound (ADR 0057): -0.005 a year (k = 1.13 in 2050, 1.45 in 2100; the top-ranked share
+  # 1 - 0.5 k stays above 0.27, and 1 - 0.675 k above 0 to 2100). Own tag, EU21 only.
   - {key: Bbackslide, wave: 2, section: wave2_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
      variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@BEhold", start: {EU21: V6BACK},
      description: "Hold the price, growing limit (0006): today's limit tightening 0.5% a year."}

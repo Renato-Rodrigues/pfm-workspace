@@ -287,7 +287,7 @@ moves the price, which moves the energy system. Converged when
 $$\delta = \max_r\big|\varphi_r^{(n)} - \varphi_r^{(n-1)}\big| \le \texttt{cm\_pfmConvTol}$$
 
 A **max**, not a mean — one region still moving keeps the loop open. **Since 2026-10-02 the max
-also runs over every per-market share** $arphi_{r,s}$ (`p45_pfmPhiMkt`), not the floor alone
+also runs over every per-market share** $\varphi_{r,s}$ (`p45_pfmPhiMkt`), not the floor alone
 (design note 0005 E8): with the floor only, a market share could still be moving when the run was
 declared converged. `pfm-phi-history.rds` records the market shares with each call; an entry
 written before that contributes its floor only. The first call has no

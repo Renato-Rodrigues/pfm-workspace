@@ -31,7 +31,7 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 
 | How long the limit lasts | k, power & industry (2050 → 2100) | Hold the price: extra CO₂ by 2100 (Gt) | Hold the budget: global price 2050 (× θ = 0 run) | Hold the budget: abatement moved (Gt CO₂eq) | Regional price gap, 2100 (SD) |
 | --- | --- | --- | --- | --- | --- |
-| Growing limit: tightens 0.5% a year (κ = −0.005, proposed) | 1.12 → 1.45 | +245.3 | ×1.64 | 97.5 | 0.271 |
+| Growing limit: tightens 0.5% a year (κ = −0.005, declared, ADR 0057) | 1.12 → 1.45 | +245.3 | ×1.64 | 97.5 | 0.271 |
 | Constant limit: today's limit kept | 0.99 → 1.00 | +189.1 | ×1.45 | 65.6 | 0.138 |
 | Fading limit: weakens with the transition (headline) | 0.69 → 0.53 | +118.2 | ×1.26 | 22.7 | 0.081 |
 | Fading + erosion 2% a year (κ = 0.02) | 0.40 → 0.11 | +53.5 | ×1.13 | 9.5 | 0.014 |
@@ -39,7 +39,7 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 | Fading + erosion 5% a year (κ = 0.05) | 0.18 → 0.01 | +22.1 | ×1.05 | 5.3 | 0.001 |
 
 k is shown for the hold-the-price runs. The hold-the-budget runs settle a little lower (fading limit
-0.62 → 0.50). The growing limit ran at the proposed rate (`V6BACK`); the rate is still the author's to declare.
+0.62 → 0.50). The growing limit ran at κ = −0.005 a year (`V6BACK`), declared on 2026-10-13 as a bound (ADR 0057).
 
 Other quantities the frames cite:
 
@@ -129,7 +129,7 @@ those constraints erode as the transition proceeds.
   the strength. Abatement moved is 65.6 against 22.7 Gt, and the 2100 regional price gap 0.138 against
   0.081.
 - *Limits:* the ladder holds at H12 (constant limit +176.3, fading +112.8, erosion 2.7% +39.3 Gt). The
-  worse-than-today side ran at a proposed rate (growing limit, +245.3 Gt) that is not yet declared. The causal
+  worse-than-today side is a bound at a declared rate (growing limit, +245.3 Gt; ADR 0057). The causal
   feedback from policy to politics is not identified.
 
 - **Appeal:**
@@ -144,7 +144,7 @@ those constraints erode as the transition proceeds.
   - Wording has to hold that line throughout.
 - **Two-sided now:** the growing-limit run (`V6BACK`, the limit tightening 0.5% a year) adds +245.3 Gt under
   hold the price, 56 Gt above the constant limit, and under hold the budget a global price ×1.64 with 97.5 Gt
-  moved. The rate (−0.005 a year) is proposed, not yet declared.
+  moved. The rate (−0.005 a year) is declared as a bound (ADR 0057): the fastest the share formula represents at the highest severity.
 
 ## Persistence decides: the cost hinges on how long the limit lasts
 
@@ -295,7 +295,7 @@ whether politics changes.
 | Fading + erosion 2.7% a year | 21.6 | 41.2 | 36.6 | 6.8 | 8.9 |
 | Fading + erosion 5% a year | 15.2 | 22.1 | 11.2 | 5.4 | 5.7 |
 
-The ranges quoted above use the declared cases; the growing limit, at its proposed rate, widens the 2050 range
+The ranges quoted above use the declared cases; the growing limit, a bound at its declared rate, widens the 2050 range
 only to 15–51 Gt, and the 2100 range to 22–245 Gt. The regional price gap in 2030 is similar in every case
 (SD 0.17–0.24). At H12 the 2050 figures are +43.3 / +34.6 / +20.3 Gt (constant limit / fading / erosion
 2.7%; EU21 +44.7 / +37.4 / +21.6).
@@ -375,8 +375,8 @@ budget survives*). The three below support a frame but cannot carry one.
 
 ### Open questions the v6 results raise (not yet answerable)
 
-- What if politics gets worse than today? Answered at a proposed rate (growing limit, +245.3 Gt; ×1.64 and
-  97.5 Gt moved); the rate still has to be declared.
+- What if politics gets worse than today? Answered as a bound at a declared rate (growing limit, +245.3 Gt; ×1.64 and
+  97.5 Gt moved; ADR 0057).
 - Does a higher-price, budget-holding world change politics itself? This is the causal feedback, which
   is not identified. It is the next paper, not this one.
 - Do the persistence results hold at H12? Yes: the constant-limit, fading and erosion-2.7% cases at H12 are
@@ -418,9 +418,9 @@ What *Today vs tomorrow* still needs before writing:
 - [x] Extract extra CO₂ by 2050 under hold the price for each persistence case (*Robust now, a bet
   later*).
 - [x] Extract regional GDP effects under hold the budget (*The budget survives*).
-- [x] Run `V6BACK` at the proposed rate (2026-10-13).
-- [ ] Declare the growing-limit rate (proposed κ = −0.005 a year: k = 1.12 in 2050, 1.45 in 2100); a
-  different rate means re-running `V6BACK`.
+- [x] Run `V6BACK` at the proposed rate, since declared (2026-10-13).
+- [x] Declare the growing-limit rate: κ = −0.005 a year (k = 1.12 in 2050, 1.45 in 2100), as a bound (ADR 0057,
+  2026-10-13).
 - [x] Run the persistence ladder at H12: `V6PERSH12` (2026-10-13).
 - [x] Set up `papers/pfm-paper-v6` without the `v5` draft, Methods written (2026-10-13).
 - [ ] Choose the spine; then the claim in its `paper.yml`, the claims ledger and the design.

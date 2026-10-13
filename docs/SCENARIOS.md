@@ -176,7 +176,7 @@ institutions carried about half of the power & industry strength's fall by 2100.
 | erosion rate κ | 0.027, 0.02, 0.05 (both) | `pfmPhiKappa` | EU21 |
 | strength vs ranking (added 2026-10-10) | constant limit (budget) | `pfmPhiHold` | EU21, tag `V6CEHOLD` |
 | persistence at H12 (added 2026-10-12) | constant limit, fading + erosion 2.7% (both) | `pfmPhiHold`, `pfmPhiKappa` | H12, tag `V6PERSH12` |
-| growing limit (added 2026-10-12) | the limit tightens 0.5% a year (both) | `pfmPhiHold`, `pfmPhiKappa = -0.005` | EU21, tag `V6BACK` |
+| growing limit (added 2026-10-12; rate declared 2026-10-13, ADR 0057) | the limit tightens 0.5% a year (both) | `pfmPhiHold`, `pfmPhiKappa = -0.005` | EU21, tag `V6BACK` |
 
 **Retired from `v5`** (ADR 0050 and the batch design): mode M (`-PFMmildProg`), the λ sensitivity run `GAPCLOSE`,
 the unforced hold-the-price variant (`-PFMlevelB` against `-PFMgateB`), the proportional-mode variant on the pinned path
@@ -451,7 +451,7 @@ the declared one would make the sensitivity run unusable, and none does. Figure:
 |---|---:|---:|---|
 | **κ = 0.02 / 0.027 / 0.05** | +53.5 / **+41.2** / +22.1 | −64.7 / −77.1 / −96.1 | **the largest effect**: at the central κ, 35% of the headline is left — the result depends on whether politics improves by itself |
 | constant limit, k ≈ 1 | +189.1 | +70.9 | the moving strength removes 37% of the constant-limit result |
-| growing limit (tightens 0.5% a year; k 1.12 / 1.45 in 2050 / 2100) | +245.3 | +127.0 | the worse-than-today side: twice the headline, 56 Gt above the constant limit |
+| growing limit (tightens 0.5% a year; k 1.12 / 1.45 in 2050 / 2100) | +245.3 | +127.0 | the worse-than-today side, a bound (ADR 0057): twice the headline, 56 Gt above the constant limit |
 | fixed institutions | +117.3 | −0.9 | §4.2a |
 | drivers stop in 2060 / regional k | +125.6 / +121.5 | +7.4 / +3.3 | small |
 | ranking: uniform | +105.8 | −12.4 | size alone carries most of the effect |

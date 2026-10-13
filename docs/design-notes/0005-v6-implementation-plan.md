@@ -86,9 +86,9 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
 2. ✅ **`V6PERSH12`** (landed 2026-10-13), 4 H12 runs: the ladder holds at H12. Hold the price +176.3 /
    +112.8 / +39.3 Gt (constant limit / fading / erosion 2.7%) against +189.1 / +118.2 / +41.2 at EU21; hold
    the budget ×1.42 / ×1.25 / ×1.10 and 60.1 / 19.9 / 9.3 Gt moved.
-3. ✅ **`V6BACK`** (landed 2026-10-13), 2 EU21 runs, growing limit at the proposed κ = −0.005 a year: hold the
+3. ✅ **`V6BACK`** (landed 2026-10-13), 2 EU21 runs, growing limit at κ = −0.005 a year (declared 2026-10-13, ADR 0057): hold the
    price +245.3 Gt; hold the budget ×1.64 global price in 2050, 97.5 Gt moved, budget met in 2100 but still
-   rising in 2150 (1036.7 Gt). The rate is still the author's to declare; a different rate means re-running it.
+   rising in 2150 (1036.7 Gt). Rate declared as a bound, no re-run (ADR 0057).
 4. ✅ **Processed 2026-10-13:** `runCoupledStage.R v6` (71 runs admitted, 0 missing), `ruleCRelocationDecomp.R`,
    `persistenceLadder.R v6`; 0006, `SCENARIOS.md` and the methodology updated.
 5. ✅ **Phase 6 step 5, the paper workspace** (2026-10-13; D19 as amended, confirmed by the author): `papers/pfm-paper-v6`,
@@ -1594,7 +1594,7 @@ converge is handled in one of two ways:
    0.93 / 1.65 index points (`lag-seam.rds`, `v6`). Every scenario-side `v6` artifact built
    before it (the sanity walk's scenario gates, the projection, the coupling bound, the Phase 1
    outputs) is rebuilt.
-3. **Donor rule: the selected rule stays** (9 base drivers weighted by $|eta|$; close ≤ q50,
+3. **Donor rule: the selected rule stays** (9 base drivers weighted by $|\beta|$; close ≤ q50,
    far ≤ q90 of the covered nearest-neighbour distances). The alternatives were quantified
    (`analysis/v6/donorAlternatives.R`, `output/pfm/v6/phase1/donor-alternatives.rds`). Fewer
    drivers add few donors and match worse in the full space. Looser bounds add donors only by
@@ -1668,8 +1668,8 @@ converge is handled in one of two ways:
    E7 are dropped; Phase 6 step 1 and §8 stay as the internal record; the paper workspace is scaffolded
    without the `v5` v18 draft as text (amends D19, to be confirmed); the paper's figures are `v6`-only
    versions; E25 for `v5` is optional archival.
-2. **The growing limit rate stays at the proposed κ = −0.005 a year for now** (declaration pending; the
-   `V6BACK` rows carry it).
+2. **The growing limit rate is κ = −0.005 a year**, declared 2026-10-13 as a bound (ADR 0057); the `V6BACK` rows
+   carry it.
 
 ## 8. The `v5` → `v6` comparison (Phase 2, step 6)
 

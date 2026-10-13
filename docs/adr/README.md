@@ -76,6 +76,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0053 | The `v6` panel: 2023 (IEA 2025), geothermal, one re-sweep; power & industry γ 0.997 accepted | **Accepted** (2026-10-07; D3, D8 decided; Phase 2 gate passed) |
 | 0054 | Time-indexed φ interface; convergence on the φ path | **Accepted** (2026-10-08, at the 0005 Phase 3 gate, runs `EU21V371`) — implemented 2026-10-07 |
 | 0055 | Generated scenario config | **Accepted** (2026-10-07), implemented: `pfm::buildPFMScenarioConfig()`, `analysis/run-groups/scenario-matrix-v6.yml` |
+| 0057 | The growing-limit rate: κ = −0.005 a year, declared as a bound | **Accepted** (2026-10-13): the fastest rate the share formula represents at θ = 0.675; history as a plausibility check; declared after `V6BACK`, on checks that use no coupled result |
 | 0056 | Actor power presented as the economic weight of fossil and clean-energy interests, a proxy for structural power | **Accepted** (2026-10-12): reader-facing wording; model and code names unchanged |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043

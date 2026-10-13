@@ -28,9 +28,9 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
 
 1. 🟠 **Choose the spine** (author; 0006). Recommended: today's politics versus tomorrow's, led by "net
    zero slips unless politics changes" (22 of 26 EU21 hold-the-price runs never peak by 2150).
-2. 🟠 **Declare the growing-limit rate** (author). `V6BACK` ran at the proposed κ = −0.005 a year (landed
-   2026-10-13: hold the price +245.3 Gt; hold the budget ×1.64 global price, 97.5 Gt moved). A different
-   declared rate means re-running `V6BACK` (2 EU21 runs).
+2. ✅ **The growing-limit rate is declared** (author, 2026-10-13, ADR 0057): κ = −0.005 a year, as a bound (the
+   fastest rate the share formula represents at θ = 0.675 to 2100; `analysis/v6/growingLimitRate.R`). `V6BACK`
+   ran at it (hold the price +245.3 Gt; hold the budget ×1.64 global price, 97.5 Gt moved); no re-run.
 3. ✅ **`V6PERSH12` and `V6BACK` processed** (2026-10-13): 71 runs admitted, the ladder at H12 matches EU21
    (+176.3 / +112.8 / +39.3 Gt against +189.1 / +118.2 / +41.2), 0006 and the methodology updated.
 4. ✅ **The paper workspace** (2026-10-13): `papers/pfm-paper-v6`, set up from paper-forge **without** the

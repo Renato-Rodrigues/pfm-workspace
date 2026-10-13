@@ -6,7 +6,7 @@
 #
 # Rungs, from worse than today to fastest erosion (titles -PFMlevel<Bfix|C>[-<sensitivity run>]-v6; a rung that has not
 # run is left out, so the ladder can be read while the batch lands):
-#   Growing limit  today's strength growing, E hold with kappa < 0 (declared, 0006)
+#   Growing limit  today's strength growing, E hold with kappa = -0.005 (ADR 0057)
 #   Constant limit      today's strength held, k close to 1 (the constant limit, D2 / C5)
 #   Selected   the strength fading with the projected drivers (the v6 headline)
 #   kappa02 / kappa / kappa05   plus erosion rate of 0.02 / 0.027 / 0.05 a year (ADR 0050)

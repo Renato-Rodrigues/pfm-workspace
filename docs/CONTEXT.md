@@ -134,7 +134,7 @@ regions. Run titles and switches keep the old letters (`-PFMlevelBfix` = hold th
 
 ### Persistence case: growing, constant or fading limit
 How long the political limit (the strength $k(t)$) lasts. **Growing limit**: it tightens 0.5% a year
-(`-backslide`). **Constant limit**: today's limit kept, $k pprox 1$ (`-Ehold`). **Fading limit**: it
+(`-backslide`). **Constant limit**: today's limit kept, $k \approx 1$ (`-Ehold`). **Fading limit**: it
 weakens as the energy system changes; the headline. **Fading + erosion**: the fading limit times a
 declared **erosion rate** κ, 2% / 2.7% / 5% a year (`-kappa02`, `-kappa`, `-kappa05`). Together the
 cases form the persistence ladder (design note 0006).
