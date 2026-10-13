@@ -65,6 +65,10 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 - **Institution projections informed by the PoliClim forecasts** (`analysis/checks/policlimInstitutions.R`);
   then revisit the ceiling-fall gate (ADR 0043; 0005 §7a decision 8).
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
+- **The v7 specification search, ready to run (2026-10-13; design note 0007 §9; `RUNNING.md` Step 6a).** The democracy
+  weight (O10) and the edge-of-data gate are implemented in `mrpfm` / `pfm` and configured for `v7` only. Before
+  submitting: fix the gate thresholds and the Estonia decision, push and install the code on the cluster, prepare
+  the `v7` madrat cache. Open: the weight read year by year (implemented) or held at 2019–2023 (offline A3).
 - **Edge-of-data evaluation (`v7`; author, 2026-10-13; design note 0007).** Interest × institution terms evaluated
   far from the sample reverse drivers in some regions (China, Middle East, Turkey, Russia; in power & industry also
   poor countries with very low fossil energy per person). Run `analysis/checks/edgeOfData.R <group>` on the

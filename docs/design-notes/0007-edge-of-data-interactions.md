@@ -359,3 +359,76 @@ The plain-language write-up of this note, with the comparison of the smooth weig
 Data: V-Dem v16 core (`v2x_polyarchy`), already in the sources the model reads; no new data are needed for A2 or
 the smooth weight. The quick runs are `Rscript analysis/checks/edgeOptions.R v6 <threshold> noband` →
 `output/pfm/v6/edge-options-aut<threshold>-noband.rds`.
+
+## 9. Implementation for `v7` (2026-10-13)
+
+The smooth democracy weight (O10) and the edge-of-data gate are in the code, switched on only for `v7`. Every group up
+to v6 is unchanged.
+
+**Data (`mrpfm`).** `readVDem` / `calcVDem` subtype `"democracy"` returns the V-Dem electoral democracy index
+(`v2x_polyarchy`) as `Electoral Democracy (VDem)`. The default `"all"` set is unchanged.
+
+**Panels (`pfm`).**
+- The panel definition has a new key, `democracy` (`pfmPanelDef`; off by default). It is carried into SLURM jobs
+  (`startRun`), `pfmRun`, `iterativePFM` and `pfmPrepareCache`.
+- When the key is on, `panelDataHistorical` adds the index on its own 0–1 scale (interpolated, gaps filled with
+  medians, not min–max normalised).
+- `panelDataScenario` holds it at its last observed value in every scenario year (a declared rule: no regime path is
+  projected).
+
+**The specification.**
+- A spec field, `interactionWeight` (e.g. `"Electoral Democracy (VDem)"`), reaches the estimator through
+  `.pfmSpecArgs`. It is also passed explicitly at the five calls that list the spec's fields by hand (the sweep's fit
+  grid, the sanity projection, `projectFeasiblePath`, the donor assignment and the ECM path).
+- `preparePanelData` reads the weight with the drivers' one-year lag and multiplies every actor-power × institution
+  interaction by it.
+- It records the weight on the frozen `driverScaling` as an attribute, so every projection that passes
+  `driverScaling = fit$driverScaling` applies it unchanged. `.pfmDriverGuard` keeps the weight when it rebuilds the
+  interactions.
+- The fit-cache key gains `+iw:<weight>`.
+
+**The search.**
+- `pfmSpecs(interactionWeights = ...)` appends a weighted twin (suffix ` iw:poly`) of every spec with interactions.
+  Selection then chooses between weighted and unweighted forms like any other dimension.
+- `runPFMSweep` takes `interactionWeights` and `edgeGate`, passes the gate to both sanity walks (the tier-relaxed
+  one too) and records both in `manifest.json` (`sweepOptions`). `runPFMSanityPool` reads the record.
+- `config.yml` carries both for `v7` only (`panel: groups: v7`, `sweep: groups: v7`).
+
+**The gate.**
+- `.pfmEdgeGate` (`R/pfmEdgeGate.R`) implements §5 criteria (a) direction and (b) cap shift.
+- It runs on the frontier fit the sanity walk already makes for the ceiling-collapse and γ gates
+  (`.pfmCeilingTrajectory`), so it costs no extra fit.
+- It flags `edgeOfData` (severe). The thresholds are declared in `config.yml` (`edgeGate`): share 0.25, effect 0.25,
+  cap shift 0.5 logit, cap 5–95%, regions of `regionmapping_21_EU11.csv`.
+
+**Tests.** `tests/testthat/test-interactionWeight.R` covers:
+- the weighted interactions in fit and apply mode;
+- the guard;
+- the spec twins;
+- option parsing;
+- the panel key;
+- the gate on a toy case.
+
+The whole `pfm` suite passes (458 tests, 2026-10-13).
+
+**End-to-end check on v6's data** (`analysis/checks/edgeGateValidation.R` → `output/pfm/v6/edge-gate-validation.rds`):
+- **Index (2023):** China 0.074, Saudi Arabia 0.014, Russia 0.19, India 0.374, Hungary 0.434, Germany 0.855, USA 0.857.
+- **Historical panel, rebuilt with the key on:** identical to v6's training panel on its 49 columns (largest
+  difference 2e-16), plus the index. The scenario panel holds the index (China 0.073 → 0.072).
+- **Selected v6 spec, refitted through the new code:** reproduces v6 (n 1104, γ 0.9968, log-likelihood −1256.2).
+
+The gate, on the coupled hold-the-price energy system:
+
+| | power & industry | buildings & transport |
+|---|---|---|
+| v6 as selected | **fails**: cap shift 0.56 (Middle East) > 0.5 | **fails**: China, Middle East, Other Asia against expectation; cap shift 1.25 (China) |
+| its democracy-weighted twin | **passes** (cap shift 0.19) | **passes** (cap shift 0.09) |
+| twin: γ / log-likelihood | 0.9836 / −1312.4 (v6 −1256.2) | 0.9719 / −555.2 (v6 −503.8) |
+| twin: fossil dependence × accountability | −0.99 (v6 −0.33) | −0.64 (v6 −0.54) |
+
+The package's twin differs from the offline A3 of §8 in one respect: it reads the index **year by year** (lagged,
+smoothed like the other drivers). The offline A3 held the 2019–2023 mean. Within history, the declines in Hungary,
+Turkey and India therefore enter the fit, and power & industry fits worse (−1312.4 against −1255.4 offline). Which
+form v7 keeps is part of the decision. A constant-weight variant would be one more spec field, not implemented yet.
+
+**How to run the v7 search:** `docs/RUNNING.md`, Step 6a.

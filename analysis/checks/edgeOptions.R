@@ -141,6 +141,9 @@ addExporter <- function(X, mode = "E1") cbind(X, as.matrix(covCols(sub(" .*$", "
 # the design matrices of a design, on history (2023) and on the coupled scenario
 matsFor <- function(design, extra = NULL) {
   h <- designMatrix(design, panel); s <- designMatrix(design, scen)
+  # the spec's own interaction weight (interactionWeight, design note 0007) as column w__ (1 when unweighted)
+  wOf <- function(d) { w <- if ("interactionWeight__" %in% names(d)) d$interactionWeight__ else rep(1, nrow(d)); w[!is.finite(w)] <- 1; w }
+  h$mm <- cbind(h$mm, w__ = wOf(h$df)); s$mm <- cbind(s$mm, w__ = wOf(s$df))
   hm <- h$mm[h$df$year == design$lastHist, , drop = FALSE]; sm <- s$mm
   if (!is.null(extra)) { hm <- addExporter(hm, extra); sm <- addExporter(sm, extra) }
   list(hist = hm, scen = sm, scenYear = s$df$year, scenRegion = s$df$region)
@@ -153,9 +156,10 @@ evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   pairs <- if (length(ints)) do.call(rbind, strsplit(sub("^dem[wl]?__", "", ints), "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
   if (length(ints)) rownames(pairs) <- ints
   demW <- function(X, k) { p <- prefixOf(k); if (nzchar(p)) weightOf(p, sub(" .*$", "", rownames(X))) else 1 }   # democracy weight
+  specW <- function(X) if ("w__" %in% colnames(X)) X[, "w__"] else 1   # the spec's own weight, if it has one
   buildX <- function(X) {
     Xm <- if (is.null(tf)) X else tf(X)                     # factor values used inside the interactions
-    if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]] * demW(X, k)
+    if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]] * demW(X, k) * specW(X)
     X[, cols, drop = FALSE]
   }
   etaOf <- function(X) as.vector(buildX(X) %*% beta)
@@ -192,8 +196,8 @@ evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   Z0 <- at(2025); Zm <- if (is.null(tf)) Z0 else tf(Z0)
   dir <- do.call(rbind, lapply(intersect(names(EXPECT), cols), function(d) {
     s <- rep(beta[[d]], nrow(Z0))
-    for (k in ints[pairs[, 1] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 2]] * demW(Z0, k)
-    for (k in ints[pairs[, 2] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 1]] * demW(Z0, k)
+    for (k in ints[pairs[, 1] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 2]] * demW(Z0, k) * specW(Z0)
+    for (k in ints[pairs[, 2] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 1]] * demW(Z0, k) * specW(Z0)
     eff <- pmax(abs((at(2050)[rownames(Z0), d] - Z0[, d]) * s), abs((at(2100)[rownames(Z0), d] - Z0[, d]) * s))
     data.frame(country = rownames(Z0), driver = d, centreAgrees = sign(beta[[d]]) == EXPECT[[d]],
                against = sign(s) != EXPECT[[d]] & eff >= MIN_EFFECT)

@@ -66,11 +66,15 @@ out <- list(group = g, scenario = basename(SCEN), made = format(Sys.time(), "%Y-
 for (sec in names(anc$EU21$designs)) {
   design <- anc$EU21$designs[[sec]]; beta <- design$beta
   dm <- designMatrix(design, scen); df <- dm$df; mm <- dm$mm
+  # a democracy-weighted spec (interactionWeight, design note 0007): its interactions carry the weight
+  w__ <- if ("interactionWeight__" %in% names(df)) df$interactionWeight__ else rep(1, nrow(df))
+  w__[!is.finite(w__)] <- 1
+  mm <- cbind(mm, w__ = w__)
   yrs <- sort(unique(df$year)); Y0 <- min(yrs[yrs >= 2025]); YR <- intersect(YEARS, yrs)
   ints <- grep("_x_", names(beta), value = TRUE)
   pairs <- do.call(rbind, strsplit(ints, "_x_", fixed = TRUE)); colnames(pairs) <- c("A", "M"); rownames(pairs) <- ints
   # interaction columns are products of the standardised factors (preparePanelData); check before relying on it
-  chk <- max(abs(mm[, ints] - mm[, pairs[, "A"]] * mm[, pairs[, "M"]]), na.rm = TRUE)
+  chk <- max(abs(mm[, ints] - mm[, pairs[, "A"]] * mm[, pairs[, "M"]] * mm[, "w__"]), na.rm = TRUE)
   if (chk > 1e-8) stop(sec, ": interaction columns are not products of their factors (max dev ", chk, ")")
   drivers <- setdiff(names(beta), c(ints, "(Intercept)", grep("regionFE|[Tt]rend", names(beta), value = TRUE)))
   moder <- unique(pairs[, "M"]); inter <- unique(pairs[, "A"])
@@ -90,8 +94,8 @@ for (sec in names(anc$EU21$designs)) {
   # B. effective slope of every driver at each country's own values, first scenario year
   slope <- function(X) sapply(drivers, function(d) {
     s <- rep(beta[[d]], nrow(X))
-    for (k in ints[pairs[, "A"] == d]) s <- s + beta[[k]] * X[, pairs[k, "M"]]
-    for (k in ints[pairs[, "M"] == d]) s <- s + beta[[k]] * X[, pairs[k, "A"]]
+    for (k in ints[pairs[, "A"] == d]) s <- s + beta[[k]] * X[, pairs[k, "M"]] * X[, "w__"]
+    for (k in ints[pairs[, "M"] == d]) s <- s + beta[[k]] * X[, pairs[k, "A"]] * X[, "w__"]
     s })
   sl0 <- slope(X0); rownames(sl0) <- cty
   centre <- sign(beta[drivers])
@@ -130,7 +134,7 @@ for (sec in names(anc$EU21$designs)) {
   lo <- apply(S0[, moder, drop = FALSE], 2, stats::quantile, CAP[1]); hi <- apply(S0[, moder, drop = FALSE], 2, stats::quantile, CAP[2])
   capDelta <- function(X) {                         # eta change from capping, any year
     dl <- rep(0, nrow(X))
-    for (k in ints) { m <- pairs[k, "M"]; mc <- pmin(pmax(X[, m], lo[[m]]), hi[[m]]); dl <- dl + beta[[k]] * X[, pairs[k, "A"]] * (mc - X[, m]) }
+    for (k in ints) { m <- pairs[k, "M"]; mc <- pmin(pmax(X[, m], lo[[m]]), hi[[m]]); dl <- dl + beta[[k]] * X[, pairs[k, "A"]] * (mc - X[, m]) * X[, "w__"] }
     dl }
   capped <- names(which(apply(X0[, moder, drop = FALSE], 1, function(v) any(v < lo | v > hi))))
   ac <- anc$EU21$country[anc$EU21$country$sector == sec & is.finite(anc$EU21$country$q), ]
@@ -151,7 +155,7 @@ for (sec in names(anc$EU21$designs)) {
     wR <- anc[[res]]$regionWeights
     kpath <- function(cap) sapply(yrs[yrs >= Y0 & yrs <= 2100], function(y) {
       X <- at(y)[ac$region, , drop = FALSE]
-      eta <- as.vector(X %*% beta) + if (cap) capDelta(X) else 0
+      eta <- as.vector(X[, names(beta), drop = FALSE] %*% beta) + if (cap) capDelta(X) else 0
       q <- if (cap) qCap else ac$q
       gr <- aggGap(res, setNames(10 * stats::plogis(eta - q), ac$region), setNames(10 * stats::plogis(eta), ac$region), y)
       sum(wR[names(gr)] * gr, na.rm = TRUE) / sum(wR[names(gr)][is.finite(gr)]) })

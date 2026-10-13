@@ -70,6 +70,8 @@ outputRegionMappingFile: "country"
 #                   (complete to 2023). 2023 needs latest.
 #   geothermal      count geothermal with hydro and nuclear in the clean-baseload control
 #                   ("Hydro Nuclear Share"; design note 0005 A4). Legacy (v5): false.
+#   democracy       add the V-Dem electoral democracy index (v2x_polyarchy), the weight of a
+#                   democracy-weighted spec (design note 0007). Up to v6: false.
 #   groups          per-Run-Group overrides of the keys above
 #
 # Read ONLY for a group that has not been swept yet: the sweep records the definition in the
@@ -86,6 +88,10 @@ panel:
     # Sibling of v6 on annual values - the robustness rung of the smoothing (0005 D3).
     v6-annual:
       movingAverage: 1
+    # v7 (design note 0007): the V-Dem electoral democracy index enters the panels, the weight of the
+    # democracy-weighted interactions. Held at its last observed value in scenarios.
+    v7:
+      democracy: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -108,6 +114,10 @@ panel:
 #                         channels; the |t| key decided v6 on a 0.04 margin. The hard VIF gate
 #                         (10) stays. Quote "off": unquoted, YAML reads it as false (also off).
 #                         Omitted = runPFMSweep's defaults, 6 and 2.33 (every group up to v5).
+#   interactionWeights    panel variables (0-1) that each add a weighted twin of every spec with interactions
+#                         ("none" keeps the unweighted specs); design note 0007, option O10
+#   edgeGate              the edge-of-data gate of the sanity walk: "off", on (declared defaults), or a mapping of
+#                         share / effect / capShift / cap / mapping (design note 0007 section 5)
 #   groups                per-Run-Group overrides, as for panel
 sweep:
   apTransforms: [linear, saturating, saturating-innovator, saturating-incumbent]
@@ -117,6 +127,25 @@ sweep:
   apExtrapolationWindow: [2025, 2100]
   softVifGate: "off"
   inferenceTGate: "off"
+  groups:
+    # v7 (design note 0007): every spec with interactions gets a democracy-weighted twin (" iw:poly"), and the
+    # sanity walk applies the edge-of-data gate at its declared thresholds (0007 section 5):
+    #   share     a region fails when countries holding this share of its final energy have fossil dependence or
+    #             clean-energy build-out acting against the frontier's reading ...
+    #   effect    ... by at least this many logit units of ceiling between 2025 and 2100 (in a sector whose
+    #             sample-centre sign agrees with the reading);
+    #   capShift  or when capping the interactions' moderators at the sample's `cap` percentiles moves a
+    #             region's final-energy-weighted ceiling (level in 2025 or change to 2100) by more than this;
+    #   mapping   the regions the shares are read in.
+    # Fix these before the v7 sweep runs; edgeGate: "off" disables the gate.
+    v7:
+      interactionWeights: [none, "Electoral Democracy (VDem)"]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
 
 # ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
 # The REMIND pathways the one shared Fitted Model is projected onto. Each entry:
