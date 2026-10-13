@@ -1,6 +1,9 @@
 # 0004 — What a v6 formulation could change: clamps, smoothing, tier years, SSPs
 
-**Status: Open.** Evidence for a possible v6 definition; nothing here is decided or selected.
+**Status: Closed 2026-10-13.** The evidence it collected is decided in ADR 0049 (the anchored gap, the
+distance kept, the mean-gap strength), ADR 0052 (the saturating actor-power families, the hold year) and
+ADR 0053 (the `v6` panel, annual data as a robustness Run-Group). Kept as the record of the offline tests
+on `v5` that led to them.
 
 **Provenance.** Run-Group `v5`, offline, 2026-09-29. Script `analysis/v6/v6FormulationTests.R`
 (parts `guard`, `annual`, `tiers`, `ssp`); outputs in `output/pfm/v5/v6-tests/*.rds`. Unless stated,

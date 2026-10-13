@@ -38,28 +38,21 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
    and the general drafting rules. Write Methods fresh for the `v6` formulation (D-A1…A7), with the
    hold-the-budget arithmetic (D-M2 (i)) and the sector-ordering caveat (D-M4). Then mark
    `papers/pfm-paper-v5` as superseded in its `CLAUDE.md` and `VERSIONS.md`.
-5. 🟠 **The paper's figures, `v6` only:** the persistence ladder under both closures; the peak-year figure
-   if *Net zero slips* leads; the mechanism figure, $k_s(t)$ by driver group with its out-of-support share (C3,
-   C10). `v6-coupled-theta`, `v6-rulec-relocation` and `v6-price-catchup` show `v5` beside `v6`; the
-   paper needs `v6`-only versions.
+5. ✅ **The paper's figures, `v6` only** (2026-10-12/13): `v6-persistence-ladder`, `v6-cumulative-co2`
+   (peak years), `v6-mechanism` (C3, C10), and `v6`-only versions of the coupled figures (`*-only`).
 6. 🟠 **The deposit** (D-M3, Phase 6 step 6): Zenodo at tags of `pfm`, `mrpfm`, the fork and the project
    repo, with the `v6` artifacts and batch manifests. Copy the `v6` input archive
    (`/p/projects/elevate/WP3.4/archive/v6-inputs-2026-10-10/`, 876 MB) off the cluster for it.
 
 **Improves the work:**
-- 🟢 **C10:** the out-of-support share per year beside each coupled $k_s(t)$ (offline: 11% of weighted
-  drivers by 2100, `MODEL.md` §5.2).
-- 🟢 **G2:** close design note 0004 (ADRs 0049, 0052, 0053 accepted); 0006 closes with the spine, 0005 at
-  the end of Phase 6.
-- 🟢 **G3:** add the `v6` terms to `CONTEXT.md` (anchor year, strength factor, distance kept, constant limit,
-  persistence, growing limit); rewrite `PRESENTATION.md` once the spine is chosen.
-- 🟢 **G4 (author):** the v6 methodology document's *Against v5* and *What changed from v5* sections:
-  remove them or mark them internal.
-- 🟢 **Workstation:** reinstall the local `pfm`, which is older than the repository
-  (`tools/setup.sh --install --no-cache`); update `test-couplingV6.R:101`, which expects power & industry
-  $k_{2100}$ 0.4809 and gets 0.4884 since the scenario panel was rebuilt on 2026-10-08 (the test is
-  skipped on the cluster). R on the workstation is back on 4.3.2 (reinstalled 2026-10-12 after an
-  update to 4.6.1 removed it); 4.6.1 is still installed and registered as the machine default.
+- ✅ **C10** (2026-10-13): beyond the observed range, clean-energy build-out for 89% of countries by 2050,
+  fossil dependence for 50% by 2100 (power & industry); figure `v6-mechanism`, `MODEL.md` §5.2.
+- ✅ **G2, part:** design note 0004 closed (2026-10-13). 0006 closes with the spine, 0005 at the end of Phase 6.
+- ✅ **G3, part:** the `v6` terms are in `CONTEXT.md` (anchor year, distance kept, strength factor, the
+  closures, the persistence cases, ADR 0056's wording). `PRESENTATION.md` is rewritten once the spine is chosen.
+- ✅ **G4:** the methodology is `v6` only (rebuilt 2026-10-12; the earlier draft is archived).
+- ✅ **Workstation** (2026-10-13): local `pfm` reinstalled from the repository; `test-couplingV6.R:101` updated to
+  0.4884. R 4.3.2 is the working version; 4.6.1 is still installed as the machine default.
 - 🟢 **F5:** promote the reproduction-chain scripts into `pfm` (improves the deposit, does not block it).
 
 **Done since the review:** ✅ D-GP8 / GP-11 / GP-13 run on `v6` (2026-10-12; results in 0005 §0a item 9,

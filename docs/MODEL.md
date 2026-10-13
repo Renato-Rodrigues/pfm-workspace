@@ -671,7 +671,17 @@ Power & industry **0.34** (Buildings & transport 1.02), institutions alone **1.2
 (1.00). **In power & industry the energy transition relaxes the constraint and better institutions tighten it**,
 through power & industry institution terms that are not identified (§2.5) — hence the fixed-institutions variants.
 Out of training support: 2% of weighted drivers in 2025, 6% in 2050, 11% in 2100, reported with
-every $k(t)$.
+every $k(t)$. **That share counts only the drivers with a guard range: income, population and
+institutions** (the SSP2 projections, so it is the same in every run of the selected specification). The
+saturating actor-power terms are guarded by their physical domain and never count there. **Beyond the
+observed range** (C10, coupled, `analysis/v6/couplingMechanism.R` → `coupling/strength-support.rds`; hold
+the price, fading limit, EU21, final-energy-weighted share of countries): clean-energy build-out is above
+anything observed for 89% of countries in 2050 and 94% in 2100 (buildings & transport 97% / 99%); fossil
+dependence is below anything observed for 1% in 2050 and **50% in 2100** in power & industry (19% in
+buildings & transport). The fade after mid-century is therefore read through the saturating transform, not
+observed (ADR 0040, 0052). On the coupled energy system the one-group decomposition holds: actor power
+alone gives power & industry k 0.37 in 2100, institutions alone 1.29, income and population 0.91, all
+together 0.52 (figure `v6-mechanism`).
 
 **Coupled** (θ = 0.50, `coupled-facts.json`): power & industry $k$ **0.686 / 0.525** (EU21) and 0.684 / 0.516
 (H12) in 2050 / 2100 — the coupled energy system relaxes the constraint a little less than the
@@ -918,7 +928,7 @@ Validated exclusions — each rejected by this project's own tests, not by prefe
 | Comparing mean-regression and frontier coefficients as refits of each other | Different estimands (§2.2) |
 | Quoting frontier $p$-values as clustered inference | ML SEs; no clustered sandwich for SFA (§3.3) |
 | A power & industry institution coefficient as a finding | Not identified: insignificant in the mean regression, opposite signs on the frontier (§2.5, §3.3) |
-| Scenario results late in the century without their out-of-support share | A reporting duty since ADR 0052: 11% of weighted drivers out of support by 2100 (§5.2) |
+| Scenario results late in the century without their out-of-support share | A reporting duty since ADR 0052: 11% of weighted drivers out of support by 2100, and the energy system beyond the observed range for most countries by 2050 (§5.2, C10) |
 | Ranking estimators on AIC/BIC across families | Different response scales and quasi-likelihoods |
 | Calling the feedback causal | The IV is an endogeneity-confirmed null (§8.1) |
 

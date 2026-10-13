@@ -85,6 +85,20 @@ $P^{*} = P^{\text{ref}} + \varphi(P^{\circ} - P^{\text{ref}})$. It discounts the
 effort an ambitious pathway demands, never the policy a region already has. A parameter
 refreshed between iterations — never a decision variable.
 
+### Anchor year ($t_a$)
+The year the political gap is read from observed data: 2023, the last panel year (ADR 0049, 0053). Who
+is more constrained than whom is fixed there and never re-estimated in a projection.
+
+### Distance kept ($q$)
+Each country keeps its anchor-year distance below its own ceiling, on the logit scale,
+$q_{c,s} = \eta_{t_a} - y_{t_a}$, while the ceiling moves with the drivers (ADR 0049; the old name
+"logit hold"). The alternative, the constant limit, holds the share $E$ instead.
+
+### Strength factor ($k_s(t)$)
+How strongly the fixed ranking bites: the final-energy-weighted mean regional gap relative to its value in
+the first model period, $k_s(t) = G_s(t)/G_s(t_0)$, so $k = 1$ in 2025. It falls as ceilings rise (the
+fading limit), and the declared erosion rate κ multiplies it by $(1-\kappa)^{t-2025}$.
+
 ### Coupling severity ($\theta$)
 The dial setting how hard $\varphi$ bites. **Declared and swept, never estimated** — no
 historical experiment ever assigned carbon prices by political gap. $\theta = 0$ is the

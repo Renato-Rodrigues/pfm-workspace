@@ -103,8 +103,11 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
 7. 🟠 **The deposit** (D-M3, Phase 6 step 6): a Zenodo archive at tags of `pfm`, `mrpfm`, the fork and the
    project repo, with the `v6` artifacts, the batch manifests and the `v6` input archive of 2026-10-10
    (copy it off the cluster).
-8. 🟢 **C10:** the out-of-support share per year beside each coupled $k_s(t)$. It is measured offline
-   (11% of weighted drivers by 2100, `MODEL.md` §5.2), not yet per coupled run.
+8. ✅ **C10** (2026-10-13, `analysis/v6/couplingMechanism.R` → `coupling/strength-support.rds`): the
+   guard-range share is 6% / 11% of weighted drivers in 2050 / 2100 in every run of the selected
+   specification (income, population, institutions only); beyond the *observed* range, clean-energy
+   build-out is above it for 89% of countries by 2050 and fossil dependence below it for 50% by 2100
+   (power & industry, hold the price, EU21). The mechanism figure `v6-mechanism` shows both (`MODEL.md` §5.2).
 9. ✅ **D-GP8 / GP-11 / GP-13 on `v6`, run 2026-10-12** (the three scripts take the Run-Group since that
    day; offline, covered countries, the last panel year 2023). Results on file for when the paper needs
    them:
