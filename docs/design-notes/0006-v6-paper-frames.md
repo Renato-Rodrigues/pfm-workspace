@@ -16,7 +16,8 @@ evidence subsection added to every frame, and the estimated range corrected to 6
 includes the annual-data variant). Same day: every frame rests on `v6` results only, since the paper
 does not report the earlier model version (author, 2026-10-12; 0005 §7b). Same day: frames and messages
 named instead of numbered, and the project labels renamed (`SCENARIOS.md` §2.6; the old labels are
-listed in `../_archive/_wip/LABELS-2026-10-12.md`).
+listed in `../_archive/_wip/LABELS-2026-10-12.md`). 2026-10-13: `V6PERSH12` and `V6BACK` landed; the growing
+limit and the ladder at H12 are added (71 runs, all admitted).
 
 ## Purpose and basis
 
@@ -30,6 +31,7 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 
 | How long the limit lasts | k, power & industry (2050 → 2100) | Hold the price: extra CO₂ by 2100 (Gt) | Hold the budget: global price 2050 (× θ = 0 run) | Hold the budget: abatement moved (Gt CO₂eq) | Regional price gap, 2100 (SD) |
 | --- | --- | --- | --- | --- | --- |
+| Growing limit: tightens 0.5% a year (κ = −0.005, proposed) | 1.12 → 1.45 | +245.3 | ×1.64 | 97.5 | 0.271 |
 | Constant limit: today's limit kept | 0.99 → 1.00 | +189.1 | ×1.45 | 65.6 | 0.138 |
 | Fading limit: weakens with the transition (headline) | 0.69 → 0.53 | +118.2 | ×1.26 | 22.7 | 0.081 |
 | Fading + erosion 2% a year (κ = 0.02) | 0.40 → 0.11 | +53.5 | ×1.13 | 9.5 | 0.014 |
@@ -37,12 +39,14 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 | Fading + erosion 5% a year (κ = 0.05) | 0.18 → 0.01 | +22.1 | ×1.05 | 5.3 | 0.001 |
 
 k is shown for the hold-the-price runs. The hold-the-budget runs settle a little lower (fading limit
-0.62 → 0.50). The growing limit (the limit tightens 0.5% a year) is set up but not run yet (`V6BACK`).
+0.62 → 0.50). The growing limit ran at the proposed rate (`V6BACK`); the rate is still the author's to declare.
 
 Other quantities the frames cite:
 
 - **H12 matches EU21 on the fading-limit runs:** +112.8 against +118.2 Gt of extra CO₂, and 19.9 against
-  22.7 Gt moved. The ladder itself was run on EU21 only (`V6PERSH12` will add H12).
+  22.7 Gt moved. **The ladder holds at H12** (`V6PERSH12`): hold the price +176.3 / +112.8 / +39.3 Gt
+  (constant limit / fading / erosion 2.7%) against +189.1 / +118.2 / +41.2 at EU21; hold the budget ×1.42 /
+  ×1.25 / ×1.10 and 60.1 / 19.9 / 9.3 Gt moved (EU21 ×1.45 / ×1.26 / ×1.10; 65.6 / 22.7 / 8.4).
 - **Severity θ** from 0.325 to 0.675 gives +73.0 to +181.5 Gt (hold the price), or a global price ×1.15
   to ×1.42 (hold the budget).
 - **The estimated parts span less than the declared ones** (hold the price, extra CO₂ by 2100):
@@ -101,8 +105,9 @@ those constraints erode as the transition proceeds.
 > If today's political limit is kept, holding the politically feasible price adds 189 Gt to a 1000 Gt
 > pathway, about a fifth of the budget. Keeping the budget instead moves 66 Gt of abatement between
 > regions, mostly onto China. When the political limit weakens as the transition shrinks fossil-fuel
-> coalitions, these fall to 118 Gt and 23 Gt. With faster erosion they fall to 22 Gt and 5 Gt. Most of the
-> cost of political feasibility is the cost of assuming politics does not change.
+> coalitions, these fall to 118 Gt and 23 Gt. With faster erosion they fall to 22 Gt and 5 Gt; if politics
+> instead grows worse than today, they rise to 245 Gt and 98 Gt. Most of the cost of political feasibility is
+> the cost of assuming politics does not change.
 
 **Evidence.**
 - *The constant limit is a run, not an extrapolation.* `-PFMlevelBfix-Ehold-v6` and `-PFMlevelC-Ehold-v6`
@@ -114,6 +119,7 @@ those constraints erode as the transition proceeds.
 
   | Case | Hold the price (Gt) | Hold the budget (Gt) |
   | --- | --- | --- |
+  | Growing limit | −56.2 | −31.9 |
   | Fading limit | 70.9 | 42.9 |
   | Fading + erosion 2% a year | 135.6 | 56.1 |
   | Fading + erosion 2.7% a year | 147.9 | 57.2 |
@@ -122,8 +128,9 @@ those constraints erode as the transition proceeds.
 - *Strength, not ranking.* The constant-limit and fading-limit runs share the ranking and differ only in
   the strength. Abatement moved is 65.6 against 22.7 Gt, and the 2100 regional price gap 0.138 against
   0.081.
-- *Limits:* the ladder is EU21 only (`V6PERSH12` pending), and the worse-than-today side is not run yet
-  (`V6BACK`). The causal feedback from policy to politics is not identified.
+- *Limits:* the ladder holds at H12 (constant limit +176.3, fading +112.8, erosion 2.7% +39.3 Gt). The
+  worse-than-today side ran at a proposed rate (growing limit, +245.3 Gt) that is not yet declared. The causal
+  feedback from policy to politics is not identified.
 
 - **Appeal:**
   - It gives one headline quantity, the "political dividend" of the transition: 71 Gt from the model's
@@ -135,10 +142,9 @@ those constraints erode as the transition proceeds.
   - The fading limit k(t) comes from the projected drivers, and κ is declared. The paper can say "*if*
     politics develops", not "policy *causes* politics to develop".
   - Wording has to hold that line throughout.
-- **Optional extra:** a growing-limit run, where the limit rises above today's level, would make the
-  comparison two-sided ("better or worse than today"). The coupling accepts a negative κ since
-  2026-10-12, and the rows are in the matrix (`V6BACK`). The rate stays at the proposed −0.005 a year
-  until it is declared.
+- **Two-sided now:** the growing-limit run (`V6BACK`, the limit tightening 0.5% a year) adds +245.3 Gt under
+  hold the price, 56 Gt above the constant limit, and under hold the budget a global price ×1.64 with 97.5 Gt
+  moved. The rate (−0.005 a year) is proposed, not yet declared.
 
 ## Persistence decides: the cost hinges on how long the limit lasts
 
@@ -148,7 +154,7 @@ limit lasts.
 > Coupling an estimated feasibility frontier into REMIND, we show that the effect of political
 > constraints on a 1000 Gt pathway is ordered by a single quantity: the persistence of the political
 > limit. This holds whether the price or the budget is held. Persistence sets both the size of the effect
-> (22–189 Gt of overshoot; 5–66 Gt of relocated abatement) and its geography: China absorbs relocated
+> (22–245 Gt of overshoot; 5–98 Gt of relocated abatement) and its geography: China absorbs relocated
 > abatement only when the limit persists. Because persistence cannot be identified from the historical
 > record, we report the mapping from assumption to outcome rather than a point estimate.
 
@@ -233,7 +239,7 @@ CO₂ to net zero within the model horizon.
 > Climate targets are now set as net-zero dates. We couple an estimated feasibility frontier, which caps
 > carbon prices where institutions and fossil-fuel coalitions resist, into REMIND, and hold each region to
 > the price its politics allows. Without the ceilings, a 1000 Gt pathway reaches net-zero CO₂ around 2100.
-> With them, cumulative CO₂ is still rising in 2150 in 21 of 25 model variants, whether today's political
+> With them, cumulative CO₂ is still rising in 2150 in 22 of 26 model variants, whether today's political
 > limit is kept or fades as the transition proceeds. Only when the political limit erodes at a declared
 > rate does net zero return, around 2100–2110. Whether net zero is reached is decided by whether politics
 > changes, not by the carbon price a model would choose.
@@ -243,17 +249,18 @@ CO₂ to net zero within the model horizon.
 | Run | Peak year | Cumulative CO₂ at the peak (Gt) |
 | --- | --- | --- |
 | No-politics reference (θ = 0), price held | 2100 | 1003 |
+| Growing limit | not by 2150 | 1505 in 2150 |
 | Constant limit | not by 2150 | 1315 in 2150 |
 | Fading limit (EU21 / H12) | not by 2150 | 1184 / 1183 in 2150 |
 | Fading + erosion 2% a year | 2110 | 1058 |
 | Fading + erosion 2.7% a year | 2100 | 1044 |
 | Fading + erosion 5% a year | 2100 | 1025 |
 
-- 21 of the 25 EU21 hold-the-price runs never peak by 2150. The four that do are the three erosion runs
-  and the reversed ranking (2130). At H12, 5 of 7 never peak (the fixed-institutions and uniform-ranking
-  runs peak in 2130). Even mild severity (θ = 0.325) never peaks (1130 Gt in 2150).
+- 22 of the 26 EU21 hold-the-price runs never peak by 2150. The four that do are the three erosion runs
+  and the reversed ranking (2130). At H12, 6 of 9 never peak (the erosion run peaks in 2100, the
+  fixed-institutions and uniform-ranking runs in 2130). Even mild severity (θ = 0.325) never peaks (1130 Gt in 2150).
 - Under hold the budget, the constant-limit run meets the budget in 2100 (1001 Gt) but is still rising
-  in 2150 (1019 Gt).
+  in 2150 (1019 Gt; H12 1017 Gt), and so is the growing-limit run (1000 Gt in 2100, 1037 Gt in 2150).
 
 - **Appeal:** net zero is the currency of climate policy, and the result is a yes/no that holds across
   almost every estimated variant. The only lever that restores it is political change.
@@ -281,14 +288,17 @@ whether politics changes.
 
 | Persistence case | Hold the price: extra CO₂ by 2050 (Gt) | by 2100 | by 2150 | Hold the budget: moved 2020–2050 (Gt) | moved 2051–2100 |
 | --- | --- | --- | --- | --- | --- |
+| Growing limit | 51.4 | 245.3 | 526.7 | 10.4 | 87.1 |
 | Constant limit | 44.7 | 189.1 | 337.1 | 9.7 | 56.6 |
 | Fading limit | 37.4 | 118.2 | 205.2 | 8.8 | 16.7 |
 | Fading + erosion 2% a year | 25.2 | 53.5 | 58.9 | 7.5 | 9.4 |
 | Fading + erosion 2.7% a year | 21.6 | 41.2 | 36.6 | 6.8 | 8.9 |
 | Fading + erosion 5% a year | 15.2 | 22.1 | 11.2 | 5.4 | 5.7 |
 
-The regional price gap in 2030 is similar in every case (SD 0.17–0.24). At H12, the fading-limit run adds
-34.6 Gt by 2050 (EU21 37.4).
+The ranges quoted above use the declared cases; the growing limit, at its proposed rate, widens the 2050 range
+only to 15–51 Gt, and the 2100 range to 22–245 Gt. The regional price gap in 2030 is similar in every case
+(SD 0.17–0.24). At H12 the 2050 figures are +43.3 / +34.6 / +20.3 Gt (constant limit / fading / erosion
+2.7%; EU21 +44.7 / +37.4 / +21.6).
 
 - **Appeal:** decision-relevant for near-term targets (NDCs, 2050), with a robust claim next to a
   conditional one.
@@ -305,7 +315,7 @@ regions.
 > Political resistance to carbon pricing is often read as a reason to abandon ambitious budgets. We test
 > this in a coupled model where an estimated feasibility frontier caps each region's carbon price. When
 > the global budget is held, every variant meets it. The global price rises by about a quarter (by 45%
-> if today's politics never changes), and aggregate output barely moves (+0.035% of discounted GDP). No
+> if today's politics never changes, by 64% if it grows worse), and aggregate output barely moves (+0.035% of discounted GDP). No
 > region loses more than 0.2% of GDP. What politics changes is who abates and when, not whether the
 > budget can be met.
 
@@ -313,13 +323,14 @@ regions.
 - *Every hold-the-budget run meets the budget:* 989–1001 Gt in 2100 across the EU21 hold-the-budget runs
   and 994.6 Gt at H12.
 - *Global price in 2050 against `-PFMgate-v6`:* ×1.26 under the fading limit; ×1.15–1.42 over θ; ×1.45
-  under the constant limit; ×1.05–1.13 with erosion. With one price across markets (markup off), ×1.35.
+  under the constant limit; ×1.64 under the growing limit; ×1.05–1.13 with erosion. With one price across markets (markup off), ×1.35.
 - *Costs* (`coupled-costs.json`):
 
   | Run | Discounted GDP (%) | Consumption (%) | Worst region (GDP %) |
   | --- | --- | --- | --- |
   | Fading limit | +0.035 | +0.017 | ESC, −0.08 |
   | Constant limit | +0.005 | +0.010 | SSA, −0.18 |
+  | Growing limit | −0.021 | −0.034 | SSA, −0.24 |
 
 - *Caveat from the runs:* the constant-limit run meets the budget in 2100 but is still rising in 2150
   (*Net zero slips*).
@@ -364,12 +375,12 @@ budget survives*). The three below support a frame but cannot carry one.
 
 ### Open questions the v6 results raise (not yet answerable)
 
-- What if politics gets worse than today (growing limit)? The runs are set up (`V6BACK`) and wait for the
-  declared rate.
+- What if politics gets worse than today? Answered at a proposed rate (growing limit, +245.3 Gt; ×1.64 and
+  97.5 Gt moved); the rate still has to be declared.
 - Does a higher-price, budget-holding world change politics itself? This is the causal feedback, which
   is not identified. It is the next paper, not this one.
-- Do the persistence results hold at H12? The fading-limit H12 runs match EU21. The H12 ladder runs are
-  set up (`V6PERSH12`).
+- Do the persistence results hold at H12? Yes: the constant-limit, fading and erosion-2.7% cases at H12 are
+  within 7% of EU21 under hold the price, and in the same order under hold the budget (`V6PERSH12`).
 
 ## Comparison and recommendation
 
@@ -382,12 +393,12 @@ numbers of *Budget or price* become the fading-limit row.
 | Frame | Question it answers | Appeal for NCC | Main risk | Extra work |
 | --- | --- | --- | --- | --- |
 | Budget or price | What gives under political caps? | Medium: familiar, but numbers fragile | Headline moves 5–9× with persistence | None |
-| Today vs tomorrow | Is today's political constraint permanent, and what does assuming so cost? | High: clear question, one headline (71–167 Gt dividend) | Implying policy causes political change | H12 ladder (4 runs); growing limit (2 runs, rate to declare) |
+| Today vs tomorrow | Is today's political constraint permanent, and what does assuming so cost? | High: clear question, one headline (71–167 Gt dividend) | Implying policy causes political change | Declare the growing-limit rate |
 | Persistence decides | Which unknown drives the result? | Low–medium: reads as sensitivity | Seen as a methods paper | Same as *Today vs tomorrow* |
 | Who abates | Where does abatement go? | Medium: geopolitical | Small under the fading limit; no sector claims | None |
 | The unknowable cost | What can and cannot be known? | Low for NCC; good as a perspective | Negative framing | None |
-| Net zero slips | Does political resistance put net zero out of reach? | High: net zero is the policy currency; holds in 21 of 25 variants | The hold-the-price closure and the 2150 horizon | H12 ladder confirms it at H12 |
-| Robust now, a bet later | What can be said now, whatever politics does? | Medium–high: decision-relevant | Robustness partly built in (k(2025) = 1) | Extra CO₂ by 2050 at H12 (from `V6PERSH12`) |
+| Net zero slips | Does political resistance put net zero out of reach? | High: net zero is the policy currency; holds in 22 of 26 variants | The hold-the-price closure and the 2150 horizon | None: holds at H12 (6 of 9) |
+| Robust now, a bet later | What can be said now, whatever politics does? | Medium–high: decision-relevant | Robustness partly built in (k(2025) = 1) | None: holds at H12 |
 | The budget survives | Is the budget still feasible under political caps? | Medium–high: positive message | Welfare-optimal closure; burden shifts to regions | None |
 
 A possible structure for *Today vs tomorrow*:
@@ -407,8 +418,8 @@ What *Today vs tomorrow* still needs before writing:
 - [x] Extract extra CO₂ by 2050 under hold the price for each persistence case (*Robust now, a bet
   later*).
 - [x] Extract regional GDP effects under hold the budget (*The budget survives*).
-- [ ] Declare the growing-limit rate (kept at the proposed κ = −0.005 a year for now: k = 1.13 in 2050,
-  1.45 in 2100). Then run `V6BACK` (2 EU21 runs).
-- [ ] Run the persistence ladder at H12: `V6PERSH12`, the constant-limit and central-erosion runs under
-  both closures (4 runs).
+- [x] Run `V6BACK` at the proposed rate (2026-10-13).
+- [ ] Declare the growing-limit rate (proposed κ = −0.005 a year: k = 1.12 in 2050, 1.45 in 2100); a
+  different rate means re-running `V6BACK`.
+- [x] Run the persistence ladder at H12: `V6PERSH12` (2026-10-13).
 - [ ] Choose the spine, then set up `papers/pfm-paper-v6`.

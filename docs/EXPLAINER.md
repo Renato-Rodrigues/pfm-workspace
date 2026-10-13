@@ -17,7 +17,7 @@ Rscript analysis/figures/build-figures.R --group=v6                 # everything
 Rscript analysis/figures/build-figures.R --group=v6 --only=<id>     # one figure
 ```
 
-> Step 11 reports the coupled REMIND runs for the current model (64 runs, October 2026).
+> Step 11 reports the coupled REMIND runs for the current model (71 runs, October 2026).
 
 ---
 
@@ -227,7 +227,7 @@ changes REMIND settings whose effect can be larger than the politics.
 
 ## Step 11 — What the runs say
 
-The full set ran in October 2026 — 64 runs at two different ways of carving the world into
+The full set ran in October 2026 — 71 runs at two different ways of carving the world into
 regions (21 and 12), so that anything resolution-specific shows up as a disagreement.
 
 **The first finding is the cost.** Holding the price, respecting what politics permits adds about

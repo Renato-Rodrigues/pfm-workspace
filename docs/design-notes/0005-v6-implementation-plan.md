@@ -76,19 +76,21 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
 | 2 — data and estimation, Run-Group `v6` | ✅ 2026-10-06 (`v6`, `v6-annual`; power & industry γ accepted) |
 | 3 — coupling code | ✅ gate passed 2026-10-08 (EU21); H12 check 17 of 19, waived and disclosed 2026-10-10 |
 | 4 — run tooling | ✅ F1–F4, F6–F9; F5 open (optional) |
-| 5 — the coupled batch | ✅ 2026-10-10 (64 runs), plus the hold-the-budget constant-limit run 2026-10-11 (65). Two follow-up batches set up 2026-10-12 (below) |
+| 5 — the coupled batch | ✅ 2026-10-10 (64 runs), plus the hold-the-budget constant-limit run 2026-10-11 (65) and `V6PERSH12` / `V6BACK` 2026-10-13 (71, all admitted) |
 | 6 — analysis, documents, paper | steps 1–4 ✅; step 5 (the paper) waits for the spine; step 6 (the deposit) after it |
 
 **Open, in order** (🟠 needed for the paper, 🟢 improves it, ⚪ optional):
 
 1. 🟠 **Choose the spine** (author). The candidates are in design note 0006; recommended: today's politics
    versus tomorrow's, led by "net zero slips unless politics changes".
-2. 🟠 **`V6PERSH12`**, 4 H12 runs: the constant limit and central-κ sensitivity runs under both rules, so the
-   persistence ladder is not EU21 only. Ready to submit (`RUNNING.md` step 7c).
-3. 🟠 **`V6BACK`**, 2 EU21 runs: growing limit, today's strength growing (κ < 0, accepted by `pfm` since
-   2026-10-12). The rate is the author's to declare; it stays at the proposed −0.005 a year for now.
-4. 🟠 **When they land:** `runCoupledStage.R v6`, `ruleCRelocationDecomp.R`, `persistenceLadder.R v6`;
-   update 0006.
+2. ✅ **`V6PERSH12`** (landed 2026-10-13), 4 H12 runs: the ladder holds at H12. Hold the price +176.3 /
+   +112.8 / +39.3 Gt (constant limit / fading / erosion 2.7%) against +189.1 / +118.2 / +41.2 at EU21; hold
+   the budget ×1.42 / ×1.25 / ×1.10 and 60.1 / 19.9 / 9.3 Gt moved.
+3. ✅ **`V6BACK`** (landed 2026-10-13), 2 EU21 runs, growing limit at the proposed κ = −0.005 a year: hold the
+   price +245.3 Gt; hold the budget ×1.64 global price in 2050, 97.5 Gt moved, budget met in 2100 but still
+   rising in 2150 (1036.7 Gt). The rate is still the author's to declare; a different rate means re-running it.
+4. ✅ **Processed 2026-10-13:** `runCoupledStage.R v6` (71 runs admitted, 0 missing), `ruleCRelocationDecomp.R`,
+   `persistenceLadder.R v6`; 0006, `SCENARIOS.md` and the methodology updated.
 5. 🟠 **Phase 6 step 5, the paper workspace (D19, amended by §7b).** Scaffold it **without** the `v5` v18
    draft as text: that draft is built on the `v5` specification and results. Port only what is
    version-independent: the literature (with item 35's sources), the glossary, the drafting rules.

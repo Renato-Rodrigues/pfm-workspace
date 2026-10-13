@@ -8,14 +8,15 @@ figV6CoupledArms <- function(group = "v6", resolution = "EU21") {
   j <- pfmArtifact(group, "coupling/coupled-facts.json")
   A <- j$arms[[resolution]]; dep <- j$ruleB[[resolution]]$delta[["0.50"]]
   fam <- list(
-    "erosion of the limit" = c(`+ erosion 2% a year` = "Bfix-kappa02", `+ erosion 2.7% a year` = "Bfix-kappa", `+ erosion 5% a year` = "Bfix-kappa05"),
+    "how long the limit lasts" = c(`growing limit` = "Bfix-backslide", `constant limit` = "Bfix-Ehold", `+ erosion 2% a year` = "Bfix-kappa02",
+                                   `+ erosion 2.7% a year` = "Bfix-kappa", `+ erosion 5% a year` = "Bfix-kappa05"),
     "ranking u" = c(uniform = "Bfix-uniform", `permuted 1` = "Bfix-permuted1", `permuted 2` = "Bfix-permuted2",
                     `permuted 3` = "Bfix-permuted3", reversed = "Bfix-reversed"),
     "uncovered countries" = c(`all median` = "Bfix-allmedian", `all low` = "Bfix-alllow", `nearest donors` = "Bfix-nearest",
                               `USA donor` = "Bfix-usadonor", `USA low` = "Bfix-usalow"),
     "specification" = c(`saturation 0.5×` = "Bfix-sat05", `saturation 2×` = "Bfix-sat2",
                         `only clean-energy saturates` = "Bfix-specalt", `annual data` = "Bfix-annual"),
-    "formulation" = c(`constant limit` = "Bfix-Ehold", `drivers stop in 2060` = "Bfix-hold2060", `regional strength` = "Bfix-regk"))
+    "formulation" = c(`drivers stop in 2060` = "Bfix-hold2060", `regional strength` = "Bfix-regk"))
   d <- do.call(rbind, lapply(names(fam), function(f) {
     k <- fam[[f]]; k <- k[k %in% names(A)]
     if (!length(k)) return(NULL)

@@ -8,7 +8,10 @@ EU21 and 18 at H12, of which 54 are coupled (39 EU21, 15 H12) — on Run-Group *
 `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP`). Every row is generated from
 `analysis/run-groups/scenario-matrix-v6.yml` (ADR 0055). One further EU21 run, `-PFMlevelC-Ehold-v6`
 (start tag `V6CEHOLD`), was added on 2026-10-10 and landed on 2026-10-11 to separate two causes in §4.10;
-with it the batch is **65 runs** (55 coupled). Counts below that say 64 describe the batch before it. The
+with it the batch is **65 runs** (55 coupled). Six more landed on 2026-10-13: `V6PERSH12` (the constant-limit and
+erosion-2.7% runs under both closures at H12) and `V6BACK` (the growing limit under both closures, EU21). All six
+finished, carry the declared options and are admitted, so the batch is **71 runs** (61 coupled; 49 EU21, 22 H12).
+Counts below that say 64 or 65 describe the batch before them. The
 `v5` version of this document, with the `v5` batch's numbers, is
 archived at `../_archive/_wip/2026-10-10/docs/SCENARIOS-v5.md`.
 
@@ -248,7 +251,7 @@ a title is quoted in code font when it is needed. The old labels are listed in
 | PFM calls | **2 to 15** per coupled run |
 | iteration cap | **no run ends at `cm_iteration_max`** |
 | budget (hold the budget, ratio) | **held in every budget-forced run**: cumulative CO₂ 2100 989.0–1001.1 Gt (EU21), 989.7–998.2 (H12) |
-| never peaks before 2150 | every hold-the-price run (by design: the budget is not enforced) and two budget-forced runs, EU21 `-PFMlevelCMin-v6` (1011.6 Gt at 2150) and `-PFMlevelC-Ehold-v6` (1018.8 Gt at 2150), both meeting the budget at 2100 — disclose (`PITFALLS.md` §26) |
+| never peaks before 2150 | every hold-the-price run (by design: the budget is not enforced) and four budget-forced runs, EU21 `-PFMlevelCMin-v6` (1011.6 Gt at 2150), `-PFMlevelC-Ehold-v6` (1018.8), `-PFMlevelC-backslide-v6` (1036.7) and H12 `-PFMlevelC-Ehold-v6` (1017.1), all meeting the budget at 2100 — disclose (`PITFALLS.md` §26) |
 | infeasibility code | `pm_pfmInfesCode = 0` in every coupled run |
 | legislated floor | `cm_taxCO2_lowerBound_path_gdx_ref = 0` in every row |
 | cache read | every coupled run read the staged Run-Group cache (`RUNNING.md` step 8); the shared-cache files and the REMIND input archives the runs used are in `records/v6/` and archived (`tools/archiveRunGroupInputs.sh`) |
@@ -448,7 +451,8 @@ the declared one would make the sensitivity run unusable, and none does. Figure:
 |---|---:|---:|---|
 | **κ = 0.02 / 0.027 / 0.05** | +53.5 / **+41.2** / +22.1 | −64.7 / −77.1 / −96.1 | **the largest effect**: at the central κ, 35% of the headline is left — the result depends on whether politics improves by itself |
 | constant limit, k ≈ 1 | +189.1 | +70.9 | the moving strength removes 37% of the constant-limit result |
-| institutions held | +117.3 | −0.9 | §4.2a |
+| growing limit (tightens 0.5% a year; k 1.12 / 1.45 in 2050 / 2100) | +245.3 | +127.0 | the worse-than-today side: twice the headline, 56 Gt above the constant limit |
+| fixed institutions | +117.3 | −0.9 | §4.2a |
 | drivers stop in 2060 / regional k | +125.6 / +121.5 | +7.4 / +3.3 | small |
 | ranking: uniform | +105.8 | −12.4 | size alone carries most of the effect |
 | ranking: permuted 1 / 2 / 3 | +102.1 / +126.4 / +89.3 | | the model's ranking (+118) sits inside the range of random orders |
@@ -458,7 +462,13 @@ the declared one would make the sensitivity run unusable, and none does. Figure:
 | the clean-energy-only family (`specalt`) / annual data | +107.5 / +164.4 | −10.7 / +46.2 | the annual rung keeps power & industry k above 1 (1.19 / 1.12 in 2050 / 2100) |
 
 Hold the budget under the same sensitivity runs (median 2050 regional price, EU21): κ ×1.069 / 1.055 / 1.031, uniform ×1.043,
-permuted 1 ×1.114, all-median ×1.137, all-low ×1.217, nearest ×1.178, the clean-energy-only family ×1.136, drivers stop in 2060 ×1.163.
+permuted 1 ×1.114, all-median ×1.137, all-low ×1.217, nearest ×1.178, the clean-energy-only family ×1.136, drivers stop in 2060 ×1.163,
+growing limit ×1.38 (global price ×1.64 against the no-politics reference in 2050; 97.5 Gt of abatement moved, China 66.0 Gt more).
+
+**The persistence cases at H12** (`V6PERSH12`, against the H12 no-politics references): hold the price +176.3 Gt
+(constant limit), +112.8 (fading limit), +39.3 (fading + erosion 2.7%), against +189.1 / +118.2 / +41.2 at EU21;
+hold the budget, global price 2050 ×1.42 / ×1.25 / ×1.10 and abatement moved 60.1 / 19.9 / 9.3 Gt (EU21 ×1.45 / ×1.26 / ×1.10;
+65.6 / 22.7 / 8.4). The ladder's order and size hold at both resolutions (`persistence-ladder.json`).
 
 ### 4.10 Against `v5`
 

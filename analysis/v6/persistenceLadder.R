@@ -27,8 +27,8 @@ R <- art$runs[!art$runs$superseded, ]; R$key <- sub("-v6$", "", sub("^SSP2-(EU21
 FA <- fromJSON(file.path(CPL, "coupled-facts.json"), simplifyVector = FALSE)
 CO <- fromJSON(file.path(CPL, "coupled-costs.json"), simplifyVector = FALSE)
 DEC <- if (file.exists(f <- file.path(CPL, "rulec-relocation-decomp.rds"))) readRDS(f)$summary else NULL
-RUNGS <- c(backslide = "today's strength growing", Ehold = "today's strength held", deployed = "fading with the drivers",
-           kappa02 = "plus erosion 0.02/yr", kappa = "plus erosion 0.027/yr", kappa05 = "plus erosion 0.05/yr")
+RUNGS <- c(backslide = "growing limit", Ehold = "constant limit", deployed = "fading limit",
+           kappa02 = "fading + erosion 2% a year", kappa = "fading + erosion 2.7% a year", kappa05 = "fading + erosion 5% a year")
 YEARS <- c(2030, 2050, 2070, 2100, 2150)
 RES <- intersect(c("EU21", "H12"), unique(R$resolution))
 num <- function(x) if (is.null(x)) NA_real_ else as.numeric(x)

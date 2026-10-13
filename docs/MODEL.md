@@ -12,8 +12,8 @@ standardized, frozen at 2023). Estimation-side numbers are collected by
 formulation results (strength, anchors, bands) are in `output/pfm/v6/phase1/`. Re-read from those,
 never from this page.
 
-> **Coupled results** are from the `v6` REMIND 3.7.1 batch (64 runs, EU21 and H12, 2026-10-07 to
-> 2026-10-10), in `output/pfm/v6/coupling/coupled-facts.json`. This document quotes only what the
+> **Coupled results** are from the `v6` REMIND 3.7.1 batch (71 runs, EU21 and H12, 2026-10-07 to
+> 2026-10-13), in `output/pfm/v6/coupling/coupled-facts.json`. This document quotes only what the
 > model definition needs; the full reading is `SCENARIOS.md`.
 
 > **One analysis was measured on `v5` and not re-run on `v6`**: the λ placebo audit (§4.3.2). λ is no
@@ -768,7 +768,7 @@ $$\boxed{\;\theta \in [0.134,\ 0.164]\;}\qquad\text{non-empty on `v6` (on `v5` i
 | source | what varies | size on `v6` | reported in |
 |---|---|---|---|
 | **1. Severity θ** | declared, 0.325 / 0.50 / 0.675 | the whole spread; hold the price +73 to +182 Gt | **main text** |
-| **2. Erosion rate κ** | 0.02 / 0.027 / 0.05 | hold the price +54 / +41 / +22 Gt against +118 | **main text** (the largest single sensitivity) |
+| **2. How long the limit lasts** (erosion rate κ; growing / constant limit) | κ 0.02 / 0.027 / 0.05; growing 0.5% a year; constant | hold the price +54 / +41 / +22 Gt against +118; growing +245, constant +189 (H12: +39 / +113 / +176) | **main text** (the largest single sensitivity) |
 | 3. Specification family | A (selected) vs B | Power & industry $k_{2050}$ 0.63–0.90 vs 0.86–1.22; hold the price −11 Gt for B | main text robustness (the both-saturate family), SI (the clean-energy-only family) |
 | 4. Curve shape | half-saturation 0.5× / 2× | hold the price −3 / +12 Gt | main text robustness |
 | 5. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.164, Spearman down to 0.47 (EU21, offline, §3.4.1) | SI — rank intervals |

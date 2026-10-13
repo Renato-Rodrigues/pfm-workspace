@@ -6,8 +6,8 @@ mathematics is `MODEL.md`; the traps that cost whole runs are `PITFALLS.md`.*
 **Current state.** Both sides are built and the interface is verified against GAMS itself (§12).
 The Run-Group is **`v6`** (selected specification `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
 fe:OECDp satAP`, `output/remind-inputs/v6/`), coupled through the **share path φ(t)** (§14; ADR 0049,
-0050, 0054) on REMIND 3.7.1. The `v6` batch is complete: 64 runs (46 EU21, 18 H12), all finished and
-admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v6/coupling/`. The `v5` version of this
+0050, 0054) on REMIND 3.7.1. The `v6` batch is complete: 71 runs (49 EU21, 22 H12; the 64 of 2026-10-10 plus seven persistence runs
+added on 2026-10-11 and 2026-10-13), all finished and admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v6/coupling/`. The `v5` version of this
 document is archived at `../_archive/_wip/2026-10-10/docs/COUPLING-v5.md`.
 
 **How to read this document.** §1–§13 are the interface mechanics, shared by both formulations;

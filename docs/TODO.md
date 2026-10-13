@@ -18,7 +18,7 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 
 ## 🧭 What to do next
 
-**Where it stands.** Run-Group `v6` is estimated and coupled: 65 runs, all admitted, at EU21 and H12
+**Where it stands.** Run-Group `v6` is estimated and coupled: 71 runs, all admitted, at EU21 and H12
 (0005 Phase 5; `SCENARIOS.md`). The candidate paper spines are design note 0006: eight frames on one
 finding, that how long the political limit lasts orders every result of both closures. Their common
 evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
@@ -27,13 +27,12 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
 **Next, in order:**
 
 1. 🟠 **Choose the spine** (author; 0006). Recommended: today's politics versus tomorrow's, led by "net
-   zero slips unless politics changes" (21 of 25 EU21 hold-the-price runs never peak by 2150).
-2. 🟠 **Run `V6PERSH12`** (H12, 4 runs: the constant limit and central-κ sensitivity runs, both closures) **and `V6BACK`**
-   (EU21, 2 runs: growing limit, today's strength growing). Both are in the generated config
-   (`RUNNING.md` step 7c). The growing limit rate stays at the proposed κ = −0.005 a year until it is
-   declared; a different declared rate means re-running `V6BACK`.
-3. 🟠 **When they land:** sync them, then `runCoupledStage.R v6`, `ruleCRelocationDecomp.R`,
-   `persistenceLadder.R v6`, and update 0006.
+   zero slips unless politics changes" (22 of 26 EU21 hold-the-price runs never peak by 2150).
+2. 🟠 **Declare the growing-limit rate** (author). `V6BACK` ran at the proposed κ = −0.005 a year (landed
+   2026-10-13: hold the price +245.3 Gt; hold the budget ×1.64 global price, 97.5 Gt moved). A different
+   declared rate means re-running `V6BACK` (2 EU21 runs).
+3. ✅ **`V6PERSH12` and `V6BACK` processed** (2026-10-13): 71 runs admitted, the ladder at H12 matches EU21
+   (+176.3 / +112.8 / +39.3 Gt against +189.1 / +118.2 / +41.2), 0006 and the methodology updated.
 4. 🟠 **The paper workspace** (Phase 6 step 5; 0005 §0a item 5). Scaffold it without the `v5` v18 draft as
    text (amends D19, **to be confirmed**). Port the literature (item 35's sources included), the glossary
    and the general drafting rules. Write Methods fresh for the `v6` formulation (D-A1…A7), with the
