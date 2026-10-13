@@ -69,7 +69,21 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
   far from the sample reverse drivers in some regions (China, Middle East, Turkey, Russia; in power & industry also
   poor countries with very low fossil energy per person). Run `analysis/checks/edgeOfData.R <group>` on the
   selected specification and the passing band, apply 0007 §5's acceptance criteria, and record the chosen option
-  as an ADR. `v6` baseline: `output/pfm/v6/edge-of-data.rds`.
+  as an ADR. `v6` baseline: `output/pfm/v6/edge-of-data.rds`; the options tried on `v6`: `analysis/checks/edgeOptions.R`
+  → `output/pfm/v6/edge-options.rds` (0007 §6–7). Actions for `v7`, in this order:
+  1. **Adopt the O1 cap as the minimum safeguard**: the institutions inside the interaction terms capped at the
+     estimation sample's percentiles, with the bounds (2.5–97.5, 5–95, 10–90) tested as a declared sensitivity.
+  2. **Add the edge criteria (0007 §5 (a)–(b)) as a gate in the specification sweep**, applied to every candidate,
+     not only the passing band (no band member passes on `v6`), and compare its winner with "selected + O1 cap". Include
+     the regime split (O10, 0007 §8: interactions in democracies only; passes everywhere on `v6` and keeps the power &
+     industry relaxation) as a candidate, with its regime threshold declared before the results (or a smooth
+     democracy weight instead).
+  3. Report O3b (refit without China, Saudi Arabia, Turkey, Russia) and O5a (no interactions) as sensitivities of
+     the power & industry relaxation; re-run the coupled headline for the option kept.
+  4. **Develop the production-based fossil interest (O9) before adding any exporter term**: fossil production or net
+     exports per person, from the IEA balances historically and from REMIND's extraction (downscaled) in scenarios.
+     The static exporter variants tried on `v6` (E1–E4, 0007 §7) are evidence for it, not options to adopt: as
+     controls they shift levels and cannot fix the edge problem, which is in the slopes.
 - **Estonia back into the estimation (`v7`; author, 2026-10-13).** The negative `PE|Coal` behind its exclusion is
   gone in the `v6` energy data (IEA 2025 edition, `data/madrat/v6`: Estonia's coal +0.0004 EJ in 2022–2023, no
   country negative), but `pfm.excludeCountries` still defaults to `"EST"`, so `v6` was fitted without it. For `v7`:

@@ -1,5 +1,6 @@
 # The v7 options of design note 0007, tried on a Run-Group's selected model (offline, no REMIND re-run).
-#   Rscript analysis/checks/edgeOptions.R [group]       (repo root; default v6; after analysis/checks/edgeOfData.R)
+#   Rscript analysis/checks/edgeOptions.R [group] [autocracy threshold, default 0.5] [noband]   (repo root; default v6;
+#   after analysis/checks/edgeOfData.R; a non-default threshold or "noband" writes edge-options-aut<t>[-noband].rds)
 #
 # Every variant is scored by one evaluator that rebuilds what the coupling reads: the 2023 regional ranking u
 # (EU21 and H12) and the strength k(t) on the coupled hold-the-price energy system
@@ -8,9 +9,17 @@
 #   refits of the frontier on the same standardised estimation data (frontier::sfa, the selected formula):
 #     O3a  without China and Saudi Arabia          O3b  without China, Saudi Arabia, Turkey and Russia
 #     O5a  no interest x institution terms         O5b  no vertical-accountability terms
-#     E1   + net fossil exporter, and exporter x fossil dependence and x fossil per person
+#     E1   + net fossil exporter, and exporter x fossil dependence and x fossil per person (exporter as a moderator)
+#     E2   + net fossil exporter as a control only (a level shift of the ceiling; like an extra group effect)
+#     E3   + the net energy export ratio as a control (continuous, standardised on the sample, capped at its range)
+#     E4   + fossil production per person (log) as a control - the static form of O9
+#     A1   + autocracy as a control (V-Dem electoral democracy index v2x_polyarchy below 0.5, mean 2019-2023: the
+#          main threshold of the Regimes of the World classification)
+#     A2   regime split: the interest x institution terms act in democracies only; autocracies get the main effects
+#          and their own level (+ autocracy). Autocracy status is held at 2019-2023 in every projection year.
 #          (exporter: net energy exports above half of total energy supply, mean 2019-2023, IEA 2025 edition;
-#           held at that status in every projection year - a declared simplification)
+#           every exporter covariate is held at its 2019-2023 value in every projection year - a declared
+#           simplification: the projection has no exporter dynamics)
 #   on the selected coefficients: O1 cap the institutions inside the interactions at the sample's 5th-95th
 #     percentiles; O2 cap institutions and interests there; O6 interaction coefficients halved (a crude stand-in
 #     for shrinkage, not an estimator); O7 the countries at the edge of the institution space keep their 2025
@@ -28,6 +37,9 @@ suppressMessages({ library(madrat); library(magclass) })
 `%||%` <- function(a, b) if (is.null(a)) b else a
 args <- commandArgs(trailingOnly = TRUE)
 g <- if (length(args)) args[1] else "v6"
+AUT_THRESHOLD <- if (length(args) >= 2) as.numeric(args[2]) else 0.5   # v2x_polyarchy below this = autocracy
+WITH_BAND <- !(length(args) >= 3 && args[3] == "noband")             # "noband": skip O4 (a quick run)
+SUFFIX <- if (AUT_THRESHOLD != 0.5 || !WITH_BAND) paste0("-aut", AUT_THRESHOLD, if (!WITH_BAND) "-noband" else "") else ""
 GD <- file.path("output/pfm", g); BAND <- file.path("output/pfm", paste0("specband-", g))
 RES <- c("EU21", "H12"); YRS <- c(2025, 2030, 2035, 2040, 2045, 2050, 2055, 2060, 2070, 2080, 2090, 2100)
 CAP <- c(0.05, 0.95); EXPORT_RATIO <- 0.5; MIN_EFFECT <- 0.25; SHARE <- 0.25
@@ -73,17 +85,46 @@ regionShare <- function(res, countries) {
   w <- anc0[[res]]$weights; m <- mapOf(res); cc <- intersect(names(m), names(w))
   tapply(w[cc] * (cc %in% countries), m[cc], sum) / tapply(w[cc], m[cc], sum)
 }
-addExporter <- function(X) {            # the E1 columns, built from the design's own standardised columns
-  e <- as.numeric(sub(" .*$", "", rownames(X)) %in% exporters)
-  cbind(X, exporter = e, exporter_x_Incumbent.Power = e * X[, "Incumbent.Power"],
-        exporter_x_Incumbent.Power.pc = e * X[, "Incumbent.Power.pc"])
+# fossil production per person (primary coal, oil and gas, mean 2019-2023) - the static form of O9
+fossilProducts <- paste0(c("ANTCOAL", "COKCOAL", "BITCOAL", "SUBCOAL", "LIGNITE", "HARDCOAL", "BROWN", "PEAT", "OILSHALE",
+                           "CRUDEOIL", "NGL", "NONCRUDE", "NATGAS"), ".INDPROD")
+fossilProd <- as.vector(dimSums(iea[, yy, intersect(fossilProducts, getNames(iea))], dim = c(2, 3))) / length(yy)
+names(fossilProd) <- getItems(iea, 1)
+popScen <- stats::setNames(as.vector(scen[, 2025, "Population"]), getItems(scen, 1))
+sampleCty <- unique(as.character(readRDS(file.path(GD, "frontier.rds"))$bySector[[1]]$scores$region))
+stdCap <- function(v) {                  # standardise on the sample countries, cap at their range
+  m <- mean(v[sampleCty], na.rm = TRUE); sdv <- stats::sd(v[sampleCty], na.rm = TRUE)
+  z <- (v - m) / sdv; lo <- min(z[sampleCty], na.rm = TRUE); hi <- max(z[sampleCty], na.rm = TRUE)
+  z[!is.finite(z)] <- 0; pmin(pmax(z, lo), hi)
 }
+vd <- data.table::fread(Sys.glob("C:/_data/work/remind_input_data/sources/VDem/V-Dem-CY-Core-v*.csv")[1],
+                        select = c("country_text_id", "year", "v2x_polyarchy"))
+vd <- vd[vd$year >= 2019 & vd$year <= 2023, ]
+polyarchy <- tapply(vd$v2x_polyarchy, vd$country_text_id, mean, na.rm = TRUE)
+autocracies <- names(polyarchy)[is.finite(polyarchy) & polyarchy < AUT_THRESHOLD]
+covar <- list(autocracy = stats::setNames(as.numeric(names(polyarchy) %in% autocracies), names(polyarchy)),
+              exporter = stats::setNames(as.numeric(names(exportRatio) %in% exporters), names(exportRatio)),
+              exportRatioStd = stdCap(pmin(pmax(exportRatio, -1), 10)),
+              fossilProdPcStd = stdCap(log1p(1e3 * fossilProd[names(popScen)] / popScen)))
+INTS0 <- grep("_x_", names(anc0$EU21$designs[[1]]$beta), value = TRUE)
+MODES <- list(E1 = c("exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc"),
+              E2 = "exporter", E3 = "exportRatioStd", E4 = "fossilProdPcStd",
+              A1 = "autocracy", A2 = c("autocracy", paste0("dem__", INTS0)))
+covCols <- function(cty, mode, base) {   # base: a frame or matrix holding Incumbent.Power(.pc)
+  look <- function(v) { x <- covar[[v]][cty]; x[!is.finite(x)] <- 0; x }
+  out <- list()
+  for (cl in MODES[[mode]]) out[[cl]] <-
+    if (startsWith(cl, "dem__")) (1 - look("autocracy")) * base[, sub("^dem__", "", cl)]
+    else if (startsWith(cl, "exporter_x_")) look("exporter") * base[, sub("^exporter_x_", "", cl)] else look(cl)
+  as.data.frame(out, optional = TRUE)
+}
+addExporter <- function(X, mode = "E1") cbind(X, as.matrix(covCols(sub(" .*$", "", rownames(X)), mode, X)))
 
 # the design matrices of a design, on history (2023) and on the coupled scenario
-matsFor <- function(design, extra = FALSE) {
+matsFor <- function(design, extra = NULL) {
   h <- designMatrix(design, panel); s <- designMatrix(design, scen)
   hm <- h$mm[h$df$year == design$lastHist, , drop = FALSE]; sm <- s$mm
-  if (extra) { hm <- addExporter(hm); sm <- addExporter(sm) }
+  if (!is.null(extra)) { hm <- addExporter(hm, extra); sm <- addExporter(sm, extra) }
   list(hist = hm, scen = sm, scenYear = s$df$year, scenRegion = s$df$region)
 }
 
@@ -91,11 +132,12 @@ matsFor <- function(design, extra = FALSE) {
 # tf: optional transform of the interaction factors, function(X) -> X with capped factors (for O1/O2).
 evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   cols <- names(beta); ints <- grep("_x_", cols, value = TRUE)
-  pairs <- if (length(ints)) do.call(rbind, strsplit(ints, "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
+  pairs <- if (length(ints)) do.call(rbind, strsplit(sub("^dem__", "", ints), "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
   if (length(ints)) rownames(pairs) <- ints
+  demW <- function(X, k) if (startsWith(k, "dem__")) 1 - X[, "autocracy"] else 1   # regime split: democracies only
   etaOf <- function(X) {
     Xm <- if (is.null(tf)) X else tf(X)                     # factor values used inside the interactions
-    if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]]
+    if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]] * demW(X, k)
     as.vector(X[, cols, drop = FALSE] %*% beta)
   }
   # 2023: ceilings, the anchored distance, the ranking
@@ -131,9 +173,8 @@ evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   Z0 <- at(2025); Zm <- if (is.null(tf)) Z0 else tf(Z0)
   dir <- do.call(rbind, lapply(intersect(names(EXPECT), cols), function(d) {
     s <- rep(beta[[d]], nrow(Z0))
-    for (k in ints[pairs[, 1] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 2]]
-    for (k in ints[pairs[, 2] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 1]]
-    if ("exporter" %in% cols && paste0("exporter_x_", d) %in% cols) s <- s + beta[[paste0("exporter_x_", d)]] * Z0[, "exporter"]
+    for (k in ints[pairs[, 1] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 2]] * demW(Z0, k)
+    for (k in ints[pairs[, 2] == d]) s <- s + beta[[k]] * Zm[, pairs[k, 1]] * demW(Z0, k)
     eff <- pmax(abs((at(2050)[rownames(Z0), d] - Z0[, d]) * s), abs((at(2100)[rownames(Z0), d] - Z0[, d]) * s))
     data.frame(country = rownames(Z0), driver = d, centreAgrees = sign(beta[[d]]) == EXPECT[[d]],
                against = sign(s) != EXPECT[[d]] & eff >= MIN_EFFECT)
@@ -151,14 +192,12 @@ fitFrontier <- function(sec) {
   do.call(estimatePolicyStringencyModel, c(list(data = panel, sector = sec, estimator = "frontier", indexMax = 10,
                                                modelDir = NULL, verbose = FALSE), pfm:::.pfmSpecArgs(cfg)))
 }
-refit <- function(fit, drop = NULL, removeTerms = NULL, exporter = FALSE) {
+refit <- function(fit, drop = NULL, removeTerms = NULL, exporter = NULL) {
   df <- fit$data; df <- df[!as.character(df$region) %in% drop, , drop = FALSE]
   fml <- stats::as.formula(fit$formula)
-  if (exporter) {
-    e <- as.numeric(as.character(df$region) %in% exporters)
-    df$exporter <- e; df$exporter_x_Incumbent.Power <- e * df$Incumbent.Power
-    df$exporter_x_Incumbent.Power.pc <- e * df$Incumbent.Power.pc
-    fml <- stats::update(fml, . ~ . + exporter + exporter_x_Incumbent.Power + exporter_x_Incumbent.Power.pc)
+  if (!is.null(exporter)) {
+    df <- cbind(df, covCols(as.character(df$region), exporter, df))
+    fml <- stats::update(fml, stats::as.formula(paste(". ~ . +", paste(MODES[[exporter]], collapse = " + "))))
   }
   if (length(removeTerms)) fml <- stats::update(fml, stats::as.formula(paste(". ~ . -", paste0("`", removeTerms, "`", collapse = " - "))))
   if ("regionFE" %in% names(df)) df$regionFE <- droplevels(df$regionFE)
@@ -171,11 +210,12 @@ refit <- function(fit, drop = NULL, removeTerms = NULL, exporter = FALSE) {
 }
 
 out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), exporters = exporters, exportRatio = exportRatio,
+            autocracies = autocracies, polyarchy = polyarchy,
             coefficients = list(), rank = list(), strength = list(), dir = list(), checks = list())
 for (sec in SECS) {
   design <- anc0$EU21$designs[[sec]]
   ctab <- anc0$EU21$country[anc0$EU21$country$sector == sec, ]
-  mats <- matsFor(design); matsE <- matsFor(design, extra = TRUE)
+  mats <- matsFor(design); matsX <- lapply(names(MODES), function(md) matsFor(design, extra = md)); names(matsX) <- names(MODES)
   fit <- fitFrontier(sec)
   b0 <- design$beta; names(b0)[names(b0) == "(Intercept)"] <- "(Intercept)"
   ref <- refit(fit)
@@ -191,7 +231,7 @@ for (sec in SECS) {
   V$O3b <- refit(fit, drop = c("CHN", "SAU", "TUR", "RUS"))
   V$O5a <- refit(fit, removeTerms = ints)
   V$O5b <- refit(fit, removeTerms = grep("Vertical", names(b0), value = TRUE))
-  V$E1 <- refit(fit, exporter = TRUE)
+  for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (md == "A2") ints else NULL)
   out$coefficients[[sec]] <- lapply(V, function(v) v[c("beta", "gamma", "converged", "n", "se")])
   runs <- list(
     base = evaluate("base", sec, mats, b0, ctab),
@@ -203,15 +243,20 @@ for (sec in SECS) {
     O3b = evaluate("O3b refit -CHN,SAU,TUR,RUS", sec, mats, V$O3b$beta, ctab),
     O5a = evaluate("O5a no interactions", sec, mats, V$O5a$beta, ctab),
     O5b = evaluate("O5b no accountability", sec, mats, V$O5b$beta, ctab),
-    E1 = evaluate("E1 exporter terms", sec, matsE, V$E1$beta, ctab))
+    E1 = evaluate("E1 exporter as moderator", sec, matsX$E1, V$E1$beta, ctab),
+    E2 = evaluate("E2 exporter dummy control", sec, matsX$E2, V$E2$beta, ctab),
+    E3 = evaluate("E3 export ratio control", sec, matsX$E3, V$E3$beta, ctab),
+    E4 = evaluate("E4 fossil production pc control", sec, matsX$E4, V$E4$beta, ctab),
+    A1 = evaluate("A1 autocracy control", sec, matsX$A1, V$A1$beta, ctab),
+    A2 = evaluate("A2 regime split", sec, matsX$A2, V$A2$beta, ctab))
   # criterion (b) for each coefficient variant: the O1 cap applied on top of it
-  for (nm in c("O3a", "O3b", "O5b", "E1")) {
-    mm <- if (nm == "E1") matsE else mats
+  for (nm in c("O3a", "O3b", "O5b", names(MODES))) {
+    mm <- if (nm %in% names(MODES)) matsX[[nm]] else mats
     runs[[paste0(nm, "+cap")]] <- evaluate(paste0(runs[[nm]]$rank$variant[1], " +cap"), sec, mm, V[[nm]]$beta, ctab, tf = tfI)
   }
   runs[["O6+cap"]] <- evaluate("O6 interactions x0.5 +cap", sec, mats, replace(b0, ints, b0[ints] / 2), ctab, tf = tfI)
   # O4: the passing band's other specifications, each with its own design, standardisation and assignment
-  if (dir.exists(BAND)) for (sid in sort(list.dirs(BAND, full.names = FALSE, recursive = FALSE))) {
+  if (WITH_BAND && dir.exists(BAND)) for (sid in sort(list.dirs(BAND, full.names = FALSE, recursive = FALSE))) {
     an <- tryCatch(suppressMessages(computeAnchorGap(sid, resultsDir = BAND, modelDir = modelDir, weights = anc0$EU21$weights,
                                                      mapping = anc0$EU21$mapping, verbose = FALSE)), error = function(e) NULL)
     if (is.null(an)) next
@@ -259,7 +304,7 @@ summ <- do.call(rbind, lapply(variants, function(v) do.call(rbind, lapply(SECS, 
              pass = length(bad) == 0 & (is.na(du) | du <= 0.25) & (is.na(dk) | dk < 0.10), stringsAsFactors = FALSE)
 }))))))
 out$summary <- summ
-saveRDS(out, file.path(GD, "edge-options.rds"))
+saveRDS(out, file.path(GD, paste0("edge-options", SUFFIX, ".rds")))
 
 options(width = 250)
 cat("\nExporters (net energy exports > ", EXPORT_RATIO, " x supply, 2019-2023), in the sample: ",
@@ -272,9 +317,12 @@ for (sec in SECS) {
   cb <- out$coefficients[[sec]]
   terms <- c("Incumbent.Power", "Incumbent.Power.pc", "Incumbent.Power_x_Vertical.Accountability..VDem.",
              "Innovator.Power_x_Vertical.Accountability..VDem.", "Incumbent.Power.pc_x_Vertical.Accountability..VDem.",
-             "exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc")
+             "exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc", "exportRatioStd", "fossilProdPcStd",
+             "autocracy", "dem__Incumbent.Power_x_Vertical.Accountability..VDem.")
   cat("\nkey coefficients (refits):\n")
   ct <- sapply(cb, function(v) v$beta[terms]); rownames(ct) <- terms; print(round(ct, 3))
-  e1 <- cb$E1; cat("E1 z-values (ML, understated):", paste(names(e1$se)[grepl("exporter", names(e1$se))],
-      round(e1$beta[grepl("exporter", names(e1$beta))] / e1$se[grepl("exporter", names(e1$se))], 1), collapse = "; "), "\n")
+  for (md in names(MODES)) { e1 <- cb[[md]]; tt <- intersect(c(MODES[[md]][!startsWith(MODES[[md]], "dem__")],
+                                                               "dem__Incumbent.Power_x_Vertical.Accountability..VDem."), names(e1$beta))
+    cat(md, "z-values (ML, understated by about 2.2-2.4x):", paste(tt, round(e1$beta[tt] / e1$se[tt], 1), collapse = "; "),
+        "| gamma", round(e1$gamma, 3), "\n") }
 }

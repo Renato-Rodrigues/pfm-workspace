@@ -117,6 +117,7 @@ apart. Their $u$ values shift mostly because the min–max normalisation loses C
 | O6 | **Shrink the interactions** (penalised or hierarchical estimation) | Dampens extrapolation smoothly instead of a hard cap | A different estimator; the frontier machinery would need extending |
 | O7 | **Treat edge countries like uncovered ones** for the ceiling's *movement*: hold their ceiling or borrow the trajectory of their nearest bulk neighbours | Keeps the observed 2023 position, removes the extrapolated dynamics | Removes the energy-system feedback for those countries |
 | O8 | **Report only**: flag edge regions in every output (the D3.3 v0.3 minimum) | Honest, no model change | The ranking and the strength still carry the effect |
+| O10 | **Regime split** (added 2026-10-13, §8): the interest × institution terms act in democracies only; autocracies get the main effects and their own level | Removes the extrapolation where it happens (the edge countries are autocracies) and keeps the conditional effects where they are estimated | A declared regime threshold; India, Hungary and Indonesia sit near it; regime status must be projected or held |
 | O9 | **A production-based fossil interest** (added 2026-10-13, §7): fossil production or net exports per person or per GDP, from the IEA balances historically and from REMIND's extraction in scenarios | Measures the interest that exporters' consumption-based drivers miss | A new driver, so a new sweep; REMIND's extraction must be downscaled to countries |
 
 ## 5. The evaluation to run in `v7` (and on every later Run-Group)
@@ -188,14 +189,17 @@ H12 gives the same passes.
 - **O5b (no accountability terms) reverses the power & industry strength** (1.30 in 2050): the band's known split on
   the direction of the power & industry constraint (`MODEL.md` §5.3.0) reappears.
 
-**Suggested for `v7`** (to decide there, with the acceptance criteria fixed before the results):
+**Suggested for `v7`** (to decide there, with the acceptance criteria fixed before the results; updated with §7–§8):
 1. Adopt O1 as the minimum safeguard, and test its percentile bounds (2.5–97.5, 5–95, 10–90) as a declared
    sensitivity.
 2. Add the edge criteria (a)–(b) to the specification sweep as a gate (O4 applied to all 7,296 candidates, not the
-   band), and compare its winner with "selected + O1".
+   band), and compare its winner with "selected + O1". Include the regime split (O10, §8) as a candidate design in
+   that comparison: it is the only structural option that passes everywhere and keeps the power & industry
+   relaxation.
 3. Report O3b and O5a as sensitivities of the power & industry relaxation, with the coupled runs re-done for the
    option kept.
-4. Develop O9 (§7) before adding any exporter term to the frontier.
+4. Develop O9 (§7) before adding any exporter term to the frontier. Exporter controls (E2–E4) do not address the
+   edge problem.
 
 ## 7. Energy exporters
 
@@ -224,6 +228,84 @@ export rent, which those drivers do not see.
 - **E1 as specified worsens the projection** (more regions against theory, a larger rise in buildings & transport).
   Exporter status is held fixed while the domestic fossil share falls, so it is not a usable option.
 
+**Exporter status as a control** (a level shift of the ceiling, no interaction; each held at its 2019–2023 value):
+
+| Variant | P&I: k 2050 / 2100 | P&I: pass | B&T: k 2050 / 2060 / 2100 | B&T: China u | B&T: pass | Coefficient (ML z) |
+|---|---|---|---|---|---|---|
+| E2 exporter dummy | 0.72 / 0.54 | no | 0.87 / 0.99 / 0.77 | 1.00 | no | P&I +0.26 (3.7), B&T +0.14 (3.1) |
+| E3 net export ratio | 0.69 / 0.53 | no | 0.94 / 1.04 / 0.90 | 0.87 | no | P&I +0.09 (2.3), B&T +0.09 (8.8) |
+| E4 fossil production per person | 0.95 / 0.57 | no | 0.87 / 0.98 / 0.74 | 1.00 | no | about 0 in both |
+
+- **Controls cannot fix this problem.** The reversal is in the *slope* of a driver at extreme institutional values, and
+  a control shifts only the *level*. The rise in buildings & transport stays (+0.19 to +0.22), and so do China's
+  flags and the cap-test movement. As a level, exporter status is positive (exporters' ceilings sit higher
+  given their drivers): it describes exporters, but it does not handle the edge.
+- **E4 changes the power & industry path through the rest of the fit, not through its own term.** Its coefficient
+  is about 0, but γ moves from 0.997 to 0.967 and the strength in 2050 goes to 0.95. The frontier is sensitive to
+  small changes of design, which is itself a reason to choose a `v7` design by the full sweep, not by hand.
+
 **The direction to develop is O9:** measure the production interest directly, with a projected counterpart from
 REMIND's extraction, and test it in the sweep. Before relying on E1's buildings & transport term, check it by
 dropping one exporter at a time.
+
+## 8. Autocracy: regime type as a control or as a split (O10)
+
+**Why.** The edge countries are autocracies. With autocracy defined as a V-Dem electoral democracy index
+(`v2x_polyarchy`) below 0.5 (2019–2023 mean; the main threshold of the Regimes of the World classification), the
+sample's autocracies are Saudi Arabia, China, Russia and Turkey (the four edge countries), plus India (0.40) and
+Hungary (0.45). Of the 71 edge countries overall, 63 are autocracies; the other 8 are small territories with sparse
+data. The interaction terms read "accountability moderates the power of interests", which is a mechanism of
+electoral politics. Applying it, with linear extrapolation, to closed autocracies is where the reversals come from.
+Regime type and exporter status overlap (Saudi Arabia, Russia; most uncovered Gulf states), consistent with the
+rentier-state argument.
+
+**Variants** (same offline evaluator as §6; autocracy status held at 2019–2023 in every projection year):
+- **A1, autocracy as a control.** Does nothing for the edge, for the same reason as the exporter controls. In
+  buildings & transport the level is positive (+0.18, ML z 3.7).
+- **A2, regime split (O10).** The interest × institution terms are multiplied by "democracy" (1 − autocracy), so
+  they act only where they are estimated from comparable countries. Autocracies keep the main effects and get their
+  own level.
+
+| A2 at threshold | Sample autocracies | P&I: Spearman of u with v6 (EU21 / H12) | P&I: k 2050 / 2100 | P&I: India u | B&T: Spearman (EU21 / H12) | B&T: k 2050 / 2060 / 2100 | B&T: China u | γ P&I / B&T | Pass |
+|---|---|---|---|---|---|---|---|---|---|
+| 0.35 | CHN RUS SAU TUR | 0.95 / 0.95 | 0.75 / 0.62 | 0.56 | 0.68 / 0.29 | 0.60 / 0.49 / 0.41 | 0.20 | 0.998 / 0.969 | all |
+| 0.50 | + IND HUN | 0.70 / 0.50 | 0.71 / 0.45 | 0.00 | 0.66 / 0.21 | 0.61 / 0.53 / 0.43 | 0.25 | **0.999** / 0.972 | all |
+| 0.60 | + IDN | 0.65 / 0.43 | 0.77 / 0.41 | 0.32 | 0.71 / 0.31 | 0.57 / 0.48 / 0.40 | 0.31 | 0.912 / 0.971 | all |
+| v6 as selected | — | 1 | 0.68 / 0.52 | 1.00 | 1 | 0.85 / 0.96 / 0.72 | 1.00 | 0.997 / 0.972 | no |
+
+**What it says:**
+- **A2 passes every criterion at every threshold, in both sectors and at both resolutions.** The cap test moves
+  nothing (Δu ≤ 0.03, Δk ≤ 0.04), because the extrapolation it tests no longer exists.
+- **It keeps the power & industry relaxation.** The 2050 strength is 0.71–0.77, against 0.68 as run and 0.93–0.95
+  for O3b and O5a.
+- **It removes the buildings & transport rise.** The strength falls steadily to 0.40–0.43 by 2100.
+- **Theoretically it is the most defensible option**: the conditional effect is kept where it was observed and not
+  carried into regimes where the mechanism does not apply.
+- **The interaction estimated on democracies stays strong** (P&I −0.49, B&T −0.37 for fossil × accountability; ML z
+  −2.3 / −3.1).
+
+**What it costs, and what must be settled before adopting it:**
+- **The threshold matters for the regions near it.** The P&I ranking correlates 0.95 with v6 at 0.35 but 0.65–0.70 at
+  0.5–0.6. India moves from the most constrained power & industry region (v6) to 0.56, 0.00 or 0.32 depending on the
+  threshold, because India's index (0.40) lies between them. The threshold has to be declared before the results,
+  with the other two as sensitivities, or replaced by a smooth weight (below).
+- **At 0.5 the power & industry fit reaches γ = 0.999**, the boundary at which ADR 0046's gate rejects a
+  specification. At 0.35 it does not (0.998).
+- **H12 rankings move more than EU21** (Spearman 0.21–0.31 in buildings & transport), because the 12-region
+  aggregates mix democracies and autocracies differently.
+- **Few autocracies in the sample** (4–7 countries, about 90–160 country-years). Their own slopes cannot be
+  estimated, only a level; the main effects are shared with democracies.
+- **Regime status has to be projected.** Here it is held at 2019–2023. A `v7` version could derive it from the
+  projected accountability path (the SSP institution projections the model already uses), or hold it and say so.
+
+**Viable alternatives to a hard split, for `v7`:**
+- **A smooth regime weight**: the interactions multiplied by the democracy index itself (or a logistic of it)
+  instead of a 0/1 split. No threshold, and India and Hungary get partial interactions. The same evaluator can test
+  it.
+- **Regime-specific caps**: O1 with its bounds taken from the democracies only.
+- **A regime-type group effect** in place of the OECD/EU/other groups (`fe:` in the specification grammar), combined
+  with the split. This is a sweep dimension, so it belongs in the gate comparison of suggestion 2.
+
+Data: V-Dem v16 core (`v2x_polyarchy`), already in the sources the model reads; no new data are needed for A2 or
+the smooth weight. The quick runs are `Rscript analysis/checks/edgeOptions.R v6 <threshold> noband` →
+`output/pfm/v6/edge-options-aut<threshold>-noband.rds`.

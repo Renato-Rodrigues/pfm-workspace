@@ -38,6 +38,25 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 | Fading + erosion 2.7% a year (κ = 0.027) | 0.33 → 0.06 | +41.2 | ×1.10 | 8.4 | 0.008 |
 | Fading + erosion 5% a year (κ = 0.05) | 0.18 → 0.01 | +22.1 | ×1.05 | 5.3 | 0.001 |
 
+**A robustness caveat on the fading limit (2026-10-13, design note 0007).** The power & industry relaxation behind the
+fading-limit row rests partly on countries at the edge of the institutional data. The interest × institution
+interactions are linear and are evaluated far from the sample for China and Saudi Arabia, so they can reverse a
+driver's direction. Offline, on the coupled hold-the-price energy system (`output/pfm/v6/edge-options.rds`), the 2050
+power & industry k is:
+
+| Variant | Power & industry k, 2050 |
+| --- | --- |
+| as run | 0.68 |
+| interactions capped at the sample's 5th–95th percentiles | 0.75 |
+| interactions in democracies only (regime split, threshold 0.35–0.6) | 0.71–0.77 |
+| edge countries' ceilings held at 2025 | 0.79 |
+| no interactions | 0.93 |
+| refit without China, Saudi Arabia, Turkey and Russia | 0.95 |
+
+The extra CO₂ under hold the price follows k, so the fading-limit numbers carry this sensitivity until it is re-run
+coupled. Whichever frame is chosen must quote it, and must not interpret the regional positions of China (buildings &
+transport), the Middle East or India.
+
 k is shown for the hold-the-price runs. The hold-the-budget runs settle a little lower (fading limit
 0.62 → 0.50). The growing limit ran at κ = −0.005 a year (`V6BACK`), declared on 2026-10-13 as a bound (ADR 0057).
 
@@ -204,6 +223,9 @@ saturate, and in 3 of 21 when only clean-energy interests saturate (`SCENARIOS.m
 - **Weakness:**
   - The relocation is small under the fading limit (23 Gt).
   - The China result depends on the persistence assumption.
+  - The ranks it rests on are edge-affected (0007): capping the interactions moves the Middle East from 0.92 to 0.37
+    and India from 1.00 to 0.87 in power & industry, and China from most to least constrained in buildings &
+    transport. Of the frames, this is the most exposed.
   - There can be no sector-level claims.
 - **Best use:** the second figure of *Today vs tomorrow* rather than a paper of its own.
 
@@ -424,3 +446,6 @@ What *Today vs tomorrow* still needs before writing:
 - [x] Run the persistence ladder at H12: `V6PERSH12` (2026-10-13).
 - [x] Set up `papers/pfm-paper-v6` without the `v5` draft, Methods written (2026-10-13).
 - [ ] Choose the spine; then the claim in its `paper.yml`, the claims ledger and the design.
+- [ ] Carry the edge-of-data sensitivity (0007 §6) into the claims ledger: the fading-limit headline with the
+  power & industry k range above. Decide whether a coupled re-run of the capped variant (O1) is needed before
+  submission or is reported as an offline sensitivity.
