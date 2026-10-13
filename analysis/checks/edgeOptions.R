@@ -153,11 +153,12 @@ evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   pairs <- if (length(ints)) do.call(rbind, strsplit(sub("^dem[wl]?__", "", ints), "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
   if (length(ints)) rownames(pairs) <- ints
   demW <- function(X, k) { p <- prefixOf(k); if (nzchar(p)) weightOf(p, sub(" .*$", "", rownames(X))) else 1 }   # democracy weight
-  etaOf <- function(X) {
+  buildX <- function(X) {
     Xm <- if (is.null(tf)) X else tf(X)                     # factor values used inside the interactions
     if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]] * demW(X, k)
-    as.vector(X[, cols, drop = FALSE] %*% beta)
+    X[, cols, drop = FALSE]
   }
+  etaOf <- function(X) as.vector(buildX(X) %*% beta)
   # 2023: ceilings, the anchored distance, the ranking
   H <- mats$hist[sub(" .*$", "", rownames(mats$hist)) %in% ctab$region[is.finite(ctab$q)], , drop = FALSE]
   cty <- sub(" .*$", "", rownames(H)); ct <- ctab[match(cty, ctab$region), ]
@@ -197,8 +198,19 @@ evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
     data.frame(country = rownames(Z0), driver = d, centreAgrees = sign(beta[[d]]) == EXPECT[[d]],
                against = sign(s) != EXPECT[[d]] & eff >= MIN_EFFECT)
   }))
-  list(rank = rank, strength = strength, dir = cbind(variant = label, sector = sec, dir))
+  countries <- data.frame(variant = label, sector = sec, country = cty, basis = ct$basis, ceiling2023 = ceil,
+                          index2023 = S, efficiency2023 = pmin(S / ceil, 1), stringsAsFactors = FALSE)
+  grpOf <- function(nm) ifelse(grepl("_x_", nm), "interest x institution terms",
+                        ifelse(grepl("Power", nm), "fossil and clean-energy terms",
+                        ifelse(grepl("WGI|VDem", nm), "institutions", "everything else")))
+  fx <- sel & mats$scenRegion %in% FOCUS
+  Xf <- buildX(mats$scen[fx, , drop = FALSE]); Cf <- sweep(Xf, 2, beta[colnames(Xf)], `*`)
+  terms <- do.call(rbind, lapply(unique(grpOf(cols)), function(gname) data.frame(
+    variant = label, sector = sec, country = mats$scenRegion[fx], year = mats$scenYear[fx], group = gname,
+    value = rowSums(Cf[, grpOf(colnames(Cf)) == gname, drop = FALSE]))))
+  list(rank = rank, strength = strength, dir = cbind(variant = label, sector = sec, dir), countries = countries, terms = terms)
 }
+FOCUS <- c("CHN", "SAU", "IND", "RUS", "DEU", "USA")
 capTf <- function(sampleX, which) {      # cap the given factor columns at the sample's percentiles
   lo <- apply(sampleX[, which, drop = FALSE], 2, stats::quantile, CAP[1]); hi <- apply(sampleX[, which, drop = FALSE], 2, stats::quantile, CAP[2])
   function(X) { for (m in which) X[, m] <- pmin(pmax(X[, m], lo[[m]]), hi[[m]]); X }
@@ -224,7 +236,8 @@ refit <- function(fit, drop = NULL, removeTerms = NULL, exporter = NULL) {
   names(b) <- gsub("`", "", names(b))
   se <- tryCatch(sqrt(pmax(diag(stats::vcov(m)), 0)), error = function(e) rep(NA_real_, length(stats::coef(m))))
   names(se) <- gsub("`", "", names(stats::coef(m)))
-  list(beta = b, gamma = stats::coef(m)[["gamma"]], converged = isTRUE((m$mleIter %||% 0) < 2000), n = nrow(df), se = se)
+  list(beta = b, gamma = stats::coef(m)[["gamma"]], converged = isTRUE((m$mleIter %||% 0) < 2000), n = nrow(df), se = se,
+       logLik = as.numeric(stats::logLik(m)), nPar = length(stats::coef(m)))
 }
 
 out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), exporters = exporters, exportRatio = exportRatio,
@@ -250,7 +263,8 @@ for (sec in SECS) {
   V$O5a <- refit(fit, removeTerms = ints)
   V$O5b <- refit(fit, removeTerms = grep("Vertical", names(b0), value = TRUE))
   for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (md %in% c("A2", "A3", "A4")) ints else if (md %in% c("A5", "A6")) grep("Vertical", ints, value = TRUE) else NULL)
-  out$coefficients[[sec]] <- lapply(V, function(v) v[c("beta", "gamma", "converged", "n", "se")])
+  V$base <- c(ref, V$base[setdiff(names(V$base), names(ref))]); V$base$beta <- b0
+  out$coefficients[[sec]] <- lapply(V, function(v) v[intersect(c("beta", "gamma", "converged", "n", "se", "logLik", "nPar"), names(v))])
   runs <- list(
     base = evaluate("base", sec, mats, b0, ctab),
     O1 = evaluate("O1 cap institutions", sec, mats, b0, ctab, tf = tfI),
@@ -292,6 +306,8 @@ for (sec in SECS) {
   out$rank[[sec]] <- do.call(rbind, lapply(runs, `[[`, "rank"))
   out$strength[[sec]] <- do.call(rbind, lapply(runs, `[[`, "strength"))
   out$dir[[sec]] <- do.call(rbind, lapply(runs, `[[`, "dir"))
+  out$countries[[sec]] <- do.call(rbind, lapply(runs[c("base", "O1", "A2", "A3", "A4")], `[[`, "countries"))
+  out$terms[[sec]] <- do.call(rbind, lapply(runs[c("base", "O1", "A2", "A3", "A4")], `[[`, "terms"))
   # the evaluator reproduces the run
   ar <- anc0$EU21$region[anc0$EU21$region$sector == sec, ]
   bu <- out$rank[[sec]][out$rank[[sec]]$variant == "base" & out$rank[[sec]]$resolution == "EU21", ]

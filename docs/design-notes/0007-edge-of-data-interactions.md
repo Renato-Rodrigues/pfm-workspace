@@ -331,6 +331,26 @@ rentier-state argument.
   - The reversals are therefore not only an accountability problem. Every interaction is extrapolated where the
     sample has no comparable countries, so the weight has to act on all of them.
 
+**Fit (log-likelihood, same estimation data; `edge-options-aut0.5-noband.rds`).**
+
+| | P&I | B&T | parameters |
+|---|---|---|---|
+| v6 as selected | −1256.2 | −503.8 | 24 |
+| A3 smooth weight | −1255.4 | **−554.9** | 24 |
+| A2 hard split (0.5) | −1278.4 | −581.8 | 25 |
+| A4 soft step | −1263.2 | −569.5 | 24 |
+| O5a no interactions | −1365.4 | −631.0 | 15 |
+
+The smooth weight fits power & industry as well as v6, but buildings & transport clearly worse: part of what the
+unweighted interactions explain there is China's and Saudi Arabia's own observed policy. It recovers about three
+fifths of the fit that dropping the interactions would lose. The trade, in-sample fit against a projection that does
+not rest on extrapolated lines, is a judgement for `v7`, not a result. E4 (§7) ends below the model it extends
+(P&I −1328.0 against −1256.2 with one more parameter): its optimisation did not reach the maximum, so its row is
+unreliable.
+
+The plain-language write-up of this note, with the comparison of the smooth weight against v6, is
+`communication/edge-of-data/Edge-of-data-PFM.docx` (built by `build-edge-doc.R` from these artifacts).
+
 **Other alternatives, not yet tested:**
 - **Regime-specific caps**: O1 with its bounds taken from the democracies only.
 - **A regime-type group effect** in place of the OECD/EU/other groups (`fe:` in the specification grammar), combined
