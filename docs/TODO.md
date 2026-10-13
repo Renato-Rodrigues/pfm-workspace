@@ -33,11 +33,10 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
    declared rate means re-running `V6BACK` (2 EU21 runs).
 3. ✅ **`V6PERSH12` and `V6BACK` processed** (2026-10-13): 71 runs admitted, the ladder at H12 matches EU21
    (+176.3 / +112.8 / +39.3 Gt against +189.1 / +118.2 / +41.2), 0006 and the methodology updated.
-4. 🟠 **The paper workspace** (Phase 6 step 5; 0005 §0a item 5). Scaffold it without the `v5` v18 draft as
-   text (amends D19, **to be confirmed**). Port the literature (item 35's sources included), the glossary
-   and the general drafting rules. Write Methods fresh for the `v6` formulation (D-A1…A7), with the
-   hold-the-budget arithmetic (D-M2 (i)) and the sector-ordering caveat (D-M4). Then mark
-   `papers/pfm-paper-v5` as superseded in its `CLAUDE.md` and `VERSIONS.md`.
+4. ✅ **The paper workspace** (2026-10-13): `papers/pfm-paper-v6`, set up from paper-forge **without** the
+   `v5` draft (D19 as amended, author 2026-10-13). Literature and the D-m drafting checklist carried over; the
+   Methods written fresh (`docs/methods-v6.md`, with D-M2 (i) and D-M4); `pfm-paper-v5` marked superseded.
+   **Next, once the spine is chosen:** the claim in `paper.yml`, then `paper-claims` and `paper-design`.
 5. ✅ **The paper's figures, `v6` only** (2026-10-12/13): `v6-persistence-ladder`, `v6-cumulative-co2`
    (peak years), `v6-mechanism` (C3, C10), and `v6`-only versions of the coupled figures (`*-only`).
 6. 🟠 **The deposit** (D-M3, Phase 6 step 6): Zenodo at tags of `pfm`, `mrpfm`, the fork and the project

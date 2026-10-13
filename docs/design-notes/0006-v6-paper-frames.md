@@ -422,4 +422,5 @@ What *Today vs tomorrow* still needs before writing:
 - [ ] Declare the growing-limit rate (proposed κ = −0.005 a year: k = 1.12 in 2050, 1.45 in 2100); a
   different rate means re-running `V6BACK`.
 - [x] Run the persistence ladder at H12: `V6PERSH12` (2026-10-13).
-- [ ] Choose the spine, then set up `papers/pfm-paper-v6`.
+- [x] Set up `papers/pfm-paper-v6` without the `v5` draft, Methods written (2026-10-13).
+- [ ] Choose the spine; then the claim in its `paper.yml`, the claims ledger and the design.

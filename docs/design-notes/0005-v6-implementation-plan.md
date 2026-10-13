@@ -91,7 +91,9 @@ The checklist in §3 carries the same status marks: ✅ done, ⛔ dropped, ⏸ d
    rising in 2150 (1036.7 Gt). The rate is still the author's to declare; a different rate means re-running it.
 4. ✅ **Processed 2026-10-13:** `runCoupledStage.R v6` (71 runs admitted, 0 missing), `ruleCRelocationDecomp.R`,
    `persistenceLadder.R v6`; 0006, `SCENARIOS.md` and the methodology updated.
-5. 🟠 **Phase 6 step 5, the paper workspace (D19, amended by §7b).** Scaffold it **without** the `v5` v18
+5. ✅ **Phase 6 step 5, the paper workspace** (2026-10-13; D19 as amended, confirmed by the author): `papers/pfm-paper-v6`,
+   scaffolded without the `v5` draft; literature and the D-m checklist carried, Methods written fresh
+   (`docs/methods-v6.md`). The claims ledger and design wait for the spine. *(Original plan:)* Scaffold it **without** the `v5` v18
    draft as text: that draft is built on the `v5` specification and results. Port only what is
    version-independent: the literature (with item 35's sources), the glossary, the drafting rules.
    Write Methods fresh for the `v6` formulation (D-A1…A7), with the hold-the-budget arithmetic (D-M2 (i))
