@@ -432,3 +432,66 @@ Turkey and India therefore enter the fit, and power & industry fits worse (−13
 form v7 keeps is part of the decision. A constant-weight variant would be one more spec field, not implemented yet.
 
 **How to run the v7 search:** `docs/RUNNING.md`, Step 6a.
+
+## 10. Other V-Dem indicators: a screen (2026-10-13)
+
+`analysis/checks/vdemScreen.R v6` → `output/pfm/v6/vdem-screen.rds`. 27 V-Dem v16 indicators were declared with a role
+before any result was read:
+- 12 democracy and accountability indices replacing vertical accountability;
+- 5 administration and corruption indicators replacing state capability (WGI);
+- 7 political-economy-of-distribution indicators replacing vertical accountability (clientelism, particularistic vs
+  public-goods spending, party linkages, universalism, socio-economic exclusion, party institutionalisation,
+  equal distribution of resources);
+- 7 bounded indices as the interaction weight.
+
+Each variant is the selected specification with that one change, refitted as a frontier and scored by the sanity
+walk's ceiling trajectory with the edge gate at its defaults, on the coupled hold-the-price energy system. These are
+single-change variants of the selected specification, not a new search.
+
+**Where China and Saudi Arabia sit** (SD on the 48-country sample, 2023):
+- **Every democracy or accountability index** puts both at −2.2 to −3.5, with 0–3 sample neighbours. These indices
+  correlate 0.79–0.96 with vertical accountability. Swapping one for another keeps the edge.
+- **The indicators on which China is not at the edge** are corruption (+1.2), clientelism (−0.1), party linkages
+  (0.0), particularistic spending (+0.1), universalism (−1.0) and impartial administration (−1.6, 11 neighbours).
+- Saudi Arabia is still extreme on some of these (party institutionalisation −4.3).
+
+**Replacing a channel: no indicator works.**
+
+| Family | Δ log-likelihood P&I / B&T | Edge gate |
+|---|---|---|
+| other accountability / democracy indices for vertical accountability | −122 to +32 / −37 to +1 | fails in both sectors, every one; cap shifts up to 11.5 |
+| administration / corruption for state capability | −70 to +5 / −43 to +3 | fails in both sectors |
+| political-economy indicators for vertical accountability | −153 to −39 / −24 to +18 | fails in both sectors |
+
+Even where China is not at the edge of the swapped indicator, the gate still fails, because the other interactions
+(rule of law: China −2.9 SD) still extrapolate. The selected channels fit best overall. **The edge problem belongs to
+the interaction structure, not to one indicator.**
+
+**As the interaction weight: several indices pass, and two fit better than the electoral democracy index.**
+
+| Weight (every interaction × index) | Δ log-likelihood P&I / B&T | Gate P&I / B&T (cap shift) |
+|---|---|---|
+| electoral democracy (`v2x_polyarchy`, implemented) | −56.5 / −51.6 | pass / pass (0.20 / 0.10) |
+| **freedom of expression and alternative information** (`v2x_freexp_altinf`) | **+0.8 / −39.9** | pass / pass (0.23 / 0.08) |
+| **liberal democracy** (`v2x_libdem`) | **+1.1 / −50.3** | pass / pass (0.28 / 0.06) |
+| clean elections (`v2xel_frefair`) | +0.9 / −59.6 | pass / pass (0.27 / 0.09) |
+| regime class (`v2x_regime` / 3) | −63.7 / −66.1 | pass / pass (0.25 / 0.08) |
+| civil liberties (`v2x_civlib`) | +4.3 / −23.7 | pass / **fail** (China, Middle East) |
+| participatory democracy (`v2x_partipdem`) | −0.2 / −48.6 | fail (one region) / fail |
+
+Freedom of expression and liberal democracy pass the gate in both sectors and keep the power & industry fit of v6,
+which the electoral democracy weight loses (−56.5). Freedom of expression also loses the least in buildings &
+transport. Reading: the moderation of interest power by institutions works through what citizens and media can say
+and know (freedom of expression and alternative information) or through constraints on the executive (liberal
+democracy), more than through elections alone.
+
+**For v7:**
+- Add `v2x_freexp_altinf` and `v2x_libdem` to the weights the search can choose from (`interactionWeights`). That
+  needs them in the `mrpfm` `democracy` subtype and in the panels, as the electoral democracy index already is.
+- Each weight adds one twin of every specification with interactions, so three weights make the grid about four times
+  v6's. To keep the cost at twice v6's, use one weight, chosen now by this screen: freedom of expression.
+
+Caveats:
+- ML z values overstate precision (about 2.2–2.4×).
+- The index is a 5-year moving average from the raw V-Dem file here, not the panel builder's.
+- The political-economy indicators were tested only as replacements, not as additions.
