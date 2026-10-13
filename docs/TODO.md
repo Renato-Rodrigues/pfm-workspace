@@ -75,9 +75,10 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      estimation sample's percentiles, with the bounds (2.5–97.5, 5–95, 10–90) tested as a declared sensitivity.
   2. **Add the edge criteria (0007 §5 (a)–(b)) as a gate in the specification sweep**, applied to every candidate,
      not only the passing band (no band member passes on `v6`), and compare its winner with "selected + O1 cap". Include
-     the regime split (O10, 0007 §8: interactions in democracies only; passes everywhere on `v6` and keeps the power &
-     industry relaxation) as a candidate, with its regime threshold declared before the results (or a smooth
-     democracy weight instead).
+     the democracy-weighted interactions (O10, 0007 §8) as candidates. The smooth weight (A3: every interaction ×
+     the V-Dem electoral democracy index) passes everywhere on `v6` with no threshold and keeps the power & industry
+     ranking closest to `v6`; the hard split (A2) needs a declared threshold. Weighting only the accountability terms
+     (A5/A6) fails and is not a candidate.
   3. Report O3b (refit without China, Saudi Arabia, Turkey, Russia) and O5a (no interactions) as sensitivities of
      the power & industry relaxation; re-run the coupled headline for the option kept.
   4. **Develop the production-based fossil interest (O9) before adding any exporter term**: fossil production or net

@@ -194,8 +194,8 @@ H12 gives the same passes.
    sensitivity.
 2. Add the edge criteria (a)–(b) to the specification sweep as a gate (O4 applied to all 7,296 candidates, not the
    band), and compare its winner with "selected + O1". Include the regime split (O10, §8) as a candidate design in
-   that comparison: it is the only structural option that passes everywhere and keeps the power & industry
-   relaxation.
+   that comparison, in its smooth form (A3, §8), which needs no threshold and keeps the power & industry ranking
+   closest to `v6`.
 3. Report O3b and O5a as sensitivities of the power & industry relaxation, with the coupled runs re-done for the
    option kept.
 4. Develop O9 (§7) before adding any exporter term to the frontier. Exporter controls (E2–E4) do not address the
@@ -298,10 +298,40 @@ rentier-state argument.
 - **Regime status has to be projected.** Here it is held at 2019–2023. A `v7` version could derive it from the
   projected accountability path (the SSP institution projections the model already uses), or hold it and say so.
 
-**Viable alternatives to a hard split, for `v7`:**
-- **A smooth regime weight**: the interactions multiplied by the democracy index itself (or a logistic of it)
-  instead of a 0/1 split. No threshold, and India and Hungary get partial interactions. The same evaluator can test
-  it.
+**Smooth weights, and weighting the accountability terms only (tested 2026-10-13,
+`output/pfm/v6/edge-options-aut0.5-noband.rds`).**
+- **A3**: every interest × institution term multiplied by the democracy index itself.
+- **A4**: a soft step, the logistic of the index (midpoint 0.5, scale 0.1).
+- **A5 / A6**: the smooth weight / the hard split on the *accountability* interactions only, so the state-capability
+  and rule-of-law interactions act in every regime (a capable state can counter opposition in an autocracy too).
+
+| Variant | P&I: Spearman (EU21 / H12) | P&I: k 2050 / 2100 | P&I: India u | B&T: Spearman (EU21 / H12) | B&T: k 2050 / 2060 / 2100 | B&T: China u | γ P&I | Pass |
+|---|---|---|---|---|---|---|---|---|
+| v6 as selected | 1 / 1 | 0.68 / 0.52 | 1.00 | 1 / 1 | 0.85 / 0.96 / 0.72 | 1.00 | 0.997 | no |
+| A2 hard split (0.5) | 0.70 / 0.50 | 0.71 / 0.45 | 0.00 | 0.66 / 0.21 | 0.61 / 0.53 / 0.43 | 0.25 | 0.999 | all |
+| **A3 smooth weight** | **0.96 / 0.91** | 0.83 / 0.60 | 0.51 | 0.68 / 0.27 | 0.62 / 0.54 / 0.45 | 0.24 | 0.998 | **all** |
+| A4 soft step | 0.93 / 0.85 | 0.77 / 0.55 | 0.35 | 0.66 / 0.24 | 0.60 / 0.51 / 0.42 | 0.26 | 0.999 | all |
+| A5 smooth, accountability only | 0.78 / 0.66 | **1.14 / 1.16** | 0.39 | 0.85 / 0.79 | 0.52 / 0.46 / 0.63 | 0.85 | 0.928 | P&I yes; B&T no (SSA) |
+| A6 split, accountability only | 0.97 / 0.94 | 0.96 / 0.95 | 0.51 | 0.76 / 0.49 | 0.40 / 0.35 / 0.49 | 0.86 | 0.997 | P&I yes; B&T no at H12 |
+
+- **A3 is the best of the regime options.**
+  - It passes every criterion in both sectors at both resolutions, with no threshold to declare.
+  - Its power & industry ranking stays closest to `v6` (Spearman 0.96 / 0.91).
+  - Its γ (0.998) stays clear of the ADR 0046 boundary.
+  - Its democracy-weighted terms are well estimated: fossil dependence × accountability −0.76 (ML z −3.2) in power &
+    industry, −0.65 (z −6.0) in buildings & transport.
+  - The cost: the power & industry relaxation is smaller (k 2050 0.83, against 0.68 as run). India and other
+    middle regimes get partial interactions instead of a cut at a threshold.
+- **Weighting the accountability terms only is theoretically appealing but fails.**
+  - The state-capability and rule-of-law interactions then do the extrapolating instead. That is the edge in
+    *interests*, where poor countries with very low fossil energy per person sit (§3).
+  - The power & industry strength reverses (A5: 1.14 in 2050; A6: 0.96 with almost no relaxation), as when the
+    accountability terms are dropped (O5b).
+  - Buildings & transport fails in Sub-Saharan Africa (A5) or at H12 (A6).
+  - The reversals are therefore not only an accountability problem. Every interaction is extrapolated where the
+    sample has no comparable countries, so the weight has to act on all of them.
+
+**Other alternatives, not yet tested:**
 - **Regime-specific caps**: O1 with its bounds taken from the democracies only.
 - **A regime-type group effect** in place of the OECD/EU/other groups (`fe:` in the specification grammar), combined
   with the split. This is a sweep dimension, so it belongs in the gate comparison of suggestion 2.

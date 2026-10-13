@@ -17,6 +17,12 @@
 #          main threshold of the Regimes of the World classification)
 #     A2   regime split: the interest x institution terms act in democracies only; autocracies get the main effects
 #          and their own level (+ autocracy). Autocracy status is held at 2019-2023 in every projection year.
+#     A3   smooth democracy weight: the interaction terms multiplied by the electoral democracy index itself (0-1)
+#     A4   soft step: the interaction terms multiplied by a logistic of the index (midpoint = the threshold, scale 0.1)
+#          (A3/A4 need no threshold for A3 and no hard cut for A4; countries without V-Dem data take the median index)
+#     A5   smooth democracy weight on the ACCOUNTABILITY interactions only (interest x vertical accountability); the state
+#          capability and rule-of-law interactions act in every regime
+#     A6   hard split on the accountability interactions only (+ autocracy level)
 #          (exporter: net energy exports above half of total energy supply, mean 2019-2023, IEA 2025 edition;
 #           every exporter covariate is held at its 2019-2023 value in every projection year - a declared
 #           simplification: the projection has no exporter dynamics)
@@ -102,19 +108,31 @@ vd <- data.table::fread(Sys.glob("C:/_data/work/remind_input_data/sources/VDem/V
 vd <- vd[vd$year >= 2019 & vd$year <= 2023, ]
 polyarchy <- tapply(vd$v2x_polyarchy, vd$country_text_id, mean, na.rm = TRUE)
 autocracies <- names(polyarchy)[is.finite(polyarchy) & polyarchy < AUT_THRESHOLD]
+polyW <- pmin(pmax(polyarchy, 0), 1); polyW[!is.finite(polyW)] <- stats::median(polyW, na.rm = TRUE)
 covar <- list(autocracy = stats::setNames(as.numeric(names(polyarchy) %in% autocracies), names(polyarchy)),
+              polyW = polyW, polyL = stats::plogis((polyW - AUT_THRESHOLD) / 0.1),
               exporter = stats::setNames(as.numeric(names(exportRatio) %in% exporters), names(exportRatio)),
               exportRatioStd = stdCap(pmin(pmax(exportRatio, -1), 10)),
               fossilProdPcStd = stdCap(log1p(1e3 * fossilProd[names(popScen)] / popScen)))
 INTS0 <- grep("_x_", names(anc0$EU21$designs[[1]]$beta), value = TRUE)
 MODES <- list(E1 = c("exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc"),
               E2 = "exporter", E3 = "exportRatioStd", E4 = "fossilProdPcStd",
-              A1 = "autocracy", A2 = c("autocracy", paste0("dem__", INTS0)))
+              A1 = "autocracy", A2 = c("autocracy", paste0("dem__", INTS0)),
+              A3 = paste0("demw__", INTS0), A4 = paste0("deml__", INTS0),
+              A5 = paste0("demw__", grep("Vertical", INTS0, value = TRUE)),
+              A6 = c("autocracy", paste0("dem__", grep("Vertical", INTS0, value = TRUE))))
+# the democracy weight on the interaction terms, by prefix: hard split, the index itself, its logistic
+weightOf <- function(prefix, cty) {
+  look <- function(v, fill) { x <- covar[[v]][cty]; x[!is.finite(x)] <- fill; x }
+  switch(prefix, dem__ = 1 - look("autocracy", 0),
+         demw__ = look("polyW", stats::median(covar$polyW)), deml__ = look("polyL", stats::median(covar$polyL)), 1)
+}
+prefixOf <- function(k) { m <- regmatches(k, regexpr("^dem[wl]?__", k)); if (length(m)) m else "" }
 covCols <- function(cty, mode, base) {   # base: a frame or matrix holding Incumbent.Power(.pc)
   look <- function(v) { x <- covar[[v]][cty]; x[!is.finite(x)] <- 0; x }
   out <- list()
   for (cl in MODES[[mode]]) out[[cl]] <-
-    if (startsWith(cl, "dem__")) (1 - look("autocracy")) * base[, sub("^dem__", "", cl)]
+    if (grepl("^dem[wl]?__", cl)) weightOf(prefixOf(cl), cty) * base[, sub("^dem[wl]?__", "", cl)]
     else if (startsWith(cl, "exporter_x_")) look("exporter") * base[, sub("^exporter_x_", "", cl)] else look(cl)
   as.data.frame(out, optional = TRUE)
 }
@@ -132,9 +150,9 @@ matsFor <- function(design, extra = NULL) {
 # tf: optional transform of the interaction factors, function(X) -> X with capped factors (for O1/O2).
 evaluate <- function(label, sec, mats, beta, ctab, tf = NULL, freeze = NULL) {
   cols <- names(beta); ints <- grep("_x_", cols, value = TRUE)
-  pairs <- if (length(ints)) do.call(rbind, strsplit(sub("^dem__", "", ints), "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
+  pairs <- if (length(ints)) do.call(rbind, strsplit(sub("^dem[wl]?__", "", ints), "_x_", fixed = TRUE)) else matrix(character(0), 0, 2)
   if (length(ints)) rownames(pairs) <- ints
-  demW <- function(X, k) if (startsWith(k, "dem__")) 1 - X[, "autocracy"] else 1   # regime split: democracies only
+  demW <- function(X, k) { p <- prefixOf(k); if (nzchar(p)) weightOf(p, sub(" .*$", "", rownames(X))) else 1 }   # democracy weight
   etaOf <- function(X) {
     Xm <- if (is.null(tf)) X else tf(X)                     # factor values used inside the interactions
     if (length(ints)) for (k in ints) X[, k] <- Xm[, pairs[k, 1]] * Xm[, pairs[k, 2]] * demW(X, k)
@@ -231,7 +249,7 @@ for (sec in SECS) {
   V$O3b <- refit(fit, drop = c("CHN", "SAU", "TUR", "RUS"))
   V$O5a <- refit(fit, removeTerms = ints)
   V$O5b <- refit(fit, removeTerms = grep("Vertical", names(b0), value = TRUE))
-  for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (md == "A2") ints else NULL)
+  for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (md %in% c("A2", "A3", "A4")) ints else if (md %in% c("A5", "A6")) grep("Vertical", ints, value = TRUE) else NULL)
   out$coefficients[[sec]] <- lapply(V, function(v) v[c("beta", "gamma", "converged", "n", "se")])
   runs <- list(
     base = evaluate("base", sec, mats, b0, ctab),
@@ -248,7 +266,11 @@ for (sec in SECS) {
     E3 = evaluate("E3 export ratio control", sec, matsX$E3, V$E3$beta, ctab),
     E4 = evaluate("E4 fossil production pc control", sec, matsX$E4, V$E4$beta, ctab),
     A1 = evaluate("A1 autocracy control", sec, matsX$A1, V$A1$beta, ctab),
-    A2 = evaluate("A2 regime split", sec, matsX$A2, V$A2$beta, ctab))
+    A2 = evaluate("A2 regime split", sec, matsX$A2, V$A2$beta, ctab),
+    A3 = evaluate("A3 smooth democracy weight", sec, matsX$A3, V$A3$beta, ctab),
+    A4 = evaluate("A4 soft-step democracy weight", sec, matsX$A4, V$A4$beta, ctab),
+    A5 = evaluate("A5 smooth weight, accountability terms", sec, matsX$A5, V$A5$beta, ctab),
+    A6 = evaluate("A6 regime split, accountability terms", sec, matsX$A6, V$A6$beta, ctab))
   # criterion (b) for each coefficient variant: the O1 cap applied on top of it
   for (nm in c("O3a", "O3b", "O5b", names(MODES))) {
     mm <- if (nm %in% names(MODES)) matsX[[nm]] else mats
@@ -318,11 +340,12 @@ for (sec in SECS) {
   terms <- c("Incumbent.Power", "Incumbent.Power.pc", "Incumbent.Power_x_Vertical.Accountability..VDem.",
              "Innovator.Power_x_Vertical.Accountability..VDem.", "Incumbent.Power.pc_x_Vertical.Accountability..VDem.",
              "exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc", "exportRatioStd", "fossilProdPcStd",
-             "autocracy", "dem__Incumbent.Power_x_Vertical.Accountability..VDem.")
+             "autocracy", "dem__Incumbent.Power_x_Vertical.Accountability..VDem.",
+             "demw__Incumbent.Power_x_Vertical.Accountability..VDem.", "deml__Incumbent.Power_x_Vertical.Accountability..VDem.")
   cat("\nkey coefficients (refits):\n")
   ct <- sapply(cb, function(v) v$beta[terms]); rownames(ct) <- terms; print(round(ct, 3))
-  for (md in names(MODES)) { e1 <- cb[[md]]; tt <- intersect(c(MODES[[md]][!startsWith(MODES[[md]], "dem__")],
-                                                               "dem__Incumbent.Power_x_Vertical.Accountability..VDem."), names(e1$beta))
+  for (md in names(MODES)) { e1 <- cb[[md]]; tt <- intersect(c(MODES[[md]][!grepl("^dem[wl]?__", MODES[[md]])],
+                                                               paste0(c("dem__", "demw__", "deml__"), "Incumbent.Power_x_Vertical.Accountability..VDem.")), names(e1$beta))
     cat(md, "z-values (ML, understated by about 2.2-2.4x):", paste(tt, round(e1$beta[tt] / e1$se[tt], 1), collapse = "; "),
         "| gamma", round(e1$gamma, 3), "\n") }
 }
