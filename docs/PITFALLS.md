@@ -742,6 +742,12 @@ the 2100 figure. `TODO.md` item 32.
 
 ## 27. Estonia's `PE|Coal` is negative upstream — it is excluded from estimation, not clamped
 
+> **Status 2026-10-13: fixed upstream in the `v6` data, exclusion still on.** In the `v6` cache
+> (`data/madrat/v6/calcPE-F313cb2eb-3474774a.rds`, IEA 2025 edition) Estonia's `PE|Coal` is positive
+> (+0.0004 EJ in 2022 and 2023), no country has a negative coal item, and `PE|Coal|Gases` no longer
+> exists. The default below still drops Estonia, so `v6` was fitted without it. Re-inclusion is planned
+> for `v7` (`TODO.md`, deferred items). The measurement below is the 2024 edition's.
+
 `calcOutput("PE")` gives Estonia a **negative `PE|Coal`**, the only one of 249 countries. Measured
 2026-08-12, EJ/yr (`mrremind` 0.240.2, `mrcommons` 1.67.0, `madrat` 3.36.2, IEA Energy Balances
 default version; not a Run-Group number):

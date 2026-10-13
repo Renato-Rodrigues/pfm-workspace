@@ -65,6 +65,11 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 - **Institution projections informed by the PoliClim forecasts** (`analysis/checks/policlimInstitutions.R`);
   then revisit the ceiling-fall gate (ADR 0043; 0005 §7a decision 8).
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
+- **Estonia back into the estimation (`v7`; author, 2026-10-13).** The negative `PE|Coal` behind its exclusion is
+  gone in the `v6` energy data (IEA 2025 edition, `data/madrat/v6`: Estonia's coal +0.0004 EJ in 2022–2023, no
+  country negative), but `pfm.excludeCountries` still defaults to `"EST"`, so `v6` was fitted without it. For `v7`:
+  check that oil shale is fully captured (it now appears as oil, about 44% of Estonia's primary energy), set
+  `options(pfm.excludeCountries = character(0))`, refit and compare the coefficients (`PITFALLS.md` §27).
 
 **Dropped 2026-10-12** (the paper reports `v6` only; 0005 §0a): D-GP20 / GP-26 and E7 (the `v5` → `v6`
 contrast in the paper); E25 for `v5` (fetching `v5`'s shared-cache files, now optional archival); B7;
