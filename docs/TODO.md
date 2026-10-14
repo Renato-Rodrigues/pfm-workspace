@@ -64,6 +64,11 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
   governance-only measurement is on record (`output/pfm/v6/phase1/ssp-governance.rds`).
 - **Institution projections informed by the PoliClim forecasts** (`analysis/checks/policlimInstitutions.R`);
   then revisit the ceiling-fall gate (ADR 0043; 0005 §7a decision 8).
+  Indicator comparison and refit on v6 (2026-10-14; `analysis/checks/policlimFormulation.R`,
+  `communication/institutional-indicators/`): PoliClim's rule of law (`v2xcl_rol`) fits worse and fails the edge gate;
+  overall accountability is a near miss. Proposed (author's decision, open): keep the PFM's indicators and ask PoliClim
+  to project `v2x_rule`, `v2x_veracc` and the v7 weight; choose the government-effectiveness path deliberately;
+  optionally add overall accountability to the v7 search.
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
 - **The v7 specification search, ready to run (2026-10-13; design note 0007 §9; `RUNNING.md` Step 6a).** The democracy
   weight (O10) and the edge-of-data gate are implemented in `mrpfm` / `pfm` and configured for `v7` only. Before
