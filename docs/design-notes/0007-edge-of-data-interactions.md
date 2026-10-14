@@ -141,8 +141,8 @@ apart. Their $u$ values shift mostly because the min–max normalisation loses C
 5. **Record the outcome** as an ADR, update `MODEL.md` §3 (what the ceiling means at the edge of the data) and §7
    (what must not be done), and close this note.
 
-Re-estimating on new data (Estonia back in, `TODO.md`; possible new CAPMF countries) changes the sample and so the
-edge. Run the evaluation after every re-estimation, not once. Run `analysis/checks/edgeOptions.R <group>` with it
+Re-estimating on new data (possible new CAPMF countries; Estonia once its oil shale is in the energy data, which is
+after v7: ADR 0058) changes the sample and so the edge. Run the evaluation after every re-estimation, not once. Run `analysis/checks/edgeOptions.R <group>` with it
 (§6): it tries the options on the selected model and gives the comparison to decide on.
 
 ## 6. The options tried on `v6` (2026-10-13)

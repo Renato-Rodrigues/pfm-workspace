@@ -740,7 +740,7 @@ the 2100 figure or the warning says. Differences between hold-the-price runs, wh
 the 2100 figure. `TODO.md` item 32.
 
 
-## 27. Estonia's `PE|Coal` is negative upstream — it is excluded from estimation, not clamped
+## 27. Estonia's energy data are wrong upstream — it is excluded from estimation, not clamped (ADR 0058)
 
 > **Status 2026-10-13: fixed upstream in the `v6` data, exclusion still on.** In the `v6` cache
 > (`data/madrat/v6/calcPE-F313cb2eb-3474774a.rds`, IEA 2025 edition) Estonia's `PE|Coal` is positive
@@ -765,6 +765,8 @@ the 2100 figure. `TODO.md` item 32.
 > - Fix upstream: map those `OILSHALE` flows like coal into power, CHP and heat (`pecoal`). Alternatively, correct
 >   Estonia's `PE|Coal` in `iamHistoricalData()` with the IEA flows, as a declared and tested adjustment. Until then
 >   the exclusion stays.
+> - **Decided for `v7`: Estonia stays out (ADR 0058).** The default `"EST"` below is the v7 setting; do not clear
+>   it.
 
 `calcOutput("PE")` gives Estonia a **negative `PE|Coal`**, the only one of 249 countries. Measured
 2026-08-12, EJ/yr (`mrremind` 0.240.2, `mrcommons` 1.67.0, `madrat` 3.36.2, IEA Energy Balances
@@ -798,7 +800,7 @@ same negative values are also the likely source of `toolAggregateWeighted`'s
 - `preparePanelData(excludeCountries = getOption("pfm.excludeCountries", "EST"))` drops Estonia
   from every estimation.
 - Every exclusion is reported at fit time: `[preparePanelData] excluding <n> row(s) for EST`.
-- When upstream is fixed, set `options(pfm.excludeCountries = character(0))`, refit, and compare
+- When the oil shale is in the data (ADR 0058, decision 3), set `options(pfm.excludeCountries = character(0))`, refit, and compare
   the selected specification's coefficients with the current ones.
 
 ## 28. History is EJ, a REMIND gdx is TWa — and a scenario gate that is not passed does not run

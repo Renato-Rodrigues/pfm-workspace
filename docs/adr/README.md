@@ -78,6 +78,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0055 | Generated scenario config | **Accepted** (2026-10-07), implemented: `pfm::buildPFMScenarioConfig()`, `analysis/run-groups/scenario-matrix-v6.yml` |
 | 0057 | The growing-limit rate: κ = −0.005 a year, declared as a bound | **Accepted** (2026-10-13): the fastest rate the share formula represents at θ = 0.675; history as a plausibility check; declared after `V6BACK`, on checks that use no coupled result |
 | 0056 | Actor power presented as the economic weight of fossil and clean-energy interests, a proxy for structural power | **Accepted** (2026-10-12): reader-facing wording; model and code names unchanged |
+| 0058 | Estonia stays out of the estimation in v7 | **Accepted** (2026-10-14): the oil shale burned in its power, CHP and heat plants is not in `PE` (26–49% of its supply); back only after that is fixed (PITFALLS §27; `analysis/checks/estoniaEnergy.R`) |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043
 (how it was selected), 0044 (what actor power *is*), 0040 (actor-power transform), 0026 (response

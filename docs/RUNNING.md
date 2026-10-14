@@ -211,8 +211,9 @@ makes the grid about 1.27 times larger again, about 3.8 times v6's with both wei
 v6 and its siblings are untouched by all of this.
 
 1. **Decide before anything runs.** Confirm the weights in `interactionWeights` (one or both; 0007 §10), the gate's thresholds in `config.yml` (`share`, `effect`, `capShift`,
-   `cap`, `mapping`; 0007 §5), whether overall accountability joins the search (`extraAccountability`), and Estonia:
-   **keep it excluded** unless its oil shale is fixed first. The energy data still miss the oil shale burned in
+   `cap`, `mapping`; 0007 §5) and whether overall accountability joins the search (`extraAccountability`).
+   **Estonia is decided: it stays excluded in v7** (ADR 0058). Leave `pfm.excludeCountries` at its default `"EST"`;
+   the sweep log must say `excluding <n> row(s) for EST`. The energy data still miss the oil shale burned in
    Estonia's power plants (PITFALLS §27; `analysis/checks/estoniaEnergy.R`).
 2. **Push the code and install it** on the cluster: `git push` in `models/pfm` and `models/mrpfm`, then on the
    cluster `git pull` and `./tools/setup.sh --cluster --update --install --no-cache` (Step 3; PITFALLS 1-2). Check

@@ -72,7 +72,7 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
 - **The v7 specification search, ready to run (2026-10-13; design note 0007 §9; `RUNNING.md` Step 6a).** The democracy
   weight (O10) and the edge-of-data gate are implemented in `mrpfm` / `pfm` and configured for `v7` only. Before
-  submitting: fix the gate thresholds and the Estonia decision, push and install the code on the cluster, prepare
+  submitting: fix the gate thresholds (Estonia is decided: excluded, ADR 0058), push and install the code on the cluster, prepare
   the `v7` madrat cache. Open: the weight read year by year (implemented) or held at 2019–2023 (offline A3).
 - **Edge-of-data evaluation (`v7`; author, 2026-10-13; design note 0007).** Interest × institution terms evaluated
   far from the sample reverse drivers in some regions (China, Middle East, Turkey, Russia; in power & industry also
@@ -96,7 +96,7 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      exports per person, from the IEA balances historically and from REMIND's extraction (downscaled) in scenarios.
      The static exporter variants tried on `v6` (E1–E4, 0007 §7) are evidence for it, not options to adopt: as
      controls they shift levels and cannot fix the edge problem, which is in the slopes.
-- **Estonia back into the estimation (`v7`; author, 2026-10-13).** The negative `PE|Coal` behind its exclusion is
+- **Estonia back into the estimation — after v7 (ADR 0058: excluded in v7, decided 2026-10-14).** The negative `PE|Coal` behind its exclusion is
   gone in the `v6` energy data (IEA 2025 edition, `data/madrat/v6`: Estonia's coal +0.0004 EJ in 2022–2023, no
   country negative), but `pfm.excludeCountries` still defaults to `"EST"`, so `v6` was fitted without it. For `v7`:
   check that oil shale is fully captured (it now appears as oil, about 44% of Estonia's primary energy), set

@@ -212,6 +212,10 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
 
 1. **Outcomes are never imputed.** A country-year with no CAPMF value is out of the sample; a region
    aggregates over its data-bearing members only.
+1a. **Estonia is excluded from estimation** in `v6` and `v7`: of the 49 countries with CAPMF values, 48 are
+   estimated. Its energy data are wrong upstream (a negative `PE|Coal` in the 2024 IEA edition; in the 2025 edition,
+   the oil shale burned in its power, CHP and heat plants is missing from `PE`). It still receives a ceiling in
+   projections. PITFALLS §27; ADR 0058.
 2. **Panel definition** per §3: smoothed (5-year centred, outcomes included) for the selected fit,
    annual as the sibling rung.
 3. **2023 from the 2025 IEA edition**, which also revises earlier years (§4).
