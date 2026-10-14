@@ -198,12 +198,15 @@ Locally, run the later stages only:
 
 ### Step 6a — v7: the specification search with the democracy weight and the edge-of-data gate
 
-Design note 0007 (§9). `config.yml` already carries the v7 overrides: `panel: groups: v7: democracy: true` (the V-Dem
-electoral democracy index enters the panels) and `sweep: groups: v7:` with `interactionWeights` (every spec with
-interactions gets a democracy-weighted twin, suffix ` iw:poly`) and `edgeGate` (severe in the sanity walk).
+Design note 0007 (§9). `config.yml` already carries the v7 overrides: `panel: groups: v7: democracy: true` (three V-Dem
+democracy indices enter the panels: electoral, liberal, freedom of expression) and `sweep: groups: v7:` with
+`interactionWeights` (every spec with interactions gets one weighted twin per listed weight: ` iw:fexp` freedom of
+expression and alternative information, ` iw:libdem` liberal democracy, ` iw:poly` electoral democracy) and `edgeGate`
+(severe in the sanity walk). The list carries freedom of expression and liberal democracy (0007 §10), so the search
+chooses between them; keep one of them to decide beforehand and halve the extra grid.
 v6 and its siblings are untouched by both.
 
-1. **Decide before anything runs.** Confirm the gate's thresholds in `config.yml` (`share`, `effect`, `capShift`,
+1. **Decide before anything runs.** Confirm the weights in `interactionWeights` (one or both; 0007 §10), the gate's thresholds in `config.yml` (`share`, `effect`, `capShift`,
    `cap`, `mapping`; 0007 §5), and whether Estonia comes back into the estimation for v7 (`TODO.md`, deferred items;
    if yes, `options(pfm.excludeCountries = character(0))` before the sweep, and say so in the v7 record).
 2. **Push the code and install it** on the cluster: `git push` in `models/pfm` and `models/mrpfm`, then on the
@@ -211,19 +214,20 @@ v6 and its siblings are untouched by both.
    that the installed `pfm` has the new code:
    `Rscript -e 'stopifnot(exists(".pfmEdgeGate", asNamespace("pfm")), "democracy" %in% names(pfm:::.pfmPanelDefLegacy()))'`.
 3. **Prepare the madrat cache** of the new group (the democracy index is a new calculation):
-   `Rscript tools/prepareMadratCache.R --group v7`. Its first line must say `..., electoral democracy index (config)`.
+   `Rscript tools/prepareMadratCache.R --group v7`. Its first line must say `..., V-Dem democracy indices (config)`.
 4. **Point `config.yml` at v7** (`group: "v7"`), commit, and submit the search with the later stages:
    ```r
    library(pfm)
    pfmRun(group = "v7", stage = c("sweep", "diagnostics", "downstream", "remind"), cluster = "slurm",
           config = "config.yml")
    ```
-   The plan's `panel` line must end with `, electoral democracy index`, and its `sweep` line with
-   `; interaction weights: Electoral Democracy (VDem); edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`.
-   The grid is about twice v6's (every spec with interactions gets its twin): budget a longer job.
+   The plan's `panel` line must end with `, V-Dem democracy indices`, and its `sweep` line must list the weights
+   (`; interaction weights: Freedom of Expression (VDem), Liberal Democracy (VDem)`) and the gate
+   (`edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`). With two weights the grid is about three times
+   v6's, with one about twice: budget a longer job.
 5. **Read the selection.** In the log, every candidate the sanity walk rejects for the edge says
    `edge of data: ...`. `output/pfm/v7/sweep.rds` (`$sanity$PolicyStringency$flags`) keeps the verdicts;
-   `selected-models-pfm.yml` names the winner, weighted (` iw:poly`) or not.
+   `selected-models-pfm.yml` names the winner, weighted (` iw:fexp`, ` iw:libdem`) or not.
 6. **Re-run the checks on v7, before the coupled batch.** They need a scenario panel that carries the democracy
    index: `analysis/checks/edgeGateValidation.R` writes one, on the v6 hold-the-price energy system, to
    `output/pfm/v6/coupling/scen-PFMlevelBfix-v6-democracy.rds`. Copy it to

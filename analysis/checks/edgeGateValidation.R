@@ -1,11 +1,12 @@
 # End-to-end check of the interaction weight and the edge-of-data gate (design note 0007) on a Run-Group's data,
 # through the package code paths a v7 sweep will use.
 #   Rscript analysis/checks/edgeGateValidation.R [group]        (repo root; default v6)
-# 1. The V-Dem electoral democracy index through mrpfm (readVDem/calcVDem subtype "democracy").
+# 1. The V-Dem democracy indices through mrpfm (readVDem/calcVDem subtype "democracy": electoral, liberal, freedom of
+#    expression).
 # 2. The historical panel with the panel definition's `democracy` key on (panelDataHistorical): every column the
 #    group's training panel already has must be unchanged; one column is added.
 # 3. The scenario panel of the coupled hold-the-price run with the key on (panelDataScenario): the index is held.
-# 4. The selected specification and its democracy-weighted twin, fitted as frontiers (estimatePolicyStringencyModel,
+# 4. The selected specification and its democracy-weighted twins (one per index), fitted as frontiers (estimatePolicyStringencyModel,
 #    estimator "frontier"), and scored by the sanity walk's ceiling trajectory with the edge gate at its defaults.
 # The group's madrat cache is COPIED to a temporary folder first, so its pinned files are never touched.
 # Writes output/pfm/<group>/edge-gate-validation.rds.
@@ -24,9 +25,9 @@ say <- function(...) message("[edge-validation:", g, "] ", ...)
 
 # 1. the index
 dem <- calcOutput("VDem", subtype = "democracy", aggregate = FALSE)
-v <- as.vector(dem[c("CHN", "SAU", "RUS", "IND", "HUN", "DEU", "USA"), 2023, ])
-names(v) <- c("CHN", "SAU", "RUS", "IND", "HUN", "DEU", "USA")
-say("electoral democracy index 2023: ", paste(names(v), round(v, 3), collapse = ", "))
+v <- as.array(dem[c("CHN", "SAU", "RUS", "IND", "HUN", "DEU", "USA"), 2023, ])[, 1, ]
+WEIGHTS <- c(poly = "Electoral Democracy (VDem)", libdem = "Liberal Democracy (VDem)", fexp = "Freedom of Expression (VDem)")
+for (wv in WEIGHTS) say(wv, " 2023: ", paste(rownames(v), round(v[, wv], 3), collapse = ", "))
 
 # 2. historical panel, key on, against the group's training panel
 options(pfm.panel = c(pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")], democracy = TRUE))
@@ -49,17 +50,18 @@ say("building the scenario panel of ", r$scenario, " ...")
 scen <- panelDataScenario(gdxFile = gdx, aggregate = TRUE, gdxRegionMappingFile = "regionmapping_21_EU11.csv",
                           outputRegionMappingFile = "country", ssp = "SSP2", institutions = "storyline")
 saveRDS(scen, file.path(GD, "coupling", paste0("scen-PFMlevelBfix-", g, "-democracy.rds")))   # for the v7 checks (RUNNING 6a)
-ds <- scen[c("CHN", "IND", "DEU"), c(2030, 2050, 2100), "Electoral Democracy (VDem)"]
-say("scenario index (held): ", paste(apply(as.array(ds)[, , 1], 1, function(x) paste(round(x, 3), collapse = "/")), collapse = "; "))
+for (wv in WEIGHTS) {
+  ds <- scen[c("CHN", "IND", "DEU"), c(2030, 2050, 2100), wv]
+  say(wv, " in the scenario (held): ", paste(apply(as.array(ds)[, , 1], 1, function(x) paste(round(x, 3), collapse = "/")), collapse = "; "))
+}
 
 # 4. the selected spec and its weighted twin, as the sanity walk scores them
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 res <- list()
 for (sec in c("Bulk", "Diffuse")) {
   cfg <- Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]]
-  cfgW <- cfg; cfgW$interactionWeight <- "Electoral Democracy (VDem)"
-  for (nm in c("selected", "weighted")) {
-    cf <- if (nm == "selected") cfg else cfgW
+  for (nm in c("selected", names(WEIGHTS))) {
+    cf <- cfg; if (nm != "selected") cf$interactionWeight <- WEIGHTS[[nm]]
     ct <- pfm:::.pfmCeilingTrajectory(cf, sec, hist, scen, modelDir = NULL, indexMax = 10,
                                       edgeGate = pfm:::.pfmEdgeGateDefaults())
     fit <- do.call(estimatePolicyStringencyModel, c(list(data = hist, sector = sec, estimator = "frontier", indexMax = 10,
@@ -73,7 +75,8 @@ for (sec in c("Bulk", "Diffuse")) {
   }
   k <- "Incumbent.Power_x_Vertical.Accountability..VDem."
   say(sec, ": fossil x accountability ", round(res[[paste(sec, "selected")]]$beta[[k]], 3), " -> weighted ",
-      round(res[[paste(sec, "weighted")]]$beta[[k]], 3))
+      paste(names(WEIGHTS), vapply(names(WEIGHTS), function(n) round(res[[paste(sec, n)]]$beta[[k]], 3), numeric(1)),
+            collapse = ", "))
 }
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), index2023 = v, columnsAdded = added,
              existingColumnsMaxDiff = dmax, scenarioRun = r$scenario, fits = res),

@@ -82,7 +82,9 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      the democracy-weighted interactions (O10, 0007 §8) as candidates. The smooth weight (A3: every interaction ×
      the V-Dem electoral democracy index) passes everywhere on `v6` with no threshold and keeps the power & industry
      ranking closest to `v6`; the hard split (A2) needs a declared threshold. Weighting only the accountability terms
-     (A5/A6) fails and is not a candidate.
+     (A5/A6) fails and is not a candidate. **Weights for the search** (0007 §10, 2026-10-14): freedom of expression
+     and liberal democracy both pass on `v6` and keep the power & industry fit; `config.yml` lists both for `v7`.
+     Author's choice, open: let the search pick between them, or keep one before the sweep.
   3. Report O3b (refit without China, Saudi Arabia, Turkey, Russia) and O5a (no interactions) as sensitivities of
      the power & industry relaxation; re-run the coupled headline for the option kept.
   4. **Develop the production-based fossil interest (O9) before adding any exporter term**: fossil production or net

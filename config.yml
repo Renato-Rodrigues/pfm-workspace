@@ -70,8 +70,9 @@ outputRegionMappingFile: "country"
 #                   (complete to 2023). 2023 needs latest.
 #   geothermal      count geothermal with hydro and nuclear in the clean-baseload control
 #                   ("Hydro Nuclear Share"; design note 0005 A4). Legacy (v5): false.
-#   democracy       add the V-Dem electoral democracy index (v2x_polyarchy), the weight of a
-#                   democracy-weighted spec (design note 0007). Up to v6: false.
+#   democracy       add the V-Dem democracy indices: electoral (v2x_polyarchy), liberal (v2x_libdem) and
+#                   freedom of expression and alternative information (v2x_freexp_altinf), the candidate
+#                   weights of a democracy-weighted spec (design note 0007). Up to v6: false.
 #   groups          per-Run-Group overrides of the keys above
 #
 # Read ONLY for a group that has not been swept yet: the sweep records the definition in the
@@ -88,8 +89,8 @@ panel:
     # Sibling of v6 on annual values - the robustness rung of the smoothing (0005 D3).
     v6-annual:
       movingAverage: 1
-    # v7 (design note 0007): the V-Dem electoral democracy index enters the panels, the weight of the
-    # democracy-weighted interactions. Held at its last observed value in scenarios.
+    # v7 (design note 0007): the V-Dem democracy indices enter the panels, the candidate weights of the
+    # democracy-weighted interactions. Held at their last observed value in scenarios.
     v7:
       democracy: true
 
@@ -128,7 +129,7 @@ sweep:
   softVifGate: "off"
   inferenceTGate: "off"
   groups:
-    # v7 (design note 0007): every spec with interactions gets a democracy-weighted twin (" iw:poly"), and the
+    # v7 (design note 0007): every spec with interactions gets one democracy-weighted twin per listed weight, and the
     # sanity walk applies the edge-of-data gate at its declared thresholds (0007 section 5):
     #   share     a region fails when countries holding this share of its final energy have fossil dependence or
     #             clean-energy build-out acting against the frontier's reading ...
@@ -138,8 +139,14 @@ sweep:
     #             region's final-energy-weighted ceiling (level in 2025 or change to 2100) by more than this;
     #   mapping   the regions the shares are read in.
     # Fix these before the v7 sweep runs; edgeGate: "off" disables the gate.
+    # interactionWeights: the two weights that fit best in the V-Dem screen (0007 section 10), as alternatives:
+    #   "Freedom of Expression (VDem)"  freedom of expression and alternative information  twin suffix " iw:fexp"
+    #   "Liberal Democracy (VDem)"      liberal democracy                                    twin suffix " iw:libdem"
+    #   "Electoral Democracy (VDem)"    electoral democracy (fits worse; still available)    twin suffix " iw:poly"
+    # Each listed weight adds one copy of every spec with interactions. Both listed: the search picks between
+    # them (about 3x the v6 grid); keep one to decide beforehand (about 2x). "none" keeps the unweighted specs.
     v7:
-      interactionWeights: [none, "Electoral Democracy (VDem)"]
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Liberal Democracy (VDem)"]
       edgeGate:
         share: 0.25
         effect: 0.25

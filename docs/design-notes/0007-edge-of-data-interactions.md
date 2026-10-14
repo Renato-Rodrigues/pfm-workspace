@@ -365,8 +365,10 @@ the smooth weight. The quick runs are `Rscript analysis/checks/edgeOptions.R v6 
 The smooth democracy weight (O10) and the edge-of-data gate are in the code, switched on only for `v7`. Every group up
 to v6 is unchanged.
 
-**Data (`mrpfm`).** `readVDem` / `calcVDem` subtype `"democracy"` returns the V-Dem electoral democracy index
-(`v2x_polyarchy`) as `Electoral Democracy (VDem)`. The default `"all"` set is unchanged.
+**Data (`mrpfm`).** `readVDem` / `calcVDem` subtype `"democracy"` returns three V-Dem indices, the candidate weights:
+`Electoral Democracy (VDem)` (`v2x_polyarchy`), `Liberal Democracy (VDem)` (`v2x_libdem`) and `Freedom of Expression
+(VDem)` (`v2x_freexp_altinf`); the last two were added after the screen of §10 (2026-10-14). The default `"all"` set
+is unchanged.
 
 **Panels (`pfm`).**
 - The panel definition has a new key, `democracy` (`pfmPanelDef`; off by default). It is carried into SLURM jobs
@@ -388,7 +390,8 @@ to v6 is unchanged.
 - The fit-cache key gains `+iw:<weight>`.
 
 **The search.**
-- `pfmSpecs(interactionWeights = ...)` appends a weighted twin (suffix ` iw:poly`) of every spec with interactions.
+- `pfmSpecs(interactionWeights = ...)` appends a weighted twin of every spec with interactions, one per listed weight
+  (suffix ` iw:poly`, ` iw:libdem` or ` iw:fexp`).
   Selection then chooses between weighted and unweighted forms like any other dimension.
 - `runPFMSweep` takes `interactionWeights` and `edgeGate`, passes the gate to both sanity walks (the tier-relaxed
   one too) and records both in `manifest.json` (`sweepOptions`). `runPFMSanityPool` reads the record.
@@ -488,8 +491,22 @@ democracy), more than through elections alone.
 **For v7:**
 - Add `v2x_freexp_altinf` and `v2x_libdem` to the weights the search can choose from (`interactionWeights`). That
   needs them in the `mrpfm` `democracy` subtype and in the panels, as the electoral democracy index already is.
-- Each weight adds one twin of every specification with interactions, so three weights make the grid about four times
-  v6's. To keep the cost at twice v6's, use one weight, chosen now by this screen: freedom of expression.
+  **Done 2026-10-14**: both are in the subtype and the panels, and `config.yml` lists both for `v7` (author: keep both
+  as alternatives, decide later or let the search choose). Electoral democracy stays available but is not listed.
+- Each weight adds one twin of every specification with interactions: two weights make the grid about three times
+  v6's, one about twice.
+
+**Through the package** (`edgeGateValidation.R v6`, year-by-year index as the panels build it, not the moving average
+above; `output/pfm/v6/edge-gate-validation.rds`):
+
+| Weight | log-likelihood P&I / B&T (v6 −1256.2 / −503.8) | Gate P&I / B&T (cap shift) |
+|---|---|---|
+| electoral democracy | −1312.4 / −555.2 | pass / pass (0.19 / 0.09) |
+| liberal democracy | −1254.4 / −553.9 | pass / pass (0.28 / 0.06) |
+| freedom of expression | −1254.6 / −543.3 | pass / pass (0.22 / 0.08) |
+| none (v6 as selected) | — | fail / fail (0.56 / 1.25; B&T also direction in CHA, MEA, OAS) |
+
+The screen's ranking holds. The existing panel columns are unchanged (max difference 2e-16).
 
 Caveats:
 - ML z values overstate precision (about 2.2–2.4×).
