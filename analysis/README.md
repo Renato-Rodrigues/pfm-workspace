@@ -68,6 +68,7 @@ and `steps = "pfm-coupling-bound"`.
 | `baseloadControl.R` | what the hydro/nuclear/geothermal control and the soft selection keys do (ADR 0048) |
 | `policlimInstitutions.R` | PFM's institution drivers (history, storyline rule, SSP-extension GE) against the PoliClim institution forecasts |
 | `policlimFormulation.R` | the selected spec refitted with PoliClim's institutional indicators (`v2xcl_rol`, overall accountability) × the interaction weights: fit, edge gate, and the ceiling under held / sweep / PoliClim-SSP institution paths → `output/pfm/<group>/policlim-formulation.rds` |
+| `estoniaEnergy.R` | can Estonia re-enter the estimation (PITFALLS §27)? Oil shale in the IEA balances against `calcPE` / `calcFE` and the IO mapping, negatives in the items the panel uses, Estonia's drivers next to its neighbours → `output/checks/estonia-energy-<group>.rds` |
 | `compareSpecVariantPhi.R` | the specification band (φ across spec variants) |
 | `computeThetaBounds.R`, `efficiencyRatioBand.R` | θ bounds; the efficiency-ratio band |
 | `frontierSECheck.R` | audit of the frontier standard errors |

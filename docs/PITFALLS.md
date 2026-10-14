@@ -745,8 +745,26 @@ the 2100 figure. `TODO.md` item 32.
 > **Status 2026-10-13: fixed upstream in the `v6` data, exclusion still on.** In the `v6` cache
 > (`data/madrat/v6/calcPE-F313cb2eb-3474774a.rds`, IEA 2025 edition) Estonia's `PE|Coal` is positive
 > (+0.0004 EJ in 2022 and 2023), no country has a negative coal item, and `PE|Coal|Gases` no longer
-> exists. The default below still drops Estonia, so `v6` was fitted without it. Re-inclusion is planned
-> for `v7` (`TODO.md`, deferred items). The measurement below is the 2024 edition's.
+> exists. The default below still drops Estonia, so `v6` was fitted without it. The measurement below is the
+> 2024 edition's.
+>
+> **Status 2026-10-14: a second problem. Keep Estonia excluded in `v7`.** `analysis/checks/estoniaEnergy.R` →
+> `output/checks/estonia-energy-v6.rds`, on the `v6` caches (`calcPE`, `calcFE`, and `calcIeaEnergyBalances` of the
+> workstation REMIND input cache; IEA 2025 edition):
+> - No negative values remain in any PE or FE item the panel uses, any country, 2000–2023.
+> - But **the oil shale burned in Estonia's power, CHP and heat plants never reaches `PE`.** The mrenergy mapping
+>   `structuremappingIO_inputs.csv` carries only three `OILSHALE` flows into REMIND items: `TOTIND`, `NONENUSE` and
+>   `DISTLOSS`. `MAINELEC`, `MAINCHP`, `AUTOELEC`, `MAINHEAT` and `TCOALLIQ` map to nothing.
+> - The missing input is 0.02–0.12 EJ/yr: 49% of Estonia's total energy supply in 2010, 26% in 2022. Estonia's
+>   `PE` / IEA TES is 0.64 in 2022, the second lowest of 178 countries (median 1.02).
+> - Its fossil share of PE reads 0.51–0.78 instead of 0.58–0.88. In the panel its fossil dependence (power &
+>   industry, 0.33 in 2023) is below Poland's, Czechia's and Germany's, for the EU's most oil-shale-dependent
+>   power system.
+> - Only Estonia is affected: Israel's oil shale in power is 0.1% of its supply. `FE` is complete (FE / TFC 1.11, as
+>   elsewhere).
+> - Fix upstream: map those `OILSHALE` flows like coal into power, CHP and heat (`pecoal`). Alternatively, correct
+>   Estonia's `PE|Coal` in `iamHistoricalData()` with the IEA flows, as a declared and tested adjustment. Until then
+>   the exclusion stays.
 
 `calcOutput("PE")` gives Estonia a **negative `PE|Coal`**, the only one of 249 countries. Measured
 2026-08-12, EJ/yr (`mrremind` 0.240.2, `mrcommons` 1.67.0, `madrat` 3.36.2, IEA Energy Balances

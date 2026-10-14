@@ -67,8 +67,8 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
   Indicator comparison and refit on v6 (2026-10-14; `analysis/checks/policlimFormulation.R`,
   `communication/institutional-indicators/`): PoliClim's rule of law (`v2xcl_rol`) fits worse and fails the edge gate;
   overall accountability is a near miss. Proposed (author's decision, open): keep the PFM's indicators and ask PoliClim
-  to project `v2x_rule`, `v2x_veracc` and the v7 weight; choose the government-effectiveness path deliberately;
-  optionally add overall accountability to the v7 search.
+  to project `v2x_rule`, `v2x_veracc` and the v7 weight; choose the government-effectiveness path deliberately.
+  Overall accountability is now an option of the v7 search (`extraAccountability: [OvAcc]`; 0007 §11).
 - **Version control for `../communication/`** (E4). The new paper workspace is its own repository.
 - **The v7 specification search, ready to run (2026-10-13; design note 0007 §9; `RUNNING.md` Step 6a).** The democracy
   weight (O10) and the edge-of-data gate are implemented in `mrpfm` / `pfm` and configured for `v7` only. Before
@@ -101,6 +101,10 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
   country negative), but `pfm.excludeCountries` still defaults to `"EST"`, so `v6` was fitted without it. For `v7`:
   check that oil shale is fully captured (it now appears as oil, about 44% of Estonia's primary energy), set
   `options(pfm.excludeCountries = character(0))`, refit and compare the coefficients (`PITFALLS.md` §27).
+  **Checked 2026-10-14 (`analysis/checks/estoniaEnergy.R`): not ready.** The oil shale burned in power, CHP and heat
+  plants is not mapped into `PE`: 26–49% of Estonia's energy supply is missing, so its fossil dependence is
+  understated. Keep it excluded in v7 unless the mapping is fixed upstream (mrenergy) or corrected in
+  `iamHistoricalData()` (PITFALLS §27).
 
 **Dropped 2026-10-12** (the paper reports `v6` only; 0005 §0a): D-GP20 / GP-26 and E7 (the `v5` → `v6`
 contrast in the paper); E25 for `v5` (fetching `v5`'s shared-cache files, now optional archival); B7;

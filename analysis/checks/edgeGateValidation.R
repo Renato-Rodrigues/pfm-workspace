@@ -8,6 +8,9 @@
 # 3. The scenario panel of the coupled hold-the-price run with the key on (panelDataScenario): the index is held.
 # 4. The selected specification and its democracy-weighted twins (one per index), fitted as frontiers (estimatePolicyStringencyModel,
 #    estimator "frontier"), and scored by the sanity walk's ceiling trajectory with the edge gate at its defaults.
+# 5. The `overallAccountability` key (v7; V-Dem's overall accountability, the PoliClim index): the column in both panels
+#    (historical: min-max normalised; scenario: the institution rule), and the selected specification with it in place of
+#    vertical accountability ("OvAcc"), unweighted and with each weight, scored as in 4.
 # The group's madrat cache is COPIED to a temporary folder first, so its pinned files are never touched.
 # Writes output/pfm/<group>/edge-gate-validation.rds.
 source("analysis/_common/_loadPfm.R")
@@ -30,10 +33,11 @@ WEIGHTS <- c(poly = "Electoral Democracy (VDem)", libdem = "Liberal Democracy (V
 for (wv in WEIGHTS) say(wv, " 2023: ", paste(rownames(v), round(v[, wv], 3), collapse = ", "))
 
 # 2. historical panel, key on, against the group's training panel
-options(pfm.panel = c(pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")], democracy = TRUE))
+options(pfm.panel = c(pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")], democracy = TRUE,
+                      overallAccountability = TRUE))
 modelDir <- rc$modelDir %||% "output/pfm/fit-cache"
 old <- loadTrainingPanel(jsonlite::read_json(file.path(GD, "manifest.json"))$panel_hash, modelDir)
-say("building the historical panel with the democracy key ...")
+say("building the historical panel with the democracy and overall-accountability keys ...")
 hist <- panelDataHistorical(aggregate = TRUE, outputRegionMappingFile = "country", includePolicyStringency = TRUE)   # as runPFMSweep builds it
 added <- setdiff(getNames(hist), getNames(old)); common <- intersect(getNames(old), getNames(hist))
 say("training panel ", paste(dim(old), collapse = " x "), " | rebuilt ", paste(dim(hist), collapse = " x "),
@@ -78,6 +82,29 @@ for (sec in c("Bulk", "Diffuse")) {
       paste(names(WEIGHTS), vapply(names(WEIGHTS), function(n) round(res[[paste(sec, n)]]$beta[[k]], 3), numeric(1)),
             collapse = ", "))
 }
+
+# 5. overall accountability (the `overallAccountability` key and the "OvAcc" channel)
+OVA <- "Overall Accountability (VDem)"
+ova <- list(hist = as.array(hist[c("CHN", "SAU", "IND", "HUN", "DEU", "USA"), 2023, OVA])[, 1, 1],
+            scen = as.array(scen[c("CHN", "IND", "DEU"), c(2025, 2050, 2100), OVA])[, , 1],
+            corVerAcc = stats::cor(as.vector(hist[cc, 2023, OVA]), as.vector(hist[cc, 2023, "Vertical Accountability (VDem)"])))
+say(OVA, " (normalised) 2023: ", paste(names(ova$hist), round(ova$hist, 3), collapse = ", "),
+    " | correlation with vertical accountability ", round(ova$corVerAcc, 3))
+say(OVA, " in the scenario (storyline, SSP2) 2025/2050/2100: ",
+    paste(rownames(ova$scen), apply(ova$scen, 1, function(x) paste(round(x, 3), collapse = "/")), collapse = "; "))
+for (sec in c("Bulk", "Diffuse")) {
+  cfg <- Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]]
+  cfg$instQualityDrivers <- c(setdiff(unlist(cfg$instQualityDrivers), "Vertical Accountability (VDem)"), OVA)
+  for (nm in c("OvAcc", paste0("OvAcc ", names(WEIGHTS)))) {
+    cf <- cfg; w <- sub("^OvAcc ?", "", nm); if (nzchar(w)) cf$interactionWeight <- WEIGHTS[[w]]
+    ct <- pfm:::.pfmCeilingTrajectory(cf, sec, hist, scen, modelDir = NULL, indexMax = 10,
+                                      edgeGate = pfm:::.pfmEdgeGateDefaults())
+    res[[paste(sec, nm)]] <- list(sector = sec, spec = nm, gamma = ct$gamma, ceilingRatio = ct$ratio, edge = ct$edge,
+                                  logLik = ct$logLik, beta = ct$beta)
+    say(sec, " ", nm, ": gamma ", round(ct$gamma, 4), " | ceiling 2100/2025 ", round(ct$ratio, 3),
+        " | logLik ", round(ct$logLik, 1), " | edge gate ", if (isTRUE(ct$edge$pass)) "PASS" else "FAIL", " - ", ct$edge$detail)
+  }
+}
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), index2023 = v, columnsAdded = added,
-             existingColumnsMaxDiff = dmax, scenarioRun = r$scenario, fits = res),
+             existingColumnsMaxDiff = dmax, scenarioRun = r$scenario, overallAccountability = ova, fits = res),
         file.path(GD, "edge-gate-validation.rds"))

@@ -512,3 +512,42 @@ Caveats:
 - ML z values overstate precision (about 2.2–2.4×).
 - The index is a 5-year moving average from the raw V-Dem file here, not the panel builder's.
 - The political-economy indicators were tested only as replacements, not as additions.
+
+## 11. Overall accountability as a fifth accountability option (2026-10-14)
+
+Why: the PoliClim institution projections (IDOS) use V-Dem's overall accountability (`v2x_accountability_osp`), and
+the v6 bootstrap does not settle the accountability slot (vertical 61%, horizontal 26%, diagonal 14%).
+`communication/institutional-indicators/` compares both indicator sets; `analysis/checks/policlimFormulation.R` →
+`output/pfm/v6/policlim-formulation.rds`.
+
+**Implemented** (off for every group up to v6; v6 is reproduced):
+- `mrpfm`: `calcVDem(subtype = "accountabilityOverall")` → "Overall Accountability (VDem)".
+- `pfm`: panel key `overallAccountability`. The index enters both panels like the three parts: min-max normalised on
+  the country range, and projected in scenarios by the `institutions` rule, then harmonised.
+- Search: `extraAccountability = "OvAcc"` (sweep option; `channelSpecs`) appends the four institution sets with OvAcc,
+  crossed exactly as VerAcc (base levels and hybridFD, context dummies, per-capita forms). The existing X-numbers are
+  unchanged. With the weights, the grid is about 3.8 times v6's.
+- Fixed on the way: `runPFMSweep` recorded only five panel-definition keys in `manifest.json`. A v7 manifest would
+  have said `democracy: false`, and every stage after the sweep would have built panels without the weights. It now
+  records every key, and the harmonisation's history-cache key carries the V-Dem keys when they are on.
+- Tests: `test-overallAccountability.R` (`pfm`), `test-VDem.R` (`mrpfm`).
+- `config.yml`: `panel: groups: v7: overallAccountability: true`; `sweep: groups: v7: extraAccountability: [OvAcc]`.
+
+**Through the package** (`edgeGateValidation.R v6`, section 5; the selected spec with OvAcc in place of vertical
+accountability, on the sweep panel, where OvAcc follows the storyline rule; `output/pfm/v6/edge-gate-validation.rds`):
+
+| Variant | log-likelihood P&I / B&T (v6 −1256.2 / −503.8) | Gate P&I | Gate B&T |
+|---|---|---|---|
+| OvAcc, no weight | −1251.1 / −515.9 | fail (direction in 8 regions; cap shift 1.21) | fail (7 regions; 0.81) |
+| OvAcc + liberal democracy | −1257.0 / −552.7 | fail (direction: MEA, 27%) | pass |
+| OvAcc + freedom of expression | −1318.3 / −550.1 | pass | pass |
+| OvAcc + electoral democracy | −1260.8 / −553.6 | fail (NES, REF) | fail (MEA, REF) |
+
+Reading:
+- The existing panel columns are unchanged (largest difference 2e-16).
+- Overall accountability correlates 0.92 with vertical accountability in 2023.
+- With the projected OvAcc, the power & industry gate fails on *direction*, where the held-index screen
+  (`policlimFormulation.R`) failed only on the cap shift.
+- The one P&I pass (with freedom of expression) comes from a worse optimum: γ 0.981, log-likelihood −1318. In the
+  screen the same variant reached −1261.8; the covariance warnings point to a local optimum.
+- The search will decide. On this evidence OvAcc rarely survives the gate in power & industry.

@@ -98,6 +98,17 @@ scenPC <- function(ssp) {
 }
 SCEN <- list(asSweep = scenSweep, held = scenHeld, pcSSP2 = scenPC("SSP2"), pcSSP1 = scenPC("SSP1"), pcSSP3c = scenPC("SSP3c"))
 pcCovered <- intersect(cty, unique(pc$countrycode))
+# The institution paths each scenario feeds the model, on the panel's own scale, over the countries PoliClim covers:
+# history from the training panel, then each scenario path (the figure of communication/institutional-indicators)
+pathCty <- intersect(intersect(getItems(scenSweep, 1), getItems(panel, 1)), unique(pc$countrycode))
+pathVars <- c(INST[1:3], label(c("v2xcl_rol", "v2x_accountability_osp")))
+summ <- function(x, yrs, src) do.call(rbind, lapply(pathVars, function(v) do.call(rbind, lapply(yrs, function(t) {
+  z <- as.vector(x[pathCty, t, v])
+  data.frame(var = v, source = src, year = t, n = sum(is.finite(z)), mean = mean(z, na.rm = TRUE),
+             p10 = unname(stats::quantile(z, .1, na.rm = TRUE)), p90 = unname(stats::quantile(z, .9, na.rm = TRUE)))
+}))))
+instPaths <- rbind(summ(panel, yrsP, "history"),
+                   do.call(rbind, lapply(names(SCEN), function(sn) summ(SCEN[[sn]], yrsS[yrsS >= 2025 & yrsS <= 2100], sn))))
 
 # ---- fit once, evaluate on each scenario ------------------------------------------------------------------
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
@@ -189,7 +200,7 @@ withinCor <- data.frame(pair = c("RoL: v2x_rule vs v2xcl_rol", "Acc: v2x_veracc 
                         within = c(within("pfmRoL", "pcRoL"), within("pfmAcc", "pcAcc")))
 
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), sets = SETS, weights = WEIGHTS,
-             results = res, country = ctyRes, coefs = coefs, position = position, corr = corr, withinCor = withinCor, indicators2023 = M,
+             results = res, country = ctyRes, coefs = coefs, position = position, corr = corr, withinCor = withinCor, indicators2023 = M, instPaths = instPaths,
              mapFactor = c(RoL = sdC(ROL) / sdC(label("v2xcl_rol")), Acc = sdC(VER) / sdC(label("v2x_accountability_osp"))),
              sample = samp, pcCovered = pcCovered, missingInPoliClim = setdiff(samp, pcCovered), gate = gate),
         file.path(GD, "policlim-formulation.rds"))

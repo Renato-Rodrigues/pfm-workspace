@@ -204,27 +204,36 @@ democracy indices enter the panels: electoral, liberal, freedom of expression) a
 expression and alternative information, ` iw:libdem` liberal democracy, ` iw:poly` electoral democracy) and `edgeGate`
 (severe in the sanity walk). The list carries freedom of expression and liberal democracy (0007 §10), so the search
 chooses between them; keep one of them to decide beforehand and halve the extra grid.
-v6 and its siblings are untouched by both.
+`panel: groups: v7: overallAccountability: true` and `sweep: groups: v7: extraAccountability: [OvAcc]` add V-Dem's
+overall accountability (the PoliClim index, `v2x_accountability_osp`) as a fifth option of the accountability slot,
+crossed like vertical, horizontal and diagonal (spec token `OvAcc`; `communication/institutional-indicators/`). It
+makes the grid about 1.27 times larger again, about 3.8 times v6's with both weights; delete the two keys to leave it out.
+v6 and its siblings are untouched by all of this.
 
 1. **Decide before anything runs.** Confirm the weights in `interactionWeights` (one or both; 0007 §10), the gate's thresholds in `config.yml` (`share`, `effect`, `capShift`,
-   `cap`, `mapping`; 0007 §5), and whether Estonia comes back into the estimation for v7 (`TODO.md`, deferred items;
-   if yes, `options(pfm.excludeCountries = character(0))` before the sweep, and say so in the v7 record).
+   `cap`, `mapping`; 0007 §5), whether overall accountability joins the search (`extraAccountability`), and Estonia:
+   **keep it excluded** unless its oil shale is fixed first. The energy data still miss the oil shale burned in
+   Estonia's power plants (PITFALLS §27; `analysis/checks/estoniaEnergy.R`).
 2. **Push the code and install it** on the cluster: `git push` in `models/pfm` and `models/mrpfm`, then on the
    cluster `git pull` and `./tools/setup.sh --cluster --update --install --no-cache` (Step 3; PITFALLS 1-2). Check
    that the installed `pfm` has the new code:
-   `Rscript -e 'stopifnot(exists(".pfmEdgeGate", asNamespace("pfm")), "democracy" %in% names(pfm:::.pfmPanelDefLegacy()))'`.
+   `Rscript -e 'stopifnot(exists(".pfmEdgeGate", asNamespace("pfm")), "overallAccountability" %in% names(pfm:::.pfmPanelDefLegacy()))'`
+   and `Rscript -e 'library(mrpfm); stopifnot(any(grepl("accountabilityOverall", deparse(mrpfm:::readVDem))))'`.
 3. **Prepare the madrat cache** of the new group (the democracy index is a new calculation):
-   `Rscript tools/prepareMadratCache.R --group v7`. Its first line must say `..., V-Dem democracy indices (config)`.
+   `Rscript tools/prepareMadratCache.R --group v7`. Its first line must say
+   `..., V-Dem democracy indices, V-Dem overall accountability (config)`.
 4. **Point `config.yml` at v7** (`group: "v7"`), commit, and submit the search with the later stages:
    ```r
    library(pfm)
    pfmRun(group = "v7", stage = c("sweep", "diagnostics", "downstream", "remind"), cluster = "slurm",
           config = "config.yml")
    ```
-   The plan's `panel` line must end with `, V-Dem democracy indices`, and its `sweep` line must list the weights
-   (`; interaction weights: Freedom of Expression (VDem), Liberal Democracy (VDem)`) and the gate
-   (`edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`). With two weights the grid is about three times
-   v6's, with one about twice: budget a longer job.
+   The plan's `panel` line must end with `, V-Dem democracy indices, V-Dem overall accountability`, and its `sweep`
+   line must list the weights (`; interaction weights: Freedom of Expression (VDem), Liberal Democracy (VDem)`), the
+   extra channel (`; extra accountability channels: OvAcc`) and the gate
+   (`edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`). With two weights and OvAcc the grid is about 3.8
+   times v6's: budget a longer job. After the sweep, `manifest.json` must record `"democracy": true` and
+   `"overallAccountability": true` under `panel`; every later stage rebuilds its panels from that record.
 5. **Read the selection.** In the log, every candidate the sanity walk rejects for the edge says
    `edge of data: ...`. `output/pfm/v7/sweep.rds` (`$sanity$PolicyStringency$flags`) keeps the verdicts;
    `selected-models-pfm.yml` names the winner, weighted (` iw:fexp`, ` iw:libdem`) or not.

@@ -91,8 +91,12 @@ panel:
       movingAverage: 1
     # v7 (design note 0007): the V-Dem democracy indices enter the panels, the candidate weights of the
     # democracy-weighted interactions. Held at their last observed value in scenarios.
+    # overallAccountability: V-Dem's overall accountability (v2x_accountability_osp, the PoliClim index) enters
+    # the panels as one more accountability channel, normalised and projected like the other V-Dem channels
+    # (communication/institutional-indicators; analysis/checks/policlimFormulation.R).
     v7:
       democracy: true
+      overallAccountability: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -119,6 +123,8 @@ panel:
 #                         ("none" keeps the unweighted specs); design note 0007, option O10
 #   edgeGate              the edge-of-data gate of the sanity walk: "off", on (declared defaults), or a mapping of
 #                         share / effect / capShift / cap / mapping (design note 0007 section 5)
+#   extraAccountability   extra options of the accountability slot, crossed like vertical / horizontal / diagonal:
+#                         "OvAcc" = V-Dem overall accountability (needs panel: overallAccountability: true)
 #   groups                per-Run-Group overrides, as for panel
 sweep:
   apTransforms: [linear, saturating, saturating-innovator, saturating-incumbent]
@@ -145,8 +151,12 @@ sweep:
     #   "Electoral Democracy (VDem)"    electoral democracy (fits worse; still available)    twin suffix " iw:poly"
     # Each listed weight adds one copy of every spec with interactions. Both listed: the search picks between
     # them (about 3x the v6 grid); keep one to decide beforehand (about 2x). "none" keeps the unweighted specs.
+    # extraAccountability: overall accountability ("OvAcc", the PoliClim index) as a fifth option of the
+    # accountability slot. It adds the four institution sets with OvAcc (19 sets instead of 15): about 1.27x
+    # the grid on its own, about 3.8x v6 together with the two weights.
     v7:
       interactionWeights: [none, "Freedom of Expression (VDem)", "Liberal Democracy (VDem)"]
+      extraAccountability: [OvAcc]
       edgeGate:
         share: 0.25
         effect: 0.25
