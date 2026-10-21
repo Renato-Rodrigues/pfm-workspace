@@ -8,7 +8,7 @@
 # adaptation" line). Fits already in the cache, and failed fits, write no file: the share can stay below 100%
 # when the grid is done. The grid has ended when the log prints "... jobs: ... newly fit, ..."; selection and
 # the sanity walk follow (v6: 51 min), then the diagnostics. Another job writing to the same Fit Cache at the
-# same time inflates the count.
+# same time inflates the count. The messages are read from the job's .err file.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 J="${1:?usage: tools/jobProgress.sh <jobid>}"
@@ -19,7 +19,7 @@ IFS='|' read -r START WORKDIR STATE LEFT <<< "$info"
 [ "$STATE" = "RUNNING" ] || { echo "job $J is $STATE (start $START)"; exit 0; }
 
 GROUP=$(basename "$WORKDIR")
-LOG="$WORKDIR/pfm-$GROUP-$J.out"
+LOG="$WORKDIR/pfm-$GROUP-$J.err"   # the job's messages go to stderr; .out holds printed tables only
 [ -f "$LOG" ] || { echo "no log $LOG" >&2; exit 1; }
 MODELS="output/pfm/fit-cache/models"
 
