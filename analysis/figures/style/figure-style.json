@@ -1,0 +1,39 @@
+{
+  "_about": "One style for the report figures, read by the R builders (R/style.R) and the PowerPoint schematics (pptx/style.js), so a chart and a diagram set side by side share palette, type and sizes. Sizes are in points at the printed size; widths in inches.",
+  "font": {
+    "body": "Calibri",
+    "head": "Calibri"
+  },
+  "size": {
+    "title": 10,
+    "body": 9,
+    "small": 8,
+    "tiny": 7.5
+  },
+  "width_in": 6.5,
+  "dpi": 220,
+  "colour": {
+    "ink": "1F2A33",
+    "muted": "5F6B7A",
+    "faint": "8A96A3",
+    "grid": "DCE3E7",
+    "panel": "EEF4F5",
+    "frame": "0F4C5C",
+    "deep": "0F4C5C",
+    "teal": "1F8A7E",
+    "slate": "5F6B7A",
+    "coral": "D9541E",
+    "light": "8AA1B1",
+    "interest": "E3F1EF",
+    "interestLine": "1F8A7E",
+    "institution": "ECEEF1",
+    "institutionLine": "5F6B7A",
+    "stringency": "3D434A"
+  },
+  "sector": {
+    "Bulk": "2A6FB0",
+    "Diffuse": "B07D2B"
+  },
+  "preliminary": "Preliminary results",
+  "_colour_meaning": "teal = economic interests; slate = institutions; deep teal = the model's own elements (ceiling S*, interactions, frames); dark grey = observed stringency S; coral = declared (not estimated). Sectors: power & industry blue, buildings & transport ochre."
+}

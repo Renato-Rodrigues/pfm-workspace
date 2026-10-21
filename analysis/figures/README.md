@@ -36,6 +36,10 @@ cat(figureExplainer("theta-sweep"))               # caption + what it shows + ra
 | `R/load.R` | sources the above; this is a directory, not a package |
 | `build-figures.R` | the driver: one clearly-separated chunk per figure |
 | `output/all/` | **every figure, one PNG each** — always built; this is where to look |
+| `output/doc/` | the report figures (ELEVATE D3.3): charts and editable PowerPoint schematics — `build-doc-figures.R` |
+| `R/fig-doc.R`, `R/style.R` | the report figures' builders and the report style (`doc` medium) |
+| `pptx/` | editable PowerPoint schematics (pptxgenjs), see its README |
+| `style/figure-style.json` | palette, font and sizes shared by the R report charts and the PowerPoint schematics |
 | `output/all/index.html` | **generated** contact sheet — every figure on one page, with its rails |
 | `output/paper2/` | the paper's figures as PDF (183 mm, cairo_pdf) |
 | `output/{slide,poster}/` | opt-in renders: `--media=slide,poster`. Not built by default |

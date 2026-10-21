@@ -36,7 +36,11 @@ renderSpec <- function(medium = NULL) {
     data.frame(medium = "poster", width_mm = 260, height_mm = 180, base_size = 18,
                device = "svg", dpi = 300, stringsAsFactors = FALSE),
     data.frame(medium = "all",    width_mm = 200, height_mm = 120, base_size = 11,
-               device = "png", dpi = 150, stringsAsFactors = FALSE)
+               device = "png", dpi = 150, stringsAsFactors = FALSE),
+    # written reports (ELEVATE D3.3): 6.5 in text width, the report style of style/figure-style.json
+    # (theme_doc, applied by the builders through attr "pfmTheme"; ragg renders the Calibri face)
+    data.frame(medium = "doc",    width_mm = 165.1, height_mm = 90, base_size = 9,
+               device = "png", dpi = 220, stringsAsFactors = FALSE)
   )
   if (is.null(medium)) return(spec)
   hit <- spec[spec$medium %in% medium, , drop = FALSE]

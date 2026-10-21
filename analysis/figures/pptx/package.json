@@ -1,0 +1,6 @@
+{
+  "name": "pfm-figures-pptx",
+  "private": true,
+  "description": "Editable PowerPoint schematics of the PFM figures (analysis/figures/pptx). npm install, then node build.js.",
+  "dependencies": { "pptxgenjs": "3.12.0" }
+}
