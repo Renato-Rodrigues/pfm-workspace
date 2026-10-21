@@ -233,6 +233,8 @@ To drop A7, delete the two `@accRoL` entries; to drop overall accountability, de
    channels: OvAcc; edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`.
    The later stages (`downstream`, `remind`) wait for the decision on the O1 cap (TODO): submit them with
    `tools/clusterRun.sh --priority v7 --stage downstream,remind --no-update --clean none`.
+   **Progress:** `bash tools/jobProgress.sh <jobid>` prints the share of the fit grid done (new Fit Cache files
+   against specs × 2 sectors) and the time left at the current rate.
 3. **If the job hits its wall time**, submit the same command again with `--no-update --clean none`: every finished
    fit is in the Fit Cache and is not refitted.
 4. **After the sweep**, `manifest.json` must record `"democracy": true` and `"overallAccountability": true` under
