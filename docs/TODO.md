@@ -73,7 +73,9 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
 - **The v7 specification search, ready to run (2026-10-13; design note 0007 §9; `RUNNING.md` Step 6a).** The democracy
   weight (O10) and the edge-of-data gate are implemented in `mrpfm` / `pfm` and configured for `v7` only. Before
   submitting: fix the gate thresholds (Estonia is decided: excluded, ADR 0058), push and install the code on the cluster, prepare
-  the `v7` madrat cache. Open: the weight read year by year (implemented) or held at 2019–2023 (offline A3).
+  the `v7` madrat cache. Decided 2026-10-21: weights freedom of expression and electoral democracy, scopes A3 and A7,
+  read year by year; overall accountability an alternative of the search; the gate thresholds in `config.yml`. One
+  command on the cluster (`RUNNING.md` Step 6a). Open before `downstream`: whether projections apply the O1 cap.
 - **Edge-of-data evaluation (`v7`; author, 2026-10-13; design note 0007).** Interest × institution terms evaluated
   far from the sample reverse drivers in some regions (China, Middle East, Turkey, Russia; in power & industry also
   poor countries with very low fossil energy per person). Run `analysis/checks/edgeOfData.R <group>` on the
@@ -89,7 +91,10 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      ranking closest to `v6`; the hard split (A2) needs a declared threshold. Weighting only the accountability terms
      (A5/A6) fails and is not a candidate. **Weights for the search** (0007 §10, 2026-10-14): freedom of expression
      and liberal democracy both pass on `v6` and keep the power & industry fit; `config.yml` lists both for `v7`.
-     Author's choice, open: let the search pick between them, or keep one before the sweep.
+     **Decided 2026-10-21 (author):** the v7 search chooses between freedom of expression and electoral democracy
+     (liberal democracy is dropped from the list), each in two scopes: every interaction (A3) and the accountability
+     and rule-of-law terms only (A7, `@accRoL`; through the package on v6 it fits properly and passes with electoral democracy, 0007 §9).
+     The weight is read year by year, as implemented.
   3. Report O3b (refit without China, Saudi Arabia, Turkey, Russia) and O5a (no interactions) as sensitivities of
      the power & industry relaxation; re-run the coupled headline for the option kept.
   4. **Develop the production-based fossil interest (O9) before adding any exporter term**: fossil production or net

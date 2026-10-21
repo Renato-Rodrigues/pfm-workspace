@@ -144,18 +144,25 @@ sweep:
     #   capShift  or when capping the interactions' moderators at the sample's `cap` percentiles moves a
     #             region's final-energy-weighted ceiling (level in 2025 or change to 2100) by more than this;
     #   mapping   the regions the shares are read in.
-    # Fix these before the v7 sweep runs; edgeGate: "off" disables the gate.
-    # interactionWeights: the two weights that fit best in the V-Dem screen (0007 section 10), as alternatives:
+    # Fixed by the author on 2026-10-21 at these values; edgeGate: "off" disables the gate.
+    # interactionWeights (author's choice 2026-10-21): freedom of expression and electoral democracy, as alternatives
+    # the search chooses between (0007 section 10):
     #   "Freedom of Expression (VDem)"  freedom of expression and alternative information  twin suffix " iw:fexp"
-    #   "Liberal Democracy (VDem)"      liberal democracy                                    twin suffix " iw:libdem"
-    #   "Electoral Democracy (VDem)"    electoral democracy (fits worse; still available)    twin suffix " iw:poly"
-    # Each listed weight adds one copy of every spec with interactions. Both listed: the search picks between
-    # them (about 3x the v6 grid); keep one to decide beforehand (about 2x). "none" keeps the unweighted specs.
+    #   "Electoral Democracy (VDem)"    electoral democracy                                  twin suffix " iw:poly"
+    #   "Liberal Democracy (VDem)"      liberal democracy (in the panels; not listed)        twin suffix " iw:libdem"
+    # Each listed weight adds one copy of every spec with interactions. "none" keeps the unweighted specs.
+    # Scope (design note 0007 sections 8-9): a weight as named multiplies every interest x institution term (A3).
+    # With "@accRoL" it weights only the accountability and rule-of-law terms and leaves the state-capability terms
+    # unweighted (A7; twin suffix " iw:fexp@accRoL"). A scoped twin is added only to specs that interact with state
+    # capability and with accountability or rule of law (elsewhere it would repeat another spec).
+    # v7 grid: 36,384 specs, about 5.0x v6's 7,296 (A3 weights and OvAcc alone: 27,648, 3.8x). To drop A7, delete
+    # the two "@accRoL" entries; to drop OvAcc, delete extraAccountability here and overallAccountability in panel.
     # extraAccountability: overall accountability ("OvAcc", the PoliClim index) as a fifth option of the
     # accountability slot. It adds the four institution sets with OvAcc (19 sets instead of 15): about 1.27x
     # the grid on its own, about 3.8x v6 together with the two weights.
     v7:
-      interactionWeights: [none, "Freedom of Expression (VDem)", "Liberal Democracy (VDem)"]
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
       extraAccountability: [OvAcc]
       edgeGate:
         share: 0.25

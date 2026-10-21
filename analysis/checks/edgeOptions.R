@@ -23,6 +23,8 @@
 #     A5   smooth democracy weight on the ACCOUNTABILITY interactions only (interest x vertical accountability); the state
 #          capability and rule-of-law interactions act in every regime
 #     A6   hard split on the accountability interactions only (+ autocracy level)
+#     A7   smooth weight on the accountability and rule-of-law interactions; state capability acts in every regime
+#     A8   smooth weight on the accountability and state-capability interactions; rule of law acts in every regime
 #          (exporter: net energy exports above half of total energy supply, mean 2019-2023, IEA 2025 edition;
 #           every exporter covariate is held at its 2019-2023 value in every projection year - a declared
 #           simplification: the projection has no exporter dynamics)
@@ -120,7 +122,9 @@ MODES <- list(E1 = c("exporter", "exporter_x_Incumbent.Power", "exporter_x_Incum
               A1 = "autocracy", A2 = c("autocracy", paste0("dem__", INTS0)),
               A3 = paste0("demw__", INTS0), A4 = paste0("deml__", INTS0),
               A5 = paste0("demw__", grep("Vertical", INTS0, value = TRUE)),
-              A6 = c("autocracy", paste0("dem__", grep("Vertical", INTS0, value = TRUE))))
+              A6 = c("autocracy", paste0("dem__", grep("Vertical", INTS0, value = TRUE))),
+              A7 = paste0("demw__", grep("Vertical|Rule", INTS0, value = TRUE)),
+              A8 = paste0("demw__", grep("Vertical|Effectiveness", INTS0, value = TRUE)))
 # the democracy weight on the interaction terms, by prefix: hard split, the index itself, its logistic
 weightOf <- function(prefix, cty) {
   look <- function(v, fill) { x <- covar[[v]][cty]; x[!is.finite(x)] <- fill; x }
@@ -266,7 +270,7 @@ for (sec in SECS) {
   V$O3b <- refit(fit, drop = c("CHN", "SAU", "TUR", "RUS"))
   V$O5a <- refit(fit, removeTerms = ints)
   V$O5b <- refit(fit, removeTerms = grep("Vertical", names(b0), value = TRUE))
-  for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (md %in% c("A2", "A3", "A4")) ints else if (md %in% c("A5", "A6")) grep("Vertical", ints, value = TRUE) else NULL)
+  for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (startsWith(md, "A")) intersect(ints, sub("^dem[wl]?__", "", MODES[[md]])) else NULL)
   V$base <- c(ref, V$base[setdiff(names(V$base), names(ref))]); V$base$beta <- b0
   out$coefficients[[sec]] <- lapply(V, function(v) v[intersect(c("beta", "gamma", "converged", "n", "se", "logLik", "nPar"), names(v))])
   runs <- list(
@@ -288,7 +292,9 @@ for (sec in SECS) {
     A3 = evaluate("A3 smooth democracy weight", sec, matsX$A3, V$A3$beta, ctab),
     A4 = evaluate("A4 soft-step democracy weight", sec, matsX$A4, V$A4$beta, ctab),
     A5 = evaluate("A5 smooth weight, accountability terms", sec, matsX$A5, V$A5$beta, ctab),
-    A6 = evaluate("A6 regime split, accountability terms", sec, matsX$A6, V$A6$beta, ctab))
+    A6 = evaluate("A6 regime split, accountability terms", sec, matsX$A6, V$A6$beta, ctab),
+    A7 = evaluate("A7 smooth weight, accountability and rule-of-law terms", sec, matsX$A7, V$A7$beta, ctab),
+    A8 = evaluate("A8 smooth weight, accountability and state-capability terms", sec, matsX$A8, V$A8$beta, ctab))
   # criterion (b) for each coefficient variant: the O1 cap applied on top of it
   for (nm in c("O3a", "O3b", "O5b", names(MODES))) {
     mm <- if (nm %in% names(MODES)) matsX[[nm]] else mats

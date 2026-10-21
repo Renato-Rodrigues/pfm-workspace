@@ -198,46 +198,48 @@ Locally, run the later stages only:
 
 ### Step 6a — v7: the specification search with the democracy weight and the edge-of-data gate
 
-Design note 0007 (§9). `config.yml` already carries the v7 overrides: `panel: groups: v7: democracy: true` (three V-Dem
-democracy indices enter the panels: electoral, liberal, freedom of expression) and `sweep: groups: v7:` with
-`interactionWeights` (every spec with interactions gets one weighted twin per listed weight: ` iw:fexp` freedom of
-expression and alternative information, ` iw:libdem` liberal democracy, ` iw:poly` electoral democracy) and `edgeGate`
-(severe in the sanity walk). The list carries freedom of expression and liberal democracy (0007 §10), so the search
-chooses between them; keep one of them to decide beforehand and halve the extra grid.
-`panel: groups: v7: overallAccountability: true` and `sweep: groups: v7: extraAccountability: [OvAcc]` add V-Dem's
-overall accountability (the PoliClim index, `v2x_accountability_osp`) as a fifth option of the accountability slot,
-crossed like vertical, horizontal and diagonal (spec token `OvAcc`; `communication/institutional-indicators/`). It
-makes the grid about 1.27 times larger again, about 3.8 times v6's with both weights; delete the two keys to leave it out.
-v6 and its siblings are untouched by all of this.
+Design note 0007 (§8–11). `config.yml` carries the v7 overrides; v6 and its siblings are untouched by them.
+Decided by the author (2026-10-21):
 
-1. **Decide before anything runs.** Confirm the weights in `interactionWeights` (one or both; 0007 §10), the gate's thresholds in `config.yml` (`share`, `effect`, `capShift`,
-   `cap`, `mapping`; 0007 §5) and whether overall accountability joins the search (`extraAccountability`).
-   **Estonia is decided: it stays excluded in v7** (ADR 0058). Leave `pfm.excludeCountries` at its default `"EST"`;
-   the sweep log must say `excluding <n> row(s) for EST`. The energy data still miss the oil shale burned in
-   Estonia's power plants (PITFALLS §27; `analysis/checks/estoniaEnergy.R`).
-2. **Push the code and install it** on the cluster: `git push` in `models/pfm` and `models/mrpfm`, then on the
-   cluster `git pull` and `./tools/setup.sh --cluster --update --install --no-cache` (Step 3; PITFALLS 1-2). Check
-   that the installed `pfm` has the new code:
-   `Rscript -e 'stopifnot(exists(".pfmEdgeGate", asNamespace("pfm")), "overallAccountability" %in% names(pfm:::.pfmPanelDefLegacy()))'`
-   and `Rscript -e 'library(mrpfm); stopifnot(any(grepl("accountabilityOverall", deparse(mrpfm:::readVDem))))'`.
-3. **Prepare the madrat cache** of the new group (the democracy index is a new calculation):
-   `Rscript tools/prepareMadratCache.R --group v7`. Its first line must say
-   `..., V-Dem democracy indices, V-Dem overall accountability (config)`.
-4. **Point `config.yml` at v7** (`group: "v7"`), commit, and submit the search with the later stages:
-   ```r
-   library(pfm)
-   pfmRun(group = "v7", stage = c("sweep", "diagnostics", "downstream", "remind"), cluster = "slurm",
-          config = "config.yml")
+| Choice | v7 setting (`config.yml`) |
+|---|---|
+| interaction weights, the search chooses | none; freedom of expression (` iw:fexp`); electoral democracy (` iw:poly`) |
+| scope of the weight, both kept | every interest × institution term (A3); accountability and rule-of-law terms only (A7, `@accRoL`, ` iw:fexp@accRoL`) |
+| weight in time | read year by year, lagged like the drivers (implemented) |
+| accountability slot | vertical, horizontal, diagonal, and overall accountability (`extraAccountability: [OvAcc]`) |
+| edge-of-data gate | share 0.25, effect 0.25, cap shift 0.5, cap 5–95%, EU21 regions |
+| Estonia | excluded (ADR 0058); the log must say `excluding <n> row(s) for EST` |
+
+The grid is 36,384 specs, 5.0 times v6's 7,296 (v6's sweep took 2.0 h). An A7 twin is added only to specs that
+interact with state capability and with accountability or rule of law; elsewhere it would repeat another spec.
+To drop A7, delete the two `@accRoL` entries; to drop overall accountability, delete `extraAccountability` and
+`panel: groups: v7: overallAccountability`.
+
+1. **On the workstation, commit and push every repository** (the preflight refuses unpushed code):
+   ```bash
+   for d in models/mrpfm models/pfm .; do git -C "$d" add -A && git -C "$d" commit -m "v7: <message>" ; git -C "$d" push; done
    ```
-   The plan's `panel` line must end with `, V-Dem democracy indices, V-Dem overall accountability`, and its `sweep`
-   line must list the weights (`; interaction weights: Freedom of Expression (VDem), Liberal Democracy (VDem)`), the
-   extra channel (`; extra accountability channels: OvAcc`) and the gate
-   (`edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`). With two weights and OvAcc the grid is about 3.8
-   times v6's: budget a longer job. After the sweep, `manifest.json` must record `"democracy": true` and
-   `"overallAccountability": true` under `panel`; every later stage rebuilds its panels from that record.
+2. **On the cluster, one command** does the rest: pull the project, update and install `models/*`, check that the
+   installed `pfm` has the v7 code, run the preflight, prepare the `v7` madrat cache (inside `pfmRun`) and submit
+   the sweep and the diagnostics on the priority QOS:
+   ```bash
+   cd <project on the cluster>
+   tools/clusterRun.sh --priority v7 --stage sweep,diagnostics --require .pfmEdgeGate,.pfmIwFactor,.pfmIwParse --dry-run
+   tools/clusterRun.sh --priority v7 --stage sweep,diagnostics --require .pfmEdgeGate,.pfmIwFactor,.pfmIwParse
+   ```
+   The dry run prints the plan and submits nothing. Its `panel` line must end with `, V-Dem democracy indices, V-Dem
+   overall accountability`; its `sweep` line must list `interaction weights: Freedom of Expression (VDem), Electoral
+   Democracy (VDem), Freedom of Expression (VDem)@accRoL, Electoral Democracy (VDem)@accRoL; extra accountability
+   channels: OvAcc; edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`.
+   The later stages (`downstream`, `remind`) wait for the decision on the O1 cap (TODO): submit them with
+   `tools/clusterRun.sh --priority v7 --stage downstream,remind --no-update --clean none`.
+3. **If the job hits its wall time**, submit the same command again with `--no-update --clean none`: every finished
+   fit is in the Fit Cache and is not refitted.
+4. **After the sweep**, `manifest.json` must record `"democracy": true` and `"overallAccountability": true` under
+   `panel`, and the five weights under `sweepOptions`; every later stage rebuilds its panels from that record.
 5. **Read the selection.** In the log, every candidate the sanity walk rejects for the edge says
    `edge of data: ...`. `output/pfm/v7/sweep.rds` (`$sanity$PolicyStringency$flags`) keeps the verdicts;
-   `selected-models-pfm.yml` names the winner, weighted (` iw:fexp`, ` iw:libdem`) or not.
+   `selected-models-pfm.yml` names the winner, weighted (` iw:fexp`, ` iw:poly`, with or without `@accRoL`) or not.
 6. **Re-run the checks on v7, before the coupled batch.** They need a scenario panel that carries the democracy
    index: `analysis/checks/edgeGateValidation.R` writes one, on the v6 hold-the-price energy system, to
    `output/pfm/v6/coupling/scen-PFMlevelBfix-v6-democracy.rds`. Copy it to

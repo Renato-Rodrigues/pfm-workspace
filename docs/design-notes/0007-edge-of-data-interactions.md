@@ -331,6 +331,29 @@ rentier-state argument.
   - The reversals are therefore not only an accountability problem. Every interaction is extrapolated where the
     sample has no comparable countries, so the weight has to act on all of them.
 
+**Two more subsets, by institution (2026-10-21; same script and artifact, A7 and A8 added).** The theoretical case
+for the weight differs by moderator (accountability: the mechanism is electoral and absent in closed autocracies; rule
+of law: credible commitment and constraints on the executive, largely a liberal-democratic feature; state capability:
+implementation and compensation, which a capable autocracy also has). Two cuts follow from it:
+- **A7**: weight on the accountability and rule-of-law interactions; state capability acts in every regime.
+- **A8**: weight on the accountability and state-capability interactions; rule of law acts in every regime.
+
+| Variant | P&I: Spearman (EU21 / H12) | P&I: k 2050 / 2100 | B&T: Spearman (EU21 / H12) | B&T: k 2050 / 2060 / 2100 | B&T: China u | log-likelihood P&I / B&T | Pass |
+|---|---|---|---|---|---|---|---|
+| v6 as selected | 1 / 1 | 0.68 / 0.52 | 1 / 1 | 0.85 / 0.96 / 0.72 | 1.00 | −1256.2 / −503.8 | no |
+| A3 all terms | 0.96 / 0.91 | 0.83 / 0.60 | 0.68 / 0.27 | 0.62 / 0.54 / 0.45 | 0.24 | −1255.4 / −554.9 | all |
+| A7 accountability + rule of law | 0.65 / 0.62 | 0.50 / 0.23 | 0.71 / 0.36 | 0.76 / 0.75 / 0.75 | 0.35 | **−1384.0** / −545.1 | all |
+| A8 accountability + state capability | 0.95 / 0.90 | **1.07 / 0.95** | 0.86 / 0.78 | 0.44 / 0.37 / 0.52 | 0.88 | −1286.1 / −510.8 | all |
+
+- **A7's power & industry fit is not a maximum.** It nests a model with only the state-capability interactions, which
+  nests O5a (−1365.4), yet it ends at −1384.0 (γ 0.964). A5 (−1396.9) has the same defect. The refits use one default
+  start (`frontier::sfa`); both need a multi-start before their power & industry rows can be read.
+- **A8 passes, and fits buildings & transport almost as v6** (−510.8 against −503.8; A3 −554.9). But its power &
+  industry strength is above or near 1 (1.07 in 2050): the limit tightens instead of relaxing, the split already seen
+  in O5b and A5 (`MODEL.md` §5.3.0). China keeps a high buildings & transport rank (0.88).
+- **The direction of the power & industry constraint depends on whether the rule-of-law interactions are weighted.**
+  Weighted (A3, A7): it relaxes. Unweighted (A5, A6, A8): it does not.
+
 **Fit (log-likelihood, same estimation data; `edge-options-aut0.5-noband.rds`).**
 
 | | P&I | B&T | parameters |
@@ -433,6 +456,35 @@ The package's twin differs from the offline A3 of §8 in one respect: it reads t
 smoothed like the other drivers). The offline A3 held the 2019–2023 mean. Within history, the declines in Hungary,
 Turkey and India therefore enter the fit, and power & industry fits worse (−1312.4 against −1255.4 offline). Which
 form v7 keeps is part of the decision. A constant-weight variant would be one more spec field, not implemented yet.
+
+**The weight's scope, A7 as an alternative configuration (2026-10-21).** A weight name may end in `@accRoL`
+(`"Liberal Democracy (VDem)@accRoL"`): only the accountability and rule-of-law interactions are weighted, and the
+state-capability interactions act in every regime (A7 of §8). The scope travels in the name, so the spec field, the
+fit-cache key (`+iw:Liberal.Democracy..VDem..accRoL`) and the frozen `driverScaling` carry it unchanged.
+`preparePanelData`, `.pfmDriverGuard` and `.pfmEdgeGate` read it through `.pfmIwFactor` (`R/pfmInteractionWeight.R`).
+Twins are suffixed ` iw:fexp@accRoL`. A scoped twin is added only to specs that interact with state capability and
+with accountability or rule of law; elsewhere it repeats the unweighted spec or the A3 twin. Tests:
+`test-interactionWeight.R` (the whole suite passes, 2026-10-21).
+
+**The v7 search (author, 2026-10-21):** weights freedom of expression and electoral democracy (liberal democracy
+dropped), each in scope A3 and A7; overall accountability as a fifth accountability option; the gate at the values of
+§9. 36,384 specs, 5.0 times v6's 7,296.
+
+**A7 through the package** (`edgeGateValidation.R v6`, section 4: the selected spec, year-by-year index, refitted by
+`estimatePolicyStringencyModel` and gated by the sanity walk; `output/pfm/v6/edge-gate-validation.rds`, 2026-10-21):
+
+| Weight | log-likelihood P&I / B&T (v6 −1256.2 / −503.8) | Gate P&I | Gate B&T (cap shift) |
+|---|---|---|---|
+| freedom of expression, A3 | −1254.6 / −543.3 | pass (0.22) | pass (0.08) |
+| freedom of expression, A7 | −1263.9 / **−539.1** | **fail**: clean energy against expectation in IND, LAM, OAS | pass (0.24) |
+| electoral democracy, A3 | −1312.4 / −555.2 | pass (0.19) | pass (0.09) |
+| electoral democracy, A7 | **−1266.6** / −546.5 | pass (0.26) | pass (0.26) |
+
+- The package reaches a proper optimum for A7 (−1264 / −1267 in power & industry), unlike the offline refit of §8
+  (−1384): that row was an optimisation failure, not a property of A7.
+- With electoral democracy, A7 fits power & industry 46 points better than A3 and passes the gate in both sectors.
+- With freedom of expression, A7 fits buildings & transport best of the four but fails the power & industry gate on
+  clean-energy build-out (now unweighted in its state-capability interaction).
 
 **How to run the v7 search:** `docs/RUNNING.md`, Step 6a.
 

@@ -59,13 +59,15 @@ for (wv in WEIGHTS) {
   say(wv, " in the scenario (held): ", paste(apply(as.array(ds)[, , 1], 1, function(x) paste(round(x, 3), collapse = "/")), collapse = "; "))
 }
 
-# 4. the selected spec and its weighted twin, as the sanity walk scores them
+# 4. the selected spec and its weighted twins, as the sanity walk scores them; "@accRoL" = the A7 scope (only the
+#    accountability and rule-of-law interactions weighted; design note 0007 sections 8-9)
+WEIGHTS4 <- c(WEIGHTS, "fexp@accRoL" = "Freedom of Expression (VDem)@accRoL", "poly@accRoL" = "Electoral Democracy (VDem)@accRoL")
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 res <- list()
 for (sec in c("Bulk", "Diffuse")) {
   cfg <- Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]]
-  for (nm in c("selected", names(WEIGHTS))) {
-    cf <- cfg; if (nm != "selected") cf$interactionWeight <- WEIGHTS[[nm]]
+  for (nm in c("selected", names(WEIGHTS4))) {
+    cf <- cfg; if (nm != "selected") cf$interactionWeight <- WEIGHTS4[[nm]]
     ct <- pfm:::.pfmCeilingTrajectory(cf, sec, hist, scen, modelDir = NULL, indexMax = 10,
                                       edgeGate = pfm:::.pfmEdgeGateDefaults())
     fit <- do.call(estimatePolicyStringencyModel, c(list(data = hist, sector = sec, estimator = "frontier", indexMax = 10,
@@ -79,7 +81,7 @@ for (sec in c("Bulk", "Diffuse")) {
   }
   k <- "Incumbent.Power_x_Vertical.Accountability..VDem."
   say(sec, ": fossil x accountability ", round(res[[paste(sec, "selected")]]$beta[[k]], 3), " -> weighted ",
-      paste(names(WEIGHTS), vapply(names(WEIGHTS), function(n) round(res[[paste(sec, n)]]$beta[[k]], 3), numeric(1)),
+      paste(names(WEIGHTS4), vapply(names(WEIGHTS4), function(n) round(res[[paste(sec, n)]]$beta[[k]], 3), numeric(1)),
             collapse = ", "))
 }
 
