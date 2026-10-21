@@ -38,7 +38,10 @@ if grep -q 'jobs: .* newly fit' "$LOG"; then
   exit 0
 fi
 echo "fit grid: $NEW new fits of $JOBS jobs ($SPECS specs x 2 sectors) = $PCT%"
-if [ "$NEW" -gt 0 ]; then
+if [ "$NEW" -ge "$JOBS" ]; then
+  echo "every fit is written; the grid is closing (collecting results, rebuilding the Fit Cache index)."
+  echo "last log line: $(tail -n 1 "$LOG" | cut -c1-200)"
+elif [ "$NEW" -gt 0 ]; then
   REST=$(( (JOBS - NEW) * ELAPSED / NEW ))
   echo "at this rate: about $(hm "$REST") more for the fit grid (then selection, sanity walk, diagnostics)"
 fi
