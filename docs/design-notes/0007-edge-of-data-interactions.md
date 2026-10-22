@@ -736,3 +736,23 @@ vertical 0.79, horizontal 0.90). Largest R per spec, top 300 ranks: median 3.9, 
 fossil pc, coefficients +2.93 and −3.42), 5.0 (B&T fossil pc). v6's spec on v7's data: 4.4; its freedom-of-expression
 twin 4.4. Offsetting is a property of the formulation (each interest crossed with three correlated institutions),
 not of X-2929 alone; X-2929 differs in the size of the offsetting coefficients (largest |β| 3.4 against 1.1–1.7).
+
+## 15. The theory gate (2026-10-22; ADR 0059, proposed)
+
+Implemented in `pfm` (`R/pfmTheoryGate.R`; `runPFMSweep(theoryGate =)`, the sanity walk, `runPFMSanityPool`;
+`test-theoryGate.R`) and set for `v7` in `config.yml`. H1 structural power (fossil < 0, p < 0.05, every sector), H2
+contingency (a fossil × institution term, share or per-person, at p < 0.05 / their number; sign free), H3 coherence
+(the fossil effect, interactions included, negative in ≥ 75% of the estimation rows). Reasons: ADR 0059.
+
+**Calibration on v7** (`analysis/checks/theoryGateCalibration.R v7` → `output/pfm/v7/theory-gate-calibration.rds`):
+- 84 of the 5,930 specs of the maximin pool pass H1–H2, 38 of them in the top 100 ranks. Failures (sector-level):
+  H1 10,291, H2 6,419.
+- A first version counted only the fossil share's interactions for H2: it passed 0 of the top 58 and failed v6's own
+  spec (its contingency shows on the per-person term). Both fossil terms count now.
+- H3 on the frontier fits: X-2929 0.29 (P&I) / 0.90 (B&T); the H1–H2 passers in the top 40, 0.76–1.00; v6's spec on v6's
+  panel 1.00 / 0.84. 0.75 separates them.
+- v6's selected spec passes H1–H2 on v6's sweep.
+
+The walk will take the H1–H2 passers in maximin order: ranks 1, 4, 7 (linear actor power; rejected by the
+actor-power extrapolation gate before, rank 4 also by the edge gate), then 13, 18, 21 (saturating, weighted by freedom
+of expression; 21 passed the edge gate offline, §13).

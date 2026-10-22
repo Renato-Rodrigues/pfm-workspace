@@ -208,6 +208,7 @@ Decided by the author (2026-10-21):
 | weight in time | read year by year, lagged like the drivers (implemented) |
 | accountability slot | vertical, horizontal, diagonal, and overall accountability (`extraAccountability: [OvAcc]`) |
 | edge-of-data gate | share 0.25, effect 0.25, cap shift 0.5, cap 5–95%, EU21 regions |
+| theory gate (ADR 0059, proposed) | H1 structural power, H2 contingency, H3 coherence ≥ 75%; p 0.05 |
 | Estonia | excluded (ADR 0058); the log must say `excluding <n> row(s) for EST` |
 
 The grid is 36,384 specs, 5.0 times v6's 7,296 (v6's sweep took 2.0 h). An A7 twin is added only to specs that
@@ -230,9 +231,14 @@ To drop A7, delete the two `@accRoL` entries; to drop overall accountability, de
    The dry run prints the plan and submits nothing. Its `panel` line must end with `, V-Dem democracy indices, V-Dem
    overall accountability`; its `sweep` line must list `interaction weights: Freedom of Expression (VDem), Electoral
    Democracy (VDem), Freedom of Expression (VDem)@accRoL, Electoral Democracy (VDem)@accRoL; extra accountability
-   channels: OvAcc; edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5)`.
+   channels: OvAcc; edge-of-data gate (share 0.25, effect 0.25, cap shift 0.5); theory gate (p 0.05, H1 TRUE, H2
+   TRUE, H3 coherence 0.75)`. The log then says `Theory gate (H1 structural power, H2 contingency): <n> of <m> pool
+   spec(s) pass`.
    The later stages (`downstream`, `remind`) wait for the decision on the O1 cap (TODO): submit them with
    `tools/clusterRun.sh --priority v7 --stage downstream,remind --no-update --clean none`.
+   **Re-selecting from the cached fits** (after a change to a gate or the selection rule, e.g. the theory gate of
+   ADR 0059): the same command. Every fit loads from the Fit Cache (`72768 jobs: 0 newly fit`), the walk and the
+   diagnostics run again; about 1.5 h.
    **Progress:** `bash tools/jobProgress.sh <jobid>` prints the share of the fit grid done (new Fit Cache files
    against specs × 2 sectors) and the time left at the current rate.
 3. **If the job hits its wall time**, submit the same command again with `--no-update --clean none`: every finished
