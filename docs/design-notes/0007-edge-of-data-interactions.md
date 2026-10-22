@@ -603,3 +603,31 @@ Reading:
 - The one P&I pass (with freedom of expression) comes from a worse optimum: γ 0.981, log-likelihood −1318. In the
   screen the same variant reached −1261.8; the covariance warnings point to a local optimum.
 - The search will decide. On this evidence OvAcc rarely survives the gate in power & industry.
+
+## 12. The first v7 sweep ran without the gate (2026-10-22)
+
+Job 2663614 (`output/pfm/v7`, copy of its key files in `output/pfm/v7-run1-nogate/`): 36,384 specs, 72,768 fits,
+every step `DONE`, selected **X-2929 WGIge|RoL|OvAcc splitAPpc lev ctl:GDPq.sq fe:OECDp satAP iw:poly** (electoral
+democracy weight, every term weighted; overall accountability; per-person actor power, saturating). The walk
+rejected nine `bothIncAP` candidates on actor-power extrapolation and one on ceiling collapse.
+
+**The edge gate did not run.** The job script carried its thresholds as `c(0.25, 0.25, 0.5, c(0.05, 0.95), "...")`,
+six unnamed strings (`.rlit`, `R/startRun.R`); `.pfmEdgeGate` errored, the error became `pass = NA`, and the walk
+flagged only `pass = FALSE`. Fixed in `pfm` `e9fbd14`: lists are deparsed with their names, a requested gate that
+cannot be evaluated is a severe flag, and `.pfmEdgeGate` refuses a gate that is not a named list.
+
+**A second gap, fixed in the same commit.** Criterion (a) read only the share forms `Innovator.Power` and
+`Incumbent.Power`; a `splitAPpc` spec, whose interests are measured per person only, was tested on the cap shift
+alone. The criterion now reads an interest on its per-person form when the spec has no share form (next to the share
+form the per-person fossil term still carries no expectation, §2).
+
+**Preview of the gated verdict on the winner** (`analysis/checks/edgeGatePreview.R v7 v6`: v6 data with the V-Dem
+keys, the sweep's gating scenario; `output/pfm/v7/edge-gate-preview.rds`):
+
+| X-2929 | γ | ceiling 2100/2025 | gate |
+|---|---|---|---|
+| power & industry | 0.9963 | 0.951 | pass (cap shift 0.14) |
+| buildings & transport | 0.9756 | 1.367 | **fail**: clean energy per person against expectation in CHA 97%, REF 89%, NES 87%, MEA 67%, SSA 42%, ECS 29%, OAS 26%; fossil per person in REF 86%, MEA 38% (cap shift 0.28) |
+
+Under the per-person reading the winner fails; under the share-only reading it would pass (cap shift below 0.5).
+The gated re-run selects again from the cached fits.
