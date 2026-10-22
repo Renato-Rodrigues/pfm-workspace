@@ -44,7 +44,8 @@ Within the pool that passes, the declared maximin order (ADR 0036, 0048) and eve
 
 - `v7`'s first selection, X-2929, fails H1 in both sectors and H3 in power & industry (0007 §13–14). 84 of the 5,930
   specs of the maximin pool pass H1–H2 (38 in the top 100); v6's selected specification passes H1–H2 on v6's sweep
-  and H3 at 100% / 84%. The gated re-selection reads the cached fits (RUNNING Step 6a).
+  and H3 at 100% / 84%. The gated re-selection (job 2667134) selected X-1791 `satInn iw:fexp`, v6's specification with
+  saturating clean-energy interests and the freedom-of-expression weight (0007 §16).
 - **Post-selection inference.** Selecting on significance biases the winner's p-values downwards. The paper reports
   the wild-cluster-bootstrap p-values of the selected spec (`inference.rds`) with this caveat, and the share of the
   pool that passes, so a reader sees how selective the hypotheses are.

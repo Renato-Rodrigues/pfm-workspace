@@ -756,3 +756,40 @@ contingency (a fossil × institution term, share or per-person, at p < 0.05 / th
 The walk will take the H1–H2 passers in maximin order: ranks 1, 4, 7 (linear actor power; rejected by the
 actor-power extrapolation gate before, rank 4 also by the edge gate), then 13, 18, 21 (saturating, weighted by freedom
 of expression; 21 passed the edge gate offline, §13).
+
+## 16. The theory-gated v7 selection (job 2667134, 2026-10-22)
+
+`pfm` `d62bd9a`; all 72,768 fits from the cache, 0 failed; 84 of 5,930 pool specs pass H1–H2. The walk took ranks 1, 4, 7
+(rejected: actor-power extrapolation; rank 4 also the edge gate's direction), 13 (rejected: edge gate, cap shift 0.6 in
+CAZ) and selected rank 18:
+
+**X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn iw:fexp**: v6's specification, the clean-energy
+interests saturating (fossil linear), every interaction weighted by freedom of expression and alternative information.
+
+`analysis/checks/selectionCompare.R v7 v6` → `output/pfm/v7/selection-compare.rds` (wild p; LOO = the largest p over
+leave-one-country-out refits):
+
+| | v7 P&I | v6 P&I | v7 B&T | v6 B&T |
+|---|---|---|---|---|
+| frontier log-likelihood | −1265.3 | −1256.2 | −529.1 | −503.8 |
+| γ | 0.9984 | 0.9968 | 0.9725 | 0.9715 |
+| out-of-sample correlation (trained to 2015) | 0.565 | 0.554 | 0.810 | 0.802 |
+| historical replay RMSE (gate) | 0.808 (pass) | 0.806 | 0.520 (pass) | 0.525 |
+| fossil dependence (H1) | −0.73 (0.008; LOO 0.031) | −0.64 (0.030; 0.24) | −0.20 (0.015; 0.052) | −0.18 (0.006; 0.20) |
+| fossil pc × state capability | −1.02 (0.000) | −0.57 (0.001) | −0.08 (0.66) | −0.07 (0.55) |
+| fossil pc × rule of law | +1.35 (0.000) | +0.74 (0.000) | −0.33 (0.21) | −0.11 (0.31) |
+| fossil × vertical accountability | −0.56 (0.40) | −0.78 (0.078) | −0.29 (0.15) | **−0.49 (0.000)** |
+| fossil pc × vertical accountability | −0.36 (0.38) | −0.12 (0.31) | **+0.70 (0.001)** | +0.29 (0.000) |
+| clean × state capability | −0.38 (0.001) | −0.26 (0.012) | +0.06 (0.47) | +0.06 (0.51) |
+
+- **H1 holds more robustly than in v6**: significant in both sectors, and in power & industry under every
+  leave-one-country-out refit (p ≤ 0.031; v6 up to 0.24). The fossil-dependence term has the same sign under all 7
+  estimators of `estimator-agreement.rds` in both sectors, significant under 6.
+- **The power & industry contingency is v6's**, stronger: the per-person fossil term with state capability and rule of law.
+- **The buildings & transport contingency moved** from the share × accountability term (v6 p < 0.001; v7 0.15) to the
+  per-person × accountability term (+0.70, p 0.001). With the weight, the accountability channel acts through the
+  size of the fossil interest per person, not the share. Only the pair is interpretable (ADR 0056).
+- **Gates:** edge gate pass, cap shift 0.21 (P&I, OAS) and 0.09 (B&T, MEA) (v6's spec: 0.56 and 1.29, fail); H3 1.00 / 0.95
+  (§15); largest offset ratio 3.5 (below the top-300 median 3.9), largest interaction coefficient 1.35.
+- **Cost:** 9 and 25 log-likelihood points below v6 on (nearly) the same data, the price of weighting the
+  interactions by democracy (§14: 40–50 points in B&T for v6's spec); out-of-sample accuracy does not fall.
