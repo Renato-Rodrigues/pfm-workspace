@@ -220,10 +220,13 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       err(t, ": the regional strength sensitivity run is not combined with an ordering test (D15, D16)")
     }
     g <- trimws(r$pfmGroup %||% ""); pp <- trimws(r$cm_pfmPhiPath %||% "")
-    if (cpl(r) && startsWith(g, "v6") && !identical(pp, "1")) {
+    # a share-path group is v6 or later (v6, v6-annual, v7 ...); the coupling itself reads phi-anchor.rds in the export
+    gv <- suppressWarnings(as.integer(sub("^v([0-9]+).*$", "\\1", g)))
+    sharePath <- grepl("^v[0-9]+", g) && is.finite(gv) && gv >= 6
+    if (cpl(r) && sharePath && !identical(pp, "1")) {
       err(t, ": pfmGroup '", g, "' is a v6 group but cm_pfmPhiPath = '", pp, "' - GAMS would use a constant share (PITFALLS 33)")
     }
-    if (cpl(r) && nzchar(g) && !startsWith(g, "v6") && identical(pp, "1")) {
+    if (cpl(r) && nzchar(g) && !sharePath && identical(pp, "1")) {
       err(t, ": cm_pfmPhiPath = 1 on the pre-v6 group '", g, "' - GAMS would wait for a path that never comes")
     }
   }

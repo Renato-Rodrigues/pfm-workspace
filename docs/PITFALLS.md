@@ -1093,3 +1093,41 @@ the cause). Every preflight check had passed: they all inspect the checkout's li
   GitHub package and the run's restore installs that commit from GitHub (public repositories, at
   submission). `pfmPreflight` checks that both packages carry a source at `models/<pkg>`'s HEAD. By hand:
   `Rscript -e 'renv::snapshot(lockfile = tempfile(), prompt = FALSE)'` in the checkout shows the reason.
+
+## 38. A list option written into the SLURM job script lost its names — and the gate it fed passed everything
+
+`startRun` writes the job script with `.rlit`, which wrote every value of length > 1 as `c(...)`. v7's first
+sweep (job 2663614, 2026-10-22) received `edgeGate=c(0.25, 0.25, 0.5, c(0.05, 0.95), "regionmapping_21_EU11.csv")`:
+six unnamed strings. `.pfmEdgeGate` errored on them, the error was kept as `pass = NA`, and the sanity walk flagged
+only `pass = FALSE`, so **every candidate passed a gate that never ran**. Nothing in the log said so.
+- **`.rlit` deparses lists** with names and types (`pfm` `e9fbd14`); `test-interactionWeight.R` round-trips the gate.
+- **A requested gate that cannot be evaluated is a severe flag** (`edgeOfData`, detail "not evaluable: …"), and
+  `.pfmEdgeGate` refuses a gate that is not a named list. A new gate must do the same: an error is a failure, not a pass.
+- **Read the job script** (`output/pfm/<group>/pfm-<group>-job.R`) after a submission that adds a list option: it must
+  show `name=list(key = value, ...)`.
+
+## 39. Rebuilding the Fit Cache index reads the whole Fit Cache, on one core
+
+`runFitGrid` rebuilt `index.json` after every grid with `rebuildPFMModelIndex()`, which opens every fit on disk. With
+about 175,000 fits (626 GB), v7's first sweep (job 2642005) finished its 72,768 fits in 50 minutes and then spent
+**17 hours** in the rebuild (`sstat` MaxDiskRead 571 GB, one core busy, the log silent). No step of the pipeline reads
+the index.
+- Since `pfm` `c2d31e9` each fit returns its index row and the master merges the rows (one read, one write); only fits
+  written in the run without a row are read. `rebuildPFMModelIndex()` stays as the manual repair path.
+- **Symptom:** the `.err` log stops after the fits (the Estonia note repeated once per fit) with no
+  `… jobs: … newly fit` line, and `sstat -j <job>.batch --format=AveCPU,MaxDiskRead` grows by one core and steady
+  disk reads. `tools/jobProgress.sh <job>` counts the fits written since the start.
+- **The job's messages are in `pfm-<group>-<job>.err`**; the `.out` holds printed tables only.
+
+## 40. A fresh madrat cache is not the previous group's data plus the new items
+
+`v7` was meant to be `v6`'s data plus the V-Dem items. Its cache rebuilt `calcPE`, `calcFE`, `calcGDP` and
+`calcPopulation` with new madrat fingerprints (`records/v6` against `records/v7`: `calcPE-F313cb2eb` →
+`calcPE-Fb6c11b15`), because the upstream packages' code had changed. 17 of the 50 shared panel columns differ, all
+energy-derived (mean 0.003; inside the sample at most about 0.03, China and Russia; Serbia 0.25 outside it). v6's spec
+fits the v7 panel almost as the v6 panel (log-likelihood −1257.0 / −500.8 against −1256.2 / −503.8;
+`analysis/checks/v6v7Reproduction.R`).
+- **Compare the records before comparing groups**: a differing fingerprint in `records/<group>/madrat-cache-manifest.tsv`
+  means different data, whatever the group's notes say.
+- To carry a group's data over exactly, copy its cache files (`madrat: cacheSources`) or pin them
+  (`madrat-cache-used-pfm.tsv`, ADR 0047) before the new group's cache is prepared.

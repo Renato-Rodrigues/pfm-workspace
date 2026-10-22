@@ -260,6 +260,9 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
 - **SSPs beyond SSP2** need the mrdrivers SSP*x* GDP and population calculations in the cache. On
   the cluster they compute from madrat's sources; on the workstation the population source (PEAP)
   is not available, so they must be copied from a cache that has them.
+- **A new group's cache is not the previous group's data.** `v7`'s fresh cache rebuilt the energy, GDP and
+  population calculations with newer upstream code: 17 of the 50 shared panel columns differ slightly from `v6`'s
+  (PITFALLS §40). Compare `records/<group>/madrat-cache-manifest.tsv` before attributing a difference to the model.
 - **Coupled runs** read the group's REMIND export, which stages the coupling's subset of the cache
   into the run folder (`pfm/madrat-cache`) and carries the manifest, so the run builds its scenario
   panel on the group's own definition.

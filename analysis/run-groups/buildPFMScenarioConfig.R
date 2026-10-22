@@ -12,7 +12,7 @@ matrix <- if (length(a) >= 1) a[1] else "analysis/run-groups/scenario-matrix-v6.
 remindDir <- if (length(a) >= 2) a[2] else "models/remind_pfm"
 if (!file.exists(matrix)) stop("no matrix at ", matrix, " - run from the project root")
 
-suppressMessages(library(pfm))
+source("analysis/_common/_loadPfm.R")
 df <- buildPFMScenarioConfig(matrix, remindDir)
 out <- attr(df, "path")
 

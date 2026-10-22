@@ -1,0 +1,141 @@
+# The v7 coupled batch, first wave (ADR 0055 format; ADR 0060, proposed; TODO "v7").
+# The core of v6's first batch on the v7 frontier, plus the constant-limit pair that separates the effect of the new
+# regional ranking (0007 section 17: China and India no longer the most constrained regions) from the limit's fading.
+# Labels as in docs/SCENARIOS.md 2.6 (hold the price / hold the budget; fading and constant limit). Keys, stems,
+# `rule:` and `wave:` are identifiers: Bfix = hold the price, C = hold the budget.
+#
+# Build:  Rscript analysis/run-groups/buildPFMScenarioConfig.R analysis/run-groups/scenario-matrix-v7.yml
+# It writes models/remind_pfm/config/scenario_config_PFM_v7.csv (a build artifact: edit this file, rebuild, commit
+# both). The parents are the REMIND 3.7.1 bases already run (EU21BASE, H12BASE); the wave's tags never start them.
+#
+# Start tags: V7W1EU21, V7W1H12. Every coupled row carries pfmGroup v7 and needs output/remind-inputs/v7.
+
+format: pfm-scenario-matrix/1
+output: config/scenario_config_PFM_v7.csv
+canonical: config/scenario_config.csv
+version: v7
+ssps: [SSP2]
+thetaDefault: "0.50"
+
+resolutions:
+  EU21:
+    infix: EU21
+    set:
+      regionmapping: ./config/regionmapping_21_EU11.csv
+      extramappings_historic: ./config/extramapping_EU27.csv
+    baseStart: [EU21BASE]
+  H12:
+    infix: ""
+    set: {}
+    baseStart: [H12BASE]
+
+parents:
+  NPi2025:
+    from: NPi2025
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+  PkBudg1000:
+    from: PkBudg1000
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+      path_gdx_ref: "@NPi2025"
+      path_gdx_refpolicycost: "@NPi2025"
+
+coupled:                              # on every coupled row
+  cm_taxCO2_regiDiff: "11"
+  cm_pfmConvTol: "0.002"
+  cm_pfmSectorMarkup: "1"
+  cm_pfmGapClosure: "0"               # lambda is out of the coupling (ADR 0050)
+  cm_pfmPhiPath: "1"                  # the share path (ADR 0054)
+  pfmGroup: v7
+
+rules:
+  gate:                               # no-politics reference (theta = 0), budget held, proportional mode
+    stem: PFMgate
+    set: {cm_pfmBindMode: "1", cm_pfmTheta: "0"}
+  gateBfix:                           # no-politics reference, price held: anchor pinned from -PFMgate
+    stem: PFMgateBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "1", cm_pfmTheta: "0", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  Bfix:                               # hold the price: level cap, anchor pinned from -PFMgate
+    stem: PFMlevelBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "2", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  C:                                  # hold the budget: level cap rebuilt in GAMS every iteration
+    stem: PFMlevelC
+    set: {cm_pfmBindMode: "2", cm_pfmBoundRebuild: "1"}
+
+runs:
+  - key: gate
+    wave: 1
+    section: v7_wave1_nulls
+    parent: PkBudg1000
+    rule: gate
+    warm: null
+    description: >-
+      No-politics reference (theta = 0) with v7's anchor, budget held: must reproduce -PFMgateRef within
+      SCENARIOS.md 3.1. Anchor and price donor of every hold-the-price row.
+  - key: gateBfix
+    wave: 1
+    section: v7_wave1_nulls
+    parent: PkBudg1000
+    rule: gateBfix
+    warm: "@gate"
+    description: "No-politics reference (theta = 0), price held: the comparator of every hold-the-price row."
+  - key: Bfix
+    wave: 1
+    section: v7_wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: "0.50"
+    warm: "@gateBfix"
+    description: "Hold the price, fading limit, theta 0.50: the headline (extra CO2 against -PFMgateBfix)."
+  - key: Bfix
+    wave: 1
+    section: v7_wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: ["0.325", "0.675"]
+    warm: "@Bfix"
+    description: "Hold the price, fading limit, at the other two declared severities."
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: "0.50"
+    description: "Hold the budget, fading limit, theta 0.50: the cap rebuilt from the share path every iteration."
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: ["0.325", "0.675"]
+    warm: "@C"
+    description: "Hold the budget, fading limit, at the other two declared severities."
+  - key: Bheld
+    wave: 1
+    section: v7_wave1_institutionsHeld
+    parent: PkBudg1000
+    rule: Bfix
+    theta: "0.50"
+    variant: held
+    institutions: hold
+    warm: "@Bfix"
+    description: "Hold the price, fixed institutions (held at their anchor values, 0005 section 7a decision 1A)."
+  - key: Cheld
+    wave: 1
+    section: v7_wave1_institutionsHeld
+    parent: PkBudg1000
+    rule: C
+    theta: "0.50"
+    variant: held
+    institutions: hold
+    warm: "@C"
+    description: "Hold the budget, fixed institutions (decision 1A)."
+  - {key: BEhold, wave: 1, section: v7_wave1_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix",
+     description: "Hold the price, constant limit (D2, C5): today's limit kept, to separate the new ranking from the fading."}
+  - {key: CEhold, wave: 1, section: v7_wave1_formulation, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@C",
+     description: "Hold the budget, constant limit (D2, C5): strength against ranking (0005 Phase 6)."}

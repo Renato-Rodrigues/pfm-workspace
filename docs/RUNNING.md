@@ -320,6 +320,23 @@ checkout.
 **Locally:** REMIND cannot run, because its input data is not on the workstation. Run only the
 `--test` line, in `models/remind_pfm`.
 
+### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)
+
+Built from `analysis/run-groups/scenario-matrix-v7.yml` into `config/scenario_config_PFM_v7.csv` (24 coupled rows, 12 per
+resolution, `pfmGroup = v7`): the no-politics references with v7's anchor, hold the price and hold the budget at
+θ = 0.325 / 0.5 / 0.675, fixed institutions, and the constant-limit pair. The parents are the 3.7.1 bases already in the
+output folder. Needs `output/remind-inputs/v7` (written by `stage = "remind"`). On the cluster, after `git pull`:
+
+```r
+library(pfm)
+submitPFM("V7W1EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = "config/scenario_config_PFM_v7.csv")   # dry run
+submitPFM("V7W1EU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = "config/scenario_config_PFM_v7.csv",
+          dry = FALSE, slurmConfig = "priority")
+```
+
+Then the same for `V7W1H12` with `models/remind_pfm-H12`. The no-politics reference `-PFMgate-v7` must reproduce
+`-PFMgateRef` (SCENARIOS.md 3.1) before the other rows are read.
+
 ### Step 7b — The v6 Phase 3 gate on REMIND 3.7.1 (start tag `EU21V371`)
 
 The fork moved to REMIND 3.7.1 on 2026-10-07, so the uncoupled bases are re-run first (`PITFALLS.md`
