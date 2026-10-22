@@ -696,3 +696,43 @@ country out; `temporal-validation.rds`, trained to 2015):
 In buildings & transport no interest or interest × institution term of X-2929 is significant except clean energy pc
 × rule of law (p 0.045); China is the most influential country for most of them. The conditional mechanism is weaker
 in v7's selected spec than in v6's.
+
+## 14. Is X-2929 the code, the data, or the weight? And the theory terms (2026-10-22)
+
+**Code: reproduces v6.** `analysis/checks/v6v7Reproduction.R` → `output/pfm/v7/v6v7-reproduction.rds`: v6's spec on v6's
+training panel with today's code matches v6's `frontier.rds` to 1e-9 (−1256.18 / −503.83).
+
+**Data: an unplanned upstream change, small.** v7's cache rebuilt `calcPE`, `calcFE`, `calcGDP` and `calcPopulation`
+with new madrat fingerprints (`records/v6` against `records/v7`: e.g. `calcPE-F313cb2eb` → `calcPE-Fb6c11b15`), so the
+upstream packages' code differed. 17 of 50 shared panel columns differ, all energy-derived; mean |difference| 0.003,
+largest outside the sample (Serbia 0.25, Bosnia 0.11 in the industry fossil share), at most about 0.03 inside it
+(China, Russia). v6's spec on v7's panel: −1257.0 / −500.8 (v6 −1256.2 / −503.8). Not the cause, but v7 is not v6's
+data plus V-Dem: the reproduction record has to say so.
+
+**The weight and the rule are the cause.** v6's spec on v7's panel, unweighted / freedom of expression / electoral
+democracy: log-likelihood P&I −1257.0 / −1255.6 / −1253.6, B&T −500.8 / −540.5 / −553.3. The walk then reached X-2929
+first (section 13).
+
+**The theory-central terms.** `theoryTermScreen.R` (every fit, cluster-robust asymptotic p) and `inferenceScreen.R`
+(wild cluster bootstrap, B 999, on v7's panel) → `theory-term-screen.rds`, `inference-screen.rds`. Wild p in brackets:
+
+| | v6 X-1791 (v6) | v7 X-2929 | v7 X-1791 satAP iw:fexp | v7 X-1791 satInc iw:poly |
+|---|---|---|---|---|
+| P&I fossil | −0.64 (0.030) | +0.27 pc (0.148) | −0.80 (0.015) | −0.74 (0.020) |
+| P&I fossil × accountability | −0.78 (0.078) | −3.42 pc (0.032) | −0.80 (0.149) | −0.97 (0.124) |
+| B&T fossil | −0.18 (0.006) | −0.07 pc (0.881) | −0.22 (0.012) | −0.22 (0.025) |
+| B&T fossil × accountability | −0.49 (0.000) | −0.40 pc (0.819) | −0.57 (0.000) | −0.74 (0.001) |
+| B&T fossil × rule of law | +0.32 (0.018) | +0.42 pc (0.617) | +0.41 (0.013) | +0.55 (0.018) |
+
+The weighted v6 twins keep v6's pattern; X-2929 does not. Of the 36,384 specs, 79 pass the maximin gate with fossil
+< 0 (p < .05) in both sectors and fossil × accountability < 0 (p < .05) in buildings & transport; 34 are in the top
+100 ranks, the best at ranks 6, 7, 9 (rejected by the walk), 12, 13 (horizontal accountability, not walked) and 21
+(X-1791 satInc iw:fexp, passes the edge gate). The horizontal-accountability specs X-1857 and X-1851 fail the edge
+gate (Japan, Canada/Australia/NZ, Spain/Portugal).
+
+**Offsetting interactions.** `offsetRatio.R` → `offset-ratio.rds`: R = Σ sd(contributions) / sd(their sum) per interest
+driver (1 = the terms add up). The moderators are strongly correlated (rule of law with overall accountability 0.84,
+vertical 0.79, horizontal 0.90). Largest R per spec, top 300 ranks: median 3.9, 90th percentile 4.6. X-2929: 4.1 (P&I
+fossil pc, coefficients +2.93 and −3.42), 5.0 (B&T fossil pc). v6's spec on v7's data: 4.4; its freedom-of-expression
+twin 4.4. Offsetting is a property of the formulation (each interest crossed with three correlated institutions),
+not of X-2929 alone; X-2929 differs in the size of the offsetting coefficients (largest |β| 3.4 against 1.1–1.7).
