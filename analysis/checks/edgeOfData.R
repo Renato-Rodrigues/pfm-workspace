@@ -18,7 +18,7 @@
 #   E. Cap test. Moderators inside the interaction terms capped at the sample's 5th-95th percentiles (main effects
 #      untouched): the change in the 2023 regional ranking u and in the strength k(t), against the model as run.
 # Writes output/pfm/<group>/edge-of-data.rds and prints the attention list.
-suppressMessages({ library(pfm); library(magclass) })
+source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
 a <- commandArgs(trailingOnly = TRUE)
 g <- if (length(a) >= 1) a[1] else "v6"
 SCEN <- if (length(a) >= 2) a[2] else file.path("output/pfm", g, "coupling", paste0("scen-PFMlevelBfix-", g, ".rds"))
