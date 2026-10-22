@@ -631,3 +631,21 @@ keys, the sweep's gating scenario; `output/pfm/v7/edge-gate-preview.rds`):
 
 Under the per-person reading the winner fails; under the share-only reading it would pass (cap shift below 0.5).
 The gated re-run selects again from the cached fits.
+
+**The gated sweep (job 2664565, 2026-10-22; `pfm` `e9fbd14`).** The job script carries the gate as a named list; the
+walk rejected two candidates on the edge (X-1794 `iw:fexp` and `iw:poly`, power & industry: clean energy against
+expectation in ENC, NEN, LAM) and selected **X-2929 again**, passing the gate in both sectors. The preview's failure
+in buildings & transport came from its data: rebuilt from the v6 cache, it halves the per-person main effects there
+(clean energy +0.071 against +0.199 in v7's `frontier.rds`, fossil −0.066 against −0.152); with weaker main effects
+the interactions reverse them in more regions. The v7 fit is the valid one.
+
+X-2929 (`frontier.rds`, ML z in brackets; these overstate precision, §10):
+
+| | clean energy pc | fossil pc | fossil pc × rule of law | fossil pc × overall accountability | γ |
+|---|---|---|---|---|---|
+| power & industry | +0.137 (1.5) | **+0.111** (1.7) | +1.454 (6.3) | −1.678 (−5.5) | 0.9961 |
+| buildings & transport | +0.199 (3.6) | −0.152 (−3.4) | +0.671 (3.8) | −0.697 (−2.6) | 0.9730 |
+
+In power & industry the fossil main effect is against theory at the sample centre (not significant), so the gate
+treats it as model-wide and does not test its direction there (§2). `edgeOfData.R` and `edgeOptions.R` now read the
+per-person forms and overall accountability, for the v7 checks.

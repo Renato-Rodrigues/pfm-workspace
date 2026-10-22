@@ -28,7 +28,17 @@ RADIUS <- 1.5; MIN_NEIGHBOURS <- 3; CAP <- c(0.05, 0.95)
 MIN_EFFECT <- 0.25      # logit units: a contradiction smaller than this is not reported
 # the theory sign of each driver (ADR 0056, design note 0007 section 2); NA = no prior (only the pair, or a control)
 EXPECT <- c(Innovator.Power = 1, Incumbent.Power = -1, Incumbent.Power.pc = NA,
-            Government.Effectiveness..WGI. = 1, Rule.of.Law..VDem. = 1, Vertical.Accountability..VDem. = 1)
+            Government.Effectiveness..WGI. = 1, Rule.of.Law..VDem. = 1, Vertical.Accountability..VDem. = 1,
+            Overall.Accountability..VDem. = 1)
+# a spec that measures an interest per person only (splitAPpc) carries the interest's sign on that form, as the
+# sweep's gate reads it (.pfmEdgeGate)
+expectFor <- function(beta) {
+  e <- EXPECT
+  for (d in c("Innovator.Power", "Incumbent.Power")) {
+    if (!d %in% names(beta) && paste0(d, ".pc") %in% names(beta)) e[[paste0(d, ".pc")]] <- e[[d]]
+  }
+  e
+}
 say <- function(...) message("[edge] ", ...)
 
 suppressMessages(madrat::setConfig(cachefolder = normalizePath(file.path("data/madrat", g), winslash = "/"),
@@ -64,7 +74,7 @@ out <- list(group = g, scenario = basename(SCEN), made = format(Sys.time(), "%Y-
             settings = list(radius = RADIUS, minNeighbours = MIN_NEIGHBOURS, cap = CAP, minEffect = MIN_EFFECT,
                             expect = EXPECT), bySector = list())
 for (sec in names(anc$EU21$designs)) {
-  design <- anc$EU21$designs[[sec]]; beta <- design$beta
+  design <- anc$EU21$designs[[sec]]; beta <- design$beta; EXPECT <- expectFor(beta)
   dm <- designMatrix(design, scen); df <- dm$df; mm <- dm$mm
   # a democracy-weighted spec (interactionWeight, design note 0007): its interactions carry the weight
   w__ <- if ("interactionWeight__" %in% names(df)) df$interactionWeight__ else rep(1, nrow(df))

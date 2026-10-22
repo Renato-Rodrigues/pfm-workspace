@@ -117,14 +117,18 @@ covar <- list(autocracy = stats::setNames(as.numeric(names(polyarchy) %in% autoc
               exportRatioStd = stdCap(pmin(pmax(exportRatio, -1), 10)),
               fossilProdPcStd = stdCap(log1p(1e3 * fossilProd[names(popScen)] / popScen)))
 INTS0 <- grep("_x_", names(anc0$EU21$designs[[1]]$beta), value = TRUE)
+# a spec that measures an interest per person only (splitAPpc) is tested on that form, as the sweep's gate does
+for (d in names(EXPECT)) if (!d %in% names(anc0$EU21$designs[[1]]$beta) && paste0(d, ".pc") %in% names(anc0$EU21$designs[[1]]$beta)) {
+  names(EXPECT)[names(EXPECT) == d] <- paste0(d, ".pc")
+}
 MODES <- list(E1 = c("exporter", "exporter_x_Incumbent.Power", "exporter_x_Incumbent.Power.pc"),
               E2 = "exporter", E3 = "exportRatioStd", E4 = "fossilProdPcStd",
               A1 = "autocracy", A2 = c("autocracy", paste0("dem__", INTS0)),
               A3 = paste0("demw__", INTS0), A4 = paste0("deml__", INTS0),
-              A5 = paste0("demw__", grep("Vertical", INTS0, value = TRUE)),
-              A6 = c("autocracy", paste0("dem__", grep("Vertical", INTS0, value = TRUE))),
-              A7 = paste0("demw__", grep("Vertical|Rule", INTS0, value = TRUE)),
-              A8 = paste0("demw__", grep("Vertical|Effectiveness", INTS0, value = TRUE)))
+              A5 = paste0("demw__", grep("Accountability", INTS0, value = TRUE)),
+              A6 = c("autocracy", paste0("dem__", grep("Accountability", INTS0, value = TRUE))),
+              A7 = paste0("demw__", grep("Accountability|Rule", INTS0, value = TRUE)),
+              A8 = paste0("demw__", grep("Accountability|Effectiveness", INTS0, value = TRUE)))
 # the democracy weight on the interaction terms, by prefix: hard split, the index itself, its logistic
 weightOf <- function(prefix, cty) {
   look <- function(v, fill) { x <- covar[[v]][cty]; x[!is.finite(x)] <- fill; x }
@@ -269,7 +273,7 @@ for (sec in SECS) {
   V$O3a <- refit(fit, drop = c("CHN", "SAU"))
   V$O3b <- refit(fit, drop = c("CHN", "SAU", "TUR", "RUS"))
   V$O5a <- refit(fit, removeTerms = ints)
-  V$O5b <- refit(fit, removeTerms = grep("Vertical", names(b0), value = TRUE))
+  V$O5b <- refit(fit, removeTerms = grep("Accountability", names(b0), value = TRUE))
   for (md in names(MODES)) V[[md]] <- refit(fit, exporter = md, removeTerms = if (startsWith(md, "A")) intersect(ints, sub("^dem[wl]?__", "", MODES[[md]])) else NULL)
   V$base <- c(ref, V$base[setdiff(names(V$base), names(ref))]); V$base$beta <- b0
   out$coefficients[[sec]] <- lapply(V, function(v) v[intersect(c("beta", "gamma", "converged", "n", "se", "logLik", "nPar"), names(v))])
