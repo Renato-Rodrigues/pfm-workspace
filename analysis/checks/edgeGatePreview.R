@@ -1,10 +1,11 @@
 # The edge-of-data gate on named specifications of a swept Run-Group, offline (design note 0007).
 #   Rscript analysis/checks/edgeGatePreview.R <group> <data group> [spec name ...]   (repo root)
-# The specs are taken from output/pfm/<group>/sweep.rds (default: the selected one). They are fitted on the
-# historical panel built from <data group>'s madrat cache with the V-Dem keys on, and scored by the sanity walk's
-# ceiling trajectory on the sweep's gating scenario (the group's manifest `gdx`), with the gate of the group's
-# config.yml `sweep: edgeGate`. Written for v7, whose first sweep ran with the gate unable to evaluate
-# (2026-10-22): it previews the verdict the gated walk will reach. Writes output/pfm/<group>/edge-gate-preview.rds.
+# The specs are taken from output/pfm/<group>/sweep.rds (default: the selected one). They are fitted on the group's
+# own training panel (the Fit Cache panel of its manifest `panel_hash`) when it is on this machine, else on a
+# historical panel rebuilt from <data group>'s madrat cache with the V-Dem keys on (2026-10-22: that rebuild, from
+# v6's cache, halved v7's buildings & transport main effects; prefer the training panel). They are scored by the
+# sanity walk's ceiling trajectory on the sweep's gating scenario (the manifest `gdx`; its panel is built from
+# <data group>'s cache), with the gate of config.yml `sweep: edgeGate`. Writes output/pfm/<group>/edge-gate-preview.rds.
 source("analysis/_common/_loadPfm.R")
 suppressMessages({ pkgload::load_all("models/mrpfm", quiet = TRUE); library(madrat); library(magclass) })
 `%||%` <- function(a, b) if (is.null(a)) b else a
@@ -25,8 +26,13 @@ invisible(file.copy(list.files(file.path("data/madrat", dg), full.names = TRUE),
 src <- Filter(dir.exists, unlist(rc$madrat$sourcefolder %||% rc$sourcefolder))[1]
 setConfig(cachefolder = cache, forcecache = TRUE, sourcefolder = src, .verbose = FALSE)
 options(pfm.panel = man$panel)
-say("historical panel (", dg, " data, V-Dem keys on) ...")
-hist <- panelDataHistorical(aggregate = TRUE, outputRegionMappingFile = "country", includePolicyStringency = TRUE)
+modelDir <- rc$modelDir %||% "output/pfm/fit-cache"
+hist <- tryCatch(loadTrainingPanel(man$panel_hash, modelDir), error = function(e) NULL)
+histSource <- if (!is.null(hist)) paste0("training panel ", man$panel_hash) else paste0("rebuilt from ", dg, "'s cache")
+if (is.null(hist)) {
+  say("no training panel ", man$panel_hash, " here; rebuilding the historical panel from ", dg, "'s cache ...")
+  hist <- panelDataHistorical(aggregate = TRUE, outputRegionMappingFile = "country", includePolicyStringency = TRUE)
+} else say("historical panel: ", histSource)
 say("scenario panel of ", gdx, " ...")
 scen <- panelDataScenario(gdxFile = gdx, aggregate = TRUE, gdxRegionMappingFile = "regionmapping_21_EU11.csv",
                           outputRegionMappingFile = "country", ssp = "SSP2", institutions = "storyline")
@@ -38,5 +44,5 @@ for (nm in want) for (sec in c("Bulk", "Diffuse")) {
   say(nm, " | ", sec, " | gamma ", round(ct$gamma, 4), " | ceiling 2100/2025 ", round(ct$ratio, 3), " | logLik ",
       round(ct$logLik, 1), " | edge gate ", if (isTRUE(ct$edge$pass)) "PASS" else "FAIL", " - ", ct$edge$detail)
 }
-saveRDS(list(group = g, dataGroup = dg, gdx = gdx, gate = gate, made = format(Sys.time(), "%Y-%m-%d %H:%M"), fits = res),
+saveRDS(list(group = g, dataGroup = dg, histSource = histSource, gdx = gdx, gate = gate, made = format(Sys.time(), "%Y-%m-%d %H:%M"), fits = res),
         file.path(GD, "edge-gate-preview.rds"))

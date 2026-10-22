@@ -649,3 +649,50 @@ X-2929 (`frontier.rds`, ML z in brackets; these overstate precision, §10):
 In power & industry the fossil main effect is against theory at the sample centre (not significant), so the gate
 treats it as model-wide and does not test its direction there (§2). `edgeOfData.R` and `edgeOptions.R` now read the
 per-person forms and overall accountability, for the v7 checks.
+
+## 13. v7 results before the downstream stages (2026-10-22)
+
+Run-Group `v7` (job 2664565). Scripts: `analysis/checks/sweepOverview.R v7` → `output/pfm/v7/sweep-overview.rds`;
+`analysis/checks/edgeGatePreview.R v7 v6 <specs>` → `output/pfm/v7/edge-gate-preview.rds` (on v7's own training
+panel `87362d16967f873f`; it reproduces `frontier.rds` for X-2929, log-likelihood −1317.0 / −685.7).
+
+**The grid.** 49 of the top 50 maximin ranks are weighted (freedom of expression 24, electoral democracy 25); A3 holds
+47, A7 2; overall accountability is the most frequent accountability option there (28%). Every top-50 spec has both
+state capability and rule of law. X-2929 is maximin rank 11: ranks 1–9 (`bothIncAP`, linear actor power) fail the
+actor-power extrapolation gate, two of them also the edge gate; rank 10 fails ceiling collapse.
+
+**Why X-2929 and not the weighted v6 spec.** Within the Green tier the maximin order sorts on `trendKey` (the
+trend's share of the fit): X-2929 0.679, X-1791 `satAP iw:fexp` 0.713 (rank 56). The walk stops at the first pass,
+so the saturating, weighted twins of v6's spec were not reached. Scored on the same panel and gate:
+
+| Spec (all on v7's training panel) | maximin rank | log-likelihood P&I / B&T | gate P&I / B&T (cap shift) |
+|---|---|---|---|
+| **X-2929** OvAcc splitAPpc satAP iw:poly (selected) | 11 | −1317.0 / −685.7 | pass 0.14 / pass 0.26 |
+| X-1791 VerAcc bothIncAP satInn iw:fexp | 18 | −1265.3 / −529.1 | pass 0.21 / pass 0.09 |
+| X-1791 … satInc iw:fexp | 21 | −1259.0 / −541.1 | pass 0.31 / pass 0.09 |
+| X-1791 … satAP iw:fexp | 56 | −1255.6 / −540.5 | pass 0.25 / pass 0.08 |
+| X-1791 … satAP iw:poly | 75 | −1253.6 / −553.3 | pass 0.29 / pass 0.10 |
+| X-1791 … satAP iw:fexp@accRoL (A7) | 112 | −1262.7 / −535.1 | pass 0.33 / **fail** (NEN, fossil 41%) |
+| X-1791 … satAP (v6's spec, unweighted) | 100 | −1257.0 / −500.8 | **fail** 0.56 / **fail** (CHA, MEA, NEN, OAS; 1.29) |
+
+The weighted v6 twins fit about 60 log-likelihood points better in power & industry and 145–160 better in buildings &
+transport, and pass the gate; whether they pass the rest of the walk is not known (the actor-power extrapolation gate
+passes saturating columns by construction). The selection followed the declared rule; preferring a twin by fit
+would change the rule after seeing the results.
+
+**The selected spec's evidence** (`inference.rds`, wild cluster bootstrap, 48 clusters; `influence.rds`, leave one
+country out; `temporal-validation.rds`, trained to 2015):
+
+| | v6 X-1791 | v7 X-2929 |
+|---|---|---|
+| frontier log-likelihood P&I / B&T | −1256.2 / −503.8 | −1317.0 / −685.7 |
+| out-of-sample correlation P&I / B&T | 0.55 / 0.80 | 0.34 / 0.62 |
+| historical replay RMSE P&I / B&T (gate) | 0.806 / 0.525 (pass) | 0.856 / 0.578 (pass) |
+| B&T interest main effects, p (wild) | fossil share 0.006; clean 0.85 | fossil pc 0.88; clean pc 0.93 |
+| B&T fossil × accountability, p (wild) | 0.000 (vertical) | 0.82 (overall) |
+| P&I fossil × rule of law, p (wild) | 0.19 (share), 0.000 (pc) | 0.008 (pc); p ≤ 0.017 leaving out any one country |
+| P&I fossil × accountability, p (wild) | 0.078 (share) | 0.032 (overall) |
+
+In buildings & transport no interest or interest × institution term of X-2929 is significant except clean energy pc
+× rule of law (p 0.045); China is the most influential country for most of them. The conditional mechanism is weaker
+in v7's selected spec than in v6's.
