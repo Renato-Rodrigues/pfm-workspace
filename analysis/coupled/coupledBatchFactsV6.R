@@ -22,7 +22,7 @@ ex <- new.env(); sys.source("analysis/coupled/extractCoupledResults.R", envir = 
 bin <- ex$gdxdumpBin()
 art <- readRDS(file.path("output/pfm", GROUP, "coupling", "coupled-runs.rds"))
 R <- art$runs[!art$runs$superseded, ]; P <- art$prices; CV <- art$convergence
-R$key <- sub("-v6$", "", sub("^SSP2-(EU21-)?", "", R$scenario))
+R$key <- sub("-v[0-9]+$", "", sub("^SSP2-(EU21-)?", "", R$scenario))
 RES <- intersect(c("EU21", "H12"), unique(R$resolution))
 rd <- function(x, d = 3) if (is.numeric(x)) round(x, d) else x
 missing <- character(0)

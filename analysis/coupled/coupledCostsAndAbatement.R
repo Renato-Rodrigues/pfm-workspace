@@ -13,8 +13,8 @@ art <- readRDS(file.path("output/pfm", GROUP, "coupling", "coupled-runs.rds"))
 # scenario with two directories hands series() two gdx paths at once (2026-09-23: EU21 -PFMlevelC exists
 # twice in the RULECFIX batch; no earlier batch had a duplicate, so no published number was affected).
 R <- art$runs[!art$runs$superseded, ]; R$key <- sub("^SSP2-(EU21-)?", "", R$scenario)
-# v6 titles end in -v6 (the generated scenario config, ADR 0055): drop it so the keys below are shared
-R$key <- sub("-v6$", "", R$key)
+# v6 and later titles end in -v<N> (the generated scenario config, ADR 0055): drop it so the keys below are shared
+R$key <- sub("-v[0-9]+$", "", R$key)
 isV5 <- grepl("^v5", GROUP)
 C2C <- 44 / 12; YEARS <- 2020:2100; DISC <- 0.05
 

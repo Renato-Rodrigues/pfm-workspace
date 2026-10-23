@@ -33,7 +33,7 @@ sym <- function(gdx, s) {
 }
 
 cr <- readRDS(file.path("output/pfm", group, "coupling", "coupled-runs.rds"))
-R <- cr$runs[!cr$runs$superseded, ]; R$key <- sub("-v6$", "", sub("^SSP2-(EU21-)?", "", R$scenario))   # v6 titles end in -v6
+R <- cr$runs[!cr$runs$superseded, ]; R$key <- sub("-v[0-9]+$", "", sub("^SSP2-(EU21-)?", "", R$scenario))   # v6 titles end in -v6
 P <- cr$prices
 YEAR <- 2050
 
