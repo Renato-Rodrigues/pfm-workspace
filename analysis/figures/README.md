@@ -5,13 +5,19 @@ the poster and the reports pull from here, so a figure and its caption cannot sa
 things in different places.
 
 ```bash
-Rscript analysis/figures/build-figures.R                   # every figure -> output/all/ (+ paper2 for the paper)
+Rscript analysis/figures/build-figures.R --group=v7        # every figure -> output/v7/all/ (+ paper2 for the paper)
 Rscript analysis/figures/build-figures.R --media=slide,poster   # the deck / poster renders, when needed
 Rscript analysis/figures/build-figures.R --only=theta-sweep --media=paper2
 Rscript analysis/figures/build-figures.R --guide           # regenerate the guide only
 ```
 
-**Look at everything at once:** open `analysis/figures/output/all/index.html`. It is generated from the
+**One folder per Run-Group** (since 2026-10-25): every render lands in `output/<group>/<medium>/`, so v6 and v7 never
+mix; the old flat folders are archived (`../_archive/_wip/2026-10-25/MOVES.md`). **A figure that cannot be built** for
+a group (an artifact or a run that group does not have) is reported and listed at the end; the others are built, and
+the script exits non-zero after the full pass. The report figures in `output/<group>/doc/` come from
+`build-doc-figures.R <group>` and are left alone by the orphan check and `--prune`.
+
+**Look at everything at once:** open `analysis/figures/output/<group>/all/index.html`. It is generated from the
 registry, so each figure appears with its title, what it shows, and the rails that must travel
 with it — reviewing a figure without its caveat is how a rail gets lost.
 
@@ -35,15 +41,16 @@ cat(figureExplainer("theta-sweep"))               # caption + what it shows + ra
 | `R/terms.R` | shared term naming and classification for the coefficient figures |
 | `R/load.R` | sources the above; this is a directory, not a package |
 | `build-figures.R` | the driver: one clearly-separated chunk per figure |
-| `output/all/` | **every figure, one PNG each** — always built; this is where to look |
-| `output/doc/` | the report figures (ELEVATE D3.3): charts and editable PowerPoint schematics — `build-doc-figures.R` |
+| `output/<group>/` | **one folder per Run-Group** (since 2026-10-25); everything below sits inside it, so versions never share a folder |
+| `output/<group>/all/` | **every figure, one PNG each** — always built; this is where to look |
+| `output/<group>/doc/` | the report figures (ELEVATE D3.3): charts and editable PowerPoint schematics — `build-doc-figures.R` |
 | `R/fig-doc.R`, `R/style.R` | the report figures' builders and the report style (`doc` medium) |
 | `pptx/` | editable PowerPoint schematics (pptxgenjs), see its README |
 | `style/figure-style.json` | palette, font and sizes shared by the R report charts and the PowerPoint schematics |
-| `output/all/index.html` | **generated** contact sheet — every figure on one page, with its rails |
-| `output/paper2/` | the paper's figures as PDF (183 mm, cairo_pdf) |
-| `output/{slide,poster}/` | opt-in renders: `--media=slide,poster`. Not built by default |
-| `output/FIGURE-GUIDE.md` | **generated** — do not edit, change the registry |
+| `output/<group>/all/index.html` | **generated** contact sheet — every figure on one page, with its rails |
+| `output/<group>/paper2/` | the paper's figures as PDF (183 mm, cairo_pdf) |
+| `output/<group>/{slide,poster}/` | opt-in renders: `--media=slide,poster`. Not built by default |
+| `output/<group>/FIGURE-GUIDE.md` | **generated** — do not edit, change the registry |
 
 ## The four ideas
 
@@ -81,10 +88,10 @@ Nothing else. No registration list to update, no export to declare.
 **`consumers` is intent, not a render list.** It says who uses a figure (paper / slides / poster /
 report); what gets rendered is decided by `buildFigure()`: `all` for everything, `paper2` for the
 paper's figures, and slide / poster only when asked for. A figure marked `report` is simply one the
-reports use — it renders to `output/all/` like every other.
+reports use — it renders to `output/<group>/all/` like every other.
 
 **All 37 registered figures build** on Run-Group `v5`: 37 PNGs in `output/all/` plus 32 PDFs in
-`output/paper2/`, 69 files where the four-media layout produced 105. `output/all/index.html` is the
+`output/paper2/` (then a flat layout; now `output/<group>/…`), 69 files where the four-media layout produced 105. `output/all/index.html` is the
 contact sheet; `output/FIGURE-GUIDE.md` carries the full caption, explainer and rails for each.
 
 Builders that need theme control (only the schematic, so far) attach it as

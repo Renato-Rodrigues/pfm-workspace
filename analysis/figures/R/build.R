@@ -14,7 +14,7 @@
 #'   poster           a panel of the A1 one-pager (docs/PRESENTATION.md 6.2)
 #'
 #' `all` replaced the old `report` medium on 2026-09-18. Every figure renders there whatever
-#' its consumers, so `analysis/figures/output/all/` is the one place to look at everything at once —
+#' its consumers, so `analysis/figures/output/<group>/all/` is the one place to look at everything at once —
 #' and `slide` / `poster` are no longer built by default, because four renders of the same
 #' plot is three chances for a stale one to be read as current.
 #'
@@ -49,9 +49,13 @@ renderSpec <- function(medium = NULL) {
   hit
 }
 
-#' Where rendered figures land
-figuresOutputDir <- function(medium) {
-  file.path(figuresProjectRoot(), "analysis", "figures", "output", medium)
+#' Where rendered figures land: one folder per Run-Group, then per medium
+#' (`analysis/figures/output/<group>/<medium>/`), so renders of different versions never share a folder.
+#' Before 2026-10-25 every group wrote to `output/<medium>/`, and v5 and v6 renders sat side by side
+#' with nothing but the stamp to tell them apart.
+figuresOutputDir <- function(medium, group) {
+  if (missing(group) || is.null(group) || !nzchar(group)) stop("figuresOutputDir: name the Run-Group", call. = FALSE)
+  file.path(figuresProjectRoot(), "analysis", "figures", "output", group, medium)
 }
 
 #' Build one figure, for one or more media
@@ -94,9 +98,9 @@ buildFigure <- function(id, group = "v5", media = NULL, write = TRUE, quiet = FA
     # that need theme control attach it as attr(p, "pfmTheme") and it is applied last.
     # The schematic needs this: it carries no data, so showing axes would imply a scale.
     if (!is.null(attr(p, "pfmTheme"))) pm <- pm + attr(p, "pfmTheme")
-    dir.create(figuresOutputDir(m), showWarnings = FALSE, recursive = TRUE)
+    dir.create(figuresOutputDir(m, group), showWarnings = FALSE, recursive = TRUE)
     ext <- sub("^cairo_", "", s$device)
-    out <- file.path(figuresOutputDir(m), paste0(id, ".", ext))
+    out <- file.path(figuresOutputDir(m, group), paste0(id, ".", ext))
     dev <- if (identical(s$device, "cairo_pdf")) grDevices::cairo_pdf else s$device
     # a builder whose content is taller than the medium's frame (a long dot chart) may set
     # attr(p, "pfmHeightScale"); every other figure keeps the medium's height
@@ -163,7 +167,7 @@ figureExplainerDocument <- function(group = "v5", consumers = NULL) {
 
 #' The contact sheet — every rendered figure on one page
 #'
-#' `analysis/figures/output/all/` holds one PNG per figure; this writes the page that shows them all in
+#' `analysis/figures/output/<group>/all/` holds one PNG per figure; this writes the page that shows them all in
 #' registry order with the title, what it shows and the rails underneath. It exists so "look at
 #' every figure at once" is one file to open rather than a directory to scroll, and so a figure
 #' is never reviewed without the caveat that travels with it.
@@ -171,7 +175,7 @@ figureExplainerDocument <- function(group = "v5", consumers = NULL) {
 #' Written as HTML (opens in any browser, images inline) plus INDEX.md for anything that reads
 #' markdown. Both are generated — edit the registry, not these.
 figuresContactSheet <- function(group = "v5") {
-  dir <- figuresOutputDir("all")
+  dir <- figuresOutputDir("all", group)
   dir.create(dir, showWarnings = FALSE, recursive = TRUE)
   reg <- figureRegistry(status = "built")
   reg <- reg[file.exists(file.path(dir, paste0(reg$id, ".png"))), , drop = FALSE]

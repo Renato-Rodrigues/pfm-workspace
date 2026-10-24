@@ -404,8 +404,8 @@ Three things must be *printed*, not spoken:
 ## 7. Figure inventory — what exists, what must be built
 
 **Figures are built by `analysis/figures/`** — a registry, one builder per figure, rendered per medium
-(`analysis/figures/README.md`). The explainer for each is generated into `analysis/figures/output/FIGURE-GUIDE.md`,
-and every figure is on one page at `analysis/figures/output/all/index.html`. **Slide renders are opt-in**:
+(`analysis/figures/README.md`). The explainer for each is generated into `analysis/figures/output/<group>/FIGURE-GUIDE.md`,
+and every figure is on one page at `analysis/figures/output/<group>/all/index.html`. **Slide renders are opt-in**:
 `Rscript analysis/figures/build-figures.R --media=slide` before building a deck.
 
 ```bash

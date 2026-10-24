@@ -1,7 +1,7 @@
 # The report figures (ELEVATE D3.3), all five, from one command. Run from the project root:
 #   Rscript analysis/figures/build-doc-figures.R [group]        (default v6)
 #
-# Writes analysis/figures/output/doc/:
+# Writes analysis/figures/output/<group>/doc/:
 #   doc-coefficients.png, doc-frontier-fit.png, doc-shares.png    charts (R, ggplot2, medium `doc`)
 #   fig-gap.pptx + .png                                          the gap, observed and projected (editable PowerPoint)
 #   fig-coupling-estimation.pptx + .png                          the coupling and estimation diagram (editable PowerPoint)
@@ -13,7 +13,7 @@
 # Every figure takes its palette, font and sizes from analysis/figures/style/figure-style.json.
 args <- commandArgs(trailingOnly = TRUE); group <- if (length(args)) args[1] else "v6"
 source("analysis/figures/R/load.R"); figuresLoad("analysis/figures/R")
-out <- figuresOutputDir("doc"); dir.create(out, recursive = TRUE, showWarnings = FALSE)
+out <- figuresOutputDir("doc", group); dir.create(out, recursive = TRUE, showWarnings = FALSE)
 
 # 1. the charts
 for (id in c("doc-coefficients", "doc-frontier-fit", "doc-shares")) buildFigure(id, group = group, media = "doc")

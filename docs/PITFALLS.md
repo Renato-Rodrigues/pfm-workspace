@@ -370,7 +370,7 @@ not deleted, so it can be inspected or restored by hand.
 
 `analysis/figures/build-figures.R` renders each figure only to the media it is asked for. Change what a
 figure declares — or change the media table itself — and the previously rendered
-`analysis/figures/output/<medium>/<id>.png` is **not deleted**. Nothing rewrites it, nothing warns, and it
+`analysis/figures/output/<group>/<medium>/<id>.png` is **not deleted**. Nothing rewrites it, nothing warns, and it
 sits beside current files looking exactly like one.
 
 > **Reorganised 2026-09-18.** Every figure now renders to `output/all/` (one PNG) and the paper's
@@ -385,7 +385,7 @@ On 2026-08-18 five such orphans were present, all dated 2026-08-17. One of them
 correction had not been applied — it had, in the media the figure actually declares. Ten
 minutes were spent debugging a build that was working.
 
-**The build now checks for this.** After rendering it diffs `analysis/figures/output/` against the set
+**The build now checks for this.** After rendering it diffs `analysis/figures/output/<group>/` against the set
 the registry declares:
 
 ```bash

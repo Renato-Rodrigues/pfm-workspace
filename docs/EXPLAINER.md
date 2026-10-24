@@ -6,10 +6,10 @@ reviewers. Eleven steps, a handful of equations. Derivations, caveats and fitted
 Numbers here are from Run-Group `v6`.*
 
 📊 **Charts.** Everything is built by `analysis/figures/build-figures.R` from the registry in
-`analysis/figures/R/registry.R`, and rendered into `analysis/figures/output/all/` (one PNG per figure, always) and
-`analysis/figures/output/paper2/` (the paper's PDFs). Slides and poster renders are opt-in
-(`--media=slide,poster`). **`analysis/figures/output/all/index.html` shows every figure on one page.**
-`analysis/figures/output/FIGURE-GUIDE.md` is generated from the same registry and explains, for every
+`analysis/figures/R/registry.R`, and rendered into `analysis/figures/output/<group>/all/` (one PNG per figure, always) and
+`analysis/figures/output/<group>/paper2/` (the paper's PDFs), one folder per Run-Group. Slides and poster renders are opt-in
+(`--media=slide,poster`). **`analysis/figures/output/<group>/all/index.html` shows every figure on one page.**
+`analysis/figures/output/<group>/FIGURE-GUIDE.md` is generated from the same registry and explains, for every
 figure, what it shows, what to read off it and what must not be claimed from it — start there.
 
 ```bash
