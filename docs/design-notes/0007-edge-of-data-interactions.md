@@ -843,4 +843,25 @@ and the Middle East emit more. v6's hold-the-budget result rested largely on Chi
   EU21 institutions held passes, the deployed run fails), so the solver's path, not the political limit, decided it.
   **Re-run** from the no-politics reference (`warm: "@gate"`, start tags `V7RERUNEU21`, `V7RERUNH12`; the newest run of
   a title supersedes the earlier one in the extraction). If a re-run still does not peak, it is disclosed as in v6.
+- **After the re-runs (2026-10-24, 35 run folders, 5 superseded):** four of the five now peak in 2090 within 2 Gt of the
+  budget (EU21 θ 0.5: 1000.7 Gt; θ 0.325: 1001.1; H12 θ 0.675: 1000.3; H12 institutions held: 1000.1), and the Middle
+  East's post-2100 excess falls to 0.06 GtC a year or less. **EU21 θ 0.675 still does not peak** (1011.7 Gt in 2150;
+  Middle East +0.22 GtC a year): a second attempt from the passing θ 0.5 run (`warm: "@C"`, tag `V7RERUN2EU21`;
+  REMIND takes the newest finished run of that title). If it fails again it is disclosed as a declared severity
+  sensitivity that never peaks (as v6's four).
+
+**Hold the budget after the re-runs** (Gt; * EU21 θ 0.675 still not peaking):
+
+| | EU21 v7 | EU21 v6 | H12 v7 | H12 v6 |
+|---|---|---|---|---|
+| relocated, θ 0.5 | 17.1 | 22.7 | 18.4 | 19.9 |
+| China, θ 0.5 | −4.9 | −10.2 | −6.4 | −8.9 |
+| India, θ 0.5 | +0.8 | +8.1 | +0.3 | +7.0 |
+| relocated, θ 0.675 | 28.4* | 45.0 | 29.8 | 37.0 |
+| China, θ 0.675 | −10.2* | −32.4 | −11.6 | −22.1 |
+| relocated, constant limit | 35.0 | 65.6 | 37.1 | 60.1 |
+| China, constant limit | −12.9 | −45.1 | −14.1 | −39.1 |
+
+Russia & reforming and the Middle East take up the emissions China and Sub-Saharan Africa give up; India's share,
+which v6 relocated onto, is gone.
 - Convergence: 2–8 PFM calls, final share change ≤ 0.0019; no run at the iteration cap; no infeasibility at the end.

@@ -144,11 +144,23 @@ runs:
     section: v7_wave1_ruleC
     parent: PkBudg1000
     rule: C
-    theta: ["0.325", "0.675"]
+    theta: "0.325"
     res: [EU21]
     warm: "@gate"
     start: {EU21: [V7W1EU21, V7RERUNEU21]}
-    description: "Hold the budget, fading limit, at the other two declared severities, started from the no-politics reference (did not peak)."
+    description: "Hold the budget, fading limit, theta 0.325, started from the no-politics reference (did not peak from a cold start)."
+  # EU21 theta 0.675 did not peak from the no-politics start either (2026-10-24: 1011.7 Gt in 2150): a second attempt
+  # from the passing theta 0.50 run of the same resolution, tag V7RERUN2EU21. Disclosed if it still does not peak.
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: "0.675"
+    res: [EU21]
+    warm: "@C"
+    start: {EU21: [V7W1EU21, V7RERUN2EU21]}
+    description: "Hold the budget, fading limit, theta 0.675, started from the passing theta 0.50 run (did not peak from a cold or a no-politics start)."
   - key: Bheld
     wave: 1
     section: v7_wave1_institutionsHeld

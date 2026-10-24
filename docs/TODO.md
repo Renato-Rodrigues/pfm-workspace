@@ -77,8 +77,8 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
   decided 2026-10-22: the cap test moves k by ≤ 0.02). Open, in this order:
   1. **Accept ADR 0059** and the v7 selection ADR (draft, ADR 0060).
   2. **The coupled REMIND batch for v7: done 2026-10-24** (0007 §17): hold the price +98.8 / +87.9 Gt at θ 0.5 (EU21 /
-     H12; v6 +118.2 / +112.8). **Open:** re-run the five hold-the-budget rows that did not peak (`V7RERUNEU21`,
-     `V7RERUNH12`, from the no-politics reference), then re-run `runCoupledStage.R v7`. Earlier text of this item:
+     H12; v6 +118.2 / +112.8). Re-runs of the five hold-the-budget rows that did not peak: four now peak (2026-10-24).
+     **Open:** EU21 θ 0.675, second attempt `V7RERUN2EU21` (from the passing θ 0.5 run); then `runCoupledStage.R v7`. Earlier text of this item:
      the coupled REMIND batch for v7 (Step 7; a v7 scenario matrix). The regional ranking changed (0007 §17):
      China no longer the most constrained region in buildings & transport (u 1.00 → 0.35), India no longer in power &
      industry (1.00 → 0.51).

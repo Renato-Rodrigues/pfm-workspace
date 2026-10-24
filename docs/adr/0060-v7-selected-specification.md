@@ -55,6 +55,10 @@
   industry (1.00 → 0.51); Russia & reforming countries become the most constrained in both sectors. The v6
   results that rest on those ranks (the hold-the-budget relocation onto China, away from the Middle East and India)
   are expected to change in the coupled v7 batch.
+- **The coupled batch confirms it** (0007 §17). Hold the price: +98.8 Gt (EU21) and +87.9 Gt (H12) at θ 0.5, against
+  +118.2 / +112.8 in v6; India leaves the regions that emit more, Russia & reforming enters. Hold the budget: the
+  relocation onto China halves (θ 0.5: −4.9 / −6.4 Gt, v6 −10.2 / −8.9) and India no longer emits more (+0.8 / +0.3, v6
+  +8.1 / +7.0).
 - The paper's methods describe the search, the two gates and the weight; the post-selection caveat of ADR 0059.
 - Declared sensitivities (TODO): X-2929 (the search without the theory gate), v6's unweighted spec, the theory gate's
   thresholds.
