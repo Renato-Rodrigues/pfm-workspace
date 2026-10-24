@@ -793,3 +793,54 @@ leave-one-country-out refits):
   (§15); largest offset ratio 3.5 (below the top-300 median 3.9), largest interaction coefficient 1.35.
 - **Cost:** 9 and 25 log-likelihood points below v6 on (nearly) the same data, the price of weighting the
   interactions by democracy (§14: 40–50 points in B&T for v6's spec); out-of-sample accuracy does not fall.
+
+## 17. The v7 first coupled batch (2026-10-24)
+
+Start tags `V7W1EU21`, `V7W1H12` (`analysis/run-groups/scenario-matrix-v7.yml`; RUNNING Step 7a). 30 runs (12 coupled
+and 3 uncoupled comparators per resolution), all finished and admitted (`analysis/coupled/runCoupledStage.R v7` →
+`output/pfm/v7/coupling/coupled-facts.json`, `coupled-costs.json`). Every coupled run read the v7 cache staged in its
+folder (Step 8); `records/v7/madrat-cache-used-runs.tsv`.
+
+**Hold the price: extra cumulative CO₂ to 2100 against the no-politics reference (Gt).**
+
+| θ | EU21 v7 | EU21 v6 | H12 v7 | H12 v6 |
+|---|---|---|---|---|
+| 0.325 | +59.4 | +73.0 | +55.2 | +69.6 |
+| 0.50 | **+98.8** | +118.2 | **+87.9** | +112.8 |
+| 0.675 | +144.8 | +181.5 | +125.6 | +169.6 |
+| per unit θ | 212 | 264 | 185 | 247 |
+| constant limit (θ 0.5) | +167.6 | +189.1 | +145.3 | +176.3 |
+
+- The extra CO₂ is 16% (EU21) to 22% (H12) below v6, and rises less with θ.
+- **Where it comes from** (H12, θ 0.5, `coupled-costs.json`): the Middle East +29, Other Asia +20, Russia & reforming
+  +16 Gt; v6: the Middle East +39, **India** +21, Other Asia +18. India leaves the list and Russia's region enters, as the
+  new ranking predicts (§16: India u 1.00 → 0.51, Russia & reforming 1.00).
+- **Institutions held** change nothing (H12 +93.9 against +93.3 Gt in the emissions integral; v6 +116.6 against +121.5).
+- The fading limit removes 58 Gt (H12) to 69 Gt (EU21) against the constant limit (v6 64 and 71).
+
+**Hold the budget: relocation (Gt, θ 0.5; `grossRelocated`) and China's share of it.** First batch, before the
+re-runs below:
+
+| | EU21 v7 | EU21 v6 | H12 v7 | H12 v6 |
+|---|---|---|---|---|
+| relocated | 19.2 | 22.7 | 18.4 | 19.9 |
+| China | −5 | −10 | −6 | −9 |
+| relocated, constant limit | 35.0 | 65.6 | 37.1 | 60.1 |
+| China, constant limit | −13 | −45 | −14 | −39 |
+
+The relocation onto China halves (a third under the constant limit) and India no longer emits more; Russia & reforming
+and the Middle East emit more. v6's hold-the-budget result rested largely on China's edge-of-data rank (§1).
+
+**Quality.**
+- **Interface gate, H12:** `-PFMgate-v7` against `-PFMgateRef` −3.8 Gt cumulative, the price higher by 0.035–0.085% by
+  the same factor in every region and year (`analysis/checks/gateRefCompare.R v7 H12` →
+  `coupling/gate-ref-compare.rds`): one global path, the budget loop stopping at another iteration. φ is 1 at θ = 0, so
+  the political layer is neutral. Same class as v6's waived difference (v6 −0.7 Gt, price −0.3%); EU21 identical.
+- **Five hold-the-budget runs did not peak by 2150** (`analysis/checks/budgetPeak.R v7` → `coupling/budget-peak.rds`):
+  EU21 θ 0.325 / 0.5 / 0.675 (peaks 1027.9 / 1011.8 / 1019.0 Gt in 2150), H12 θ 0.675 (1022.6) and H12 institutions held
+  (1028.1). By PITFALLS §26 a failed budget. In every one the Middle East keeps 0.24–0.32 GtC a year more than the
+  no-politics run after 2100; in the passing runs 0.01–0.07. The failures do not follow θ (H12 θ 0.5 passes, θ 0.675 fails;
+  EU21 institutions held passes, the deployed run fails), so the solver's path, not the political limit, decided it.
+  **Re-run** from the no-politics reference (`warm: "@gate"`, start tags `V7RERUNEU21`, `V7RERUNH12`; the newest run of
+  a title supersedes the earlier one in the extraction). If a re-run still does not peak, it is disclosed as in v6.
+- Convergence: 2–8 PFM calls, final share change ≤ 0.0019; no run at the iteration cap; no infeasibility at the end.

@@ -98,21 +98,57 @@ runs:
     theta: ["0.325", "0.675"]
     warm: "@Bfix"
     description: "Hold the price, fading limit, at the other two declared severities."
+  # Hold-the-budget rows that did not peak by 2150 in the first batch (PITFALLS 26: a failed budget) start from the
+  # no-politics reference instead (2026-10-24; design note 0007 section 17). In all five the Middle East kept positive
+  # emissions after 2100 that the passing runs drove net-negative; the failures do not follow theta, so the start point,
+  # not the political limit, decided it. Tags V7RERUN<res> start only these rows.
   - key: C
     wave: 1
     section: v7_wave1_ruleC
     parent: PkBudg1000
     rule: C
     theta: "0.50"
+    res: [H12]
     description: "Hold the budget, fading limit, theta 0.50: the cap rebuilt from the share path every iteration."
   - key: C
     wave: 1
     section: v7_wave1_ruleC
     parent: PkBudg1000
     rule: C
-    theta: ["0.325", "0.675"]
+    theta: "0.50"
+    res: [EU21]
+    warm: "@gate"
+    start: {EU21: [V7W1EU21, V7RERUNEU21]}
+    description: "Hold the budget, fading limit, theta 0.50, started from the no-politics reference (did not peak from a cold start)."
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: "0.325"
+    res: [H12]
     warm: "@C"
-    description: "Hold the budget, fading limit, at the other two declared severities."
+    description: "Hold the budget, fading limit, theta 0.325."
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: "0.675"
+    res: [H12]
+    warm: "@gate"
+    start: {H12: [V7W1H12, V7RERUNH12]}
+    description: "Hold the budget, fading limit, theta 0.675, started from the no-politics reference (did not peak)."
+  - key: C
+    wave: 1
+    section: v7_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: ["0.325", "0.675"]
+    res: [EU21]
+    warm: "@gate"
+    start: {EU21: [V7W1EU21, V7RERUNEU21]}
+    description: "Hold the budget, fading limit, at the other two declared severities, started from the no-politics reference (did not peak)."
   - key: Bheld
     wave: 1
     section: v7_wave1_institutionsHeld
@@ -131,8 +167,21 @@ runs:
     theta: "0.50"
     variant: held
     institutions: hold
+    res: [EU21]
     warm: "@C"
     description: "Hold the budget, fixed institutions (decision 1A)."
+  - key: Cheld
+    wave: 1
+    section: v7_wave1_institutionsHeld
+    parent: PkBudg1000
+    rule: C
+    theta: "0.50"
+    variant: held
+    institutions: hold
+    res: [H12]
+    warm: "@gate"
+    start: {H12: [V7W1H12, V7RERUNH12]}
+    description: "Hold the budget, fixed institutions (decision 1A), started from the no-politics reference (did not peak)."
   - {key: BEhold, wave: 1, section: v7_wave1_formulation, parent: PkBudg1000, rule: Bfix, theta: "0.50",
      variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@Bfix",
      description: "Hold the price, constant limit (D2, C5): today's limit kept, to separate the new ranking from the fading."}
