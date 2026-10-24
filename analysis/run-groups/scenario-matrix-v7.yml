@@ -200,3 +200,32 @@ runs:
   - {key: CEhold, wave: 1, section: v7_wave1_formulation, parent: PkBudg1000, rule: C, theta: "0.50",
      variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@C",
      description: "Hold the budget, constant limit (D2, C5): strength against ranking (0005 Phase 6)."}
+
+  # ---------------------------------------------------------------- second wave: the persistence ladder (2026-10-25)
+  # The rows the paper's spine needs on v7 (design note 0006, re-read on v7): fading + erosion at the declared rates
+  # (kappa 0.027 central, ADR 0050; 0.02 and 0.05 at EU21) and the growing limit (kappa -0.005, a bound, ADR 0057),
+  # both closures, as in v6's second wave. Start tags V7W2EU21 (8 rows) and V7W2H12 (2 rows).
+  - {key: Bkappa, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21, H12],
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@Bfix",
+     description: "Hold the price, fading + erosion 2.7% a year (kappa = 0.027, the central erosion rate)."}
+  - {key: Ckappa, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21, H12],
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@C",
+     description: "Hold the budget, fading + erosion 2.7% a year (kappa = 0.027, the central erosion rate)."}
+  - {key: Bkappa02, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@Bfix",
+     description: "Hold the price, fading + erosion 2% a year (kappa = 0.02, half-life about 35 years)."}
+  - {key: Ckappa02, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@C",
+     description: "Hold the budget, fading + erosion 2% a year (kappa = 0.02)."}
+  - {key: Bkappa05, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@Bfix",
+     description: "Hold the price, fading + erosion 5% a year (kappa = 0.05, half-life about 14 years)."}
+  - {key: Ckappa05, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@C",
+     description: "Hold the budget, fading + erosion 5% a year (kappa = 0.05)."}
+  - {key: Bbackslide, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@BEhold",
+     description: "Hold the price, growing limit: today's limit tightening 0.5% a year (a declared bound, ADR 0057)."}
+  - {key: Cbackslide, wave: 2, section: v7_wave2_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@CEhold",
+     description: "Hold the budget, growing limit: today's limit tightening 0.5% a year (a declared bound, ADR 0057)."}

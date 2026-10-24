@@ -3,6 +3,8 @@
 **Status: Open** — the spine is the author's choice. Recommendation: *Today vs tomorrow*, led by the
 result of *Net zero slips*, with the other frames as its sections.
 
+> **Re-read on `v7` (2026-10-25): see the last section.** The paper is now on Run-Group `v7` (ADR 0059, 0060).
+
 **Provenance.** Run-Group `v6`, EU21 unless stated, θ = 0.50, 1000 Gt budget. Every number is read from
 `output/pfm/v6/coupling/`: `persistence-ladder.json` (`analysis/v6/persistenceLadder.R`),
 `coupled-facts.json`, `coupled-costs.json`, `coupled-runs.rds` and `rulec-relocation-decomp.rds`, as of
@@ -449,3 +451,28 @@ What *Today vs tomorrow* still needs before writing:
 - [ ] Carry the edge-of-data sensitivity (0007 §6) into the claims ledger: the fading-limit headline with the
   power & industry k range above. Decide whether a coupled re-run of the capped variant (O1) is needed before
   submission or is reported as an offline sensitivity.
+
+## Re-read on `v7` (2026-10-25)
+
+The paper moved to Run-Group `v7`. Every frame above rests on `v6` numbers; this section says which survive, from the
+first `v7` batch (`output/pfm/v7/coupling/coupled-facts.json`, `coupled-costs.json`, `coupled-runs.rds`; θ = 0.50).
+
+| Frame | On `v7` | Evidence (EU21 / H12) |
+| --- | --- | --- |
+| Net zero slips | **holds** | 11 of the 12 political hold-the-price runs still rising in 2150 (only EU21 θ 0.325 peaks, in 2130); fading limit 1168 / 1153 Gt in 2150 (v6 1184 / 1183); no-politics reference peaks 2100 |
+| Today vs tomorrow | **core holds; ladder incomplete** | constant minus fading limit 68.8 / 57.5 Gt under hold the price (v6 70.9 / 63.5); abatement moved 35.0 / 37.1 against 17.1 / 18.4 Gt under hold the budget. Erosion and growing-limit rows not yet run on `v7` (second wave, tags `V7W2EU21`, `V7W2H12`) |
+| Budget or price | holds, smaller | extra CO₂ +98.8 / +87.9 Gt (v6 +118.2 / +112.8) |
+| The budget survives | **stronger** | anchor ×1.21 / ×1.19 (v6 ×1.26), abatement moved 17.1 / 18.4 Gt |
+| Who abates | **weaker, and changed** | relocation onto China halves (−4.9 / −6.4 Gt), India leaves (+0.8 / +0.3), Russia & reforming and the Middle East take up: v6's large relocation onto China was largely an edge-of-data effect (0007 §1, §17) |
+| Robust now, a bet later | to re-derive | needs the 2050 extra CO₂ per persistence case on `v7` (the second wave) |
+
+**Recommendation on `v7`: keep *Today vs tomorrow*, led by *Net zero slips*, and open with the theory.** The order the
+author set (assumptions before the estimated model) adds what `v6` lacked: the ceiling is a tested statement of
+political-economy theory (structural power, contingent on institutions, coherent across the sample; ADR 0059), and the
+democracy weight removes the edge-of-data artefacts that drove `v6`'s regional story. A spine sentence:
+
+> *Unless politics changes, holding each country to the carbon price its political economy has sustained keeps
+> cumulative CO₂ rising past 2150; most of that cost is the assumption that today's politics persists.*
+
+Before writing on it: run the second wave (the persistence ladder on `v7`); re-derive *Robust now, a bet later*;
+drop the China-centred reading of *Who abates* and report the relocation as small and redistributed.
