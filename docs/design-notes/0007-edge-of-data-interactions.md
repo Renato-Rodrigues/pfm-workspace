@@ -1,7 +1,7 @@
 # 0007 — Edge of the data: when a driver acts against the frontier's logic (evaluation for v7)
 
-**Status: Open** — to be evaluated in `v7` (author, 2026-10-13). The `v6` baseline is measured; no option
-is decided. Graduates into an ADR once `v7` picks an option.
+**Status: Closed 2026-10-25** — decided by ADR 0059 (the theory gate) and ADR 0060 (the v7 specification: the
+democracy weight on every interaction; no O1 cap). Opened 2026-10-13 for `v7`; kept as the record of the evaluation.
 
 **Provenance.** Run-Group `v6`, selected specification `X-1791 … bothIncAP lev … satAP`, frontier coefficients
 held as estimated (nothing refitted). The scenario values are the coupled hold-the-price headline run

@@ -1,6 +1,8 @@
 # ADR 0059 — The specification search requires the political-economy hypotheses it is built on
 
-- **Status:** **Proposed 2026-10-22** (author to accept). Applies from Run-Group `v7`; `v6` and earlier are unchanged.
+- **Status:** **Accepted 2026-10-25** (author). Proposed 2026-10-22. Applies from Run-Group `v7`; `v6` and earlier are
+  unchanged. Accepted with three conditions: the paper states that the selection rule was revised for v7 and why; it
+  reports the post-selection caveat; the H3 (0.70 / 0.80) and p (0.10) sensitivities are run before the results are final.
 - **Run-Groups:** `v7` (`config.yml` `sweep: groups: v7: theoryGate`).
 - **Evidence:** design note 0007 §§13–15; `analysis/checks/theoryTermScreen.R`, `inferenceScreen.R`, `offsetRatio.R`,
   `theoryGateCalibration.R` → `output/pfm/v7/theory-term-screen.rds`, `inference-screen.rds`, `offset-ratio.rds`,

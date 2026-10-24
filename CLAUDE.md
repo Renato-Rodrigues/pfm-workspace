@@ -38,7 +38,7 @@ Two consequences for how work is judged here:
 | how the tree is organised, and where a new version goes | `README.md` |
 | setting up, running on the cluster, syncing back, reproducing a version | `docs/RUNNING.md` |
 | the next model version (v6) | `docs/design-notes/0005-v6-implementation-plan.md` |
-| the `v6` paper (being written) | `papers/pfm-paper-v6/CLAUDE.md` |
+| the paper (being written, on Run-Group `v7` since 2026-10-25) | `papers/pfm-paper-v6/CLAUDE.md` |
 | the `v5` paper (frozen, superseded) | `papers/pfm-paper-v5/CLAUDE.md` |
 
 Nothing else at `docs/` top level is authoritative. Its subfolders hold decisions (`adr/`) and open

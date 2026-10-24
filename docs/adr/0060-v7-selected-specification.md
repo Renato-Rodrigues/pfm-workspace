@@ -1,6 +1,6 @@
 # ADR 0060 — The v7 specification: v6's channels, democracy-weighted interactions, saturating clean-energy interests
 
-- **Status:** **Proposed 2026-10-22** (author to accept, with ADR 0059).
+- **Status:** **Accepted 2026-10-25** (author), with ADR 0059. Proposed 2026-10-22.
 - **Run-Groups:** `v7` (sweep job 2667134, downstream job 2668570). `v6` is unchanged and stays the basis of the `v6`
   paper.
 - **Evidence:** design note 0007 §§12–17; `output/pfm/v7/` (`selected-models-pfm.yml`, `frontier.rds`,
@@ -37,8 +37,10 @@
 - **Contingency (H2) is supported; its form in buildings & transport is not v6's.** The accountability channel acts
   through the per-person fossil term, not the share. Only the pair is interpretable (ADR 0056): the paper reports the
   fossil effect's dependence on accountability, not one coefficient.
-- **The selection is more stable than v6's**: the deployed spec wins 44% of the selection bootstrap's resamples among
-  the specs that pass the walk (v6: 15%); every conditional winner is a weighted X-1791 or X-1860 (`bothIncAP`).
+- **The selection is more stable than v6's**: once the walk's rejections are applied, the deployed spec wins 24% of the
+  200 resamples of the selection bootstrap (`deployedWinShareConditional`; v6: 15%), and 44% of the resamples that yield
+  an admissible winner (`specFreqConditional`); every conditional winner is a weighted X-1791 or X-1860 (`bothIncAP`).
+  (Corrected 2026-10-25: the proposed text compared the 44% with v6's 15%, which is the other measure.)
 - **The edge effects of v6 are gone.** No region has fossil dependence acting against theory (v6: China 97%, Middle
   East 53%, Other Asia 28% in buildings & transport); the mid-century rise of the buildings & transport strength is
   gone (k 0.91, 0.71, 0.59, 0.53, 0.48 in 2030–2100; v6 rose to 0.96 in 2060).
