@@ -97,6 +97,17 @@ panel:
     v7:
       democracy: true
       overallAccountability: true
+    # the theory-gate sensitivities of ADR 0059 (accepted 2026-10-25): the same panel as v7, so the sweep re-selects
+    # from v7's cached fits (seed data/madrat/<group> with a copy of data/madrat/v7 first; RUNNING Step 6c)
+    v7-h3070:
+      democracy: true
+      overallAccountability: true
+    v7-h3080:
+      democracy: true
+      overallAccountability: true
+    v7-p10:
+      democracy: true
+      overallAccountability: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -170,7 +181,7 @@ sweep:
         capShift: 0.5
         cap: [0.05, 0.95]
         mapping: regionmapping_21_EU11.csv
-      # theoryGate (design note 0007 section 15; ADR 0059, proposed): the hypotheses a selected spec must show, from
+      # theoryGate (design note 0007 section 15; ADR 0059, accepted 2026-10-25): the hypotheses a selected spec must show, from
       # the political economy of the transition (ADR 0056). H1-H2 screen the ranked pool on the fits; H3 is severe in
       # the sanity walk.
       #   p            significance level (cluster-robust p of the fits)
@@ -181,6 +192,80 @@ sweep:
       #                estimation rows (refuses large offsetting interaction terms)
       theoryGate:
         p: 0.05
+        structural: true
+        contingency: true
+        coherence: 0.75
+    # Theory-gate sensitivities (ADR 0059 acceptance): v7's sweep options in full, one threshold changed. Written out,
+    # not merged with a YAML anchor: R's yaml lets a merged key override the group's own.
+    v7-h3070:   # H3 coherence 0.70
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      # theoryGate (design note 0007 section 15; ADR 0059, accepted 2026-10-25): the hypotheses a selected spec must show, from
+      # the political economy of the transition (ADR 0056). H1-H2 screen the ranked pool on the fits; H3 is severe in
+      # the sanity walk.
+      #   p            significance level (cluster-robust p of the fits)
+      #   structural   H1: fossil dependence lowers the ceiling at typical institutions, in every sector
+      #   contingency  H2: the fossil effect depends on institutions (a fossil x institution term at p / their
+      #                number, Bonferroni), in every sector; the sign is free
+      #   coherence    H3: the fossil effect, interactions included, is negative in at least this share of the
+      #                estimation rows (refuses large offsetting interaction terms)
+      theoryGate:
+        p: 0.05
+        structural: true
+        contingency: true
+        coherence: 0.70
+    v7-h3080:   # H3 coherence 0.80
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      # theoryGate (design note 0007 section 15; ADR 0059, accepted 2026-10-25): the hypotheses a selected spec must show, from
+      # the political economy of the transition (ADR 0056). H1-H2 screen the ranked pool on the fits; H3 is severe in
+      # the sanity walk.
+      #   p            significance level (cluster-robust p of the fits)
+      #   structural   H1: fossil dependence lowers the ceiling at typical institutions, in every sector
+      #   contingency  H2: the fossil effect depends on institutions (a fossil x institution term at p / their
+      #                number, Bonferroni), in every sector; the sign is free
+      #   coherence    H3: the fossil effect, interactions included, is negative in at least this share of the
+      #                estimation rows (refuses large offsetting interaction terms)
+      theoryGate:
+        p: 0.05
+        structural: true
+        contingency: true
+        coherence: 0.80
+    v7-p10:   # H1-H2 at p 0.10
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      # theoryGate (design note 0007 section 15; ADR 0059, accepted 2026-10-25): the hypotheses a selected spec must show, from
+      # the political economy of the transition (ADR 0056). H1-H2 screen the ranked pool on the fits; H3 is severe in
+      # the sanity walk.
+      #   p            significance level (cluster-robust p of the fits)
+      #   structural   H1: fossil dependence lowers the ceiling at typical institutions, in every sector
+      #   contingency  H2: the fossil effect depends on institutions (a fossil x institution term at p / their
+      #                number, Bonferroni), in every sector; the sign is free
+      #   coherence    H3: the fossil effect, interactions included, is negative in at least this share of the
+      #                estimation rows (refuses large offsetting interaction terms)
+      theoryGate:
+        p: 0.10
         structural: true
         contingency: true
         coherence: 0.75

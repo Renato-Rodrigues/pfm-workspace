@@ -277,6 +277,22 @@ panels, boot-cache and madrat cache are never touched: `clean` re-runs the steps
 `tools/clusterSubmit.R` refuses when `sbatch` is missing, because `pfmRun` would silently run
 locally. Bring everything back with `syncFromCluster.sh … --estimation --remind-inputs` (Step 9).
 
+### Step 6c — The theory-gate sensitivities of v7 (ADR 0059)
+
+Three sibling groups re-select from v7's fits with one threshold changed: `v7-h3070` (H3 coherence 0.70), `v7-h3080`
+(0.80), `v7-p10` (H1–H2 at p 0.10). `config.yml` gives each v7's panel and sweep options in full. **Seed their data
+cache with v7's**, or a fresh cache may differ upstream (PITFALLS §40) and the fits will not be found:
+
+```bash
+for g in v7-h3070 v7-h3080 v7-p10; do cp -rn data/madrat/v7 data/madrat/$g; done
+bash tools/clusterRun.sh --standby 'v7-h3070 v7-h3080 v7-p10' --stage sweep,diagnostics --no-update --dry-run
+bash tools/clusterRun.sh --standby 'v7-h3070 v7-h3080 v7-p10' --stage sweep,diagnostics --no-update
+```
+
+Check in each log that the fit grid says `72768 jobs: 0 newly fit` (the panel is v7's) and the theory-gate line its
+threshold. Then commit `records/<group>/` as in Step 6 and copy `output/pfm/<group>/` to the workstation;
+`Rscript analysis/checks/selectionCompare.R <group> v7` compares each selection with v7's.
+
 ## Step 7 — Run the coupled REMIND batch
 
 Each coupled row names its Run-Group in the scenario config's column `pfmGroup`. It still says
