@@ -1,0 +1,20 @@
+# key: ed5ee341c2d6dd61c782f9473254d9a5
+# tag: v7-p10
+# pfm: 0.8.0
+# The madrat cache files this Run-Group reads (pfm::pfmPrepareCache). Deposit them with the version.
+file	size	md5	builders
+calcCarbonPrice-F6b4116f9.rds	113036	5550ae61a3e3d8067e577f9f0026e0ff	historical-panel,historical-panel-four,scenario-panel
+calcEmber-F345228d4-6962d9dc.rds	99014	0cd30f5b6fd24055f171e0a1871fa95a	coupling-weights,historical-panel,historical-panel-four,scenario-panel
+calcFAOLandArea-F9b9ce4a0.rds	2340	7ddf32e63635f1b2d75d0111fe9a4a1f	historical-panel,historical-panel-four,scenario-panel
+calcFE-F91b0a4b7-3474774a.rds	7985487	a98b8f6dee4f4c685967c173679ed62f	coupling-weights,historical-panel,historical-panel-four,scenario-panel
+calcGDP-F6920f2e9-c25d42e0.rds	171561	6241a47a7bef82ab3aadf532b1f0a2b9	coupling-weights,historical-panel,historical-panel-four,scenario-panel
+calcPE-Fb6c11b15-3474774a.rds	1647056	5fbab70ddabb0187f81099e56dbf4b41	coupling-weights,historical-panel,historical-panel-four,scenario-panel
+calcPolicyStringency-510fc236.rds	80913	d5c20d7fd9ffbf0021f666c88e88e742	historical-panel-four
+calcPolicyStringency-f55ded4e.rds	73854	004ccb23b9f9d5d0da857f2ac6cc42fd	historical-panel
+calcPopulation-F6920f2e9-d4e449d0.rds	162758	98be698aef3294849b8645f019a2e130	historical-panel,historical-panel-four,scenario-panel
+calcSSPextensions-Fc06b9d65-7edac484.rds	825024	953163295662fb1f2e66a0774a87304c	historical-panel,historical-panel-four,scenario-panel
+calcVDem-13df2b0f.rds	1417920	47ca8bae53c7371270d06571fd2ce7ac	historical-panel,historical-panel-four,scenario-panel
+calcVDem-55ae0958.rds	467459	399e0a62eca239875daa5739af9c4508	historical-panel,historical-panel-four,scenario-panel
+calcVDem-F82465a6f-daeceebc.rds	2233433	57bc2fe6cc61eacb87232cec97128b0e	historical-panel,historical-panel-four,scenario-panel
+calcVDem-F82465a6f.rds	1877235	00dc916068460a7ad19e3194c7a4eea0	historical-panel,historical-panel-four,scenario-panel
+calcWGIindicator-F3c7d7b26.rds	505605	9b8c5a03ef08a91b7cfb5cd7bc7d654c	historical-panel,historical-panel-four,scenario-panel
