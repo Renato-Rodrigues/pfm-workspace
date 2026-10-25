@@ -308,10 +308,11 @@ if (!"--guide" %in% args) {
     message("[markup-counterfactual]"); build("markup-counterfactual")
   }
 
-  # ── v6 coupled (Phase 5 / 6) — only for a v6 group: they read the v6 coupling artifacts
-  # and the v5 ones beside them. Rails: theta and kappa are declared; the v5 -> v6 drop is
-  # mostly lambda's removal; hold the budget relocates, it does not add emissions.
-  if (grepl("^v6", GROUP)) {
+  # ── coupled (0005 Phase 5 / 6) — for a group from v6 on that has coupled runs: they read its
+  # coupling artifacts and the previous version's beside them (v5 for v6, v6 for v7; pfmPrevGroup).
+  # Rails: theta and kappa are declared; the v5 -> v6 drop is mostly lambda's removal; hold the
+  # budget relocates, it does not add emissions.
+  if (!is.null(pfmPrevGroup(GROUP)) && pfmArtifactExists(GROUP, "coupling/coupled-facts.json")) {
     for (id in c("v6-coupled-theta", "v6-coupled-arms", "v6-rulec-relocation", "v6-price-catchup")) {
       if (run(id)) { message("[", id, "]"); build(id) }
     }

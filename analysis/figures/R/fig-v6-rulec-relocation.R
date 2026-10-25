@@ -10,11 +10,14 @@
 figV6RulecRelocation <- function(group = "v6", withOld = TRUE) {
   dc <- pfmArtifact(group, "coupling/rulec-relocation-decomp.rds")
   s <- dc$summary
-  lab <- if (withOld) c(v5 = "v5", v6 = "v6, fading limit", `v6 C-Ehold` = "v6, constant limit (k ≈ 1)",
-                        `v6 C-kappa02` = "v6, + erosion 2%", `v6 C-kappa` = "v6, + erosion 2.7%", `v6 C-kappa05` = "v6, + erosion 5%")
-         else c(`v6 C-backslide` = "growing limit", `v6 C-Ehold` = "constant limit",
-                v6 = "fading limit", `v6 C-kappa02` = "fading + erosion 2% a year",
-                `v6 C-kappa` = "fading + erosion 2.7% a year", `v6 C-kappa05` = "fading + erosion 5% a year")
+  g <- dc$groups[2]; o <- dc$groups[1]   # the decomposition's own pair (ruleCRelocationDecomp.R <old> <new>)
+  arm <- function(x) paste0(g, " C-", x)
+  lab <- if (withOld) stats::setNames(c(o, paste0(g, ", fading limit"), paste0(g, ", constant limit (k ≈ 1)"),
+                                        paste0(g, ", + erosion 2%"), paste0(g, ", + erosion 2.7%"), paste0(g, ", + erosion 5%")),
+                                      c(o, g, arm("Ehold"), arm("kappa02"), arm("kappa"), arm("kappa05")))
+         else stats::setNames(c("growing limit", "constant limit", "fading limit", "fading + erosion 2% a year",
+                                "fading + erosion 2.7% a year", "fading + erosion 5% a year"),
+                              c(arm("backslide"), arm("Ehold"), g, arm("kappa02"), arm("kappa"), arm("kappa05")))
   s <- s[s$group %in% names(lab), ]
   lab <- lab[names(lab) %in% s$group]
   d <- rbind(data.frame(case = s$group, resolution = s$res, period = "2020–2050", gross = s$gross2050),
@@ -34,7 +37,8 @@ figV6RulecRelocation <- function(group = "v6", withOld = TRUE) {
     ggplot2::scale_fill_manual(values = c(`2020–2050` = "grey65", `2051–2100` = pfmAccent()),
                                breaks = c("2020–2050", "2051–2100")) +
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0, 0.08))) +
-    ggplot2::labs(title = if (withOld) "Holding the budget: v6 moves far less abatement after 2050"
+    ggplot2::labs(title = if (withOld && g == "v6") "Holding the budget: v6 moves far less abatement after 2050"
+                          else if (withOld) paste0("Holding the budget: abatement moved between regions, ", g, " against ", o)
                           else "Holding the budget: how much abatement moves depends on how long the limit lasts",
                   subtitle = paste0("Hold the budget, θ = 0.50: abatement moved between regions against the θ = 0 run,\n",
                                     "Gt CO₂eq: half the sum of absolute regional changes, per period (bars) and for the century (labels)."),

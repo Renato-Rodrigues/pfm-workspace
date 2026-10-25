@@ -47,7 +47,7 @@ figV6CoupledArms <- function(group = "v6", resolution = "EU21") {
                                     "Each sensitivity run changes one choice; the blue line is the headline run (fading limit)."),
                   x = "extra cumulative CO₂ by 2100 (Gt)", y = NULL)
   attr(p, "pfmGrid") <- "x"
-  attr(p, "pfmHeightScale") <- 1.5
+  attr(p, "pfmHeightScale") <- if (nrow(d) > 6) 1.5 else 0.6   # a batch with few sensitivity runs (v7 wave 1)
   attr(p, "pfmTheme") <- ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0, hjust = 0, face = "bold"))
   pfmStamp(p, group, note = "coupling/coupled-facts.json (sensitivity runs)")
 }

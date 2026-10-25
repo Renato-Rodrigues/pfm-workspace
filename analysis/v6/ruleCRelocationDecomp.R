@@ -22,7 +22,9 @@ ex <- new.env(); sys.source("analysis/coupled/extractCoupledResults.R", envir = 
 C2C <- 44 / 12; YEARS <- 2020:2100
 PERIODS <- list(`2020-2050` = 2020:2050, `2051-2100` = 2051:2100)
 RES <- c("EU21", "H12")
-suf <- c(OLD = "", NEW = "-v6"); names(suf) <- c(OLD, NEW)
+# coupled titles end in -<major version> from v6 on (-v6, -v7); v5 titles carry none
+sufOf <- function(g) { v <- as.integer(sub("^v([0-9]+).*$", "\\1", g)); if (is.na(v) || v < 6) "" else paste0("-v", v) }
+suf <- vapply(c(OLD, NEW), sufOf, ""); names(suf) <- c(OLD, NEW)
 
 art <- lapply(stats::setNames(c(OLD, NEW), c(OLD, NEW)), function(g) readRDS(file.path("output/pfm", g, "coupling/coupled-runs.rds")))
 runOf <- function(g, res, key, optional = FALSE) {

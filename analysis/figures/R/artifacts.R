@@ -72,6 +72,18 @@ pfmArtifactExists <- function(group, path) {
 
 `%||%` <- function(a, b) if (is.null(a) || !length(a)) b else a
 
+#' The version a coupled figure compares a group against: v5 for v6, v6 for v7 and later
+pfmPrevGroup <- function(group) {
+  v <- as.integer(sub("^v([0-9]+).*$", "\\1", group))
+  if (is.na(v) || v < 6) NULL else paste0("v", v - 1)
+}
+
+#' The suffix a group's coupled run titles end in: -v6, -v7, ...; none up to v5
+pfmRunSuffix <- function(group) {
+  v <- as.integer(sub("^v([0-9]+).*$", "\\1", group))
+  if (is.na(v) || v < 6) "" else paste0("-v", v)
+}
+
 #' Is a coupling summary's aggregation weight actually a size variable?
 #'
 #' Everything region-level in `coupling-summary.rds` — phi, the tier table, inCoverageShare,

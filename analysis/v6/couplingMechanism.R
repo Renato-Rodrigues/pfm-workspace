@@ -10,7 +10,7 @@
 #      2025, exactly as analysis/v6/phase1.R does offline on the uncoupled bases. "all" is the run's own
 #      recomputation, checked against the k its last call recorded.
 # Output: output/pfm/<group>/coupling/strength-support.rds (support, decomposition, check).
-suppressMessages({ library(pfm); library(magclass) })
+source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 g <- local({ a <- commandArgs(trailingOnly = TRUE); if (length(a)) a[1] else "v6" })
 if (!file.exists("config.yml")) stop("run from the project root")
@@ -29,7 +29,7 @@ support <- do.call(rbind, lapply(seq_len(nrow(CR)), function(i) {
              s[, c("sector", "year", "k", "outOfSupportShare", "clipShare")])
 }))
 say("C10: ", length(unique(paste(support$resolution, support$run))), " coupled runs read")
-hl <- support[support$run %in% c("PFMlevelBfix-v6", "PFMlevelC-v6") & support$year %in% c(2030, 2050, 2070, 2100), ]
+hl <- support[support$run %in% paste0(c("PFMlevelBfix-", "PFMlevelC-"), g) & support$year %in% c(2030, 2050, 2070, 2100), ]
 print(reshape(hl[, c("resolution", "run", "sector", "year", "outOfSupportShare")],
               idvar = c("resolution", "run", "sector"), timevar = "year", direction = "wide"), row.names = FALSE, digits = 3)
 rng <- aggregate(outOfSupportShare ~ resolution + sector + year, support[support$year %in% c(2050, 2100), ], range)
@@ -42,10 +42,10 @@ suppressMessages(madrat::setConfig(cachefolder = normalizePath(file.path("data/m
 # the Run-Group's panel definition (the IEA edition behind the energy drivers), as phase1.R and a run set it
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
 pd <- pfm:::.pfmPanelDefForGroup(file.path("output/pfm", g), rc$panel)
-options(pfm.panel = pd[c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal")])
+options(pfm.panel = pd[intersect(c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal", "democracy", "overallAccountability"), names(pd))])
 # the anchor the coupled runs read (output/remind-inputs/<group>/phi-anchor.rds, EU21), with its weights
 a <- pfm:::pfmAnchorFor(file.path("output/remind-inputs", g), "EU21")
-heads <- CR[CR$resolution == "EU21" & sub("^SSP2-EU21-PkBudg1000-", "", CR$scenario) %in% c("PFMlevelBfix-v6", "PFMlevelC-v6"), ]
+heads <- CR[CR$resolution == "EU21" & sub("^SSP2-EU21-PkBudg1000-", "", CR$scenario) %in% paste0(c("PFMlevelBfix-", "PFMlevelC-"), g), ]
 dec <- list(); chk <- list()
 for (i in seq_len(nrow(heads))) {
   run <- sub("^SSP2-EU21-PkBudg1000-", "", heads$scenario[i])
@@ -97,7 +97,8 @@ beyond <- do.call(rbind, lapply(seq_len(nrow(heads)), function(i) {
     do.call(rbind, lapply(names(apNames), function(term) {
       x <- scen[, , paste0(apNames[[term]], "|", sec)]
       cc <- intersect(getItems(x, 1), names(a$weights)); x <- x[cc, YRS, ]
-      p <- sc[[term]]; zt <- ((x / (x + p[["sat"]])) - p[["mean"]]) / p[["sd"]]
+      p <- sc[[term]]   # sat NA: the term enters linearly (satInn leaves the fossil terms unsaturated)
+      zt <- ((if (is.finite(p[["sat"]])) x / (x + p[["sat"]]) else x) - p[["mean"]]) / p[["sd"]]
       lo <- sup$min[sup$term == term]; hi <- sup$max[sup$term == term]
       wv <- a$weights[cc]
       do.call(rbind, lapply(YRS, function(y) {

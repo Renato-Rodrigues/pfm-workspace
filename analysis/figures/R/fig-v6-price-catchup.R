@@ -6,7 +6,7 @@
 # price returns to the null's by about 2070. CHA's two markets are shown separately: its power market
 # is unconstrained in both versions, its diffuse market became the most constrained in v6.
 
-figV6PriceCatchup <- function(group = "v6", old = "v5", resolution = "EU21") {
+figV6PriceCatchup <- function(group = "v6", old = pfmPrevGroup(group), resolution = "EU21") {
   sel <- data.frame(region = c("REF", "MEA", "SSA", "IND", "CHA", "CHA"),
                     market = c("ETS", "ETS", "ETS", "ETS", "ETS", "ES"))
   one <- function(g, suffix) {
@@ -21,7 +21,7 @@ figV6PriceCatchup <- function(group = "v6", old = "v5", resolution = "EU21") {
                  year = x$year, ratio = x[[col]] / x[[paste0(col, ".0")]])
     }))
   }
-  d <- rbind(one(group, "-v6"), if (!is.null(old)) one(old, ""))
+  d <- rbind(one(group, pfmRunSuffix(group)), if (!is.null(old)) one(old, pfmRunSuffix(old)))
   d <- d[is.finite(d$ratio), ]
   d$version <- factor(d$version, levels = c(group, old))
   d$panel <- factor(d$panel, levels = unique(d$panel))
@@ -35,13 +35,15 @@ figV6PriceCatchup <- function(group = "v6", old = "v5", resolution = "EU21") {
     ggplot2::scale_linetype_manual(values = stats::setNames(c("solid", "22")[seq_along(c(group, old))], c(group, old)),
                                    guide = if (is.null(old)) "none" else "legend") +
     ggplot2::scale_x_continuous(breaks = c(2030, 2050, 2070, 2100)) +
-    ggplot2::labs(title = if (is.null(old)) "The constrained regions' price catches up by about 2070"
-                          else "In v6 the constrained regions' price catches up by about 2070",
+    # the catch-up by about 2070 is the v6 reading (against v5); for any other group the title states no result
+    ggplot2::labs(title = if (grepl("^v6", group)) { if (is.null(old)) "The constrained regions' price catches up by about 2070"
+                                                    else "In v6 the constrained regions' price catches up by about 2070" }
+                          else paste0("The constrained regions' price relative to the θ = 0 run", if (!is.null(old)) paste0(", ", group, " against ", old)),
                   subtitle = paste0("Hold the budget, θ = 0.50, ", resolution, ": carbon price over the θ = 0 run's, by market.\n",
                                     "Below 1, the region pays less than in the unconstrained run and emits more."),
                   x = NULL, y = "price relative to the θ = 0 run")
   attr(p, "pfmGrid") <- "y"
-  pfmStamp(p, group, note = if (is.null(old)) "coupling/coupled-runs.rds" else "coupling/coupled-runs.rds (v5 and v6)")
+  pfmStamp(p, group, note = if (is.null(old)) "coupling/coupled-runs.rds" else paste0("coupling/coupled-runs.rds (", old, " and ", group, ")"))
 }
 # old = NULL: the group alone (figure v6-price-catchup-only)
 figV6PriceCatchupOnly <- function(group = "v6") figV6PriceCatchup(group, old = NULL)
