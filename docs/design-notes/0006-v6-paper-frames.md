@@ -1,6 +1,6 @@
 # 0006 — v6 paper frames: which question the v6 paper asks
 
-**Status: Open** — the spine is the author's choice. Recommendation: *Today vs tomorrow*, led by the
+**Status: Decided 2026-10-26** — the author set the spine on `v7`: *Today vs tomorrow*, led by *Net zero slips*, stated to 2100 (last section; `papers/pfm-paper-v6/paper.yml`). Before that: the spine is the author's choice. Recommendation: *Today vs tomorrow*, led by the
 result of *Net zero slips*, with the other frames as its sections.
 
 > **Re-read on `v7` (2026-10-25): see the last section.** The paper is now on Run-Group `v7` (ADR 0059, 0060).
@@ -447,7 +447,7 @@ What *Today vs tomorrow* still needs before writing:
   2026-10-13).
 - [x] Run the persistence ladder at H12: `V6PERSH12` (2026-10-13).
 - [x] Set up `papers/pfm-paper-v6` without the `v5` draft, Methods written (2026-10-13).
-- [ ] Choose the spine; then the claim in its `paper.yml`, the claims ledger and the design.
+- [x] Choose the spine; then the claim in its `paper.yml`, the claims ledger (2026-10-26) and the design (next).
 - [ ] Carry the edge-of-data sensitivity (0007 §6) into the claims ledger: the fading-limit headline with the
   power & industry k range above. Decide whether a coupled re-run of the capped variant (O1) is needed before
   submission or is reported as an offline sensitivity.
@@ -481,3 +481,15 @@ democracy weight removes the edge-of-data artefacts that drove `v6`'s regional s
 
 Before writing on it: run the second wave (the persistence ladder on `v7`); re-derive *Robust now, a bet later*;
 drop the China-centred reading of *Who abates* and report the relocation as small and redistributed.
+
+**Set 2026-10-26 (author), on `v7`.** In one sentence, as the paper's design rules require:
+
+> *Holding each country to the carbon price its political economy has sustained adds about a tenth to a 1000 Gt
+> pathway's CO₂ by 2100, mostly through the assumption that today's politics persists, and leaves net emissions above
+> zero in 2100 where the cost-optimal pathway reaches about net zero.*
+
+"About net zero": the no-politics reference ends 2100 at +0.11 Gt CO₂ a year at EU21 and −0.05 at H12
+(`output/pfm/v7/coupling/emissions-2100.rds`). *Robust now, a bet later* re-derived on `v7` with the second wave: extra
+CO₂ to 2050 is 12–43 Gt across the persistence cases, against 19–221 Gt to 2100 (EU21; same artifact). *Who abates* is
+reported as small and redistributed (`SCENARIOS.md` §4.8). The claims behind the spine are `papers/pfm-paper-v6/docs/claims.md`
+C13–C16.
