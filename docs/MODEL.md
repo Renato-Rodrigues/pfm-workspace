@@ -298,7 +298,10 @@ the specification, on the mean regression with wild-cluster $p$:
 | **H3** | coherence | the fossil effect, including its interactions, is negative in ≥ 75% of country-years | 100% | 95% |
 
 Declared sensitivities of the gate (ADR 0059 acceptance): H3 at 0.70 and 0.80, $p$ at 0.10 (Run-Groups
-`v7-h3070`, `v7-h3080`, `v7-p10`; `RUNNING.md` Step 6c).
+`v7-h3070`, `v7-h3080`, `v7-p10`; `RUNNING.md` Step 6c). **All three select the same specification at the same rank
+(18)**, accepted with 0 severe flags (`output/pfm/<group>/sweep.rds`). H3 never binds: no specification fails it at
+0.70, 0.75 or 0.80. At $p$ 0.10, 152 specifications pass the gates instead of 84, and the sanity walk rejects the seven
+ahead of the selected one (four or five severe flags each) before accepting it.
 
 > ⚠️ **Post-selection inference.** The selection requires H1–H2, so the reported $p$-values of the terms the gate
 > reads are biased downwards; they are conditional on a specification chosen in part for them. The rule was
@@ -741,8 +744,8 @@ beyond the observed range for most countries.
 
 | option | form | headline | sensitivity run |
 |---|---|---|---|
-| **κ, the erosion rate** | $k_s(t)\,(1-\kappa)^{t-2025}$ | κ = 0 | 0.027 central (half-life 25 y), 0.02, 0.05; fixed 2026-10-08 before any run (ADR 0050 decision 5); `v7` wave 2 |
-| growing limit | $k$ rising at a declared rate (ADR 0057) | none | `v7` wave 2 |
+| **κ, the erosion rate** | $k_s(t)\,(1-\kappa)^{t-2025}$ | κ = 0 | 0.027 central (half-life 25 y), 0.02, 0.05; fixed 2026-10-08 before any run (ADR 0050 decision 5); `v7` wave 2, `SCENARIOS.md` §4.9 |
+| growing limit | $k$ rising at a declared rate (ADR 0057) | none | `v7` wave 2, `SCENARIOS.md` §4.9 |
 | hold year | drivers held after 2060 | none (to 2100) | `pfmPhiHoldYear = 2060` |
 | constant limit | hold $E$ instead of $q$ ($k \approx 1$) | distance kept | `pfmPhiHold = ratio` |
 | regional strength | $k_{r,s}(t)$ per region | common | `pfmPhiStrength = regional` |
@@ -824,14 +827,14 @@ $$\boxed{\;\theta \in [0.119,\ 0.063]\;=\;\varnothing\;}\qquad\text{empty on `v7
 | source | what varies | size | reported in |
 |---|---|---|---|
 | **1. Severity θ** | declared, 0.325 / 0.50 / 0.675 | hold the price +59 to +145 Gt (EU21) | **main text** |
-| **2. How long the limit lasts** (erosion κ; growing / constant limit) | κ 0.02 / 0.027 / 0.05; growing; constant | constant limit +167.6 Gt (EU21) / +145.3 (H12) against +98.8 / +87.9; the κ ladder and the growing limit are `v7` wave 2 | **main text** (the largest single sensitivity) |
+| **2. How long the limit lasts** (erosion κ; growing / constant limit) | κ 0.02 / 0.027 / 0.05; growing; constant hold the price +221.1 (growing), +167.6 (constant), +98.8 (fading), +44.4 / +35.5 / +19.3 (erosion 2% / 2.7% / 5%) Gt at EU21; H12 constant +145.3, erosion 2.7% +31.9 | **main text** (the largest single sensitivity) |
 | 3. Specification family | clean-energy-only (selected) vs both-saturate | measured on `v6` only (§5.3.0) | SI |
 | 4. Curve shape | half-saturation 0.5× / 2× | measured on `v6` only | SI |
 | 5. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.114, Spearman down to 0.42 (EU21, offline, §3.4.1) | SI — rank intervals |
 | 6. Out-of-coverage assignment | donor / low band / median; nearest donors; USA | measured on `v6`: hold the price 110–155 Gt | SI (the widest data-side band) |
 | 7. Institution projections | harmonised vs held | hold the price −0.4 Gt (EU21), +0.7 (H12); $k$ moves a lot (§5.2) | main text (fixed-institutions variants) |
 | 8. Energy-system feedback | φ recomputed on the live energy system | power & industry $k_{2050}$ 0.71 on the coupled pathway | **main text** as a result, not an uncertainty |
-| 9. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | pending (`v7-h3070`, `v7-h3080`, `v7-p10`) | SI |
+| 9. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none: the same specification is selected (§2.4a) | SI, one sentence |
 
 **The reporting rule.** The main text carries θ and κ as declared bands and treats $\varphi$ as
 **ordinal**. Any sentence about **which sector binds** carries source 5's caveat.
