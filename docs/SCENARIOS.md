@@ -8,8 +8,8 @@ are coupled, on Run-Group **`v7`** (selected specification
 `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn iw:fexp`, ADR 0060): the first wave (30 runs)
 and the second, the persistence ladder (10 runs). Hold-the-budget runs that had not peaked their budget were re-run
 from another start point (§3.4); the re-runs replace them. Every row is generated from
-`analysis/run-groups/scenario-matrix-v7.yml` (ADR 0055). **Pending:** two EU21 hold-the-budget re-runs, erosion 2.7%
-and the growing limit (`V7RERUN3EU21`, §3.4). The theory-gate sensitivities (`v7-h3070`, `v7-h3080`, `v7-p10`) select
+`analysis/run-groups/scenario-matrix-v7.yml` (ADR 0055). **One run does not peak its budget from either start** (EU21
+hold the budget, growing limit; disclosed, §3.4); it meets the budget at 2100. The theory-gate sensitivities (`v7-h3070`, `v7-h3080`, `v7-p10`) select
 the same specification (`MODEL.md` §2.4a), so they need no coupled runs. The `v6` version of this
 document, with the `v6` batch's 71 runs, is archived at `../_archive/_wip/2026-10-25/docs/SCENARIOS-v6.md`.
 
@@ -236,7 +236,7 @@ a title is quoted in code font when it is needed. The old labels are listed in
 | PFM calls | **2 to 8** per coupled run |
 | iteration cap | **no run ends at `cm_iteration_max`** |
 | budget (hold the budget) | **held in every budget-forced run**: cumulative CO₂ to 2100 997.2–1002.1 Gt (EU21), 997.6–1001.7 (H12) |
-| budget peak | every admitted hold-the-budget run peaks its budget by 2100 **except two EU21 ladder runs**, `-PFMlevelC-kappa-v7` and `-PFMlevelC-backslide-v7`, which meet the budget at 2100 (1002.1 and 1000.3 Gt) but have not peaked; re-runs `V7RERUN3EU21` (§3.4). Every hold-the-price run is unpeaked by design (the budget is not enforced) |
+| budget peak | every admitted hold-the-budget run peaks its budget by 2100 **except two EU21 ladder runs**: `-PFMlevelC-backslide-v7` (growing limit) meets the budget at 2100 (1000.5 Gt) but has not peaked from either start; `-PFMlevelC-kappa02-v7` (erosion 2%) peaks after 2100, 6.5 Gt above the budget (§3.4). Every hold-the-price run is unpeaked by design (the budget is not enforced) |
 | infeasibility code | `pm_pfmInfesCode = 0` in every coupled run |
 | legislated floor | `cm_taxCO2_lowerBound_path_gdx_ref = 0` in every row |
 | cache read | every coupled run read the staged Run-Group cache (`RUNNING.md` Step 8); the cache manifest and the runs' cache use are in `records/v7/` |
@@ -289,16 +289,25 @@ did not follow θ, so the start point, not the political limit, decided it (desi
 the no-politics reference (`V7RERUNEU21`, `V7RERUNH12`; `budget-peak.rds`). Four then peaked by 2100. EU21 θ = 0.675 did
 not; its second attempt, from the passing θ = 0.50 run (`V7RERUN2EU21`), peaks in 2090 at 999.0 Gt.
 
-**Two second-wave runs have not peaked** (EU21 `-PFMlevelC-kappa-v7`, started from `-PFMlevelC-v7`, and
-`-PFMlevelC-backslide-v7`, started from `-PFMlevelC-Ehold-v7`). The pattern is the first wave's: the Middle East, REF
-and China keep emitting late in the horizon in these runs and not in the passing ones; erosion 2% and 5%, from the same
-start, peak. Both are re-run from the no-politics reference (`V7RERUN3EU21`). Until they land, their hold-the-budget
-numbers are quoted with this note.
+**Two second-wave runs had not peaked** (EU21 `-PFMlevelC-kappa-v7`, started from `-PFMlevelC-v7`, and
+`-PFMlevelC-backslide-v7`, started from `-PFMlevelC-Ehold-v7`). Both were re-run from the no-politics reference
+(`V7RERUN3EU21`, 2026-10-26; `budget-peak.rds`):
+
+- **Erosion 2.7% now peaks** (2090, 1000.7 Gt). The re-run replaces the first start.
+- **The growing limit does not peak from either start.** It meets the budget at 2100 (1000.5 Gt), and cumulative CO₂
+  then rises (1074 Gt by 2150 from the no-politics start; 1003 Gt from the constant-limit start). The emissions after
+  2100 are in the Middle East and REF, the two most constrained regions. Unlike the first-wave failures, this one does
+  not depend on the start point: under a limit that tightens without end, the constrained regions' share keeps
+  falling after 2100, so the budget is met at 2100 and not held after it. **Disclosed, not re-run again.** Quote its
+  hold-the-budget numbers to 2100 with this note; its hold-the-price result is unaffected.
+- **Erosion 2% peaks in 2130, 6.5 Gt above the budget** (Middle East and China after 2100). Within the 2 Gt tolerance at
+  2100 (1001.9 Gt); disclosed with the growing limit.
 
 **Settling** (`convergence-audit.rds`, the last ten iterations). The two constant-limit hold-the-budget runs were
 still moving: EU21 `-PFMlevelC-Ehold-v7` (price range up to 15.7%) and H12 `-PFMlevelC-Ehold-v7` (16.1%), both ending
 within 2 Gt of the budget. Quote them with that note. The headline hold-the-budget runs moved less than 1% (EU21 0.7%,
-H12 0.4%); of the second wave, EU21 `-PFMlevelC-kappa-v7` moved 7.6% (one of the two re-runs), the others less than 1%.
+H12 0.4%); of the second wave, the re-runs moved 4.3% (erosion 2.7%) and 1.8% (growing limit), the others less than
+1%.
 
 ---
 
@@ -359,8 +368,8 @@ sit. The anchor rises to make up for the capped regions; in 2050, against the θ
 | θ = 0.675 | 1.321 | 1.194 | 1.283 | 1.080 |
 | institutions held | 1.211 | 1.137 | 1.192 | 1.053 |
 | constant limit | 1.385 | 1.230 | 1.342 | 1.072 |
-| growing limit (not peaked, §3.4) | 1.537 | 1.329 | — | — |
-| fading + erosion 2% / 2.7% / 5% (2.7% at EU21 not peaked) | 1.103 / 1.086 / 1.042 | 1.064 / 1.054 / 1.026 | — / 1.071 / — | — / 1.008 / — |
+| growing limit (not peaked after 2100, §3.4) | 1.552 | 1.341 | — | — |
+| fading + erosion 2% / 2.7% / 5% | 1.103 / 1.080 / 1.042 | 1.064 / 1.048 / 1.026 | — / 1.071 / — | — / 1.008 / — |
 
 The cheapest region in 2050 is REF at both resolutions (×0.86 EU21, ×0.84 H12); the dearest is a northern European
 region (NEN at EU21, NEU at H12, at the anchor's ratio).
@@ -390,8 +399,8 @@ points is an estimate. Figure: `v6-coupled-theta` (`v7` against `v6`).
 |---|---:|---:|---:|---:|---:|
 | **hold the budget** EU21 / H12 | **−0.7 / +3.2** | **17.1 / 18.4** | −0.49 / −0.63 | +0.024% / +0.017% | +0.004% / +0.002% |
 | hold the budget, constant limit EU21 / H12 | +0.6 / +1.9 | 35.0 / 37.1 | −0.58 / −0.73 | +0.011% / +0.004% | −0.006% / −0.007% |
-| hold the budget, growing limit EU21 | +0.6 | 51.9 | −0.61 | | |
-| hold the budget, erosion 2% / 2.7% / 5% EU21 | +1.9 / +2.0 / −1.1 | 8.2 / 6.7 / 5.0 | −0.40 / −0.37 / −0.30 | | |
+| hold the budget, growing limit EU21 | +0.7 | 51.9 | −0.58 | | |
+| hold the budget, erosion 2% / 2.7% / 5% EU21 | +1.9 / −1.9 / −1.1 | 8.2 / 7.5 / 5.0 | −0.40 / −0.28 / −0.30 | | |
 | **hold the price** (quantity headline) EU21 / H12 | +104.8 / +93.3 | 54.3 / 47.4 | −0.52 / −0.68 | +0.15% / +0.13% | +0.16% / +0.15% |
 
 **Under hold the budget the ceiling moves abatement rather than reducing it**: the net change is a few
@@ -400,8 +409,8 @@ its own baseline (negative ρ). Hold the budget, EU21 / H12: REF +7.1 / +8.2, ME
 IND +0.8 / +0.3; SSA −5.0 / −5.3, CHA −4.9 / −6.4, Europe (summed) −5.7 / −3.0 (EUR). The sign agrees in 11 of 12 H12
 regions (the USA is near zero at both). With the constant limit the relocation doubles (35.0 / 37.1 Gt) with the same
 regions: REF +19.9 / +21.4, CHA −12.9 / −14.1. **The relocation follows the persistence of the limit**: 51.9 (growing),
-35.0 (constant), 17.1 (fading), 8.2 / 6.7 / 5.0 Gt (erosion 2% / 2.7% / 5%) at EU21; with the growing limit China takes
-−20.5 Gt and REF +26.9.
+35.0 (constant), 17.1 (fading), 8.2 / 7.5 / 5.0 Gt (erosion 2% / 2.7% / 5%) at EU21; with the growing limit China takes
+−19.1 Gt and REF +27.0.
 
 **Under the cap, the extra emissions land** (EU21, hold the price) in MEA +30.9, OAS +21.9, REF +13.9, SSA +10.7,
 IND +9.6, LAM +7.1 and USA +6.1 Gt CO₂eq (H12 alike).
@@ -431,8 +440,8 @@ on most**; θ is second. Net CO₂ in 2100 follows (`emissions-2100.rds`): 4.16 
 constant, 1.33 fading, 0.33 / 0.24 / 0.13 with erosion (EU21; H12 erosion 2.7%: 0.05), against 0.11 in the no-politics
 reference; no hold-the-price run reaches net zero by 2100.
 
-The EU21 hold-the-budget runs with erosion 2.7% and with the growing limit have not peaked their budget (§3.4); their
-numbers in §4.3 and §4.8 are quoted with that note until the re-runs land. The hold-the-price ladder is unaffected.
+The EU21 hold-the-budget run with the growing limit meets its budget at 2100 but does not hold it after (§3.4); its
+numbers in §4.3 and §4.8 are quoted with that note. The hold-the-price ladder is unaffected.
 
 ### 4.10 Against `v6`
 
@@ -489,8 +498,9 @@ v6 v7`; figure `v6-rulec-relocation`).
    `v7`; report the `v6` band as such or re-run it.
 8. **The interface gate is verified to a tolerance**, and at H12 the no-politics reference is 3.8 Gt below the
    uniform-price reference (§3.1, disclosed).
-9. **The constant-limit hold-the-budget runs were still settling** (§3.4), and two EU21 hold-the-budget ladder runs
-   (erosion 2.7%, growing limit) have not peaked their budget by 2100 (re-runs `V7RERUN3EU21`).
+9. **The constant-limit hold-the-budget runs were still settling** (§3.4). EU21 hold the budget with the growing
+   limit meets the budget at 2100 but does not peak from either start, and with erosion 2% it peaks after 2100 above
+   the budget (§3.4): disclose both with any hold-the-budget number from them.
 10. **Every φ is conditional on modelling choices the data do not settle** — the specification family, the curve
     shape, the frontier error structure (`MODEL.md` §3.4.1), the institution projections, the hold rule. No φ here is
     a measured property of a region.
@@ -604,8 +614,8 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v7`**: the lowest 2050 market
 
 1. ✅ **Wave 2, the persistence ladder** (2026-10-26, §4.9): erosion leaves about a third of the headline, the
    growing limit doubles it.
-2. 🟠 **Two EU21 hold-the-budget re-runs** (`V7RERUN3EU21`: erosion 2.7%, growing limit), from the no-politics
-   reference; disclose if they still do not peak. ✅ θ = 0.675 (`V7RERUN2EU21`) peaks.
+2. ✅ **The hold-the-budget re-runs** (2026-10-26): θ = 0.675 and erosion 2.7% peak; the growing limit does not, from
+   either start, and is disclosed (§3.4).
 3. ✅ **The theory-gate sensitivities** (2026-10-26): the selection does not move (`MODEL.md` §2.4a).
 4. ✅ **The coupled figures for `v7`** (2026-10-25): `v6-coupled-theta`, `v6-coupled-arms`, `v6-rulec-relocation` and
    `v6-price-catchup` build for any group from `v6` on with coupled runs, against the previous version. Three figures

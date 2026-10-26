@@ -80,8 +80,9 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      H12; v6 +118.2 / +112.8). Re-runs of the five hold-the-budget rows that did not peak: four now peak (2026-10-24).
      EU21 θ 0.675 peaks on its second attempt (`V7RERUN2EU21`). Wave 2, the persistence ladder, landed 2026-10-26
      (`SCENARIOS.md` §4.9: erosion 2.7% leaves 36% of the headline, the growing limit 2.2×). The theory-gate
-     sensitivities select the same specification. **Open:** the two EU21 hold-the-budget ladder runs that did not peak,
-     `V7RERUN3EU21` (erosion 2.7%, growing limit, from the no-politics reference); then `runCoupledStage.R v7`.
+     sensitivities select the same specification. The re-runs `V7RERUN3EU21` (2026-10-26): erosion 2.7% peaks; the
+     growing limit under hold the budget does not peak from either start and is disclosed (`SCENARIOS.md` §3.4). The
+     coupled batch is complete.
      Earlier text of this item:
      the coupled REMIND batch for v7 (Step 7; a v7 scenario matrix). The regional ranking changed (0007 §17):
      China no longer the most constrained region in buildings & transport (u 1.00 → 0.35), India no longer in power &
