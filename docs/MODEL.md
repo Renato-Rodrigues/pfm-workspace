@@ -575,6 +575,24 @@ countries at 2023** (median $E$: power & industry 0.704, buildings & transport 0
 `index / indexMax`). Nothing in the coupling reads it; any offline figure built from that column is
 on the prohibited measure (§7).
 
+#### 3.4.3 The countries at the edge
+
+The lowest $E$ in power & industry at 2023 (`output/pfm/v7/efficiency-extremes.rds`): Iceland 0.33,
+Indonesia 0.33, Peru 0.35, Argentina 0.39, Russia 0.46; Saudi Arabia 0.55. Decomposed by term
+(`analysis/checks/efficiencyExtremes.R`), three of them are artefacts of the form, not measured slack:
+
+- **Iceland**: the linear fossil-dependence term evaluated below the sample's 5th percentile (+2.0
+  logit), and an outcome (instruments scored) that is low where a renewable power system needs few;
+- **Indonesia** (and in part Peru, Argentina): the fossil-per-person × rule-of-law interaction
+  outside the joint support (+2.4; design note 0007);
+- **Saudi Arabia**: the vertical-accountability main effect, not identified in power & industry (+1.8).
+
+Russia's low ceiling follows from its drivers. No indicator measures producer interests (extraction
+or export rents; §8.3). This is why country $E$ is reported only as tiers. In the coupling, Russia is
+73% of REF, Saudi Arabia 20% of MEA, Indonesia 18% of OAS, and Iceland 8% of NEN (no effect). The
+saturating twin does not remove the Iceland case. Fossil rents are tested as a `v8` candidate in
+design note 0009.
+
 ---
 
 ## 4. Dynamics: the ECM — a reported diagnostic, not in the coupling
