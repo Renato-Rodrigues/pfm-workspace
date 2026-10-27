@@ -1,6 +1,6 @@
 # 0009 — v8 candidates: the countries at the edge, fossil rents, and what else the next version could represent
 
-**Status: Open (evaluation, 2026-10-27)** — the author asked, before any new run or paper formulation, (1) why some
+**Status: Open (tests done 2026-10-27, §6; decision pending)** — the author asked, before any new run or paper formulation, (1) why some
 countries have extreme efficiency ratios and whether the indicators explain it, (2) whether fossil rents could enter the
 model and be linked to REMIND, (3) whether the saturating form fixes Iceland, and (4) what else a `v8` could represent.
 Nothing here changes `v7` or its coupled batch.
@@ -150,8 +150,123 @@ Ordered by what they would change in the coupled result.
 3. The uncovered-country rule (§4.3): E predicted from drivers against the quantile rule, out of sample.
 4. Then decide the `v8` specification and only then the cluster sweep.
 
+## 6. Results of the tests (2026-10-27)
+
+All offline on the `v7` estimation panel; Run-Group `v7`.
+
+### 6.1 Fossil rents through the gates, and rents as a control
+
+`analysis/v8/rentsGates.R v7` → `output/pfm/v7/v8-rents-gates.rds`. The gates are applied as in the sweep
+(config.yml `v7`): H1–H2 on the mean regression's coefficient table (`.pfmTheoryScreen`; asymptotic clustered *p*), and
+γ ≤ 0.999, H3 ≥ 0.75 and the edge-of-data gate on the frontier (`.pfmCeilingTrajectory`). The scenario is the coupled
+hold-the-price headline run (EU21, PkBudg1000), with rents after 2023 either held or linked to the run's REMIND rents
+(`analysis/v8/_rents.R`). Two control forms were added to the two forms of §3: C, log(1 + rents) as a control (main effect
+only); D, an exporter dummy (rents > 5% of GDP: Saudi Arabia, Russia, Norway).
+
+| variant | H1–H2 | γ | H3 | edge (held / linked) | BIC, both sectors | passes |
+|---|---|---|---|---|---:|---|
+| v7 | ✓ | ✓ (0.998 / 0.973) | ✓ | ✓ / ✓ | 3925 | **yes** |
+| A: rents an actor-power term | ✓ | ✗ (1.000 in P&I) | ✓ | ✗ / ✗ (B&T: clean energy against expectation in LAM 31%, fossil dependence in MEA 30%) | 3696 | no |
+| B: rents in place of fossil per person | ✗ (H1 in P&I: fossil −0.34, *p* 0.19) | ✓ | ✓ | ✗ / ✗ (P&I: clean energy in CAZ 71%, ENC 33%) | 4022 | no |
+| C: rents a control | ✓ | ✗ (1.000 in P&I) | ✓ | ✓ / ✓ | 3831 | no |
+| D: exporter dummy a control | ✓ | ✓ | ✓ | ✓ / ✓ | 3889 | yes |
+
+- **Controls do not carry the producer-interest effect either.** The continuous control is again *positive* in power &
+  industry (frontier +0.36, *p* < 0.001; mean +0.24, *p* 0.001) and puts γ at the boundary. The exporter dummy passes every
+  gate, but in power & industry it is zero on the frontier (+0.003, *p* 0.94; BIC 2706 against 2699) and leaves every
+  exporter's E unchanged (Saudi Arabia 0.55, Russia 0.46, Norway 0.90). Its gain is in buildings & transport (BIC
+  1226 → 1183; frontier +0.11, *p* < 0.001, mean +0.06, *p* 0.36). There it moves several regional ranks by up to 0.17
+  (ESW 0.66 → 0.49, FRA 0.66 → 0.50), with no evidence in the mean regression.
+- **The REMIND link barely matters.** Between held and linked rents the 2100/2025 ceiling ratio changes by at most 0.017
+  (C: 1.210 → 1.193), and no gate verdict changes. The direction is the reverse of the producer-interest story: the
+  estimated rents effect in power & industry is positive, so falling rents on a 1000 Gt pathway *lower* the ceilings
+  slightly. The REMIND rents themselves are plausible: MEA 10.9% of GDP in 2025, 3.0% in 2050, 0.4% in 2100; REF 6.6, 2.2
+  and 0.3%.
+- **Conclusion.** No rents form both passes the gates and improves anything that matters for the coupling. The one form that
+  passes (D) adds nothing where the extreme exporters are (power & industry). Fossil rents stay a disclosed omission
+  (MODEL.md §3.4.3), not a `v8` term.
+
+**A pitfall found on the way.** `.pfmEdgeGate` reads the final-energy weights with `pfmCouplingWeights()` inside a
+`tryCatch`. Without the Run-Group's madrat cache (and `options(pfm.panel)`), the call fails, the weights are `NULL`, no
+region is scored, and the gate *passes* with "cap shift 0". The first run of this test did exactly that for every variant,
+`v7` included. The cluster sweep sets the cache, so `v7`'s selection is not affected. Any offline use must set it, as
+`rentsGates.R` now does. Proposed fix: make the gate return "not evaluable" (pass `NA`) when the weights are missing.
+
+### 6.2 How long the limit lasts
+
+`analysis/v8/persistentSlack.R v7` → `output/pfm/v7/v8-persistent-slack.rds`.
+
+- **The four-component frontier does not identify persistent slack.** The country effects of the random-intercept step are
+  skewed the wrong way for a one-sided term (skew +0.62 in P&I, +0.08 in B&T). The half-normal fit on them puts γ at 0.003 and
+  0.015: the country effects are heterogeneity, and persistent slack cannot be told apart from it. The transient part is
+  identified (γ 0.87 / 0.81, residual skew −1.50 / −3.44) and persistent from year to year (AR(1) 0.93 / 0.95). This is the
+  known limit of the model class: persistent inefficiency and country heterogeneity are separated only by their assumed
+  distributions.
+- **The time-decay frontier (Battese & Coelli 1992)** gives η 0.156 / 0.113, but with γ 0.06 / 0.22 and slack ranks unrelated
+  to the headline's (rank correlation 0.03 / 0.66). It is not a usable rate.
+- **The direct counterpart of κ.** κ erodes the strength k (MODEL.md §5.2a), the size of the political differences, so its
+  counterpart in the data is how fast the spread of the gaps g = 1 − E narrows:
+
+  | | P&I | B&T |
+  |---|---:|---:|
+  | sd of country gaps, 2008 → 2023 | 0.188 → 0.154 | 0.186 → 0.099 |
+  | yearly narrowing, countries, 2008–2023 / 2013–2023 | 1.1% / 1.4% | 4.6% / 3.7% |
+  | yearly narrowing, EU21 regions (covered countries), 2008–2023 / 2013–2023 | 1.1% / 3.3% | 3.6% / −0.5% |
+  | rank correlation of the gaps, 2013 → 2023: countries / regions | 0.66 / 0.85 | 0.36 / 0.15 |
+
+  The spread narrowed by 1–5% a year. That brackets the declared κ (2%, 2.7% central) and lies below 5%. It is evidence
+  against a constant or growing limit, not an estimate: it covers 15 years, CAPMF's early years, and 20 regions. Power &
+  industry narrows more slowly than buildings & transport, so a sector-specific κ would be the data-consistent refinement
+  (about 1–3% and 4%).
+- **Positions churn faster than gaps close.** The pooled autocorrelation of the relative gaps at five years (0.45 / 0.56) would
+  imply 12–16% a year. That reflects countries changing places, inflated by measurement noise, not the spread closing. It is
+  not a κ.
+- **For the paper.** The persistence ladder stays declared (ADR 0050). The Methods can add one sentence: "Between 2008 and
+  2023 the cross-country spread of the distance below the ceiling narrowed by 1–5% a year (power & industry about 1%,
+  buildings & transport about 4%), within the declared erosion range and against a constant limit."
+
+### 6.3 The countries without CAPMF data
+
+`analysis/v8/uncoveredRule.R v7` → `output/pfm/v7/v8-uncovered-rule.rds`. Each covered country in turn was treated as
+uncovered. The rule reproduces the stored assignment exactly.
+
+| E in 2023, predicted out of sample | MAE, P&I | MAE, B&T |
+|---|---:|---:|
+| the rule (donors / low band / median) | 0.151 | 0.087 |
+| the covered median for everyone | 0.119 | 0.080 |
+| the 3 nearest donors always | 0.154 | 0.091 |
+| ridge regression on the base drivers | 0.126 | 0.082 |
+| government effectiveness alone | **0.111** | **0.079** |
+
+- **E is not predictable from the drivers** (rank correlations −0.66 to +0.29), and the donor transfer adds error. The
+  frontier has already used what the drivers say; the distance below the ceiling is what they do not explain. The note in
+  `computeDonorAssignment` already says this: "if it were [a function of the drivers], it would be predicted and would not
+  need transferring."
+- **Effect on the coupling.** With the covered median for every uncovered country, the EU21 regional ranking is nearly
+  unchanged (rank correlation 1.00 P&I, 0.98 B&T; largest shifts OAS 0.78 → 0.66 and MEA 0.58 → 0.44). The ridge moves
+  Sub-Saharan Africa from 0.48 to 0.98 in P&I: rejected.
+- **Option for `v8`.** Replace the donor and band rule by the covered median (with the USA as now). It is simpler to state,
+  better out of sample, and changes little. Cost: OAS and MEA move down by about 0.1, and the existing low-band sensitivity
+  needs a new meaning (a low quantile for the countries below the covered range).
+
+### 6.4 What this leaves for `v8`
+
+None of the tests yields a new driver. Two changes are supported, and neither needs a new sweep:
+
+1. **The uncovered countries at the covered median** (§6.3): a change of the assignment, which only needs a new anchor and
+   coupled runs.
+2. **The persistence ladder, anchored**: the historical narrowing of the spread (§6.2) as a reported reference for κ;
+   optionally sector-specific κ. A declared input, so it only needs coupled runs.
+
+Fossil rents (§6.1), the saturating form (§2) and the persistent-slack frontier (§6.2) are not carried forward. The
+remaining candidates (§4.4–4.7) are untested.
+
 ## References
 
+- Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
+  grain farming. *J. Prod. Anal.* **41**, 321–337 (2014).
+- Jondrow, J., Lovell, C. A. K., Materov, I. S. & Schmidt, P. On the estimation of technical inefficiency in the stochastic
+  frontier production function model. *J. Econom.* **19**, 233–238 (1982).
 - Battese, G. E. & Coelli, T. J. Frontier production functions, technical efficiency and panel data. *J. Prod. Anal.* **3**,
   153–169 (1992).
 - World Bank. World Development Indicators: total natural resources rents by type (oil, natural gas, coal), % of GDP.
