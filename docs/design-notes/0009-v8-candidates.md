@@ -340,6 +340,14 @@ coefficients from their covariance.
 3. **Report the single-country dependence** of each region's u (§7.3) with the coverage shares: it is the honest frame for
    REF, MEA, CHA, IND, SSA and NES.
 
+**Implemented 2026-10-27 (author's request).** The fossil lower bound is the sweep option `fossilFloors` (pfm
+`preparePanelData(fossilFloor)`). The bound is a training quantile, applied to the raw fossil terms before the transform,
+frozen in `driverScaling` (`floor`) and so held in every projection; the fit-cache key carries it. Run-Group `v8` in
+config.yml uses `fossilFloors: ["0.05"]` (every spec with a fossil term replaced by its bounded twin, suffix ` fos5`) and
+`coverage: rule: median`. The package reproduces the offline result on `v7`'s spec (BIC 2671.9 / 1219.6; Iceland 0.40).
+Its power & industry γ is 0.999004, just above the γ gate (0.999), so the `v8` sweep will not select `v7`'s spec: the
+selection may move. No sweep has been run.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
