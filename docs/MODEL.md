@@ -899,6 +899,21 @@ barely moves (rank correlation 1.00 / 0.98; OAS and MEA move most, by about 0.1)
 `output/pfm/v7/v8-uncovered-rule.rds`, design note 0009 §6.3. The donors are still found and reported as diagnostics.
 The band rule above stays the rule of every group up to `v7`.
 
+**How much of each region's u rests on one observed country** (covered countries only, EU21, anchor 2023;
+`analysis/v8/rankingUncertainty.R` → `output/pfm/v7/v8-ranking-uncertainty.rds`, 1000 draws of the frontier coefficients;
+design note 0009 §7.3). Report these with any regional ranking.
+
+| region | P&I u (90% band) | B&T u (90% band) | largest covered country, share of the covered final energy |
+|---|---|---|---|
+| REF | 1.00 (1.00–1.00) | 1.00 (0.92–1.00) | Russia, 100% |
+| MEA | 0.77 (0.66–0.95) | 0.09 (0.00–0.29) | Saudi Arabia, 91% |
+| OAS | 0.73 (0.61–0.94) | 0.39 (0.30–0.50) | Korea, 53% (without it, P&I u 1.00: Indonesia dominates) |
+| CHA, IND, SSA, NES | 0.22 / 0.44 / 0.20 / 0.10 | 0.45 / 0.69 / 0.00 / 0.92 | China, India, South Africa, Turkey: 100% each |
+
+The bands are narrow: the extremes come from the specification, not from imprecision (§3.4.3). From `v8` on, the
+uncovered countries at the covered median dilute the single-country regions in proportion to their uncovered final
+energy (observed share of final energy: SSA 14%, MEA 22%, OAS 39%, LAM 41%).
+
 **One documented override:** `basisOverride = c(USA = "median")`. US federal policy spans states with
 world-leading regulation and states with almost none; donor transfer would assign it a polity it is
 not. **The USA must be reported as a range** (on `v6`: USA donor +117.4, USA low +134.8 Gt).

@@ -348,12 +348,70 @@ config.yml uses `fossilFloors: ["0.05"]` (every spec with a fossil term replaced
 Its power & industry γ is 0.999004, just above the γ gate (0.999), so the `v8` sweep will not select `v7`'s spec: the
 selection may move. No sweep has been run.
 
+## 8. What explains the distance below the ceiling? (2026-10-27)
+
+Offline, on the `v7` panel; Run-Group `v7`. The ceiling terms are unchanged; only the model of the slack $u \ge 0$ varies.
+
+### 8.1 Slack whose mean depends on z (Battese & Coelli 1995): not identified
+
+`analysis/v8/slackDeterminants.R v7` → `output/pfm/v7/v8-slack-determinants.rds` (`frontier::sfa`, `y ~ X | z`).
+
+- **The z coefficients run off** (P&I: rents δ +1420 with intercept −11 217, *z* 0.89; exporter −2022, *z* −1.17;
+  institutions δ in the hundreds, |*z*| < 1). γ goes to 1.000, and in buildings & transport several countries land above
+  their ceiling (Norway, Canada, Colombia, Argentina: E 1.0–1.05). This is the known degeneracy of the mean-shift form when
+  the slack is nearly the whole residual. Not usable.
+- **One result that holds:** a truncated-normal slack (constant mean) fits much better than the half-normal (LR 300 P&I,
+  138 B&T; *p* < 1e−30) and moves the ranking little (rank correlation 0.96 / 0.97). It already is the robustness
+  battery's rung. A candidate sensitivity, not a change: in B&T it puts Norway at E 1.02.
+
+### 8.2 Slack whose spread depends on z (Caudill, Ford & Gropper 1995)
+
+`analysis/v8/hetSlack.R v7` → `output/pfm/v7/v8-het-slack.rds`. Maximum likelihood written in the script; the
+homoscedastic fit reproduces the `v7` frontier (logLik −1265.3 / −529.1). $\log \sigma_{u,it} = c + z_{it}'w$; $w > 0$
+means more slack where z is high.
+
+| z | P&I: LR (df), w (*z*) | B&T: LR (df), w (*z*) | regional u, rank correlation with v7 (P&I / B&T) |
+|---|---|---|---|
+| rents | 16.5 (1), +0.11 (3.9) | **170.3 (1), +0.25 (10.8)** | 1.00 / 0.75 |
+| exporter dummy | 11.8 (1), **−0.30** (−3.7) | 110.1 (1), +0.80 (8.6) | 0.99 / 0.90 |
+| the three institutions | 442.2 (3): GE −0.83 (−16.8), RoL +0.58 (8.5), VerAcc −0.13 (−3.1) | 193.9 (3): GE −0.35, RoL +0.53, VerAcc −0.44 | 0.93 / 0.65 |
+| rents and institutions | 442.3 (4): rents −0.01 (−0.2) | 219.6 (4): **rents +0.22 (5.1)** | 0.93 / 0.60 |
+
+- **Buildings & transport: producer interests widen the slack.** It is the first form in which fossil rents act as the
+  theory says (policy held below what the institutions allow, ADR 0056), and it survives the institutions. Saudi Arabia's
+  E falls from 0.94 to 0.72, and MEA's u rises from 0.09 to 0.73. With the institutions also in, MEA becomes the most
+  constrained region in buildings & transport (u 1.00).
+- **Power & industry: no consistent rents effect** (rents +, exporter −, rents 0 with the institutions).
+- **Institutions explain much of the spread of the slack** (LR 442 / 194): it is narrower where government
+  effectiveness and accountability are high. The rule-of-law sign (+) mirrors its negative main effect in the ceiling. This
+  is the institutions acting twice, in the ceiling and in the slack, which blurs the reading "the ceiling is what
+  institutions allow". It is also what γ at 0.998 hides: the slack is not homogeneous.
+- **For the coupling, an endogenous erosion.** With $\sigma_u$ depending on rents, a country's expected slack in a scenario
+  scales as $\sigma_u(t)/\sigma_u(2023) = e^{w(z_t - z_{2023})}$. With rents linked to REMIND (they fall about 95% by 2100
+  on the 1000 Gt pathway, §6.1), the exporters' limit in buildings & transport would fade at a rate set by the data, not
+  declared.
+- **What adoption would take.** A heteroscedastic frontier estimator in pfm. A decision on whether institutions enter the
+  ceiling, the slack, or both (an ADR revising ADR 0056's reading). The anchor's hold rule changed from "keep the 2023 logit
+  distance" to "scale it by $\sigma_u(t)/\sigma_u(2023)$". The rents series in the scenario panel. A sweep with the new
+  estimator, then coupled runs. This is the largest change of the candidates, and the most substantive.
+
+### 8.3 Done alongside
+
+- **A separate fading rate for each sector (point 2): implemented.** The coupling's `kappa` takes one rate per sector
+  (`pfmPhiKappa = "Bulk=0.011,Diffuse=0.046"` in a scenario row; pfm `.pfmKappaParse`), and the validator accepts it.
+  Tested on the real v6 anchor. A coupled pair would test it; no row has been added.
+- **Single-country dependence of the regional ranking (point 4): reported** in MODEL.md §5.4, with the 90% bands.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
   grain farming. *J. Prod. Anal.* **41**, 321–337 (2014).
 - Jondrow, J., Lovell, C. A. K., Materov, I. S. & Schmidt, P. On the estimation of technical inefficiency in the stochastic
   frontier production function model. *J. Econom.* **19**, 233–238 (1982).
+- Battese, G. E. & Coelli, T. J. A model for technical inefficiency effects in a stochastic frontier production function
+  for panel data. *Empir. Econ.* **20**, 325–332 (1995).
+- Caudill, S. B., Ford, J. M. & Gropper, D. M. Frontier estimation and firm-specific inefficiency measures in the
+  presence of heteroscedasticity. *J. Bus. Econ. Stat.* **13**, 105–111 (1995).
 - Battese, G. E. & Coelli, T. J. Frontier production functions, technical efficiency and panel data. *J. Prod. Anal.* **3**,
   153–169 (1992).
 - World Bank. World Development Indicators: total natural resources rents by type (oil, natural gas, coal), % of GDP.

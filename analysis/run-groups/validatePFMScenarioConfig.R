@@ -208,7 +208,17 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       v <- trimws(r[[cl]] %||% "")
       if (nzchar(v) && !v %in% allowed[[cl]]) err(t, ": ", cl, " = '", v, "' not in ", paste(allowed[[cl]], collapse = "/"))
     }
-    k <- num(r$pfmPhiKappa); if (!is.na(k) && (k <= -1 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside (-1, 1)")
+    # one rate, or one per sector ("Bulk=0.011,Diffuse=0.046"; pfm .pfmKappaParse); the growing-limit check reads the smallest
+    kTxt <- trimws(r$pfmPhiKappa %||% "")
+    if (grepl("=", kTxt, fixed = TRUE)) {
+      kp <- strsplit(strsplit(gsub("[[:space:]]", "", kTxt), ",", fixed = TRUE)[[1]], "=", fixed = TRUE)
+      kn <- vapply(kp, `[`, "", 1); kv <- num(vapply(kp, function(p) if (length(p) == 2) p[2] else "", ""))
+      if (any(lengths(kp) != 2) || !all(kn %in% c("Bulk", "Diffuse")) || anyNA(kv))
+        err(t, ": pfmPhiKappa = '", kTxt, "' is not \"Bulk=<rate>,Diffuse=<rate>\"")
+      if (any(is.finite(kv) & (kv <= -1 | kv >= 1))) err(t, ": pfmPhiKappa = '", kTxt, "' has a rate outside (-1, 1)")
+      k <- suppressWarnings(min(kv, na.rm = TRUE)); if (!is.finite(k)) k <- NA_real_
+    } else k <- num(r$pfmPhiKappa)
+    if (!is.na(k) && (k <= -1 || k >= 1)) err(t, ": pfmPhiKappa = ", k, " outside (-1, 1)")
     # a negative kappa is the growing limit sensitivity run: "worse than today" needs today's strength as its base (E hold)
     if (!is.na(k) && k < 0 && !identical(trimws(r$pfmPhiHold %||% ""), "ratio"))
       wrn(t, ": pfmPhiKappa = ", k, " (growing limit) without pfmPhiHold = ratio grows the FADING strength, not today's")
