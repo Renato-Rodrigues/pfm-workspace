@@ -137,6 +137,34 @@ energy system, offline:
   The difference (power & industry k 0.685 against 0.57) is a sensitivity to report beside the held-institutions run,
   not a reason to change the central series. A coupled run would size it in CO₂.
 
+## 6b. Government effectiveness and income (author's question, 2026-10-27)
+
+`analysis/checks/geIncome.R v7` → `output/pfm/v7/ge-income.rds`. WGI government effectiveness on the panel's normalised
+scale; GDP per capita (PPP) from mrdrivers, SSP2.
+
+- **Strongly related across countries, weakly within them.** Across countries in 2023 the correlation with log GDP per
+  capita is 0.80 (slope 0.135 per log point). Within countries (country and year effects, 1996–2023) the slope is 0.074,
+  and the long changes 1996–2023 correlate only 0.27 with income growth: growth explains little of how a country's
+  effectiveness moved (the WGI is a relative score, re-standardised every year).
+- **SSP2 income growth converges.** Countries with lower effectiveness today grow faster (correlation −0.63); mean
+  log growth 2023–2100 is 1.35 (income ×3.9).
+- **The path SSP2 income implies** (each country's 2023 value plus the slope times its log income growth): +0.10 by
+  2100 with the within-country slope, +0.18 with the cross-country slope.
+
+| formulation (country change 2023–2100) | mean change | correlation with the income-implied change (within / cross slope) | RMSE (within / cross) |
+|---|---:|---:|---:|
+| **gap closure, 0.56% a year (shared rate)** | **+0.16** | **0.63 / 0.64** | **0.087 / 0.103** |
+| gap closure, 0.81% a year (fitted to Andrijevic) | +0.22 | 0.63 / 0.64 | 0.136 / 0.106 |
+| Andrijevic SSP2 (the model now) | +0.24 | 0.49 / 0.50 | 0.177 / 0.140 |
+| held at 2023 | 0 | −0.05 | 0.123 / 0.224 |
+
+**Reading.** Judged against SSP2's income path, the shared-rate rule is the closest formulation: its mean change lies
+inside the income-implied range and its country pattern follows SSP2's income convergence best. Andrijevic's SSP2 rises
+more than income alone implies, because its regression adds education and its gender gap and lets country effects
+converge. Two readings remain defensible: Andrijevic, as the published SSP2 projection; or the shared-rate rule, which
+makes one rule govern every institution series and matches the SSP2 income path more closely. Under the second, the
+power & industry k in 2100 is 0.51 instead of 0.685 (§6a), through terms that are not identified.
+
 ## 7. Implementation
 
 Done (2026-10-27): `pfmInstitutionProjection("gapclosure")`, `pfmInstitutionGapClosureRates()`,
