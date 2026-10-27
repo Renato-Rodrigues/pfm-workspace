@@ -266,6 +266,80 @@ None of the tests yields a new driver. Two changes are supported, and neither ne
 Fossil rents (§6.1), the saturating form (§2) and the persistent-slack frontier (§6.2) are not carried forward. The
 remaining candidates (§4.4–4.7) are untested.
 
+## 7. Quick tests for the extreme countries (2026-10-27)
+
+Offline, on the `v7` panel; Run-Group `v7`.
+
+### 7.1 Fixes in the form
+
+`analysis/v8/edgeFixes.R v7` → `output/pfm/v7/v8-edge-fixes.rds`. The frontier was refitted with `frontier::sfa` on its
+own prepared frame; the `v7` fit is reproduced (logLik −1265.3 / −529.1).
+
+| variant | P&I: BIC (v7 2699) | B&T: BIC (v7 1226) | Iceland E, P&I | Russia E, P&I | Saudi Arabia E, P&I | regional u, rank correlation with v7 (P&I / B&T) |
+|---|---:|---:|---:|---:|---:|---:|
+| clip5: all base drivers clipped at the sample's 5th/95th percentiles | 2737 | 1318 | 0.43 | 0.23 | 0.61 | 0.72 / 0.89 |
+| clip10: the same at the 10th/90th | 2798 | 1331 | 0.48 | 0.19 | 0.63 | 0.76 / 0.72 |
+| **fosLow: the two fossil terms bounded below at their 5th percentile** | **2672** | **1220** | **0.40** | 0.46 | 0.54 | **0.98 / 1.00** |
+| noInstMain: the three institution main effects dropped | 2741 (LR *p* 1e−13) | 1306 (*p* 1e−21) | 0.54 | 0.27 | 0.58 | 0.82 / 0.94 |
+| noNegMain: only the negative institution main effects dropped | 2749 (*p* 1e−14) | 1221 (*p* 0.26) | 0.54 | 0.27 | 0.58 | 0.82 / 1.00 |
+
+- **fosLow is the only variant that improves the fit in both sectors** (P&I ΔBIC −27, B&T −6). The fossil effect becomes
+  stronger (P&I −0.55 → −0.70, *z* −9.1), H3 is 1.00 in both sectors, and Iceland moves from 0.33 to 0.40. The regional
+  ranking is unchanged (0.98 / 1.00). Reading: the linear fossil term is mis-specified at the low edge. Below about the
+  5th percentile, less fossil dependence no longer predicts a higher ceiling. It is the same edge logic as the driver
+  guard, applied in the estimation.
+- **Clipping every driver costs fit and reorders the regions.** It does not fix Indonesia (0.33 → 0.34) and makes Russia
+  more extreme. Rejected.
+- **The data reject dropping the institution main effects in power & industry** (LR *p* < 1e−13). Saudi Arabia barely
+  moves (0.55 → 0.58). The Saudi case cannot be fixed by restricting the form; it stays disclosed. In buildings &
+  transport the negative rule-of-law main effect can be dropped (*p* 0.26, BIC 1226 → 1221, u unchanged). That would
+  break the shared-specification rule for a gain too small to matter.
+- **Indonesia, Peru and Argentina are robust** to every variant (0.31–0.44). Their low E is not an artefact of one term
+  that a restriction can remove.
+
+**What fosLow would need for `v8`.** A lower bound on the fossil terms at the estimation sample's 5th percentile, recorded
+in the driver scaling and applied identically in the scenarios. This is consequential: the driver guard would then hold a
+country's fossil terms at that bound once its fossil dependence falls below it. On a 1000 Gt pathway most countries do so
+in the second half of the century, so the ceiling would stop rising from decarbonisation earlier. That changes the strength
+path $k(t)$, so a coupled test is needed before adoption. It is a transform option for the sweep (the gates re-run on it)
+plus one coupled pair.
+
+### 7.2 Fixes on the coupling side (no refit)
+
+| option | regional u, rank correlation with v7 (P&I / B&T) | largest moves |
+|---|---:|---|
+| the anchor as the 2019–2023 mean of E (anchorMean) | 0.98 / 0.98 | P&I: MEA 0.77 → 1.00, REF 1.00 → 0.79 |
+| country E floored at the covered 10th percentile (floorE) | 0.99 / 1.00 | P&I: MEA +0.11, ECE +0.10, OAS −0.12 |
+
+Both change little overall. The five-year anchor swaps the most constrained region in power & industry, so it is not a
+neutral smoothing. Neither is recommended.
+
+### 7.3 How firmly the ranking is pinned down
+
+`analysis/v8/rankingUncertainty.R v7` → `output/pfm/v7/v8-ranking-uncertainty.rds`: 1000 draws of the frontier
+coefficients from their covariance.
+
+- **Coefficient uncertainty is small.** The 90% bands of the extreme countries' E are narrow (Iceland 0.30–0.38, Indonesia
+  0.31–0.36, Russia 0.39–0.56). Iceland, Indonesia, Peru and Argentina are among the five lowest in every draw, Russia in
+  89%. REF is the most constrained region in 96% of draws (P&I) and 75% (B&T). The extremes are a matter of form (§7.1),
+  not of imprecision.
+- **Many regions rest on one covered country.** REF on Russia, MEA on Saudi Arabia (91% of its covered final energy), CHA,
+  IND, SSA (South Africa) and NES (Turkey) on one country each. Leaving out the largest country moves OAS from 0.73 to 1.00
+  (without Korea, Indonesia dominates) and MEA from 0.77 to 0.67 (P&I). With the covered median for the uncovered
+  countries (§6.3), regions with little coverage (SSA 14% observed, MEA 22%, OAS 39%, LAM 41% of final energy) are pulled
+  toward the median. The extreme countries then weigh less in their regions. This is the coverage rule's main effect on
+  the extremes.
+
+### 7.4 For `v8`
+
+1. **Candidate: fosLow**, the lower bound on the fossil terms. It improves the fit in both sectors and removes part of the
+   Iceland artefact, but it changes the late-century strength path, so it needs a sweep transform plus a coupled pair.
+2. **Not fixable by form:** Saudi Arabia (the data keep the institution main effects), Russia (consistent with its drivers),
+   Indonesia/Peru/Argentina (robust). They stay disclosed (MODEL.md §3.4.3). The covered-median rule already reduces their
+   weight in the poorly covered regions.
+3. **Report the single-country dependence** of each region's u (§7.3) with the coverage shares: it is the honest frame for
+   REF, MEA, CHA, IND, SSA and NES.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
