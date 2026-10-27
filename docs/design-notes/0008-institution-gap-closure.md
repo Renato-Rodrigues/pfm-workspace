@@ -57,6 +57,33 @@ The current rule (75th percentile, half the gap closed by 2080, complete by 2150
 (`policlimRuleFit.R`). **The rate is taken from PoliClim, the series is not**: the model reads V-Dem's `v2x_rule` and
 vertical accountability; PoliClim's rule of law and accountability are the nearest indicators.
 
+## 3a. A rate without PoliClim (author's question, 2026-10-27: PoliClim is unpublished and may change)
+
+`analysis/checks/gapClosureHistory.R v7` → `output/pfm/v7/gap-closure-history.rds`. Two sources that do not use PoliClim:
+
+**Andrijevic et al. (2020), the published SSP2 assumption.** Country effects converge over 2015–2250 in SSP2 (by 2130 in
+SSP1). Read linearly, SSP2 closes 36% of each gap by 2100, which is the rule at **λ = 0.60% a year** (half-life 116
+years); SSP1 is 1.8% a year. The current rule (half the gap by 2080, complete by 2150) closes 79% by 2100, a rate of
+2.1% a year: faster than Andrijevic's SSP1.
+
+**V-Dem's own history.** The rule fitted to the model's series, every country, on the panel's normalised scale:
+
+| sample | rule of law λ | vertical accountability λ |
+|---|---:|---:|
+| pooled 1900–2025, 25-year horizon | 0.29% | 0.74% |
+| pooled 1900–2025, 50-year horizon | 0.22% | 0.77% |
+| 1950–2000 | 0.22% | 1.02% |
+| 1975–2025 | 0.53% | 1.08% |
+| 2000–2025 | 0.42% | 0.56% |
+
+History is noisy (regime changes; R² of the country changes 0.04–0.32), so it constrains the average pace, not each
+country's path. Over the last half-century the observed pace is 0.5–1.1% a year; over the century 0.2–0.8%; since
+2000, with the recent decline, 0.4–0.6%.
+
+**Reading.** λ = 0.60% a year can be justified without PoliClim: it is Andrijevic et al.'s published SSP2 convergence
+pace, and it lies inside the range V-Dem history shows for both series (between rule of law's long-run pace and
+accountability's). The PoliClim fit (0.56% for accountability) then becomes a consistency check, not the source.
+
 ## 4. Anchored in the literature
 
 1. **Andrijevic et al. (2020)** project governance from income, education and its gender gap, with country effects
