@@ -34,8 +34,10 @@ fitOne <- function(k) {
   og <- stats::optim(c(log(0.01), mean(d$x0)), sse(fg)); pred$global <- fg(og$par)
   fr <- function(par) d$x0 + (1 - exp(-exp(par[1]) * tau)) * (d$r + par[2] - d$x0)
   or <- stats::optim(c(log(0.01), 0), sse(fr)); pred$regional <- fr(or$par)
-  # top: the common level fixed at the top of the scale (T = 1), only the rate fitted
-  fT <- function(par) d$x0 + (1 - exp(-exp(par) * tau)) * (1 - d$x0)
+  # top: the common level fixed at the top of the scale - the best value observed 1996-2025, as in the model's
+  # rule (pfm::pfmInstitutionGapClosureRates) - only the rate fitted
+  TOP <- max(s2[s2$year <= T0, IND[[k]]], na.rm = TRUE)
+  fT <- function(par) TOP - (TOP - d$x0) * exp(-exp(par) * tau)
   oT <- stats::optim(log(0.01), sse(fT), method = "Brent", lower = log(1e-4), upper = log(0.2)); pred$top <- fT(oT$par)
   # top, shared: T = 1 and one rate for the three V-Dem-based indicators (rule of law, accountability, democracy)
   fS <- function(lam) d$x0 + (1 - exp(-lam * tau)) * (1 - d$x0)
@@ -49,7 +51,7 @@ fitOne <- function(k) {
                r2Change2100 = 1 - sum(((y - d$x0) - (d$x - d$x0))[e]^2) / sum(((d$x - d$x0) - mean(d$x - d$x0))[e]^2),
                meanChange2100 = mean((y - d$x0)[e]), declining2100 = mean((y - d$x0)[e] < -0.005))
   }))
-  pars <- data.frame(indicator = k, lambdaTop = exp(oT$par), halfLifeTop = log(2) / exp(oT$par), lambdaGlobal = exp(og$par[1]), halfLifeGlobal = log(2) / exp(og$par[1]),
+  pars <- data.frame(indicator = k, top = TOP, lambdaTop = exp(oT$par), halfLifeTop = log(2) / exp(oT$par), lambdaGlobal = exp(og$par[1]), halfLifeGlobal = log(2) / exp(og$par[1]),
                      targetGlobal = og$par[2], lambdaRegional = exp(or$par[1]), halfLifeRegional = log(2) / exp(or$par[1]),
                      deltaRegional = or$par[2], trend = ot$par, mean2025 = mean(x0$x0), q75 = unname(q75),
                      policlimMeanChange2100 = mean((d$x - d$x0)[e]), policlimDeclining2100 = mean((d$x - d$x0)[e] < -0.005),

@@ -308,6 +308,17 @@ if (!"--guide" %in% args) {
     message("[markup-counterfactual]"); build("markup-counterfactual")
   }
 
+  # ── the gap-closure institution rule (design note 0008) — for a group with institution-rule.rds
+  # (analysis/checks/institutionRule.R). Rails: the rate is transferred from PoliClim, the series is not;
+  # persistent autocracies rise more than in PoliClim.
+  if (pfmArtifactExists(GROUP, "institution-rule.rds")) {
+    for (id in c("inst-policlim-paths", "inst-policlim-change", "inst-policlim-countries-rol", "inst-policlim-countries-acc",
+                 "inst-model-series", "inst-model-seam", "inst-strength", "ge-ssp", "ge-adaptation", "ge-literatures",
+                 "rol-literature")) {
+      if (run(id)) { message("[", id, "]"); build(id) }
+    }
+  }
+
   # ── coupled (0005 Phase 5 / 6) — for a group from v6 on that has coupled runs: they read its
   # coupling artifacts and the previous version's beside them (v5 for v6, v6 for v7; pfmPrevGroup).
   # Rails: theta and kappa are declared; the v5 -> v6 drop is mostly lambda's removal; hold the
