@@ -108,6 +108,10 @@ panel:
     v7-p10:
       democracy: true
       overallAccountability: true
+    # v8 (design note 0009): v7's panel; the formulation changes are in sweep: and coverage:
+    v8:
+      democracy: true
+      overallAccountability: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -266,6 +270,29 @@ sweep:
       #                estimation rows (refuses large offsetting interaction terms)
       theoryGate:
         p: 0.10
+        structural: true
+        contingency: true
+        coherence: 0.75
+    # v8 (design note 0009 section 7.1): v7's sweep with the fossil terms bounded below at the training 5th percentile.
+    #   fossilFloors  training quantiles at which the fossil terms (share and per person) are bounded below; the bound
+    #                 is frozen in the driver scaling, so the projections hold a country's fossil terms at it.
+    #                 [0.05] replaces every spec with a fossil term by its bounded twin (suffix " fos5"; the grid keeps
+    #                 v7's size); [none, 0.05] would add the twins next to the unbounded specs (twice the cost).
+    #   On v7's selected spec the bound improves the fit (BIC 2699 -> 2672 P&I, 1226 -> 1220 B&T) but puts the P&I
+    #   gamma at 0.999004, just above the gamma gate (0.999): the v8 sweep is expected to select another spec.
+    v8:
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      fossilFloors: ["0.05"]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      theoryGate:
+        p: 0.05
         structural: true
         contingency: true
         coherence: 0.75
