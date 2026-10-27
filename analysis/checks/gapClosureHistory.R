@@ -4,8 +4,8 @@
 # normalised scale (0 = worst, 1 = best value observed, 1789-2025), every country, for start years s on a five-year grid
 # and horizons h of 25 and 50 years. Reported per start-year window, so the rate's stability over the last century
 # (and the recent decline) is visible. Two published anchors are converted to the same rate for comparison:
-# Andrijevic et al. (2020), SSP2 country effects converging over 2015-2250 (linear: the share closed by 2100), and the
-# current rule's half-gap year.
+# Andrijevic et al. (2020), SSP2 country effects converging linearly to 2250 (two ways of matching a linear path), and the
+# current rule.
 suppressMessages(library(mrpfm))
 a <- commandArgs(trailingOnly = TRUE); g <- if (length(a)) a[1] else "v7"
 madrat::setConfig(cachefolder = normalizePath(file.path("data/madrat", g), winslash = "/"), forcecache = TRUE, .verbose = FALSE)
@@ -37,15 +37,19 @@ res <- do.call(rbind, lapply(SER, function(s) {
       data.frame(series = s, sample = paste("window", w), t(fitRate(A[, as.character(y[1])], A[, as.character(y[2])], y[2] - y[1]))) })))
 }))
 res$halfLife <- ifelse(res$lambda > 0, log(2) / res$lambda, NA)
-# published anchors, as the same rate (share of the gap closed 2025-2100 -> lambda)
-anchors <- data.frame(
-  anchor = c("Andrijevic et al. 2020, SSP2: convergence 2015-2250, linear", "Andrijevic et al. 2020, SSP1: convergence by 2130, linear",
-             "current rule (SSP2): half the gap by 2080, complete by 2150, logistic"),
-  shareClosedBy2100 = c((2100 - 2015) / (2250 - 2015), min(1, (2100 - 2015) / (2130 - 2015)), NA))
-anchors$lambda <- -log(1 - anchors$shareClosedBy2100) / 75
+# published anchors, as the same rate. Andrijevic et al. (2020) converge country effects LINEARLY to a common level
+# (SSP2: from 2015 to 2250); the rule is exponential, so the match depends on what is matched, from the rule's start in
+# 2025: (a) the same share of the 2025 gap closed by 2100, (75 / 225) -> lambda = -ln(1 - share) / 75; (b) the same
+# half-way year (2025 + 225 / 2) -> lambda = ln 2 / 112.5. The two bound the rate that represents the assumption.
+lin <- function(end) { share <- (2100 - 2025) / (end - 2025); c(sameShare = -log(1 - share) / 75, sameHalfway = log(2) / ((end - 2025) / 2), share = share) }
+a2 <- lin(2250); a1 <- lin(2130)
 cur <- local({ k <- log(99) / 70; L <- function(y) 1 / (1 + exp(-k * (y - 2080))); (L(2100) - L(2025)) / (L(2150) - L(2025)) })
-anchors$shareClosedBy2100[3] <- cur; anchors$lambda[3] <- -log(1 - cur) / 75
-anchors$halfLife <- log(2) / anchors$lambda
+anchors <- data.frame(
+  anchor = c("Andrijevic et al. 2020, SSP2: linear convergence to 2250", "Andrijevic et al. 2020, SSP1: linear convergence to 2130",
+             "current rule (SSP2): logistic, half the gap by 2080, complete by 2150"),
+  shareOf2025GapClosedBy2100 = c(a2[["share"]], a1[["share"]], cur),
+  lambdaSameShare = c(a2[["sameShare"]], a1[["sameShare"]], -log(1 - cur) / 75),
+  lambdaSameHalfway = c(a2[["sameHalfway"]], a1[["sameHalfway"]], log(2) / (2080 - 2025)))
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), history = res, anchors = anchors),
         file.path("output/pfm", g, "gap-closure-history.rds"))
 options(width = 160); print(res, digits = 3, row.names = FALSE); print(anchors, digits = 3, row.names = FALSE)

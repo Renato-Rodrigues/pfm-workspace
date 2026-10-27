@@ -1,221 +1,205 @@
-# 0008 — The SSP2 institution projection: gap closure, calibrated to PoliClim
+# 0008 — The SSP2 institution projection: gap closure at 0.6% a year
 
-**Status: Open (one parameter choice, §6)** — the author decided on 2026-10-27 that the gap-closure rule replaces the
-quick convergence rule as the SSP2 central projection of the institutions without an SSP projection. The rule is
-implemented in `pfm` (`pfmInstitutionProjection(rule = "gapclosure")`); the coupled batch under it is not run yet (§7).
-It revises ADR 0051 item 2 once the coupled batch has run.
+**Status: Decided 2026-10-27 (author); coupled batch not run yet (§7).** The gap-closure rule replaces the quick
+convergence rule as the SSP2 central projection of the institutions without an SSP projection, with one declared rate
+for every series, **0.6% a year**, justified without PoliClim (§3). Implemented in `pfm`
+(`pfmInstitutionProjection(rule = "gapclosure")`, `pfmInstitutionGapClosureRates()`). It revises ADR 0051 item 2 once
+the coupled batch has run. Open: government effectiveness (§6).
 
-**Provenance.** Run-Group `v7` (selected specification `X-1791 … satInn iw:fexp`). PoliClim institution forecasts
-(`../PoliClim projections/pol_institutions_forecast.csv`, received 2026-10-06); SSP extensions (Andrijevic et al.
-2020) from the madrat sources. Scripts `analysis/checks/policlimRuleFit.R` (the rule's fit) and
-`analysis/checks/institutionRule.R v7` → `output/pfm/v7/institution-rule.rds` (everything below); figures
-`inst-*`, `ge-*`, `rol-literature` (`analysis/figures/R/fig-institution-rule.R`, `analysis/figures/output/v7/`).
-Re-derive any number from the artifact before quoting it.
+**Provenance.** Run-Group `v7` (selected specification `X-1791 … satInn iw:fexp`). V-Dem v16 and WGI 2025 from the
+`v7` madrat cache; SSP extensions (Andrijevic et al. 2020) from the madrat sources; PoliClim institution forecasts
+(`../PoliClim projections/pol_institutions_forecast.csv`, received 2026-10-06, unpublished) as a consistency check only.
+Scripts and artifacts:
+
+| script | artifact | what |
+|---|---|---|
+| `analysis/checks/gapClosureHistory.R v7` | `output/pfm/v7/gap-closure-history.rds` | the rate from V-Dem history and from Andrijevic's assumption (§3) |
+| `analysis/checks/institutionRule.R v7` | `output/pfm/v7/institution-rule.rds` | the rule against PoliClim, the model's scenario panels, the strength k, the literature series (§4–§6) |
+| `analysis/checks/geIncome.R v7` | `output/pfm/v7/ge-income.rds` | government effectiveness and income (§6) |
+| `analysis/checks/policlimRuleFit.R` | `output/checks/policlim-rule-fit.rds` | simple rules fitted to PoliClim (§2) |
+
+Figures `inst-*`, `ge-*`, `rol-literature` (`analysis/figures/R/fig-institution-rule.R`, rendered in
+`analysis/figures/output/v7/`). Re-derive any number from the artifact before quoting it.
 
 ## 1. The rule, in one sentence
 
-**Every country closes a fixed share of its distance to the best value observed in the data each year, starting from
-its last value in the estimation panel.**
+**Every country closes 0.6% of its distance to the best value observed in the data each year, starting from its last
+value in the estimation panel.**
 
-$$x_c(t) = 1 - (1 - x_{c,2023})\,e^{-\lambda (t - 2023)}$$
+$$x_c(t) = 1 - (1 - x_{c,2023})\,e^{-0.006\,(t - 2023)}$$
 
-on the panel's normalised scale (0 = worst, 1 = best value observed; for a series where high is bad, after the
-inversion the model already applies). One parameter, the rate λ. Countries further from the top improve faster; no
-country declines; by 2100 a country closes $1 - e^{-77\lambda}$ of its gap.
+on the panel's normalised scale (0 = worst, 1 = best value observed since 1789; for a series where high is bad, after
+the inversion the model already applies). One parameter. A country's gap halves in 116 years; by 2100 every country has
+closed 37% of its 2023 gap. Countries further from the top improve more in absolute terms; no country declines; the rank
+order of countries is kept.
+
+The rule applies to every institution series with no SSP projection: V-Dem rule of law, vertical, horizontal, diagonal
+and overall accountability, the state-capacity indicators, and WGI voice and accountability, political stability and
+regulatory quality. Of these, the selected specification reads rule of law and vertical accountability.
 
 **The democracy weight** (freedom of expression, ADR 0060) is not projected by the rule. It moves to the higher of its
 2023 value and its 2014–2023 mean and is held there (author, 2026-10-27): no regime change is projected, but countries
 in the recent decline recover part of it. The move follows a half cosine reaching the level in 2040.
 
-**Government effectiveness** keeps its published SSP2 projection (Andrijevic et al. 2020; §4).
+**Government effectiveness** keeps its published SSP2 projection (Andrijevic et al. 2020) for now (§6).
 
-## 2. Why this form (the SSP2 principles)
+**No step from history.** The path starts from the panel's own 2023 value, so the projection begins where the fitted
+history ends. Every other scenario series is harmonised to 2023 as before, its offset now fading along a half cosine
+to 2040 (no kink); the smooth fade belongs to this scenario family only, so every `v7` run is reproducible unchanged.
 
-The SSP2 narrative is "middle of the road": development follows historical patterns, progress is slow and uneven, and
-countries converge only partly. Andrijevic et al. (2020) state it for governance: SSP2 "is largely consistent with
-historical dynamics … Institutions in SSP2 are modestly effective and uneven". The rule encodes exactly that:
+## 2. Why this form: the SSP2 principles
+
+SSP2 is "middle of the road": development follows historical patterns, progress is slow and uneven, countries converge
+only partly. Andrijevic et al. (2020) state it for governance: SSP2 "is largely consistent with historical dynamics …
+Institutions in SSP2 are modestly effective and uneven". The rule encodes that:
 
 | SSP2 principle | the rule |
 |---|---|
-| slow, continued progress | a small constant rate; the gap halves only over 70–125 years |
-| uneven: laggards catch up, but only partly | the change is proportional to the distance to the top; by 2100 a third to a half of each gap is closed |
-| historical patterns, no regime reversal | every country keeps its own rank order; no country declines |
+| slow, continued progress | one small constant rate; a gap halves over 116 years |
+| uneven: laggards catch up, but only partly | the change is proportional to the distance to the top; 37% of each gap closed by 2100 |
+| historical patterns, no regime reversal | every country keeps its rank; no country declines |
 
-## 3. Why this rate: the fit to PoliClim's SSP2
+Of the simple forms tested against PoliClim's SSP2 country paths (`policlimRuleFit.R`), gap closure to the top fits as
+well as a fitted common target (the fitted target is close to the top); a regional target, a country's own best level
+and a common linear trend fit worse; the current rule fits worst (R² of the country change 2025–2100: 0.44 for rule of
+law, −0.78 for accountability).
 
-λ is the least-squares fit of the rule to PoliClim's SSP2 country paths, 2030–2100, with the top at the best value
-PoliClim observes (1996–2025), as in the model (`policlimRuleFit.R`; `pfmInstitutionGapClosureRates()`):
+## 3. Why 0.6% a year: the calculation
 
-| PoliClim indicator (SSP2) | λ (per year) | half-life | R² of the country change 2025–2100 | current rule R² |
-|---|---:|---:|---:|---:|
-| rule of law (V-Dem `v2xcl_rol`) | 0.96% | 72 y | 0.78 | 0.44 |
-| overall accountability | 0.56% | 124 y | 0.70 | −0.78 |
+The rate is declared, not estimated. Two sources that do not depend on unpublished projections bound it, and 0.6% lies
+inside both (`gapClosureHistory.R`; figure `inst-rate-justification`).
 
-The current rule (75th percentile, half the gap closed by 2080, complete by 2150, no decline) is slow until about
-2060 and then fast (`inst-policlim-paths`). Of the simple alternatives tested, a fitted common target adds little
-(the fitted target is close to the top), a regional target fits worse, and a country's own best level fits much worse
-(`policlimRuleFit.R`). **The rate is taken from PoliClim, the series is not**: the model reads V-Dem's `v2x_rule` and
-vertical accountability; PoliClim's rule of law and accountability are the nearest indicators.
+**3.1 Andrijevic et al. (2020), the published SSP2 assumption.** Their governance projection lets the country effects
+converge *linearly* to a common level (the 75th percentile of today's distribution), reached in 2250 in SSP2 and in
+2130 in SSP1. The rule is exponential, so representing the linear path means choosing what to match, from the rule's
+start in 2025:
 
-## 3a. A rate without PoliClim (author's question, 2026-10-27: PoliClim is unpublished and may change)
+- **the same share of the gap closed by 2100.** A linear path from 2025 to 2250 closes $(2100-2025)/(2250-2025) = 75/225
+  = 33\%$ of the 2025 gap by 2100. The exponential rule closes the same share when
+  $1 - e^{-75\lambda} = 0.333$, so $\lambda = -\ln(0.667)/75 = $ **0.54% a year**;
+- **the same half-way year.** The linear path closes half of the gap halfway, in $2025 + 225/2 = 2137.5$. The rule
+  halves the gap after $\ln 2/\lambda$ years, so $\lambda = \ln 2/112.5 = $ **0.62% a year**.
 
-`analysis/checks/gapClosureHistory.R v7` → `output/pfm/v7/gap-closure-history.rds`. Two sources that do not use PoliClim:
+So Andrijevic's SSP2 corresponds to **0.54–0.62% a year**. (SSP1: 1.3–1.7% a year. The current rule, half the gap by
+2080 and all of it by 2150, is 1.3–2.1% a year: faster than Andrijevic's SSP1.)
 
-**Andrijevic et al. (2020), the published SSP2 assumption.** Country effects converge over 2015–2250 in SSP2 (by 2130 in
-SSP1). Read linearly, SSP2 closes 36% of each gap by 2100, which is the rule at **λ = 0.60% a year** (half-life 116
-years); SSP1 is 1.8% a year. The current rule (half the gap by 2080, complete by 2150) closes 79% by 2100, a rate of
-2.1% a year: faster than Andrijevic's SSP1.
-
-**V-Dem's own history.** The rule fitted to the model's series, every country, on the panel's normalised scale:
+**3.2 V-Dem's own history.** The same rule, $x(s+h) = 1 - (1 - x(s))\,e^{-\lambda h}$, fitted by least squares to every
+country's observed values, on the panel's normalised scale: pooled over start years $s$ every five years from 1900
+with horizons $h$ of 25 and 50 years, and for single windows.
 
 | sample | rule of law λ | vertical accountability λ |
 |---|---:|---:|
 | pooled 1900–2025, 25-year horizon | 0.29% | 0.74% |
 | pooled 1900–2025, 50-year horizon | 0.22% | 0.77% |
+| 1900–1950 | 0.21% | 0.36% |
 | 1950–2000 | 0.22% | 1.02% |
 | 1975–2025 | 0.53% | 1.08% |
+| 1990–2025 | 0.34% | 0.77% |
 | 2000–2025 | 0.42% | 0.56% |
 
-History is noisy (regime changes; R² of the country changes 0.04–0.32), so it constrains the average pace, not each
-country's path. Over the last half-century the observed pace is 0.5–1.1% a year; over the century 0.2–0.8%; since
-2000, with the recent decline, 0.4–0.6%.
+History is noisy (regime changes; the rule explains 4–32% of the country changes), so it bounds the average pace, not a
+country's path: 0.2–0.8% a year over the century, 0.5–1.1% over the last half-century, 0.4–0.6% since 2000.
 
-**Reading.** λ = 0.60% a year can be justified without PoliClim: it is Andrijevic et al.'s published SSP2 convergence
-pace, and it lies inside the range V-Dem history shows for both series (between rule of law's long-run pace and
-accountability's). The PoliClim fit (0.56% for accountability) then becomes a consistency check, not the source.
+**3.3 The value.** 0.6% a year lies inside Andrijevic's SSP2 range (0.54–0.62%) and inside the historical range of both
+series, between rule of law's long-run pace and accountability's. It is rounded to one significant digit, so it does
+not claim more precision than either source.
 
-## 4. Anchored in the literature
+**3.4 Consistency check: PoliClim** (unpublished, may change; not the source). Fitted to PoliClim's SSP2 country paths,
+the rule's best rate is 0.56% a year for overall accountability and 0.96% for rule of law (`policlimRuleFit.R`). At
+0.6% the rule reproduces PoliClim's SSP2 country changes 2025–2100 with R² 0.69 for both indicators (mean change: rule of
+law +0.12 against PoliClim's +0.15; accountability +0.11 against +0.09; `inst-policlim-paths`, `inst-policlim-change`).
 
-1. **Andrijevic et al. (2020)** project governance from income, education and its gender gap, with country effects
-   that converge to the 75th percentile of today's distribution **by 2250 in SSP2** (2130 in SSP1). Linear
-   convergence over 2015–2250 closes 36% of the gap by 2100. The accountability rate closes 34% by 2025–2100; the
-   current rule closes almost all of it by 2150, faster than Andrijevic's own SSP2.
-2. **Andrijevic's Rule-of-Law Index (SSP1–3)** is an independent reference for rule of law (`rol-literature`): mean
-   change 2025–2099 +0.11 (SSP2), +0.19 (SSP1). PoliClim's SSP2: +0.15.
-3. **Government effectiveness** is the one institution series the model takes from the literature
-   (`ge-ssp`, `ge-adaptation`): Andrijevic's SSP2 path, normalised by its own observed range and harmonised to the
-   WGI-based panel value in 2023, the offset fading by 2040. The model therefore uses Andrijevic's *change*, anchored
-   to the WGI *level*. PoliClim's government effectiveness is not used: it reverts to the mean (29% of countries
-   decline by 2100 under SSP2, Andrijevic 0%; `ge-literatures`), because it is fitted on the WGI, which is
-   re-standardised every year.
+**Sentence for the paper (Methods).** *Institution series without an SSP projection close 0.6% of their distance to the
+best observed value each year from their 2023 value, the pace of the SSP2 convergence assumption of Andrijevic et al.
+(2020) and within the range observed in V-Dem since 1900.*
 
-## 5. What it does
+## 4. What it does
 
-- **Against PoliClim** (`inst-policlim-*`): the mean path and the narrowing spread follow PoliClim SSP2 in both
-  indicators. The rule cannot reproduce PoliClim's declines (about one country in ten for accountability) or its
-  near-term dip to about 2030, and it lifts persistent autocracies without regional peers more than PoliClim does
-  (China's rule of law 0.61 against 0.36 by 2100, Saudi Arabia 0.60 against 0.44). A two-parameter variant (each
-  country's own best plus a share of the remaining gap) fits only slightly better (R² 0.84 / 0.75) and was not taken.
-- **On the model's series** (`inst-model-series`): rule of law rises from a cross-country mean of 0.58 by +0.21 to
-  2100 (current rule +0.21, held 0); vertical accountability by +0.11 (current +0.14).
-- **No step from history** (`inst-model-seam`): the projection starts from the panel's 2023 value. The largest
-  year-on-year move from 2023 into the projection is 0.009 (rule of law) and 0.006 (accountability), against a 95th
-  percentile of 0.034 and 0.027 for history's own annual changes. The current and held rules start from V-Dem's raw
-  2025 value and step by up to 0.14 a year for countries with recent regime shifts.
-- **The constraint barely moves** (`inst-strength`, offline, EU21, θ = 0.50, the 1000 Gt hold-the-price energy
-  system): power & industry k in 2100 0.685 (current rule 0.667, held 0.695), buildings & transport 0.494 (0.489,
-  0.452). Expected effect on the coupled headline: of the order of a gigatonne.
-- **The smooth harmonisation** of every other series (a half cosine to 2040 instead of a straight line) removes the
-  kink at 2040; it is part of the gap-closure scenario family only, so every `v7` run is reproducible unchanged.
+- **On the model's series** (`inst-model-series`): rule of law rises from a cross-country mean of 0.58 by +0.15 to
+  2100 (current rule +0.21, held 0); vertical accountability by +0.11 (current +0.14). The rule-of-law change lies
+  between the two published SSP2 references, Andrijevic's Rule-of-Law Index (+0.11) and PoliClim (+0.15)
+  (`rol-literature`).
+- **No step from history** (`inst-model-seam`): the largest year-on-year move from 2023 into the projection is 0.006
+  for rule of law and for accountability, against a 95th percentile of 0.034 and 0.027 for history's own annual
+  changes. The current and held rules start from V-Dem's raw 2025 value and step by up to 0.14 a year for countries
+  with recent regime shifts.
+- **The constraint moves a little** (`inst-strength`; offline, EU21, θ = 0.50, the 1000 Gt hold-the-price energy
+  system): power & industry k in 2100 0.736 (current rule 0.667, held 0.695), buildings & transport 0.494 (0.489,
+  0.452). The coupled run sizes it in CO₂.
+- **Against PoliClim, by country** (`inst-policlim-countries-*`): the rule cannot reproduce PoliClim's declines (one
+  country in ten for accountability) or its near-term dip to about 2030, and it lifts persistent autocracies without
+  regional peers more than PoliClim does (rule of law 2100: China 0.50 against 0.36, Saudi Arabia 0.49 against 0.44);
+  it lifts Russia and India less (0.54 against 0.66; 0.72 against 0.82).
 
-## 6. Open: one rate per indicator, or one rate for all
+## 5. Government effectiveness in the literature
 
-On the model's own rule-of-law series, the rule-of-law rate (0.96%) gives +0.21 by 2100, **above both published SSP2
-references** (PoliClim +0.15, Andrijevic +0.11; about Andrijevic's SSP1, +0.19), because the model's countries start
-further from the top (0.58 on the panel scale, PoliClim's 0.66).
+Government effectiveness is the one institution series the model takes from a published projection (`ge-ssp`,
+`ge-adaptation`): Andrijevic et al.'s SSP2 path, a panel regression on income, education and its gender gap with
+converging country effects, normalised by its own observed range and harmonised to the WGI-based panel value in 2023,
+the offset fading by 2040. The model uses Andrijevic's *change*, anchored to the WGI *level*. PoliClim's government
+effectiveness is not used: it reverts to the mean (29% of countries decline by 2100 under SSP2, Andrijevic 0%;
+`ge-literatures`), because it is fitted on the WGI, which is re-standardised every year.
 
-| option | rule-of-law change on the model's series, 2025–2100 | PoliClim rule-of-law R² | parameters |
+## 6. Open: government effectiveness under the rule?
+
+**6.1 The rule applied to government effectiveness** (`institutionRule.R` part 5; `ge-rule-series`, `ge-rule-strength`).
+Government effectiveness after 2023 replaced by the rule from its 2023 panel value; strength at θ = 0.50, EU21, 1000 Gt
+hold-the-price energy system, offline:
+
+| government effectiveness | mean 2100 | power & industry k 2100 | buildings & transport k 2100 |
 |---|---:|---:|---:|
-| **A. one rate per indicator** (implemented): 0.96% rule of law, 0.56% every other series | +0.21 | 0.78 | 2 |
-| **B. one rate for every series: 0.56%** | **+0.14** | 0.65 | **1** |
+| Andrijevic SSP2 (now) | 0.78 | 0.736 | 0.494 |
+| gap closure at 0.81% a year (the rule's best fit to Andrijevic SSP2, R² 0.67) | 0.75 | 0.620 | 0.521 |
+| **gap closure at 0.6% a year (the shared rate)** | 0.71 | 0.568 | 0.538 |
+| held at 2023 (bound) | 0.54 | 0.398 | 0.609 |
 
-**Recommendation: B.** It is the simplest statement ("every institution closes 0.56% of its gap a year"), and it is
-anchored three ways on what the model reads: the PoliClim SSP2 fit for accountability, Andrijevic's SSP2 convergence
-pace (34% against 36% of the gap by 2100), and a rule-of-law change that lies between the two published SSP2
-references. It costs fit to PoliClim's own rule-of-law index, a different V-Dem series from the model's. Changing it is
-one row in `pfmInstitutionGapClosureRates()` and a re-run of `institutionRule.R`.
+Unlike the V-Dem series, the government-effectiveness projection moves the strength, through a term that is not
+identified in power & industry (insignificant in the mean regression, negative on the frontier; `MODEL.md` §2.5, §3.3).
 
-## 6a. Tested: the rule applied to government effectiveness (author's question, 2026-10-27)
+**6.2 Government effectiveness and income** (`geIncome.R`). Across countries in 2023, government effectiveness
+correlates 0.80 with log GDP per capita (slope 0.135 per log point); within countries (country and year effects,
+1996–2023) the slope is 0.074 and the long changes correlate only 0.27 with income growth. SSP2 income converges
+(countries with weaker government today grow faster: correlation −0.63; mean income ×3.9 by 2100). The path SSP2
+income implies (each country's 2023 value plus the slope times its log income growth) rises +0.10 (within slope) to
++0.18 (cross slope) by 2100:
 
-`institutionRule.R` part 5, figures `ge-rule-series`, `ge-rule-strength`. Government effectiveness after 2023 replaced by
-the rule from its 2023 panel value, on the gap-closure panel; strength k(t) at θ = 0.50, EU21, 1000 Gt hold-the-price
-energy system, offline:
-
-| government effectiveness | rule fit to Andrijevic SSP2 (R² of the change) | mean 2100 | power & industry k 2100 | buildings & transport k 2100 |
-|---|---:|---:|---:|---:|
-| Andrijevic SSP2 (the model) | — | 0.78 | 0.685 | 0.494 |
-| gap closure at 0.81% a year (fitted to Andrijevic SSP2) | 0.67 | 0.75 | 0.571 | 0.521 |
-| gap closure at 0.56% a year (the shared rate) | 0.12 | 0.70 | 0.513 | 0.542 |
-| held at 2023 (bound) | — | 0.54 | 0.367 | 0.609 |
-
-- **The rule describes Andrijevic's SSP2 path reasonably at its own rate** (0.81% a year; SSP1 1.49%, R² 0.88; SSP3 not
-  representable). PoliClim's government effectiveness is nearly flat (+0.02 by 2100, 29% of countries declining) and
-  no positive rate represents it.
-- **Unlike the V-Dem series, the government-effectiveness projection moves the strength**: power & industry k in 2100
-  falls from 0.685 to 0.57 (fitted rate) or 0.51 (shared rate), buildings & transport rises from 0.49 to 0.52–0.54.
-  Andrijevic's path differs from the rule in its country pattern (driven by income and education) and lifts the best
-  performers to the top of the scale by 2060.
-- **The channel is not identified in power & industry**: the government-effectiveness main effect is insignificant in the
-  mean regression and negative on the frontier (`MODEL.md` §2.5, §3.3). Better government effectiveness there tightens
-  the projected constraint through that term, so the power & industry k is sensitive to a coefficient the paper does
-  not interpret.
-- **Reading.** Keeping Andrijevic's published SSP2 path for government effectiveness is the better-anchored choice: it is
-  the literature projection, and the rule at its fitted rate is an approximation of it, not an independent source.
-  The difference (power & industry k 0.685 against 0.57) is a sensitivity to report beside the held-institutions run,
-  not a reason to change the central series. A coupled run would size it in CO₂.
-
-## 6b. Government effectiveness and income (author's question, 2026-10-27)
-
-`analysis/checks/geIncome.R v7` → `output/pfm/v7/ge-income.rds`. WGI government effectiveness on the panel's normalised
-scale; GDP per capita (PPP) from mrdrivers, SSP2.
-
-- **Strongly related across countries, weakly within them.** Across countries in 2023 the correlation with log GDP per
-  capita is 0.80 (slope 0.135 per log point). Within countries (country and year effects, 1996–2023) the slope is 0.074,
-  and the long changes 1996–2023 correlate only 0.27 with income growth: growth explains little of how a country's
-  effectiveness moved (the WGI is a relative score, re-standardised every year).
-- **SSP2 income growth converges.** Countries with lower effectiveness today grow faster (correlation −0.63); mean
-  log growth 2023–2100 is 1.35 (income ×3.9).
-- **The path SSP2 income implies** (each country's 2023 value plus the slope times its log income growth): +0.10 by
-  2100 with the within-country slope, +0.18 with the cross-country slope.
-
-| formulation (country change 2023–2100) | mean change | correlation with the income-implied change (within / cross slope) | RMSE (within / cross) |
+| formulation (country change 2023–2100) | mean change | correlation with the income-implied change (within / cross) | RMSE (within / cross) |
 |---|---:|---:|---:|
-| **gap closure, 0.56% a year (shared rate)** | **+0.16** | **0.63 / 0.64** | **0.087 / 0.103** |
-| gap closure, 0.81% a year (fitted to Andrijevic) | +0.22 | 0.63 / 0.64 | 0.136 / 0.106 |
-| Andrijevic SSP2 (the model now) | +0.24 | 0.49 / 0.50 | 0.177 / 0.140 |
+| **gap closure at 0.6% a year** | **+0.17** | **0.63 / 0.64** | **0.095 / 0.102** |
+| gap closure at 0.81% a year | +0.22 | 0.63 / 0.64 | 0.136 / 0.106 |
+| Andrijevic SSP2 (now) | +0.24 | 0.49 / 0.50 | 0.177 / 0.140 |
 | held at 2023 | 0 | −0.05 | 0.123 / 0.224 |
 
-**Reading.** Judged against SSP2's income path, the shared-rate rule is the closest formulation: its mean change lies
-inside the income-implied range and its country pattern follows SSP2's income convergence best. Andrijevic's SSP2 rises
-more than income alone implies, because its regression adds education and its gender gap and lets country effects
-converge. Two readings remain defensible: Andrijevic, as the published SSP2 projection; or the shared-rate rule, which
-makes one rule govern every institution series and matches the SSP2 income path more closely. Under the second, the
-power & industry k in 2100 is 0.51 instead of 0.685 (§6a), through terms that are not identified.
+**6.3 The choice.** Judged against SSP2's income path, the shared rule is the closest formulation; judged as a literature
+source, Andrijevic's published SSP2 path is the stronger anchor (it adds education and its gender gap, and rises more
+than income alone implies). Under the shared rule one sentence covers every institution series, and power & industry k
+in 2100 is 0.57 instead of 0.74. Whichever is central, the other is the sensitivity.
 
 ## 7. Implementation
 
-Done (2026-10-27): `pfmInstitutionProjection("gapclosure")`, `pfmInstitutionGapClosureRates()`,
+Done (2026-10-27): `pfmInstitutionProjection("gapclosure")`, `pfmInstitutionGapClosureRates()` (one row, 0.6%),
 `.pfmGapClosurePanel()` (the rule and the weight level, on the panel scale after harmonisation),
-`panelDataScenario(harmonizeShape)` (smooth by default under the rule), tests `test-institutionGapClosure.R`; the
-REMIND fork's `preparePFM.R` accepts `pfmInstitutions = gapclosure`.
+`panelDataScenario(harmonizeShape)` (smooth under the rule), tests `test-institutionGapClosure.R`; the REMIND fork's
+`preparePFM.R` accepts `pfmInstitutions = gapclosure`.
 
 To do, in order:
 
-1. Decide §6 (and set the rates).
-2. Commit and push `pfm` and the REMIND fork; install `pfm` on the cluster (`setup.sh --update`), so the preflight
-   sees matching versions. No estimation re-run: the frontier, the anchor and the ranking are `v7`'s; institutions only
-   enter through the scenario panel.
+1. Decide §6.3.
+2. Push `pfm`, the REMIND fork and the project; on the cluster `setup.sh --update` (the preflight checks installed
+   against the working tree). No estimation re-run: the frontier, the anchor and the ranking are `v7`'s; institutions
+   enter only through the scenario panel.
 3. A `v7` scenario family under the rule (the matrix's `institutions: gapclosure`, run titles with the variant `gc`):
    the fading-limit θ sweep under both closures at both resolutions (12 runs) and the erosion ladder (κ 0.02, 0.027,
    0.05 at EU21, both closures; κ 0.027 at H12: 8 runs). The no-politics references, the constant and growing limits
    and the held-institutions rows do not depend on the institution rule and are reused.
 4. `runCoupledStage.R v7`, then `SCENARIOS.md`, `MODEL.md` §5.2 and the paper's numbers on the new central rows; the
    current-rule rows become the sensitivity "quick convergence".
-5. ADR revising ADR 0051 item 2 and `DATA.md` §5.4; the Methods' institutions paragraph (one sentence on the rule,
-   one on the rate's source).
+5. An ADR revising ADR 0051 item 2, `DATA.md` §5.4, and the Methods' institutions paragraph (§3, the sentence for the
+   paper).
 
 ## References
 
 - Andrijevic, M., Crespo Cuaresma, J., Muttarak, R. & Schleussner, C.-F. Governance in socioeconomic pathways and its
   role for future adaptive capacity. *Nat. Sustain.* **3**, 35–41 (2020).
-- PoliClim institution forecasts (V-Dem v16, WGI 2025), SSP1–5, received 2026-10-06; unpublished.
+- Coppedge, M. et al. V-Dem Country–Year Dataset v16. Varieties of Democracy Project (2026).
+- PoliClim institution forecasts (V-Dem v16, WGI 2025), SSP1–5, received 2026-10-06; unpublished. Consistency check only.

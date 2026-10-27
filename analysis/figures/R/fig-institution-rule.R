@@ -34,10 +34,10 @@ figInstPoliclimPaths <- function(group = "v7") {
     ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::geom_line(ggplot2::aes(y = lo), linewidth = 0.3, linetype = "22") + ggplot2::geom_line(ggplot2::aes(y = hi), linewidth = 0.3, linetype = "22") +
     ggplot2::facet_wrap(~indicator) + ggplot2::scale_colour_manual(values = .instCol(), name = NULL) +
-    ggplot2::labs(title = "The gap-closure rule follows PoliClim's SSP2; the current rule is slow early and fast late",
-                  subtitle = sprintf(paste("Cross-country mean (solid) and 10th / 90th percentile (dashed), %d countries, PoliClim's own indicators;",
-                                           "history to 2025.\nGap closure: rule of law %.2f%%, accountability %.2f%% of the distance to the top closed each year."),
-                                     length(unique(x$part1$c)), 100 * r$rate[1], 100 * r$rate[2]),
+    ggplot2::labs(title = "A consistency check: the gap-closure rule against PoliClim's SSP2",
+                  subtitle = sprintf(paste("Cross-country mean (solid) and 10th / 90th percentile (dashed), %d countries, PoliClim's own indicators.",
+                                           "\nGap closure: %.1f%% of the distance to the best observed value closed each year (declared, not fitted to PoliClim)."),
+                                     length(unique(x$part1$c)), 100 * r$rate[1]),
                   x = NULL, y = "index (0-1)")
   attr(p, "pfmGrid") <- "y"
   pfmStamp(p, group, note = "institution-rule.rds (part 1)")
@@ -282,4 +282,35 @@ figGeRuleStrength <- function(group = "v7") {
                   x = NULL, y = "strength k(t)")
   attr(p, "pfmGrid") <- "y"
   pfmStamp(p, group, note = "institution-rule.rds (part 5)")
+}
+
+# 13. where the rate comes from: V-Dem history and the published SSP assumptions, against the declared 0.6% a year
+figInstRateJustification <- function(group = "v7") {
+  x <- pfmArtifact(group, "gap-closure-history.rds"); r <- pfmArtifact(group, "institution-rule.rds")$rates$rate[1]
+  h <- x$history; h$label <- sub("^window ", "", sub("^pooled 1900-2025, ", "1900-2025, ", h$sample))
+  h$series <- .instLab()[h$series]
+  an <- x$anchors
+  a2 <- an[grepl("SSP2: linear", an$anchor), ]; a1 <- an[grepl("SSP1", an$anchor), ]; cr <- an[grepl("current rule", an$anchor), ]
+  pub <- data.frame(label = c("Andrijevic SSP2", "Andrijevic SSP1", "current rule (SSP2)"),
+                    lo = c(a2$lambdaSameShare, min(a1$lambdaSameShare, a1$lambdaSameHalfway), min(cr$lambdaSameShare, cr$lambdaSameHalfway)),
+                    hi = c(a2$lambdaSameHalfway, max(a1$lambdaSameShare, a1$lambdaSameHalfway), max(cr$lambdaSameShare, cr$lambdaSameHalfway)))
+  lev <- c(rev(unique(h$label)), rev(pub$label))
+  h$label <- factor(h$label, levels = lev); pub$label <- factor(pub$label, levels = lev)
+  h$group <- "V-Dem history (the rule fitted to every country)"; pub$group <- "published and current assumptions"
+  p <- ggplot2::ggplot() +
+    ggplot2::geom_vline(xintercept = 100 * r, colour = pfmAccent(), linewidth = 0.8) +
+    ggplot2::geom_segment(data = pub, ggplot2::aes(x = 100 * lo, xend = 100 * hi, y = label, yend = label), linewidth = 2.2, colour = "grey45") +
+    ggplot2::geom_point(data = h, ggplot2::aes(100 * lambda, label, colour = series, shape = series), size = 2.4) +
+    ggplot2::facet_grid(group ~ ., scales = "free_y", space = "free_y") +
+    ggplot2::scale_colour_manual(values = c(`Rule of law (V-Dem)` = "#eb6834", `Vertical accountability (V-Dem)` = "#2a78d6"), name = NULL) +
+    ggplot2::scale_shape_manual(values = c(`Rule of law (V-Dem)` = 16, `Vertical accountability (V-Dem)` = 17), name = NULL) +
+    ggplot2::annotate("text", x = 100 * r, y = Inf, label = sprintf("declared: %.1f%% a year", 100 * r), hjust = -0.05, vjust = 1.3,
+                      size = 2.7, colour = pfmAccent()) +
+    ggplot2::labs(title = "Where the rate comes from: V-Dem history and Andrijevic et al.'s SSP2 assumption",
+                  subtitle = paste("Share of the distance to the best observed value closed a year. History: x(s+h) = 1 - (1 - x(s)) exp(-lambda h),",
+                                   "\nfitted over every country. Bars: exponential rates matching a linear convergence (2100 share / half-way year)."),
+                  x = "rate (% of the remaining gap a year)", y = NULL)
+  attr(p, "pfmGrid") <- "x"
+  attr(p, "pfmTheme") <- ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0, hjust = 0, face = "bold"))
+  pfmStamp(p, group, note = "gap-closure-history.rds")
 }

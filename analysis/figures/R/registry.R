@@ -29,6 +29,18 @@ figureRegistry <- function(consumers = NULL, status = NULL) {
 
   reg <- rbind(
 
+    f(id       = "inst-rate-justification",
+      paperId  = NA_character_,
+      title    = "Where the gap-closure rate comes from",
+      builder  = "figInstRateJustification",
+      sources  = "gap-closure-history.rds, institution-rule.rds",
+      consumers= "paper,report",
+      status   = "built",
+      caption  = "The rate of the gap-closure rule fitted to V-Dem history (rule of law, vertical accountability; pooled 1900-2025 and windows), the range of exponential rates that represent Andrijevic et al.'s linear SSP2 and SSP1 convergence, the current rule, and the declared 0.6% a year.",
+      shows    = "That the declared rate sits inside both the historical and the published SSP2 range, without PoliClim.",
+      reads    = "Points: history; bars: published or current assumptions; the vertical line is the declared rate.",
+      rails    = "History is noisy (R-squared of country changes 0.04-0.32): it bounds the average pace, not country paths."),
+
     f(id       = "ge-rule-series",
       paperId  = NA_character_,
       title    = "Government effectiveness under the gap-closure rule (test)",
