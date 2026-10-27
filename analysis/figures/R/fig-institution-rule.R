@@ -240,3 +240,46 @@ figRolLiterature <- function(group = "v7") {
   attr(p, "pfmGrid") <- "y"
   pfmStamp(p, group, note = "institution-rule.rds (parts 1, 2, 4)")
 }
+
+# 11. government effectiveness under the gap-closure rule (a test): the model's series under each variant
+.geVarCol <- function() c(`Andrijevic SSP2 (the model)` = "#eb6834", `gap closure, rate fitted to Andrijevic SSP2` = pfmAccent(),
+                          `gap closure, shared rate` = "#2a78d6", `held at 2023` = "grey60", history = "grey15")
+figGeRuleSeries <- function(group = "v7") {
+  x <- pfmArtifact(group, "institution-rule.rds"); p5 <- x$part5
+  d <- p5$series[is.finite(p5$series$v) & p5$series$year >= 2025 & p5$series$year <= 2100, ]
+  h <- x$history[x$history$series == "Government Effectiveness (WGI)", ]
+  d <- rbind(d, data.frame(variant = "history", h[, c("c", "year", "v")]))
+  q <- .instBand(d, c("variant", "year")); q$variant <- factor(q$variant, levels = names(.geVarCol()))
+  lab <- sprintf("Rates: shared %.2f%%, fitted to Andrijevic SSP2 %.2f%% a year.", 100 * p5$rates[[2]], 100 * p5$rates[[3]])
+  p <- ggplot2::ggplot(q, ggplot2::aes(year, m, colour = variant)) +
+    ggplot2::geom_vline(xintercept = 2023, colour = "grey70", linewidth = 0.3) + ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_line(ggplot2::aes(y = lo), linewidth = 0.3, linetype = "22") + ggplot2::geom_line(ggplot2::aes(y = hi), linewidth = 0.3, linetype = "22") +
+    ggplot2::scale_colour_manual(values = .geVarCol(), name = NULL) + ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2)) +
+    ggplot2::labs(title = "Government effectiveness under the gap-closure rule: slower than Andrijevic's SSP2",
+                  subtitle = paste("The model's series (normalised, all countries): mean (solid), 10th / 90th percentile (dashed).", lab),
+                  x = NULL, y = "normalised index")
+  attr(p, "pfmGrid") <- "y"
+  pfmStamp(p, group, note = "institution-rule.rds (part 5)")
+}
+
+# 12. ... and the strength k(t) on each
+figGeRuleStrength <- function(group = "v7") {
+  x <- pfmArtifact(group, "institution-rule.rds"); s <- x$part5$strength; s <- s[s$year <= 2100, ]
+  s$variant <- factor(s$variant, levels = names(.geVarCol())[1:4])
+  s$sector <- factor(s$sector, levels = c("Bulk", "Diffuse"), labels = c("Power & industry", "Buildings & transport"))
+  end <- s[s$year == 2100, ]; end$lab <- sprintf("%.2f", end$k)
+  end <- do.call(rbind, lapply(split(end, end$sector), function(e) { e <- e[order(e$k), ]; y <- e$k
+    for (i in seq_along(y)[-1]) y[i] <- max(y[i], y[i - 1] + 0.035); e$ky <- y; e }))
+  p <- ggplot2::ggplot(s, ggplot2::aes(year, k, colour = variant)) +
+    ggplot2::geom_hline(yintercept = 1, colour = "grey70", linewidth = 0.3) + ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_text(data = end, ggplot2::aes(y = ky, label = lab), hjust = -0.2, size = 2.6, show.legend = FALSE) +
+    ggplot2::facet_wrap(~sector) + ggplot2::scale_colour_manual(values = .geVarCol(), name = NULL) +
+    ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2)) +
+    ggplot2::scale_x_continuous(limits = c(2025, 2108), breaks = c(2025, 2050, 2075, 2100)) +
+    ggplot2::labs(title = "Government effectiveness moves the strength, through terms that are not identified",
+                  subtitle = paste("Strength k(t), theta = 0.50, 1000 Gt hold-the-price energy system (EU21), gap-closure panel with each",
+                                   "\ngovernment-effectiveness variant. Offline. Slower improvement lowers power & industry k and raises buildings & transport k."),
+                  x = NULL, y = "strength k(t)")
+  attr(p, "pfmGrid") <- "y"
+  pfmStamp(p, group, note = "institution-rule.rds (part 5)")
+}

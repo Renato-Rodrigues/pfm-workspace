@@ -29,6 +29,30 @@ figureRegistry <- function(consumers = NULL, status = NULL) {
 
   reg <- rbind(
 
+    f(id       = "ge-rule-series",
+      paperId  = NA_character_,
+      title    = "Government effectiveness under the gap-closure rule (test)",
+      builder  = "figGeRuleSeries",
+      sources  = "institution-rule.rds",
+      consumers= "report",
+      status   = "built",
+      caption  = "The model's government-effectiveness series under Andrijevic's SSP2 path, the gap-closure rule at the shared rate and at the rate fitted to Andrijevic SSP2, and held at 2023.",
+      shows    = "How far the rule departs from the published projection the model uses.",
+      reads    = "Mean (solid) and 10th/90th percentile (dashed), normalised.",
+      rails    = "A test of the rule, not the model: the model keeps Andrijevic's SSP2 series."),
+
+    f(id       = "ge-rule-strength",
+      paperId  = NA_character_,
+      title    = "The strength k(t) under each government-effectiveness variant (test)",
+      builder  = "figGeRuleStrength",
+      sources  = "institution-rule.rds",
+      consumers= "report",
+      status   = "built",
+      caption  = "Strength k(t) per sector at theta = 0.50, EU21, 1000 Gt hold-the-price energy system, on the gap-closure panel with each government-effectiveness variant.",
+      shows    = "That the government-effectiveness projection moves the strength more than the V-Dem rule does.",
+      reads    = "Compare the end labels between variants.",
+      rails    = "Offline; the power & industry government-effectiveness terms are not identified."),
+
     f(id       = "inst-policlim-paths",
       paperId  = NA_character_,
       title    = "The gap-closure institution rule against PoliClim's SSP2",

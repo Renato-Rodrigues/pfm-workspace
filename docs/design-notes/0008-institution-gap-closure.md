@@ -108,6 +108,35 @@ pace (34% against 36% of the gap by 2100), and a rule-of-law change that lies be
 references. It costs fit to PoliClim's own rule-of-law index, a different V-Dem series from the model's. Changing it is
 one row in `pfmInstitutionGapClosureRates()` and a re-run of `institutionRule.R`.
 
+## 6a. Tested: the rule applied to government effectiveness (author's question, 2026-10-27)
+
+`institutionRule.R` part 5, figures `ge-rule-series`, `ge-rule-strength`. Government effectiveness after 2023 replaced by
+the rule from its 2023 panel value, on the gap-closure panel; strength k(t) at θ = 0.50, EU21, 1000 Gt hold-the-price
+energy system, offline:
+
+| government effectiveness | rule fit to Andrijevic SSP2 (R² of the change) | mean 2100 | power & industry k 2100 | buildings & transport k 2100 |
+|---|---:|---:|---:|---:|
+| Andrijevic SSP2 (the model) | — | 0.78 | 0.685 | 0.494 |
+| gap closure at 0.81% a year (fitted to Andrijevic SSP2) | 0.67 | 0.75 | 0.571 | 0.521 |
+| gap closure at 0.56% a year (the shared rate) | 0.12 | 0.70 | 0.513 | 0.542 |
+| held at 2023 (bound) | — | 0.54 | 0.367 | 0.609 |
+
+- **The rule describes Andrijevic's SSP2 path reasonably at its own rate** (0.81% a year; SSP1 1.49%, R² 0.88; SSP3 not
+  representable). PoliClim's government effectiveness is nearly flat (+0.02 by 2100, 29% of countries declining) and
+  no positive rate represents it.
+- **Unlike the V-Dem series, the government-effectiveness projection moves the strength**: power & industry k in 2100
+  falls from 0.685 to 0.57 (fitted rate) or 0.51 (shared rate), buildings & transport rises from 0.49 to 0.52–0.54.
+  Andrijevic's path differs from the rule in its country pattern (driven by income and education) and lifts the best
+  performers to the top of the scale by 2060.
+- **The channel is not identified in power & industry**: the government-effectiveness main effect is insignificant in the
+  mean regression and negative on the frontier (`MODEL.md` §2.5, §3.3). Better government effectiveness there tightens
+  the projected constraint through that term, so the power & industry k is sensitive to a coefficient the paper does
+  not interpret.
+- **Reading.** Keeping Andrijevic's published SSP2 path for government effectiveness is the better-anchored choice: it is
+  the literature projection, and the rule at its fitted rate is an approximation of it, not an independent source.
+  The difference (power & industry k 0.685 against 0.57) is a sensitivity to report beside the held-institutions run,
+  not a reason to change the central series. A coupled run would size it in CO₂.
+
 ## 7. Implementation
 
 Done (2026-10-27): `pfmInstitutionProjection("gapclosure")`, `pfmInstitutionGapClosureRates()`,

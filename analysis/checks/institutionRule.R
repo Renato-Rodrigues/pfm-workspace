@@ -154,7 +154,35 @@ part4[[length(part4) + 1]] <- data.frame(source = "model (SSP2, harmonised)", ss
 part4 <- do.call(rbind, part4)
 say("part 4: ", paste(unique(part4$source), collapse = ", "))
 
-out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), rates = rates, part1 = part1, fit1 = fit1,
+# ---- 5. government effectiveness under the gap-closure rule (a test, not the model) --------------------------------------
+# On the gap-closure panel, the government-effectiveness series after 2023 replaced by the rule from its 2023 panel value:
+# at the shared rate of the other series, at the rate that best reproduces Andrijevic's SSP2 path, and held (a bound);
+# against the published path the model uses. The strength k(t) is recomputed on each.
+geFit <- local({   # the rate that best reproduces Andrijevic's SSP2 government effectiveness (normalised, top = best observed)
+  d <- part4[part4$source == "Andrijevic et al. 2020" & part4$ssp == "SSP2" & part4$indicator == "ge", ]
+  top <- max(d$v[d$year <= T0], na.rm = TRUE); a <- stats::setNames(d$v[d$year == T0], d$c[d$year == T0])
+  dd <- do.call(rbind, lapply(c(seq(2030, 2095, 5), 2099), function(y) { b <- stats::setNames(d$v[d$year == y], d$c[d$year == y])
+    cc <- intersect(names(a), names(b)); data.frame(t = y, x0 = a[cc], v = b[cc]) }))
+  dd <- dd[is.finite(dd$x0) & is.finite(dd$v), ]
+  stats::optimize(function(l) sum((top - (top - dd$x0) * exp(-l * (dd$t - T0)) - dd$v)^2), c(1e-5, 0.05))$minimum
+})
+GE <- "Government Effectiveness (WGI)"
+geVariants <- c(`Andrijevic SSP2 (the model)` = NA, `gap closure, shared rate` = pfm:::.pfmGapClosureRate("Vertical Accountability (VDem)"),
+                `gap closure, rate fitted to Andrijevic SSP2` = round(geFit, 4), `held at 2023` = 0)
+pg <- panels[["gap closure"]]; yy <- getYears(pg, as.integer = TRUE); after <- yy > 2023
+regs <- intersect(getItems(pg, dim = 1), getItems(hp, dim = 1)); g23 <- as.numeric(hp[regs, 2023, GE]); ok <- is.finite(g23)
+geRuns <- lapply(names(geVariants), function(nm) {
+  p <- pg; lam <- geVariants[[nm]]
+  if (is.finite(lam)) p[regs[ok], yy[after], GE] <- outer(g23[ok], yy[after], function(x, t) pfm:::.pfmGapClosurePath(x, t, 2023, lam))
+  list(series = data.frame(variant = nm, c = rep(getItems(p, dim = 1), length(yy)), year = rep(yy, each = length(getItems(p, dim = 1))),
+                           v = as.vector(as.array(p[, , GE])[, , 1])),
+       strength = cbind(variant = nm, computeStrengthPath(anc, p, theta = 0.5)$strength[, c("sector", "year", "k")]))
+})
+part5 <- list(rates = geVariants, fitAndrijevic = geFit,
+              series = do.call(rbind, lapply(geRuns, `[[`, "series")), strength = do.call(rbind, lapply(geRuns, `[[`, "strength")))
+say("part 5: government effectiveness under the rule (Andrijevic-fitted rate ", round(100 * geFit, 2), "% a year)")
+
+out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), rates = rates, part1 = part1, fit1 = fit1, part5 = part5,
             part2 = part2, history = histSer, seam = seam, strength = strength, part4 = part4, run = run$dir,
             note = paste("part1: PoliClim SSP2 against the rules, applied to PoliClim's own history 1996-2025;",
                          "part2: the model's scenario panels on the EU21 hold-the-price fading-limit energy system,",
