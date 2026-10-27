@@ -4,7 +4,8 @@
 convergence rule as the SSP2 central projection of the institutions without an SSP projection, with one declared rate
 for every series, **0.6% a year**, justified without PoliClim (§3). Implemented in `pfm`
 (`pfmInstitutionProjection(rule = "gapclosure")`, `pfmInstitutionGapClosureRates()`). It revises ADR 0051 item 2 once
-the coupled batch has run. Open: government effectiveness (§6).
+the coupled batch has run. Government effectiveness follows the same rule; Andrijevic et al.'s published SSP2 path is
+named in the paper as the reference it is compared with and run as the sensitivity `gapclosureAndrijevic` (§6).
 
 **Provenance.** Run-Group `v7` (selected specification `X-1791 … satInn iw:fexp`). V-Dem v16 and WGI 2025 from the
 `v7` madrat cache; SSP extensions (Andrijevic et al. 2020) from the madrat sources; PoliClim institution forecasts
@@ -33,15 +34,18 @@ the inversion the model already applies). One parameter. A country's gap halves 
 closed 37% of its 2023 gap. Countries further from the top improve more in absolute terms; no country declines; the rank
 order of countries is kept.
 
-The rule applies to every institution series with no SSP projection: V-Dem rule of law, vertical, horizontal, diagonal
-and overall accountability, the state-capacity indicators, and WGI voice and accountability, political stability and
-regulatory quality. Of these, the selected specification reads rule of law and vertical accountability.
+The rule applies to every institution series: V-Dem rule of law, vertical, horizontal, diagonal and overall
+accountability, the state-capacity indicators, the WGI series, and government effectiveness, control of corruption and
+the Rule-of-Law Index, whose published SSP projections (Andrijevic et al. 2020) it replaces. The selected specification
+reads rule of law, vertical accountability and government effectiveness.
 
 **The democracy weight** (freedom of expression, ADR 0060) is not projected by the rule. It moves to the higher of its
 2023 value and its 2014–2023 mean and is held there (author, 2026-10-27): no regime change is projected, but countries
 in the recent decline recover part of it. The move follows a half cosine reaching the level in 2040.
 
-**Government effectiveness** keeps its published SSP2 projection (Andrijevic et al. 2020) for now (§6).
+**Government effectiveness** follows the rule (author, 2026-10-27). Andrijevic et al.'s published SSP2 path is the
+reference it is compared with (§5, §6; figures `ge-comparison`, `ge-adaptation`) and the sensitivity run
+`pfmInstitutions = gapclosureAndrijevic`, which keeps the published path for the three SSP-extension series.
 
 **No step from history.** The path starts from the panel's own 2023 value, so the projection begins where the fitted
 history ends. Every other scenario series is harmonised to 2023 as before, its offset now fading along a half cosine
@@ -123,9 +127,18 @@ best observed value each year from their 2023 value, the pace of the SSP2 conver
   for rule of law and for accountability, against a 95th percentile of 0.034 and 0.027 for history's own annual
   changes. The current and held rules start from V-Dem's raw 2025 value and step by up to 0.14 a year for countries
   with recent regime shifts.
-- **The constraint moves a little** (`inst-strength`; offline, EU21, θ = 0.50, the 1000 Gt hold-the-price energy
-  system): power & industry k in 2100 0.736 (current rule 0.667, held 0.695), buildings & transport 0.494 (0.489,
-  0.452). The coupled run sizes it in CO₂.
+- **The constraint** (`inst-strength`; offline, EU21, θ = 0.50, the 1000 Gt hold-the-price energy system), k in 2100:
+
+  | institutions | power & industry | buildings & transport |
+  |---|---:|---:|
+  | **gap closure, every series (central)** | **0.568** | **0.538** |
+  | gap closure, government effectiveness from Andrijevic SSP2 (sensitivity) | 0.736 | 0.494 |
+  | current rule | 0.667 | 0.489 |
+  | held | 0.695 | 0.452 |
+
+  Most of the difference between the central rule and the current one comes from government effectiveness, through a
+  term that is not identified in power & industry (§6.1); the V-Dem series move k by a few hundredths. The coupled runs
+  size it in CO₂.
 - **Against PoliClim, by country** (`inst-policlim-countries-*`): the rule cannot reproduce PoliClim's declines (one
   country in ten for accountability) or its near-term dip to about 2030, and it lifts persistent autocracies without
   regional peers more than PoliClim does (rule of law 2100: China 0.50 against 0.36, Saudi Arabia 0.49 against 0.44);
@@ -133,14 +146,16 @@ best observed value each year from their 2023 value, the pace of the SSP2 conver
 
 ## 5. Government effectiveness in the literature
 
-Government effectiveness is the one institution series the model takes from a published projection (`ge-ssp`,
-`ge-adaptation`): Andrijevic et al.'s SSP2 path, a panel regression on income, education and its gender gap with
-converging country effects, normalised by its own observed range and harmonised to the WGI-based panel value in 2023,
-the offset fading by 2040. The model uses Andrijevic's *change*, anchored to the WGI *level*. PoliClim's government
-effectiveness is not used: it reverts to the mean (29% of countries decline by 2100 under SSP2, Andrijevic 0%;
-`ge-literatures`), because it is fitted on the WGI, which is re-standardised every year.
+Andrijevic et al. (2020) publish SSP projections of government effectiveness: a panel regression on income, education
+and its gender gap with converging country effects (`ge-ssp`). Under the current rule the model used that path,
+normalised by its own observed range and harmonised to the WGI-based panel value in 2023 (Andrijevic's *change*,
+anchored to the WGI *level*). Under the gap-closure rule government effectiveness follows the rule; the published path
+stays as the reference and the sensitivity (`ge-adaptation`, `ge-comparison`): by 2100 the rule raises the
+cross-country mean by +0.17, Andrijevic's SSP2 by +0.21–0.24, SSP2 income implies +0.10 to +0.18 (§6.2). PoliClim's
+government effectiveness reverts to the mean (29% of countries decline by 2100 under SSP2, Andrijevic 0%;
+`ge-literatures`), because it is fitted on the WGI, which is re-standardised every year; the rule lies between the two.
 
-## 6. Open: government effectiveness under the rule?
+## 6. Government effectiveness: the rule (central) and Andrijevic's path (sensitivity)
 
 **6.1 The rule applied to government effectiveness** (`institutionRule.R` part 5; `ge-rule-series`, `ge-rule-strength`).
 Government effectiveness after 2023 replaced by the rule from its 2023 panel value; strength at θ = 0.50, EU21, 1000 Gt
@@ -148,9 +163,9 @@ hold-the-price energy system, offline:
 
 | government effectiveness | mean 2100 | power & industry k 2100 | buildings & transport k 2100 |
 |---|---:|---:|---:|
-| Andrijevic SSP2 (now) | 0.78 | 0.736 | 0.494 |
+| **gap closure at 0.6% a year (central)** | 0.71 | 0.568 | 0.538 |
+| Andrijevic SSP2, published path (sensitivity) | 0.78 | 0.736 | 0.494 |
 | gap closure at 0.81% a year (the rule's best fit to Andrijevic SSP2, R² 0.67) | 0.75 | 0.620 | 0.521 |
-| **gap closure at 0.6% a year (the shared rate)** | 0.71 | 0.568 | 0.538 |
 | held at 2023 (bound) | 0.54 | 0.398 | 0.609 |
 
 Unlike the V-Dem series, the government-effectiveness projection moves the strength, through a term that is not
@@ -165,15 +180,17 @@ income implies (each country's 2023 value plus the slope times its log income gr
 
 | formulation (country change 2023–2100) | mean change | correlation with the income-implied change (within / cross) | RMSE (within / cross) |
 |---|---:|---:|---:|
-| **gap closure at 0.6% a year** | **+0.17** | **0.63 / 0.64** | **0.095 / 0.102** |
+| **gap closure at 0.6% a year (central)** | **+0.17** | **0.63 / 0.64** | **0.095 / 0.102** |
 | gap closure at 0.81% a year | +0.22 | 0.63 / 0.64 | 0.136 / 0.106 |
-| Andrijevic SSP2 (now) | +0.24 | 0.49 / 0.50 | 0.177 / 0.140 |
+| Andrijevic SSP2, published path | +0.24 | 0.49 / 0.50 | 0.177 / 0.140 |
 | held at 2023 | 0 | −0.05 | 0.123 / 0.224 |
 
-**6.3 The choice.** Judged against SSP2's income path, the shared rule is the closest formulation; judged as a literature
-source, Andrijevic's published SSP2 path is the stronger anchor (it adds education and its gender gap, and rises more
-than income alone implies). Under the shared rule one sentence covers every institution series, and power & industry k
-in 2100 is 0.57 instead of 0.74. Whichever is central, the other is the sensitivity.
+**6.3 Decided (author, 2026-10-27): the rule is central, Andrijevic's path is named and run as the sensitivity.** Judged
+against SSP2's income path the rule is the closest formulation, and one sentence then covers every institution series.
+Andrijevic's published SSP2 path stays in the paper as the literature reference (it adds education and its gender gap
+and rises more than income alone implies) and as the sensitivity `gapclosureAndrijevic`; power & industry k in 2100 is
+0.57 under the rule and 0.74 with Andrijevic's path. Methods sentence: *Government effectiveness follows the same rule;
+the published SSP2 projection of Andrijevic et al. (2020), which rises somewhat faster, is a sensitivity.*
 
 ## 7. Implementation
 
@@ -184,17 +201,17 @@ Done (2026-10-27): `pfmInstitutionProjection("gapclosure")`, `pfmInstitutionGapC
 
 To do, in order:
 
-1. Decide §6.3.
-2. Push `pfm`, the REMIND fork and the project; on the cluster `setup.sh --update` (the preflight checks installed
+1. Push `pfm`, the REMIND fork and the project; on the cluster `setup.sh --update` (the preflight checks installed
    against the working tree). No estimation re-run: the frontier, the anchor and the ranking are `v7`'s; institutions
    enter only through the scenario panel.
-3. A `v7` scenario family under the rule (the matrix's `institutions: gapclosure`, run titles with the variant `gc`):
+2. A `v7` scenario family under the rule (the matrix's `institutions: gapclosure`, run titles with the variant `gc`):
    the fading-limit θ sweep under both closures at both resolutions (12 runs) and the erosion ladder (κ 0.02, 0.027,
-   0.05 at EU21, both closures; κ 0.027 at H12: 8 runs). The no-politics references, the constant and growing limits
-   and the held-institutions rows do not depend on the institution rule and are reused.
-4. `runCoupledStage.R v7`, then `SCENARIOS.md`, `MODEL.md` §5.2 and the paper's numbers on the new central rows; the
+   0.05 at EU21, both closures; κ 0.027 at H12: 8 runs); the sensitivity `gapclosureAndrijevic` at θ = 0.50 under both
+   closures at both resolutions (4 runs). The no-politics references, the constant and growing limits and the
+   held-institutions rows do not depend on the institution rule and are reused.
+3. `runCoupledStage.R v7`, then `SCENARIOS.md`, `MODEL.md` §5.2 and the paper's numbers on the new central rows; the
    current-rule rows become the sensitivity "quick convergence".
-5. An ADR revising ADR 0051 item 2, `DATA.md` §5.4, and the Methods' institutions paragraph (§3, the sentence for the
+4. An ADR revising ADR 0051 item 2, `DATA.md` §5.4, and the Methods' institutions paragraph (§3, the sentence for the
    paper).
 
 ## References

@@ -2,8 +2,8 @@
 # panels, in the strength k(t), and beside the literature series the model uses or could use (Andrijevic et al. 2020).
 # Every figure reads output/pfm/<group>/institution-rule.rds (analysis/checks/institutionRule.R); nothing is fitted here.
 
-.instCol <- function() c(`PoliClim SSP2` = "#52514e", `gap closure` = pfmAccent(), current = "#C2571A", held = "grey60",
-                         history = "grey15")
+.instCol <- function() c(`PoliClim SSP2` = "#52514e", `gap closure` = pfmAccent(), `gap closure (Andrijevic GE)` = "#7fb3d5",
+                         current = "#C2571A", held = "grey60", history = "grey15")
 .instSspCol <- function() c(SSP1 = "#2a78d6", SSP2 = "#eb6834", SSP3 = "#1baf7a", SSP3c = "#1baf7a", SSP4 = "#eda100",
                             SSP4c = "#eda100", SSP5 = "#e87ba4")
 .instLab <- function() c(rol = "Rule of law", acc = "Accountability",
@@ -91,16 +91,18 @@ figInstModelSeries <- function(group = "v7") {
   x <- pfmArtifact(group, "institution-rule.rds"); d <- x$part2[is.finite(x$part2$v) & x$part2$year >= 2000 & x$part2$year <= 2100, ]
   d$rule[d$year <= 2023] <- "history"
   d <- d[!duplicated(d[, c("rule", "series", "c", "year")]), ]
+  # the Andrijevic variant differs from gap closure only in government effectiveness
+  d <- d[!(d$rule == "gap closure (Andrijevic GE)" & d$series != "Government Effectiveness (WGI)"), ]
   q <- .instBand(d, c("series", "rule", "year")); q$series <- factor(.instLab()[q$series], levels = .instLab()[.instModelSeries()])
-  q$rule <- factor(q$rule, levels = c("history", "gap closure", "current", "held"))
+  q$rule <- factor(q$rule, levels = c("history", "gap closure", "gap closure (Andrijevic GE)", "current", "held"))
   p <- ggplot2::ggplot(q, ggplot2::aes(year, m, colour = rule)) +
     ggplot2::geom_vline(xintercept = 2023, colour = "grey70", linewidth = 0.3) +
     ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::geom_line(ggplot2::aes(y = lo), linewidth = 0.3, linetype = "22") + ggplot2::geom_line(ggplot2::aes(y = hi), linewidth = 0.3, linetype = "22") +
-    ggplot2::facet_wrap(~series, ncol = 4) + ggplot2::scale_colour_manual(values = .instCol(), name = NULL) +
+    ggplot2::facet_wrap(~series, ncol = 2) + ggplot2::scale_colour_manual(values = .instCol(), name = NULL) +
     ggplot2::labs(title = "What the frontier reads: the model's institution series under each rule",
                   subtitle = paste("Scenario panel, 1000 Gt hold-the-price energy system (EU21), all countries; 0 = worst, 1 = best observed.",
-                                   "\nGovernment effectiveness: Andrijevic SSP2 under every rule. Weight: held, or its 2016-2025 level (gap closure)."),
+                                   "\nGovernment effectiveness: the rule under gap closure, Andrijevic SSP2 otherwise. Weight: held, or its 2014-2023 level."),
                   x = NULL, y = "normalised index")
   attr(p, "pfmGrid") <- "y"
   pfmStamp(p, group, note = "institution-rule.rds (part 2)")
@@ -116,6 +118,7 @@ figInstModelSeam <- function(group = "v7") {
   d <- rbind(d[, c("rule", "series", "c", "year", "v")], data.frame(rule = "history", h[, c("series", "c", "year", "v")]))
   d$country <- factor(.instCountries()[d$c], levels = .instCountries())
   d$series <- factor(.instLab()[d$series], levels = .instLab()[.instModelSeries()[1:2]])
+  d <- d[d$rule != "gap closure (Andrijevic GE)", ]   # identical to gap closure for these two series
   d$rule <- factor(d$rule, levels = c("history", "gap closure", "current", "held"))
   p <- ggplot2::ggplot(d, ggplot2::aes(year, v, colour = rule, linetype = series)) +
     ggplot2::geom_vline(xintercept = 2023, colour = "grey70", linewidth = 0.3) +
@@ -133,7 +136,7 @@ figInstModelSeam <- function(group = "v7") {
 # 6. the strength k(t) on each rule's scenario panel
 figInstStrength <- function(group = "v7") {
   x <- pfmArtifact(group, "institution-rule.rds"); s <- x$strength
-  s$rule <- factor(s$rule, levels = c("gap closure", "current", "held"))
+  s$rule <- factor(s$rule, levels = c("gap closure", "gap closure (Andrijevic GE)", "current", "held"))
   s$sector <- factor(s$sector, levels = c("Bulk", "Diffuse"), labels = c("Power & industry", "Buildings & transport"))
   end <- s[s$year == 2100, ]; end$lab <- sprintf("%.2f", end$k)
   # labels spread apart within a sector (at least 0.035), in the order of the lines
@@ -144,7 +147,7 @@ figInstStrength <- function(group = "v7") {
     ggplot2::geom_text(data = end, ggplot2::aes(y = ky, label = lab), hjust = -0.2, size = 2.6, show.legend = FALSE) +
     ggplot2::facet_wrap(~sector) + ggplot2::scale_colour_manual(values = .instCol(), name = NULL) +
     ggplot2::scale_x_continuous(limits = c(2025, 2108), breaks = c(2025, 2050, 2075, 2100)) +
-    ggplot2::labs(title = "The institution rule barely moves the strength of the constraint",
+    ggplot2::labs(title = "Under the rule the power & industry constraint fades faster",
                   subtitle = "Strength k(t), theta = 0.50, 1000 Gt hold-the-price energy system (EU21), on each rule's scenario panel. Offline.",
                   x = NULL, y = "strength k(t)")
   attr(p, "pfmGrid") <- "y"
@@ -173,20 +176,24 @@ figGeSsp <- function(group = "v7") {
 # 8. government effectiveness: how the model adapts the literature series, selected countries
 figGeAdaptation <- function(group = "v7") {
   x <- pfmArtifact(group, "institution-rule.rds"); d <- x$part4[x$part4$indicator == "ge" & x$part4$c %in% names(.instCountries()), ]
-  d <- d[(d$source %in% c("WGI (observed)", "model (SSP2, harmonised)") | d$ssp == "SSP2") & d$year >= 2000 & d$year <= 2100, ]
+  d <- d[(d$source %in% c("WGI (observed)", "model: gap closure, 0.6% a year", "model: Andrijevic SSP2, harmonised") | d$ssp == "SSP2") &
+           d$year >= 2000 & d$year <= 2100, ]
   d$source[d$source == "PoliClim"] <- "PoliClim SSP2"
-  d$source[d$source == "Andrijevic et al. 2020"] <- "Andrijevic et al. 2020, SSP2"
+  d$source[d$source == "Andrijevic et al. 2020"] <- "Andrijevic et al. 2020, SSP2 (published)"
   d$country <- factor(.instCountries()[d$c], levels = .instCountries())
-  col <- c(`WGI (observed)` = "grey15", `Andrijevic et al. 2020, SSP2` = "#eb6834", `model (SSP2, harmonised)` = pfmAccent(),
+  col <- c(`WGI (observed)` = "grey15", `model: gap closure, 0.6% a year` = pfmAccent(),
+           `model: Andrijevic SSP2, harmonised` = "#7fb3d5", `Andrijevic et al. 2020, SSP2 (published)` = "#eb6834",
            `PoliClim SSP2` = "#52514e")
+  lt <- c(`WGI (observed)` = "solid", `model: gap closure, 0.6% a year` = "solid", `model: Andrijevic SSP2, harmonised` = "solid",
+          `Andrijevic et al. 2020, SSP2 (published)` = "22", `PoliClim SSP2` = "42")
+  d$source <- factor(d$source, levels = names(col))
   p <- ggplot2::ggplot(d, ggplot2::aes(year, v, colour = source, linetype = source)) + ggplot2::geom_line(linewidth = 0.6) +
     ggplot2::geom_vline(xintercept = 2023, colour = "grey70", linewidth = 0.3) +
     ggplot2::facet_wrap(~country, ncol = 3) + ggplot2::scale_colour_manual(values = col, name = NULL) +
-    ggplot2::scale_linetype_manual(values = c(`WGI (observed)` = "solid", `Andrijevic et al. 2020, SSP2` = "22",
-                                              `model (SSP2, harmonised)` = "solid", `PoliClim SSP2` = "42"), name = NULL) +
-    ggplot2::labs(title = "Government effectiveness: Andrijevic's change, anchored to the WGI level",
-                  subtitle = paste("Each series on its own normalised range. The model starts from the WGI panel value in 2023 and joins",
-                                   "\nAndrijevic's SSP2 path by 2040, when the offset has faded. PoliClim for comparison, not used."),
+    ggplot2::scale_linetype_manual(values = lt, name = NULL) + ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2)) +
+    ggplot2::labs(title = "Government effectiveness: the model's rule, Andrijevic's published SSP2 path and PoliClim",
+                  subtitle = paste("Each series on its own normalised range. The model (gap closure) starts from the WGI panel value in 2023;",
+                                   "\nits Andrijevic variant joins the published path by 2040. PoliClim for comparison."),
                   x = NULL, y = "normalised index")
   attr(p, "pfmGrid") <- "y"; attr(p, "pfmHeightScale") <- 1.5
   pfmStamp(p, group, note = "institution-rule.rds (part 4)")
@@ -200,16 +207,22 @@ figGeLiteratures <- function(group = "v7") {
   p0 <- w("PoliClim", 2025); p1 <- w("PoliClim", 2100); cc <- intersect(names(a0), names(p0))
   sc <- data.frame(c = cc, level = p0[cc], andrijevic = a1[cc] - a0[cc], policlim = p1[cc] - p0[cc])
   sc <- sc[stats::complete.cases(sc), ]
+  m0 <- stats::setNames(d$v[d$source == "model: gap closure, 0.6% a year" & d$year == 2025], d$c[d$source == "model: gap closure, 0.6% a year" & d$year == 2025])
+  m1 <- stats::setNames(d$v[d$source == "model: gap closure, 0.6% a year" & d$year == 2100], d$c[d$source == "model: gap closure, 0.6% a year" & d$year == 2100])
+  sc$model <- m1[sc$c] - m0[sc$c]
   long <- rbind(data.frame(sc[, c("c", "level")], source = "Andrijevic et al. 2020", change = sc$andrijevic),
-                data.frame(sc[, c("c", "level")], source = "PoliClim", change = sc$policlim))
-  r <- sprintf("countries declining: Andrijevic %d%%, PoliClim %d%% of %d", round(100 * mean(sc$andrijevic < 0)),
+                data.frame(sc[, c("c", "level")], source = "PoliClim", change = sc$policlim),
+                data.frame(sc[, c("c", "level")], source = "the model: gap closure, 0.6% a year", change = sc$model))
+  long <- long[is.finite(long$change), ]
+  r <- sprintf("declining: Andrijevic %d%%, PoliClim %d%% of %d countries", round(100 * mean(sc$andrijevic < 0)),
                round(100 * mean(sc$policlim < 0)), nrow(sc))
   p <- ggplot2::ggplot(long, ggplot2::aes(level, change, colour = source)) + ggplot2::geom_hline(yintercept = 0, colour = "grey60", linewidth = 0.3) +
     ggplot2::geom_point(size = 1.2, alpha = 0.7) + ggplot2::geom_smooth(method = "lm", formula = y ~ x, se = FALSE, linewidth = 0.6) +
-    ggplot2::scale_colour_manual(values = c(`Andrijevic et al. 2020` = "#eb6834", PoliClim = "#52514e"), name = NULL) +
-    ggplot2::labs(title = "Government effectiveness, SSP2: Andrijevic rises everywhere, PoliClim reverts to the mean",
-                  subtitle = paste0("Change 2025-2100 against the 2025 level (normalised WGI scale). ", r, ".\n",
-                                    "PoliClim is fitted on the yearly re-standardised WGI, so it learns convergence to the mean."),
+    ggplot2::scale_colour_manual(values = c(`Andrijevic et al. 2020` = "#eb6834", PoliClim = "#52514e",
+                                            `the model: gap closure, 0.6% a year` = pfmAccent()), name = NULL) +
+    ggplot2::labs(title = "Government effectiveness, SSP2: the rule lies between Andrijevic and PoliClim",
+                  subtitle = paste0("Change 2025-2100 against the 2025 level (normalised WGI scale).\n", r,
+                                    ". PoliClim is fitted on the yearly re-standardised WGI."),
                   x = "2025 level (PoliClim, normalised)", y = "change 2025-2100 (Andrijevic: to 2099)")
   attr(p, "pfmGrid") <- "both"
   pfmStamp(p, group, note = "institution-rule.rds (part 4)")
@@ -233,7 +246,7 @@ figRolLiterature <- function(group = "v7") {
   p <- ggplot2::ggplot(q, ggplot2::aes(year, dv, colour = source)) + ggplot2::geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
     ggplot2::geom_line(linewidth = 0.8) + ggplot2::scale_colour_manual(values = col, name = NULL) +
     ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2)) +
-    ggplot2::labs(title = "Rule of law: on the model's series, gap closure rises faster than both published SSP2 paths",
+    ggplot2::labs(title = "Rule of law: the rule's pace lies within the range of the published SSP2 paths",
                   subtitle = paste("Cross-country mean change since 2025, each series on its own normalised scale.",
                                    "\nAndrijevic's Rule-of-Law Index (SSP1-3) and PoliClim are references; the model reads V-Dem's v2x_rule."),
                   x = NULL, y = "mean change since 2025")
@@ -242,20 +255,20 @@ figRolLiterature <- function(group = "v7") {
 }
 
 # 11. government effectiveness under the gap-closure rule (a test): the model's series under each variant
-.geVarCol <- function() c(`Andrijevic SSP2 (the model)` = "#eb6834", `gap closure, rate fitted to Andrijevic SSP2` = pfmAccent(),
-                          `gap closure, shared rate` = "#2a78d6", `held at 2023` = "grey60", history = "grey15")
+.geVarCol <- function() c(`gap closure, 0.6% a year (the model)` = pfmAccent(), `Andrijevic SSP2 (published path)` = "#eb6834",
+                          `gap closure, rate fitted to Andrijevic SSP2` = "#7fb3d5", `held at 2023` = "grey60", history = "grey15")
 figGeRuleSeries <- function(group = "v7") {
   x <- pfmArtifact(group, "institution-rule.rds"); p5 <- x$part5
   d <- p5$series[is.finite(p5$series$v) & p5$series$year >= 2025 & p5$series$year <= 2100, ]
   h <- x$history[x$history$series == "Government Effectiveness (WGI)", ]
   d <- rbind(d, data.frame(variant = "history", h[, c("c", "year", "v")]))
   q <- .instBand(d, c("variant", "year")); q$variant <- factor(q$variant, levels = names(.geVarCol()))
-  lab <- sprintf("Rates: shared %.2f%%, fitted to Andrijevic SSP2 %.2f%% a year.", 100 * p5$rates[[2]], 100 * p5$rates[[3]])
+  lab <- sprintf("Rule: 0.6%% a year; fitted to Andrijevic SSP2: %.2f%% a year.", 100 * p5$rates[[3]])
   p <- ggplot2::ggplot(q, ggplot2::aes(year, m, colour = variant)) +
     ggplot2::geom_vline(xintercept = 2023, colour = "grey70", linewidth = 0.3) + ggplot2::geom_line(linewidth = 0.8) +
     ggplot2::geom_line(ggplot2::aes(y = lo), linewidth = 0.3, linetype = "22") + ggplot2::geom_line(ggplot2::aes(y = hi), linewidth = 0.3, linetype = "22") +
     ggplot2::scale_colour_manual(values = .geVarCol(), name = NULL) + ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2)) +
-    ggplot2::labs(title = "Government effectiveness under the gap-closure rule: slower than Andrijevic's SSP2",
+    ggplot2::labs(title = "Government effectiveness: the rule rises more slowly than Andrijevic's SSP2 path",
                   subtitle = paste("The model's series (normalised, all countries): mean (solid), 10th / 90th percentile (dashed).", lab),
                   x = NULL, y = "normalised index")
   attr(p, "pfmGrid") <- "y"
@@ -313,4 +326,59 @@ figInstRateJustification <- function(group = "v7") {
   attr(p, "pfmGrid") <- "x"
   attr(p, "pfmTheme") <- ggplot2::theme(strip.text.y = ggplot2::element_text(angle = 0, hjust = 0, face = "bold"))
   pfmStamp(p, group, note = "gap-closure-history.rds")
+}
+
+
+# 14. accountability: the rule beside the current rule and PoliClim, as the change since 2025
+figAccLiterature <- function(group = "v7") {
+  x <- pfmArtifact(group, "institution-rule.rds")
+  m <- x$part2[x$part2$series == "Vertical Accountability (VDem)" & x$part2$rule %in% c("gap closure", "current") &
+                 x$part2$year >= 2025 & x$part2$year <= 2100, ]
+  m$source <- paste0("model: ", m$rule, " (V-Dem vertical accountability)")
+  p1 <- x$part1[x$part1$indicator == "acc" & x$part1$source == "PoliClim SSP2" & x$part1$year >= 2025, ]
+  p1$source <- "PoliClim SSP2 (overall accountability)"
+  d <- rbind(m[, c("source", "c", "year", "v")], p1[, c("source", "c", "year", "v")])
+  base <- d[d$year == 2025, c("source", "c", "v")]; names(base)[3] <- "v0"
+  d <- merge(d, base, by = c("source", "c")); d$dv <- d$v - d$v0
+  q <- stats::aggregate(dv ~ source + year, d, mean)
+  col <- c(`model: gap closure (V-Dem vertical accountability)` = pfmAccent(), `model: current (V-Dem vertical accountability)` = "#C2571A",
+           `PoliClim SSP2 (overall accountability)` = "#52514e")
+  p <- ggplot2::ggplot(q, ggplot2::aes(year, dv, colour = source)) + ggplot2::geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
+    ggplot2::geom_line(linewidth = 0.8) + ggplot2::scale_colour_manual(values = col, name = NULL) +
+    ggplot2::guides(colour = ggplot2::guide_legend(ncol = 1)) +
+    ggplot2::labs(title = "Accountability: the rule against PoliClim's SSP2 and the current rule",
+                  subtitle = paste("Cross-country mean change since 2025, each series on its own normalised scale.",
+                                   "\nNo published SSP projection of accountability exists besides PoliClim (unpublished)."),
+                  x = NULL, y = "mean change since 2025")
+  attr(p, "pfmGrid") <- "y"
+  pfmStamp(p, group, note = "institution-rule.rds (parts 1, 2)")
+}
+
+# 15. government effectiveness: the rule, the published SSP2 path, PoliClim and the range SSP2 income implies
+figGeComparison <- function(group = "v7") {
+  x <- pfmArtifact(group, "institution-rule.rds"); inc <- pfmArtifact(group, "ge-income.rds")
+  d <- x$part4[x$part4$indicator == "ge" & x$part4$ssp == "SSP2" & x$part4$year >= 2025 & x$part4$year <= 2100, ]
+  d$source[d$source == "Andrijevic et al. 2020"] <- "Andrijevic et al. 2020, SSP2 (published)"
+  d$source[d$source == "PoliClim"] <- "PoliClim SSP2"
+  d <- d[d$source %in% c("model: gap closure, 0.6% a year", "Andrijevic et al. 2020, SSP2 (published)", "PoliClim SSP2"), ]
+  base <- d[d$year == 2025, c("source", "c", "v")]; names(base)[3] <- "v0"
+  d <- merge(d, base, by = c("source", "c")); d$dv <- d$v - d$v0
+  q <- stats::aggregate(dv ~ source + year, d, mean)
+  h23 <- x$history[x$history$series == "Government Effectiveness (WGI)" & x$history$year == 2023, ]
+  im <- inc$implied; im$v0 <- h23$v[match(im$c, h23$c)]; im$dv <- im$v - im$v0
+  band <- stats::aggregate(dv ~ variant + year, im, mean)
+  band <- stats::aggregate(dv ~ year, band, function(z) c(lo = min(z), hi = max(z))); band <- data.frame(year = band$year, band$dv)
+  col <- c(`model: gap closure, 0.6% a year` = pfmAccent(), `Andrijevic et al. 2020, SSP2 (published)` = "#eb6834", `PoliClim SSP2` = "#52514e")
+  p <- ggplot2::ggplot() + ggplot2::geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.3) +
+    ggplot2::geom_ribbon(data = band, ggplot2::aes(year, ymin = lo, ymax = hi), fill = "grey80", alpha = 0.6) +
+    ggplot2::geom_line(data = q, ggplot2::aes(year, dv, colour = source), linewidth = 0.8) +
+    ggplot2::annotate("text", x = 2100, y = band$hi[band$year == 2100], label = "implied by SSP2 income", hjust = 1, vjust = -0.6,
+                      size = 2.6, colour = "grey35") +
+    ggplot2::scale_colour_manual(values = col, name = NULL) + ggplot2::guides(colour = ggplot2::guide_legend(ncol = 1)) +
+    ggplot2::labs(title = "Government effectiveness: the rule, the published SSP2 path, PoliClim and SSP2 income",
+                  subtitle = paste("Cross-country mean change, each series on its own normalised scale (lines since 2025). Band: 2023 value plus",
+                                   "\nthe within- or cross-country slope on log GDP per capita times SSP2 income growth (geIncome.R)."),
+                  x = NULL, y = "mean change")
+  attr(p, "pfmGrid") <- "y"
+  pfmStamp(p, group, note = "institution-rule.rds (part 4), ge-income.rds")
 }

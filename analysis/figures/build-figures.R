@@ -313,7 +313,7 @@ if (!"--guide" %in% args) {
   # persistent autocracies rise more than in PoliClim.
   if (pfmArtifactExists(GROUP, "institution-rule.rds")) {
     for (id in c("inst-policlim-paths", "inst-policlim-change", "inst-policlim-countries-rol", "inst-policlim-countries-acc",
-                 "inst-model-series", "inst-model-seam", "inst-strength", "ge-ssp", "ge-adaptation", "ge-literatures", "ge-rule-series", "ge-rule-strength", "inst-rate-justification",
+                 "inst-model-series", "inst-model-seam", "inst-strength", "ge-ssp", "ge-adaptation", "ge-literatures", "ge-rule-series", "ge-rule-strength", "inst-rate-justification", "acc-literature", "ge-comparison",
                  "rol-literature")) {
       if (run(id)) { message("[", id, "]"); build(id) }
     }

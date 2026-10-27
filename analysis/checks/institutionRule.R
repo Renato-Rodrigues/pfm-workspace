@@ -17,7 +17,10 @@ g <- if (length(a) > 0) a[1] else "v7"
 pcDir <- if (length(a) > 1) a[2] else "../PoliClim projections"
 say <- function(...) message("[institution-rule:", g, "] ", ...)
 T0 <- 2025
-RULES <- c(current = "storyline", `gap closure` = "gapclosure", held = "hold")
+# gap closure = the central rule (every institution series, government effectiveness included); its Andrijevic variant
+# keeps the published SSP projection for government effectiveness and the other SSP-extension series (the sensitivity)
+RULES <- c(current = "storyline", `gap closure` = "gapclosure", `gap closure (Andrijevic GE)` = "gapclosureAndrijevic",
+           held = "hold")
 
 # ---- 1. PoliClim ----------------------------------------------------------------------------------------------------
 pc <- read.csv2(file.path(pcDir, "pol_institutions_forecast.csv"), stringsAsFactors = FALSE, dec = ".")
@@ -148,16 +151,19 @@ pg$v <- ((pg$f_gov_eff - 0.5) / 0.2 - min(wge, na.rm = TRUE)) / (max(wge, na.rm 
 pg <- pg[pg$scenario %in% c("SSP1", "SSP2", "SSP3c", "SSP4c", "SSP5") & is.finite(pg$v), ]
 part4[[length(part4) + 1]] <- data.frame(source = "PoliClim", ssp = pg$scenario, indicator = "ge", c = pg$countrycode,
                                          year = pg$year, v = pg$v)
-mg <- part2[part2$rule == "gap closure" & part2$series == "Government Effectiveness (WGI)", ]
-part4[[length(part4) + 1]] <- data.frame(source = "model (SSP2, harmonised)", ssp = "SSP2", indicator = "ge", c = mg$c,
-                                         year = mg$year, v = mg$v)
+for (rr in c(`model: gap closure, 0.6% a year` = "gap closure", `model: Andrijevic SSP2, harmonised` = "gap closure (Andrijevic GE)")) {
+  mg <- part2[part2$rule == rr & part2$series == "Government Effectiveness (WGI)", ]
+  part4[[length(part4) + 1]] <- data.frame(source = names(which(c(`model: gap closure, 0.6% a year` = "gap closure",
+                                                                  `model: Andrijevic SSP2, harmonised` = "gap closure (Andrijevic GE)") == rr)),
+                                           ssp = "SSP2", indicator = "ge", c = mg$c, year = mg$year, v = mg$v)
+}
 part4 <- do.call(rbind, part4)
 say("part 4: ", paste(unique(part4$source), collapse = ", "))
 
-# ---- 5. government effectiveness under the gap-closure rule (a test, not the model) --------------------------------------
-# On the gap-closure panel, the government-effectiveness series after 2023 replaced by the rule from its 2023 panel value:
-# at the shared rate of the other series, at the rate that best reproduces Andrijevic's SSP2 path, and held (a bound);
-# against the published path the model uses. The strength k(t) is recomputed on each.
+# ---- 5. government effectiveness: the rule (the model) against the literature path and two other variants ----------------
+# The model's rule (0.6% a year), Andrijevic's published SSP2 path (the gapclosureAndrijevic panel), the rule at the rate
+# that best reproduces Andrijevic's SSP2 path, and held at 2023 (a bound); the last two on the gap-closure panel with
+# government effectiveness replaced after 2023. The strength k(t) is recomputed on each.
 geFit <- local({   # the rate that best reproduces Andrijevic's SSP2 government effectiveness (normalised, top = best observed)
   d <- part4[part4$source == "Andrijevic et al. 2020" & part4$ssp == "SSP2" & part4$indicator == "ge", ]
   top <- max(d$v[d$year <= T0], na.rm = TRUE); a <- stats::setNames(d$v[d$year == T0], d$c[d$year == T0])
@@ -167,12 +173,12 @@ geFit <- local({   # the rate that best reproduces Andrijevic's SSP2 government 
   stats::optimize(function(l) sum((top - (top - dd$x0) * exp(-l * (dd$t - T0)) - dd$v)^2), c(1e-5, 0.05))$minimum
 })
 GE <- "Government Effectiveness (WGI)"
-geVariants <- c(`Andrijevic SSP2 (the model)` = NA, `gap closure, shared rate` = pfm:::.pfmGapClosureRate("Vertical Accountability (VDem)"),
+geVariants <- c(`gap closure, 0.6% a year (the model)` = NA, `Andrijevic SSP2 (published path)` = NA,
                 `gap closure, rate fitted to Andrijevic SSP2` = round(geFit, 4), `held at 2023` = 0)
 pg <- panels[["gap closure"]]; yy <- getYears(pg, as.integer = TRUE); after <- yy > 2023
 regs <- intersect(getItems(pg, dim = 1), getItems(hp, dim = 1)); g23 <- as.numeric(hp[regs, 2023, GE]); ok <- is.finite(g23)
 geRuns <- lapply(names(geVariants), function(nm) {
-  p <- pg; lam <- geVariants[[nm]]
+  p <- if (nm == "Andrijevic SSP2 (published path)") panels[["gap closure (Andrijevic GE)"]] else pg; lam <- geVariants[[nm]]
   if (is.finite(lam)) p[regs[ok], yy[after], GE] <- outer(g23[ok], yy[after], function(x, t) pfm:::.pfmGapClosurePath(x, t, 2023, lam))
   list(series = data.frame(variant = nm, c = rep(getItems(p, dim = 1), length(yy)), year = rep(yy, each = length(getItems(p, dim = 1))),
                            v = as.vector(as.array(p[, , GE])[, , 1])),
