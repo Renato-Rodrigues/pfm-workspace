@@ -190,7 +190,7 @@ only); D, an exporter dummy (rents > 5% of GDP: Saudi Arabia, Russia, Norway).
 `tryCatch`. Without the Run-Group's madrat cache (and `options(pfm.panel)`), the call fails, the weights are `NULL`, no
 region is scored, and the gate *passes* with "cap shift 0". The first run of this test did exactly that for every variant,
 `v7` included. The cluster sweep sets the cache, so `v7`'s selection is not affected. Any offline use must set it, as
-`rentsGates.R` now does. Proposed fix: make the gate return "not evaluable" (pass `NA`) when the weights are missing.
+`rentsGates.R` now does. Fixed 2026-10-27 (pfm): without weights the gate now returns pass `NA`, "edge gate not evaluable" with the reason, which the sanity walk treats as a severe flag, not a pass.
 
 ### 6.2 How long the limit lasts
 
