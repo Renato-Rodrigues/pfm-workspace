@@ -236,3 +236,40 @@ runs:
      variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@gate",
      start: {EU21: [V7W2EU21, V7RERUN3EU21]},
      description: "Hold the budget, growing limit: today's limit tightening 0.5% a year (a declared bound, ADR 0057)."}
+  # ---------------------------------------------------------------- third wave: the gap-closure institution rule (2026-10-27)
+  # Design note 0008: every institution series closes 0.6% of its distance to the best observed value each year from its
+  # 2023 panel value (pfmInstitutions = gapclosure), the new SSP2 central projection; the current rule's rows above become
+  # the sensitivity "quick convergence". The theta sweep under both closures at both resolutions, the erosion ladder, and
+  # the Andrijevic sensitivity (government effectiveness and the SSP-extension series from the published SSP2 path,
+  # gapclosureAndrijevic). Variants are one word (gc, gckappa..., gcA) so the facts pick them up from the titles. Each
+  # starts from the matching current-rule run. Start tags V7W3EU21 (14 rows) and V7W3H12 (10 rows).
+  - {key: Bgc, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: Bfix, theta: ["0.50", "0.325", "0.675"],
+     variant: gc, institutions: gapclosure, warm: "@Bfix",
+     description: "Hold the price, fading limit, gap-closure institutions (0.6% a year, design note 0008)."}
+  - {key: Cgc, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: C, theta: ["0.50", "0.325", "0.675"],
+     variant: gc, institutions: gapclosure, warm: "@C",
+     description: "Hold the budget, fading limit, gap-closure institutions (0.6% a year, design note 0008)."}
+  - {key: Bgckappa, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21, H12],
+     variant: gckappa, institutions: gapclosure, options: {pfmPhiKappa: "0.027"}, warm: "@Bkappa",
+     description: "Hold the price, fading + erosion 2.7% a year, gap-closure institutions."}
+  - {key: Cgckappa, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21, H12],
+     variant: gckappa, institutions: gapclosure, options: {pfmPhiKappa: "0.027"}, warm: "@Ckappa",
+     description: "Hold the budget, fading + erosion 2.7% a year, gap-closure institutions."}
+  - {key: Bgckappa02, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: gckappa02, institutions: gapclosure, options: {pfmPhiKappa: "0.02"}, warm: "@Bkappa02",
+     description: "Hold the price, fading + erosion 2% a year, gap-closure institutions."}
+  - {key: Cgckappa02, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: gckappa02, institutions: gapclosure, options: {pfmPhiKappa: "0.02"}, warm: "@Ckappa02",
+     description: "Hold the budget, fading + erosion 2% a year, gap-closure institutions."}
+  - {key: Bgckappa05, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: gckappa05, institutions: gapclosure, options: {pfmPhiKappa: "0.05"}, warm: "@Bkappa05",
+     description: "Hold the price, fading + erosion 5% a year, gap-closure institutions."}
+  - {key: Cgckappa05, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: gckappa05, institutions: gapclosure, options: {pfmPhiKappa: "0.05"}, warm: "@Ckappa05",
+     description: "Hold the budget, fading + erosion 5% a year, gap-closure institutions."}
+  - {key: BgcA, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: gcA, institutions: gapclosureAndrijevic, warm: "@Bfix",
+     description: "Hold the price, gap-closure institutions with government effectiveness from Andrijevic et al. 2020 SSP2 (sensitivity)."}
+  - {key: CgcA, wave: 3, section: v7_wave3_gapclosure, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: gcA, institutions: gapclosureAndrijevic, warm: "@C",
+     description: "Hold the budget, gap-closure institutions with government effectiveness from Andrijevic et al. 2020 SSP2 (sensitivity)."}

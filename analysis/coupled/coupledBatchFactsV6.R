@@ -165,6 +165,28 @@ F$ruleC <- lapply(stats::setNames(RES, RES), function(res) {
   })
 })
 
+## ---- the gap-closure institution rule (design note 0008): the theta sweep under both closures, beside the current rule ----
+## Rows -PFMlevel(Bfix|C)[ThNNN]-gc; the erosion ladder (-gckappa...) and the Andrijevic sensitivity (-gcA) are arms below.
+F$gapClosure <- lapply(stats::setNames(RES, RES), function(res) {
+  g <- cum(res, "PkBudg1000-PFMgateBfix"); ag <- anchor2050(res, "PkBudg1000-PFMgate"); pg <- price2050(res, "PkBudg1000-PFMgate")
+  thB <- c(`0.325` = "PkBudg1000-PFMlevelBfixTh325-gc", `0.50` = "PkBudg1000-PFMlevelBfix-gc", `0.675` = "PkBudg1000-PFMlevelBfixTh675-gc")
+  thC <- c(`0.325` = "PkBudg1000-PFMlevelCTh325-gc", `0.50` = "PkBudg1000-PFMlevelC-gc", `0.675` = "PkBudg1000-PFMlevelCTh675-gc")
+  if (!any(vapply(c(thB, thC), function(k) has(res, k), TRUE))) return(NULL)
+  dv <- vapply(thB, function(k) if (has(res, k)) cum(res, k) - g else NA_real_, 1); ok <- is.finite(dv)
+  slope <- if (sum(ok) >= 2 && is.finite(g)) unname(stats::coef(stats::lm(c(0, dv[ok]) ~ c(0, as.numeric(names(dv)[ok]))))[2]) else NA
+  kOf <- function(k) { e <- lastCall(res, k); list(Bulk2050 = kAt(e, "Bulk", 2050), Bulk2100 = kAt(e, "Bulk", 2100),
+                                                    Diffuse2050 = kAt(e, "Diffuse", 2050), Diffuse2100 = kAt(e, "Diffuse", 2100)) }
+  list(holdThePrice = list(delta = as.list(rd(dv, 1)), slopePerUnitTheta = rd(slope, 0),
+                           deltaVsCurrentRule = rd(dv[["0.50"]] - (cum(res, "PkBudg1000-PFMlevelBfix") - g), 1),
+                           k = if (has(res, thB[["0.50"]])) kOf(thB[["0.50"]]) else NULL),
+       holdTheBudget = lapply(thC, function(k) {
+         if (!has(res, k)) return(NULL)
+         x <- run(res, k); p <- price2050(res, k); rel <- if (length(pg) && length(p)) p[names(pg)] / pg else NULL
+         list(cum2100 = rd(x$cum2100, 1), peak = rd(x$peak, 1), peakYear = x$peakYear, anchorOverGate = rd(anchor2050(res, k) / ag, 3),
+              price2050OverGateMedian = if (length(rel)) rd(stats::median(rel), 3) else NULL, k = kOf(k))
+       }))
+})
+
 ## ---- the sensitivity runs: every -PFMlevel(Bfix|C)-<suffix> row (ordering, assignment, shape, the innovators-only family, formulation) --
 ## Picked up from the titles, so a new sensitivity run needs no code. Each carries the options and group its last call
 ## ran with, so an option that silently did not reach the coupling shows up here (0005 F8).
