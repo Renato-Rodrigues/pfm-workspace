@@ -770,6 +770,14 @@ beyond the observed range for most countries.
 | ordering | $u$ uniform, permuted or reversed | the model's | `pfmPhiOrdering` |
 | institutions | held at their anchor values | harmonised projection | `pfmInstitutions = hold` |
 
+**A historical reference for κ** (not an estimate; `analysis/v8/persistentSlack.R` → `output/pfm/v7/v8-persistent-slack.rds`,
+design note 0009 §6.2). κ shrinks the political differences, so its counterpart in the data is how fast the spread of
+the gaps $g = 1-E$ narrowed. Between 2008 and 2023 the cross-country standard deviation fell from 0.188 to 0.154 in power &
+industry (1.1% a year) and from 0.186 to 0.099 in buildings & transport (4.6% a year); across the EU21 regions (covered
+countries) the rates are 1.1% and 3.6%. The declared values 2% and 2.7% lie within these rates; 5% is faster than either
+sector's history; the constant limit is slower than both. A four-component frontier does not identify persistent slack on
+this panel (country effects skewed the wrong way), so no rate is estimated.
+
 ### 5.3 $\theta$ is declared and swept, not estimated
 
 No historical experiment assigned carbon prices by political gap, so $\theta$ is not identified.
@@ -882,6 +890,14 @@ Distance is in the model's own metric over the nine base drivers, $w_k = |\beta_
 > 163 in buildings & transport. On `v6` the coupled sensitivity runs (all-median, all-low, nearest donors always,
 > USA donor and USA low) moved the hold-the-price headline from +110 to +155 Gt (`SCENARIOS-v6` §4.9); they are not
 > re-run on `v7`. Disclose it with any coverage figure.
+
+**From `v8`: the covered median for every uncovered country** (config.yml `coverage: rule: median`; `pfmRun` passes it
+to the donor step as `donorRule`, `computeDonorAssignment(rule = "median")`). Out of sample on `v7`, the median predicts a
+covered country's $E$ better than its donors do (mean absolute error 0.119 against 0.151 in power & industry, 0.080
+against 0.087 in buildings & transport; a ridge regression on the drivers 0.126 / 0.082), and the EU21 ranking $u$
+barely moves (rank correlation 1.00 / 0.98; OAS and MEA move most, by about 0.1): `analysis/v8/uncoveredRule.R` →
+`output/pfm/v7/v8-uncovered-rule.rds`, design note 0009 §6.3. The donors are still found and reported as diagnostics.
+The band rule above stays the rule of every group up to `v7`.
 
 **One documented override:** `basisOverride = c(USA = "median")`. US federal policy spans states with
 world-leading regulation and states with almost none; donor transfer would assign it a polity it is

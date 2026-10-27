@@ -287,6 +287,19 @@ sweep:
 #                     convergence (default) | storyline | hold. pfm::pfmInstitutionProjection;
 #                     docs/DATA.md §5.
 #
+# coverage: the rule for the countries without CAPMF data (the donor step, runPFMDonorAssumptions donorRule).
+#   donor   each uncovered country takes the E of its 3 nearest covered countries in the model's driver metric, or
+#           the low band / the median when none is near (computeDonorAssignment; every group up to v7)
+#   median  each uncovered country takes the covered median E (the USA as before). Out of sample on v7 the median
+#           predicts a covered country's E better than its donors (mean absolute error 0.119 vs 0.151 power &
+#           industry, 0.080 vs 0.087 buildings & transport) and the EU21 ranking u barely moves (rank correlation
+#           1.00 / 0.98): design note 0009 section 6.3. The rule from v8 on.
+coverage:
+  rule: donor
+  groups:
+    v8:
+      rule: median
+
 # The SSP2 pair below (the gating entry = PkBudg1000, the other = NPi) is also what every offline
 # v6 analysis reads (analysis/v6/bases.R). Move it to new REMIND bases ONLY with
 # analysis/v6/refreshBases.R, which snapshots the old results and re-runs those analyses

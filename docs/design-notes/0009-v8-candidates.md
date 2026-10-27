@@ -1,6 +1,6 @@
 # 0009 — v8 candidates: the countries at the edge, fossil rents, and what else the next version could represent
 
-**Status: Open (tests done 2026-10-27, §6; decision pending)** — the author asked, before any new run or paper formulation, (1) why some
+**Status: Partly decided 2026-10-27** (§6.3 coverage rule, §6.2 κ reference; the other candidates open) — the author asked, before any new run or paper formulation, (1) why some
 countries have extreme efficiency ratios and whether the indicators explain it, (2) whether fossil rents could enter the
 model and be linked to REMIND, (3) whether the saturating form fixes Iceland, and (4) what else a `v8` could represent.
 Nothing here changes `v7` or its coupled batch.
@@ -248,6 +248,11 @@ uncovered. The rule reproduces the stored assignment exactly.
 - **Option for `v8`.** Replace the donor and band rule by the covered median (with the USA as now). It is simpler to state,
   better out of sample, and changes little. Cost: OAS and MEA move down by about 0.1, and the existing low-band sensitivity
   needs a new meaning (a low quantile for the countries below the covered range).
+
+**Decided 2026-10-27 (author):** the covered median is the rule from `v8` (config.yml `coverage:`,
+`computeDonorAssignment(rule = "median")`); the tested donor rule goes to the Supplementary Information (Note S-cov of the
+paper outline). The historical reference for κ (§6.2) goes into the Methods (§7) and the Supplementary Information
+(Note S-kappa); κ stays declared. MODEL.md §5.2a and §5.4 carry both.
 
 ### 6.4 What this leaves for `v8`
 
