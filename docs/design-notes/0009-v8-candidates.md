@@ -1,6 +1,6 @@
 # 0009 — v8 candidates: the countries at the edge, fossil rents, and what else the next version could represent
 
-**Status: Partly decided 2026-10-27** (§6.3 coverage rule, §6.2 κ reference; the other candidates open) — the author asked, before any new run or paper formulation, (1) why some
+**Status: Partly decided 2026-10-27; v8 implemented 2026-10-28 (§9)** (§6.3 coverage rule, §6.2 κ reference; the other candidates open) — the author asked, before any new run or paper formulation, (1) why some
 countries have extreme efficiency ratios and whether the indicators explain it, (2) whether fossil rents could enter the
 model and be linked to REMIND, (3) whether the saturating form fixes Iceland, and (4) what else a `v8` could represent.
 Nothing here changes `v7` or its coupled batch.
@@ -401,6 +401,82 @@ means more slack where z is high.
   (`pfmPhiKappa = "Bulk=0.011,Diffuse=0.046"` in a scenario row; pfm `.pfmKappaParse`), and the validator accepts it.
   Tested on the real v6 anchor. A coupled pair would test it; no row has been added.
 - **Single-country dependence of the regional ranking (point 4): reported** in MODEL.md §5.4, with the 90% bands.
+
+## 9. Iceland, the out-of-sample test, and the implementation (2026-10-28)
+
+### 9.1 Should Iceland leave the estimation sample? No.
+
+`analysis/v8/icelandExclusion.R v7` → `output/pfm/v7/v8-iceland-exclusion.rds` (the package's exclusion switch,
+`options(pfm.excludeCountries)`).
+
+| | P&I: γ | P&I: other countries' E, rank correlation / largest change | B&T: other countries' E | regional u, rank correlation (P&I / B&T) |
+|---|---:|---|---|---:|
+| v7 without Iceland | 0.9998 (v7 0.9984) | 0.990 / 0.05 (South Africa) | 0.991 / 0.04 (Russia) | 0.97 / 0.99 |
+| with the fossil bound, without Iceland | **1.0000** (with Iceland 0.9990) | 0.987 / 0.04 | 0.993 / 0.04 | 0.99 / 0.99 |
+
+Removing Iceland changes almost nothing for the other countries or the ranking (NEN stays at u ≈ 0 in power & industry).
+It pushes the power & industry γ to the boundary, where the γ gate would reject the specification. Iceland is a genuine
+observation: its low E reflects how the outcome is measured (few instruments are needed in an almost fully renewable
+power system), not a data error. The fossil lower bound (§7.1) already treats the edge it sits on. Kept in, and disclosed
+(MODEL.md §3.4.3).
+
+### 9.2 Is the heteroscedastic slack a better model out of sample? Yes, in buildings & transport.
+
+`analysis/v8/hetSlackCV.R v7` → `output/pfm/v7/v8-het-slack-cv.rds`. Each covered country left out in turn, every model
+refitted on the others, scored by the log-likelihood of the left-out country's rows. A few countries that the v7
+frontier itself cannot predict (P&I: Mexico, Slovenia, South Africa; B&T: Norway) dominate the sums by orders of
+magnitude, so the comparison is per country:
+
+| slack size on | P&I: better in / median gain | B&T: better in / median gain (sign test *p*) |
+|---|---|---|
+| rents | 27 of 48 / +0.8 (*p* 0.47) | **37 of 48 / +3.1 (*p* < 0.001)** |
+| exporter dummy | 13 of 48 / −0.5 | 37 of 48 / +1.8 (*p* < 0.001) |
+| the three institutions | 29 of 48 / +3.0 (*p* 0.19) | 29 of 48 / +1.9 (*p* 0.19) |
+| rents and institutions | 28 of 48 / +2.8 | 29 of 48 / +1.7; Saudi Arabia −1693 |
+
+The rents form is the one that generalises, in buildings & transport only. The institutions in the slack fit better in
+sample (§8.2) but do not predict better, and with rents they fail on Saudi Arabia. **v8: rents, buildings & transport.**
+
+### 9.3 Implemented (pfm, mrpfm, config.yml `v8`)
+
+- **Data (mrpfm):** `downloadWDIRents` / `readWDIRents` / `convertWDIRents` / `calcFossilRents`. Oil + gas + coal rents,
+  % of GDP, gaps interpolated, held after the last reported year (2021). The source file `WDIRents/wdi-fossil-rents.csv`
+  was seeded on the workstation from the 2026-10-27 download; the cluster's source folder needs the same file.
+- **Panels (pfm):** panel key `fossilRents` → `"Fossil Rents"`, log(1 + rents), moving-averaged like every column. In the
+  scenario panel: history to 2023, then each country's last value times its REMIND region's rents relative to 2025
+  (`.pfmREMINDFossilRents`, `.pfmScenarioFossilRents`; the ratio bounded to [0, 3]).
+- **Estimator (pfm):** `estimatePolicyStringencyModel(slackDrivers = list(Diffuse = "Fossil Rents"))`, frontier only.
+  The rents are read with the drivers' lag and standardised (frozen in `driverScaling`), but not put in the ceiling's
+  formula. The likelihood is maximised from the homoscedastic fit (`.pfmHetFrontierFit`, class `pfmHetFrontier`). Its
+  coefficients are the ceiling, `sigmaSq` / `gamma` at average rents, and `slack_(Intercept)`, `slack_Fossil.Rents`. Every
+  reader of the ceiling drops the slack terms (`.pfmCeilingBeta`); the Jondrow decomposition uses each row's own slack
+  scale. On `v7` the package reproduces the offline fit exactly (logLik −444.01, w 0.252, Saudi Arabia E 0.72).
+- **Selection:** sweep option `slackDrivers` (by sector), carried on every spec, so every frontier fit (sanity walk,
+  frontier step) uses it. The satP selection fits are unchanged.
+- **Coupling:** the anchor keeps each country's 2023 slack shift $w'z$; the strength path scales the distance kept,
+  $q_c(t) = q_c\,e^{w'(z_c(t) - z_{c,2023})}$ (logit hold). Groups without slack terms are unchanged.
+- **Config:** `v8` = v7's panel + `fossilRents`, sweep + `fossilFloors: ["0.05"]` + `slackDrivers: {Diffuse: [Fossil
+  Rents]}`, `coverage: rule: median`.
+
+### 9.4 Dry run of the coupling (slack only)
+
+`analysis/v8/hetCouplingDryRun.R v7` → `output/pfm/v7/v8-het-coupling-dryrun.rds`. The v7 spec with the heteroscedastic
+B&T frontier, through `computeAnchorGap` and `pfmV6Shares`, on the coupled hold-the-price headline run (EU21, 1000 Gt,
+θ 0.5). The fossil bound and the coverage rule are not applied.
+
+| | 2050 | 2100 |
+|---|---:|---:|
+| B&T strength k, v7 / with the slack | 0.596 / 0.580 | 0.489 / 0.403 |
+| P&I strength k (unchanged) | 0.706 | 0.666 |
+| Saudi Arabia, distance kept relative to 2023 | 0.72 | 0.45 |
+
+The B&T ranking moves: MEA from 0.58 to 0.72 (second after REF), and NES, ECS and ECE down by about 0.15–0.23. MEA's share in
+2050 falls from 0.83 to 0.79. The regional strength (`pfmPhiStrength = regional`) gives MEA 0.81 in 2050 and 0.91 in 2100,
+as its own gap closes.
+
+**Not yet done:** the v8 madrat cache and the cluster source file; the v8 sweep (`pfmRun(group = "v8", stage = "all")`);
+an ADR for the slack (it extends ADR 0056's reading: producer interests act on the distance below the ceiling in
+buildings & transport); and the coupled runs.
 
 ## References
 

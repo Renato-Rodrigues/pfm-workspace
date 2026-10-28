@@ -108,10 +108,12 @@ panel:
     v7-p10:
       democracy: true
       overallAccountability: true
-    # v8 (design note 0009): v7's panel; the formulation changes are in sweep: and coverage:
+    # v8 (design note 0009): v7's panel plus the World Bank fossil rents (log(1 + % of GDP), mrpfm calcFossilRents;
+    # source WDIRents/wdi-fossil-rents.csv), the size of the frontier's slack in buildings & transport (sweep: slackDrivers).
     v8:
       democracy: true
       overallAccountability: true
+      fossilRents: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -285,6 +287,13 @@ sweep:
                            "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
       extraAccountability: [OvAcc]
       fossilFloors: ["0.05"]
+      # slackDrivers (design note 0009 section 8.2): the size of the frontier's slack depends on these panel variables,
+      # per sector, log sigma_u = c + w z (heteroscedastic half-normal). Buildings & transport only: on v7 the rents widen
+      # the slack (w = 0.25, z 10.8) and predict better out of sample (37 of 48 countries, analysis/v8/hetSlackCV.R);
+      # in power & industry they do not. The variables do not enter the ceiling, so the selection's satP fits are
+      # unchanged; every frontier fit (sanity walk, frontier step) and the coupling use them.
+      slackDrivers:
+        Diffuse: ["Fossil Rents"]
       edgeGate:
         share: 0.25
         effect: 0.25
