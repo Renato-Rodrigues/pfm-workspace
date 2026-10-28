@@ -541,11 +541,15 @@ $h = e^{c + wz}$, so the v8 coupling rule $q_c(t) = q_c e^{w(z_t - z_{2023})}$ s
   the gain of that shape. With rents, it is no longer significant against the v8 form (30 of 48).
 - **It changes the level of the ceiling:** country E rises (P&I: India 0.70 → 0.83, Germany 0.72 → 0.78; rank correlation
   0.95). In B&T, Norway and Iceland end up above their ceiling (E 1.03–1.04).
-- **The exponential slack fitted directly** (Meeusen & van den Broeck 1977): the first attempt diverged numerically (the
-  likelihood's two large terms cancelled; the optimiser exploited the error). The script now uses a stable form (checked
-  against the direct form to eight decimals). **The rerun was stopped by the machine's memory pressure; not yet done.**
-- **For v8: keep the half-normal.** The shape gain does not carry over once rents are in, and the alternatives put countries
-  above their ceiling. To revisit with the exponential result.
+- **The exponential slack fitted directly** (Meeusen & van den Broeck 1977; stable form of the likelihood) reproduces the
+  truncated normal exactly: logLik −1039 P&I, −421.1 / −392.8 B&T without / with rents. The degenerate truncated normal
+  *is* the exponential.
+  - Out of sample, the exponential is better than the half-normal (P&I 38 of 48; B&T 36 of 48).
+  - Rents still help under it (34 of 48, *p* 0.006).
+  - With rents, it is not significantly better than v8's half-normal with rents (30 of 48, *p* 0.11), and it puts Norway
+    above its ceiling (E 1.04).
+- **For v8: keep the half-normal.** The exponential is the robustness check of the slack's shape; the rents result holds
+  under both.
 
 ## 13. The coefficient uncertainty in the coupling (2026-10-28)
 
@@ -567,8 +571,10 @@ reproduces the package's anchor exactly.
   an approximation, probably on the narrow side.
 - **For the paper:** coefficient uncertainty belongs next to θ and κ, not in a footnote. Turning it into an emissions band
   needs coupled runs at the band's edges (e.g. the draws at the 5th and 95th percentile of the 2050 world share).
-- **Under the regional strength** (v8's central form) the band is to be recomputed (`couplingBand.R v7 500 regional`). **The
-  run was stopped by the machine's memory pressure; not yet done.**
+- **Under the regional strength** (v8's central form; `couplingBand.R v7 500 regional` → `v8-coupling-band-regional.rds`) the
+  median widths of the regional shares are about the same: P&I 0.114 / 0.127 (2050 / 2100), B&T 0.068 / 0.069 (common: 0.115 /
+  0.131, 0.065 / 0.053). Regions differ more: the US share in P&I spans 0.53–0.76 (as wide as its θ spread), REF's a third of its
+  θ spread.
 
 ## 14. Newer data? None yet (2026-10-28)
 
