@@ -201,7 +201,8 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
   allowed <- list(pfmFormulation = c("auto", "v6-anchor", "v5-tier"), pfmPhiHold = c("logit", "ratio"),
                   pfmPhiSpread = c("k", "model"), pfmPhiOrdering = c("model", "uniform", "reversed", "permuted"),
                   pfmPhiStrength = c("common", "regional"),
-                  pfmInstitutions = c("storyline", "convergence", "hold", "gapclosure", "gapclosureAndrijevic"))
+                  pfmInstitutions = c("storyline", "convergence", "hold", "gapclosure", "gapclosureAndrijevic"),
+                  pfmRentsPrice = c("regional", "world"))
   for (i in seq_along(recs)) {
     r <- recs[[i]]; t <- titles[i]
     for (cl in intersect(names(allowed), hdr)) {

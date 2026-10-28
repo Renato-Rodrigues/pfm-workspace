@@ -105,7 +105,8 @@ REMIND's *path*, not its level.
 - **Part of the fading is not climate policy.** In the current-policy run MEA's rents also fall, to 0.50 of 2025 by 2050
   (0.28 on the 1000 Gt pathway): depletion and costs. The paper must not attribute the whole fading to mitigation.
 - **With the common strength, an exporter's fading distance relaxes every region's constraint a little.** The regional
-  strength (`pfmPhiStrength = regional`) keeps it with the exporter; it is the natural sensitivity for v8.
+  strength (`pfmPhiStrength = regional`) keeps it with the exporter. **It is the central coupling form of v8**
+  (author, 2026-10-28; `analysis/run-groups/scenario-matrix-v8.yml`); the common strength is v8's sensitivity pair.
 - **The institutions stay in the ceiling only.** The in-sample result that they also shape the slack (LR 194 in buildings &
   transport, 442 in power & industry) is reported as a diagnostic: γ near 1 hides a slack that is not homogeneous.
 - **Disclosure:** rents enter as a share of GDP, a proxy for the resources of producer interests, not their political

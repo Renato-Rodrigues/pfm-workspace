@@ -1,0 +1,129 @@
+# The v8 coupled batch, first wave (ADR 0055 format; design note 0009; ADR 0061, proposed). Not built for submission until the
+# v8 sweep, downstream steps and REMIND export exist (output/remind-inputs/v8).
+# v8 = v7's ceiling search with the fossil terms bounded below (fossilFloors 0.05), the World Bank fossil rents setting the
+# size of the buildings & transport slack (slackDrivers), the uncovered countries at the covered median E (coverage: median).
+# Central coupling settings, on every coupled row (the `coupled:` block):
+#   pfmPhiStrength: regional   each region's constraint fades with its own gap, so an exporter's fading distance (its
+#                              rents falling) stays with it instead of loosening every region (author, 2026-10-28)
+#   pfmInstitutions: gapclosure the SSP2 institution rule of design note 0008 (central since 2026-10-27)
+# Sensitivities in this wave, at theta 0.50, both closures: the common strength (v7's form), and REMIND's rents valued at
+# the world price (pfmRentsPrice: world; ADR 0061). Labels as in docs/SCENARIOS.md 2.6. Keys, stems, `rule:` and `wave:`
+# are identifiers: Bfix = hold the price, C = hold the budget.
+#
+# Build:  Rscript analysis/run-groups/buildPFMScenarioConfig.R analysis/run-groups/scenario-matrix-v8.yml
+# It writes models/remind_pfm/config/scenario_config_PFM_v8.csv (a build artifact: edit this file, rebuild, commit both).
+# The parents are the REMIND 3.7.1 bases already run (EU21BASE, H12BASE); the wave's tags never start them.
+# Hold-the-budget rows start from the no-politics reference: in v7 several did not peak from a cold start (PITFALLS 26).
+#
+# Start tags: V8W1EU21, V8W1H12. Every coupled row carries pfmGroup v8 and needs output/remind-inputs/v8.
+
+format: pfm-scenario-matrix/1
+output: config/scenario_config_PFM_v8.csv
+canonical: config/scenario_config.csv
+version: v8
+ssps: [SSP2]
+thetaDefault: "0.50"
+
+resolutions:
+  EU21:
+    infix: EU21
+    set:
+      regionmapping: ./config/regionmapping_21_EU11.csv
+      extramappings_historic: ./config/extramapping_EU27.csv
+    baseStart: [EU21BASE]
+  H12:
+    infix: ""
+    set: {}
+    baseStart: [H12BASE]
+
+parents:
+  NPi2025:
+    from: NPi2025
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+  PkBudg1000:
+    from: PkBudg1000
+    set:
+      cm_taxCO2_lowerBound_path_gdx_ref: "0"
+      path_gdx_ref: "@NPi2025"
+      path_gdx_refpolicycost: "@NPi2025"
+
+coupled:                              # on every coupled row
+  cm_taxCO2_regiDiff: "11"
+  cm_pfmConvTol: "0.002"
+  cm_pfmSectorMarkup: "1"
+  cm_pfmGapClosure: "0"               # lambda is out of the coupling (ADR 0050)
+  cm_pfmPhiPath: "1"                  # the share path (ADR 0054)
+  pfmGroup: v8
+  pfmPhiStrength: regional            # central for v8 (author, 2026-10-28)
+  pfmInstitutions: gapclosure         # central since design note 0008 (2026-10-27)
+
+rules:
+  gate:                               # no-politics reference (theta = 0), budget held, proportional mode
+    stem: PFMgate
+    set: {cm_pfmBindMode: "1", cm_pfmTheta: "0"}
+  gateBfix:                           # no-politics reference, price held: anchor pinned from -PFMgate
+    stem: PFMgateBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "1", cm_pfmTheta: "0", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  Bfix:                               # hold the price: level cap, anchor pinned from -PFMgate
+    stem: PFMlevelBfix
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "2", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@gate"}
+  C:                                  # hold the budget: level cap rebuilt in GAMS every iteration
+    stem: PFMlevelC
+    set: {cm_pfmBindMode: "2", cm_pfmBoundRebuild: "1"}
+
+runs:
+  - key: gate
+    wave: 1
+    section: v8_wave1_nulls
+    parent: PkBudg1000
+    rule: gate
+    warm: null
+    description: >-
+      No-politics reference (theta = 0) with v8's anchor, budget held: must reproduce -PFMgateRef within
+      SCENARIOS.md 3.1. Anchor and price donor of every hold-the-price row.
+  - key: gateBfix
+    wave: 1
+    section: v8_wave1_nulls
+    parent: PkBudg1000
+    rule: gateBfix
+    warm: "@gate"
+    description: "No-politics reference (theta = 0), price held: the comparator of every hold-the-price row."
+  - key: Bfix
+    wave: 1
+    section: v8_wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: "0.50"
+    warm: "@gateBfix"
+    description: "Hold the price, fading limit, regional strength, theta 0.50: the v8 headline (extra CO2 against -PFMgateBfix)."
+  - key: Bfix
+    wave: 1
+    section: v8_wave1_ruleB
+    parent: PkBudg1000
+    rule: Bfix
+    theta: ["0.325", "0.675"]
+    warm: "@Bfix"
+    description: "Hold the price, fading limit, regional strength, at the other two declared severities."
+  - key: C
+    wave: 1
+    section: v8_wave1_ruleC
+    parent: PkBudg1000
+    rule: C
+    theta: ["0.50", "0.325", "0.675"]
+    warm: "@gate"
+    description: "Hold the budget, fading limit, regional strength, started from the no-politics reference."
+  - {key: Bcommon, wave: 1, section: v8_wave1_strength, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: common, options: {pfmPhiStrength: common}, warm: "@Bfix",
+     description: "Hold the price, common strength (v7's form): what the regional strength changes."}
+  - {key: Ccommon, wave: 1, section: v8_wave1_strength, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: common, options: {pfmPhiStrength: common}, warm: "@C",
+     description: "Hold the budget, common strength (v7's form)."}
+  - {key: BrentsWorld, wave: 1, section: v8_wave1_rents, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@Bfix",
+     description: "Hold the price, REMIND's rents valued at the world price (ADR 0061 sensitivity)."}
+  - {key: CrentsWorld, wave: 1, section: v8_wave1_rents, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@C",
+     description: "Hold the budget, REMIND's rents valued at the world price (ADR 0061 sensitivity)."}
