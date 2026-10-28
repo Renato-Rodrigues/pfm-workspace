@@ -293,6 +293,56 @@ Check in each log that the fit grid says `72768 jobs: 0 newly fit` (the panel is
 threshold. Then commit `records/<group>/` as in Step 6 and copy `output/pfm/<group>/` to the workstation;
 `Rscript analysis/checks/selectionCompare.R <group> v7` compares each selection with v7's.
 
+### Step 6d — v8: the full sweep (design note 0009, ADR 0061)
+
+v8 = v7's search with the fossil terms bounded below (`fossilFloors: ["0.05"]`, suffix ` fos5`), the World Bank fossil
+rents in the panel (`panel: v8: fossilRents`) setting the size of the buildings & transport slack
+(`slackDrivers: {Diffuse: [Fossil Rents]}`), and the uncovered countries at the covered median (`coverage: v8: median`).
+The grid has v7's size (36,384 specs, 72,768 fits); every fit is new (the bound is in the fit-cache key): about the
+length of v7's first sweep on 64 cores. Checked end to end on the workstation (`analysis/v8/smokeTestV8.R`).
+
+1. **Workstation:** push every repository, and copy the rents' madrat cache file to the cluster. The cluster's madrat
+   sources have no `WDIRents/`, so the rents must arrive as a cache file (`calcFossilRents.rds`, built by the workstation's
+   cache preparation from `WDIRents/wdi-fossil-rents.csv`):
+   ```bash
+   for d in . models/pfm models/mrpfm models/remind_pfm; do git -C "$d" push; done
+   scp data/madrat/v8/calcFossilRents.rds <user>@<host>:/p/projects/elevate/WP3.4/pfm-workspace/data/madrat/v8/
+   ```
+   (create `data/madrat/v8` on the cluster first, step 2).
+2. **Cluster:** seed v8's cache with v7's, **without v7's manifest**. With it, the cache check reports "ready" from v7's
+   list and never prepares the rents:
+   ```bash
+   cd /p/projects/elevate/WP3.4/pfm-workspace
+   mkdir -p data/madrat/v8 && cp -n data/madrat/v7/* data/madrat/v8/ && rm -f data/madrat/v8/cache-manifest.tsv
+   ls -la data/madrat/v8/calcFossilRents.rds       # the file from step 1
+   ```
+3. **Dry run** (updates, installs and checks; submits nothing):
+   ```bash
+   tools/clusterRun.sh --priority v8 --stage all --require .pfmHetFrontierFit,.pfmScenarioFossilRents,.pfmCeilingBeta,.pfmKappaParse --dry-run
+   Rscript -e 'stopifnot(exists("calcFossilRents", envir = asNamespace("mrpfm"))); cat("mrpfm has calcFossilRents\n")'
+   ```
+   The plan must show:
+   - **`panel`** ending `, World Bank fossil rents`;
+   - **`sweep`** with `fossil terms bounded below at the training 0.05 quantile`, `frontier slack size on Diffuse: Fossil
+     Rents`, the four interaction weights, OvAcc, the edge gate and the theory gate (p 0.05, H3 0.75);
+   - **`coverage    : median (config)`**;
+   - **`madrat cache: .../data/madrat/v8 [tag v8]`**.
+4. **Submit:** the same command without `--dry-run`. Progress: `bash tools/jobProgress.sh <jobid>`.
+   **If the job hits its wall time,** submit again with `--no-update --clean none`: finished fits load from the Fit Cache.
+5. **Read the log** (`output/pfm/v8/pfm-v8-<job>.out`, last line `DONE`). It must say:
+   - `excluding <n> row(s) for EST`;
+   - `72768 jobs: ... newly fit`;
+   - `Theory gate (...): <n> of <m> pool spec(s) pass`;
+   - `Selected PFM spec: ... fos5`;
+   - the `PFM-FRONTIER` lines with `Diffuse: gamma = ...`.
+
+   Then commit the cache record: `git add records/v8 && git commit -m "v8: madrat cache record" && git push`.
+6. **Workstation:** `tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4/pfm-workspace v8 --estimation --panels --remind-inputs`.
+   Check `output/pfm/v8/frontier.rds`: the buildings & transport coefficient table has `slack_Fossil.Rents`. ADR 0061 lapses
+   if its |z| < 2.58.
+7. The coupled batch: `analysis/run-groups/scenario-matrix-v8.yml` (regional strength central; start tags `V8W1EU21`,
+   `V8W1H12`), as in Step 7.
+
 ## Step 7 — Run the coupled REMIND batch
 
 Each coupled row names its Run-Group in the scenario config's column `pfmGroup`. It still says

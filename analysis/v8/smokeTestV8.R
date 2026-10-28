@@ -16,7 +16,7 @@ if (!dir.exists("data/madrat/v8")) { dir.create("data/madrat/v8", recursive = TR
   invisible(file.copy(list.files("data/madrat/v7", full.names = TRUE), "data/madrat/v8")); message("[smoke] data/madrat/v8 seeded from v7") }
 
 sw <- readRDS("output/pfm/v7/sweep.rds"); mm <- sw$maximin$PolicyStringency
-baseOf <- function(n) sub(" (satAP|satInn|satInc)?( iw:[^ ]+)?$", "", n)
+baseOf <- function(n) sub("( iw:[^ ]+)$", "", sub(" (satAP|satInn|satInc)( iw:[^ ]+)?$", "", n))
 pass <- mm$model[mm$gatePass]
 bases <- unique(c(baseOf(sw$sanity$PolicyStringency$chosen %||% pass[1]), baseOf(pass)))[seq_len(nB)]
 specs <- Filter(function(s) s$name %in% bases, sw$specs)
