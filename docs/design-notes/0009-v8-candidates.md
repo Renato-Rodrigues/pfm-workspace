@@ -478,6 +478,34 @@ as its own gap closes.
 an ADR for the slack (it extends ADR 0056's reading: producer interests act on the distance below the ceiling in
 buildings & transport); and the coupled runs.
 
+## 10. REMIND's fossil rents against the World Bank's (2026-10-28)
+
+`analysis/v8/rentsREMINDvsWDI.R v7` → `output/pfm/v7/v8-rents-remind-vs-wdi.rds`. REMIND's regional rents in the
+current-policy run (historical periods 2005–2020) against the World Bank's, aggregated to EU21 with market-exchange-rate
+GDP (3-year means). REMIND is valued two ways: at the region's own price (`pm_PEPrice`, as pfm uses) and at the world
+price (`pm_pvp` of the fuel over `pm_pvp("good")`).
+
+| % of GDP | 2010 | 2015 | 2020 |
+|---|---|---|---|
+| MEA: World Bank / REMIND regional price / REMIND world price | 25.1 / 9.4 / 16.3 | 17.7 / 9.3 / 18.2 | 16.6 / 9.9 / 16.7 |
+| REF | 13.2 / 5.2 / 8.0 | 8.5 / 5.3 / 9.6 | 10.1 / 6.0 / 10.9 |
+| SSA | 9.1 / 4.2 / 4.0 | 3.9 / 3.6 / 4.0 | 4.2 / 2.1 / 2.1 |
+| world | 3.0 / 1.2 / 1.2 | 1.7 / 1.3 / 1.3 | 1.7 / 1.4 / 1.3 |
+| rank correlation over 21 regions, regional / world price | 0.93 / 0.85 | 0.94 / 0.75 | 0.86 / 0.91 |
+
+- **At the regional price, levels are about half the World Bank's for the exporters.** The regional price is the price
+  inside the region, below the world price by the trade costs (MEA oil 2015: 6.25 against 9.82 $/GJ). GDP is not the
+  cause: `vm_cesIO("inco")` matches market-exchange-rate GDP within about 5% for most regions.
+- **At the world price, the exporters match from 2015 on.** Importers then turn noisy (China −0.19%), and the US ratio to
+  2025 swings to 2–6.
+- **REMIND's history is smooth.** It misses the 2010–2014 price boom; this does not matter, since REMIND is used only after
+  2023.
+- **The coupling uses each region's rents relative to 2025, and for the exporters this hardly depends on the valuation.**
+  MEA in 2050 is at 0.28 (regional) and 0.23 (world) of 2025 on the coupled run; REF at 0.33 and 0.30; SSA at 0.11 and 0.12.
+  The rents also fall without climate policy: MEA 0.50 by 2050 in the current-policy run.
+- **Decision (ADR 0061):** keep the regional price (stable for every region), with the world price as the sensitivity, and
+  the World Bank's levels times REMIND's ratio, never REMIND's levels.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian

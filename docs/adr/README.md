@@ -81,6 +81,7 @@ read `docs/MODEL.md`, not the archived copy.
 | 0058 | Estonia stays out of the estimation in v7 | **Accepted** (2026-10-14): the oil shale burned in its power, CHP and heat plants is not in `PE` (26–49% of its supply); back only after that is fixed (PITFALLS §27; `analysis/checks/estoniaEnergy.R`) |
 | 0059 | The specification search requires the political-economy hypotheses it is built on | **Accepted** (2026-10-25): H1 fossil dependence lowers the ceiling, H2 its effect depends on institutions (sign free), H3 it is a constraint over at least 75% of the sample; theory gate of the v7 search (0007 §15) |
 | 0060 | The v7 specification: v6's channels, democracy-weighted interactions, saturating clean-energy interests | **Accepted** (2026-10-25): X-1791 `satInn iw:fexp`; H1 in both sectors, edge effects of v6 gone, ranking changes (China, India); no O1 cap |
+| 0061 | Fossil rents set the size of the slack in buildings & transport, not the ceiling | **Proposed** (2026-10-28): log sigma_u = c + w log(1 + rents) in B&T (w 0.25, z 10.8; better out of sample in 37 of 48 countries); P&I homoscedastic; in the coupling the distance kept follows each country's rents times its REMIND region's ratio to 2025; `v8` |
 
 **The eight that govern the current model most directly:** 0036 (what the model is), 0039 + 0043
 (how it was selected), 0044 (what actor power *is*), 0040 (actor-power transform), 0026 (response
