@@ -63,7 +63,8 @@ res <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   fit$p <- ifelse(fit$df > 0, stats::pchisq(pmax(fit$LR, 0), fit$df, lower.tail = FALSE), NA_real_)
   Em <- do.call(cbind, lapply(out, `[[`, "E")); U <- apply(Em, 2, uOf, cty = rownames(Em))
   fit$spearmanU <- apply(U, 2, function(x) stats::cor(x, U[, "none"], method = "spearman"))[fit$z]
-  list(fit = fit, w = do.call(rbind, lapply(out, `[[`, "w")), E = Em, U = U)
+  list(fit = fit, w = do.call(rbind, lapply(out, `[[`, "w")), E = Em, U = U,
+       zScale = c(mean = mean(rr, na.rm = TRUE), sd = stats::sd(rr, na.rm = TRUE)))   # log(1 + rents) over the estimation rows
 })
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), bySector = res), file.path(GD, "v8-het-slack.rds"))
 options(width = 220)
