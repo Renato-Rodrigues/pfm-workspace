@@ -525,6 +525,65 @@ EU21 hold the price, θ 0.5).
 - **Decision (ADR 0061):** buildings & transport only in the central v8. "Rents in both" is a declared sensitivity pair.
   The estimator and the ceiling are shared; which sector's slack depends on rents is decided by the out-of-sample test.
 
+## 12. The shape of the slack: truncated normal and exponential (2026-10-28)
+
+`analysis/v8/truncSlack.R v7` → `output/pfm/v7/v8-trunc-slack.rds`. Scaling form (Wang & Schmidt 2002), $u = h\,u^*$,
+$h = e^{c + wz}$, so the v8 coupling rule $q_c(t) = q_c e^{w(z_t - z_{2023})}$ stays exact whatever the shape of $u^*$.
+
+| | P&I: in sample (LR vs half-normal) | P&I: out of sample, better in | B&T: in sample | B&T: out of sample, better in |
+|---|---|---|---|---|
+| truncated normal | 452.7 | 38 of 48 (*p* < 0.001) | 216.0 | 36 of 48 (*p* < 0.001) |
+| truncated normal with rents, against half-normal with rents (v8) | | | 102.4 | 30 of 48 (*p* 0.11) |
+
+- **The rents effect does not depend on the slack's shape:** w = 0.248 with the truncated normal, against 0.252.
+- **The truncated normal is degenerate.** τ runs to about −200 and the scale to e^4–e^5: a normal truncated far in its tail,
+  which is in effect an exponential slack (most countries near the ceiling, few far below). Its gain over the half-normal is
+  the gain of that shape. With rents, it is no longer significant against the v8 form (30 of 48).
+- **It changes the level of the ceiling:** country E rises (P&I: India 0.70 → 0.83, Germany 0.72 → 0.78; rank correlation
+  0.95). In B&T, Norway and Iceland end up above their ceiling (E 1.03–1.04).
+- **The exponential slack fitted directly** (Meeusen & van den Broeck 1977): the first attempt diverged numerically (the
+  likelihood's two large terms cancelled; the optimiser exploited the error). The script now uses a stable form (checked
+  against the direct form to eight decimals). **The rerun was stopped by the machine's memory pressure; not yet done.**
+- **For v8: keep the half-normal.** The shape gain does not carry over once rents are in, and the alternatives put countries
+  above their ceiling. To revisit with the exponential result.
+
+## 13. The coefficient uncertainty in the coupling (2026-10-28)
+
+`analysis/v8/couplingBand.R v7 500` → `output/pfm/v7/v8-coupling-band.rds`. 500 draws of the frontier's ceiling coefficients
+from their covariance (`frontier.rds`). For each draw, the 2023 anchor is rebuilt (countries' distances and the ranking u),
+then the strength and the shares on the coupled hold-the-price headline (EU21, θ 0.5, **common strength**). The central draw
+reproduces the package's anchor exactly.
+
+| | central | 5–95% band |
+|---|---:|---|
+| P&I strength k, 2050 / 2100 | 0.705 / 0.667 | 0.593–0.841 / 0.507–0.859 |
+| B&T strength k, 2050 / 2100 | 0.596 / 0.489 | 0.518–0.675 / 0.421–0.557 |
+| median width of a region's share φ in 2050: coefficients / θ 0.325–0.675 | | P&I 0.115 / 0.117; B&T 0.065 / 0.109 |
+
+- **The coefficient uncertainty is as large as the declared severity θ in power & industry**, and about 60% of it in
+  buildings & transport. It comes mostly from the strength path (how the drivers move the ceiling), less from the ranking
+  (widest u bands: NES 0.03–0.33 P&I; China 0.18–0.49 B&T).
+- **The draws are from the frontier's asymptotic covariance**, with γ near its boundary in power & industry (MODEL.md §3.4):
+  an approximation, probably on the narrow side.
+- **For the paper:** coefficient uncertainty belongs next to θ and κ, not in a footnote. Turning it into an emissions band
+  needs coupled runs at the band's edges (e.g. the draws at the 5th and 95th percentile of the 2050 world share).
+- **Under the regional strength** (v8's central form) the band is to be recomputed (`couplingBand.R v7 500 regional`). **The
+  run was stopped by the machine's memory pressure; not yet done.**
+
+## 14. Newer data? None yet (2026-10-28)
+
+- World Bank oil, gas and coal rents: still end in 2021 (checked through the WDI API).
+- CAPMF: the OECD API returns no records from 2024; 2023 is the last year, so the anchor stays 2023.
+- V-Dem v16 (data to 2025) and WGI 2025 (data to 2024) are already in the source folder.
+
+## 15. Decisions of 2026-10-28 (author)
+
+- Rents in the slack of **buildings & transport only** (§11); rents in both is a sensitivity.
+- **The regional strength is the central coupling form of v8**; the common strength is its sensitivity pair
+  (`analysis/run-groups/scenario-matrix-v8.yml`, first wave: no-politics references, both closures at three θ, the common-
+  strength and world-price-rents pairs; 24 coupled rows over EU21 and H12; built and validated, not submitted).
+- REMIND's rents valued at the region's price; the world price is the sensitivity (`pfmRentsPrice`, pfm `rentsPrice`).
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian

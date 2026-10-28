@@ -1,6 +1,7 @@
 # v8 item (design note 0009 section 13): how much does the frontier's coefficient uncertainty move what the coupling
 # delivers, next to the declared theta and kappa?
-#   Rscript analysis/v8/couplingBand.R [group] [draws]   (repo root; default v7, 200) -> output/pfm/<group>/v8-coupling-band.rds
+#   Rscript analysis/v8/couplingBand.R [group] [draws] [strength]   (repo root; default v7, 200, common)
+#     -> output/pfm/<group>/v8-coupling-band[-regional].rds
 # Draws of the frontier's ceiling coefficients from their covariance (frontier.rds, per sector). For each draw: the 2023
 # anchor is recomputed as computeAnchorGap does it - each country's ceiling moves, the observed countries keep their
 # observed index, the uncovered keep their assigned share E of the (new) ceiling - so the distance q and the regional
@@ -11,6 +12,7 @@
 source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
 args <- commandArgs(trailingOnly = TRUE)
 g <- if (length(args)) args[1] else "v7"; ND <- if (length(args) >= 2) as.integer(args[2]) else 200L
+STR <- if (length(args) >= 3) args[3] else "common"; OPT <- list(strength = STR); SUF <- if (STR == "common") "" else paste0("-", STR)
 GD <- file.path("output/pfm", g); modelDir <- "output/pfm/fit-cache"; set.seed(20261028)
 hash <- jsonlite::fromJSON(file.path(GD, "manifest.json"))$panel_hash
 panel <- readRDS(file.path(modelDir, "panels", paste0("panel_", hash, ".rds")))
@@ -58,11 +60,11 @@ anchorFor <- function(betas) {
 }
 summ <- function(sh) list(k = sh$strength[sh$strength$year %in% c(2050, 2100), c("sector", "year", "k")],
                           phi = sh$shares[sh$shares$year %in% c(2050, 2100), c("sector", "region", "year", "phi")])
-base <- summ(pfmV6Shares(anc0, scen, theta = 0.5))
+base <- summ(pfmV6Shares(anc0, scen, theta = 0.5, options = OPT))
 # check: the central coefficients through anchorFor reproduce the package's anchor
 chk <- anchorFor(lapply(anc0$designs, `[[`, "beta"))
 stopifnot(max(abs(chk$region$u - anc0$region$u), na.rm = TRUE) < 1e-8)
-thetaSpread <- lapply(c(lo = 0.325, hi = 0.675), function(th) summ(pfmV6Shares(anc0, scen, theta = th)))
+thetaSpread <- lapply(c(lo = 0.325, hi = 0.675), function(th) summ(pfmV6Shares(anc0, scen, theta = th, options = OPT)))
 
 draws <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   b <- anc0$designs[[sec]]$beta; V <- fr$bySector[[sec]]$vcov
@@ -72,7 +74,7 @@ draws <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
 t0 <- Sys.time()
 out <- lapply(seq_len(ND), function(i) {
   a <- anchorFor(list(Bulk = draws$Bulk[i, ], Diffuse = draws$Diffuse[i, ]))
-  s <- summ(pfmV6Shares(a, scen, theta = 0.5))
+  s <- summ(pfmV6Shares(a, scen, theta = 0.5, options = OPT))
   s$u <- a$region[, c("sector", "region", "u")]; s
 })
 message("[band] ", ND, " draws in ", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), " min")
@@ -92,7 +94,7 @@ uBand <- do.call(rbind, lapply(split(uAll, paste(uAll$sector, uAll$region)), fun
   data.frame(sector = d$sector[1], region = d$region[1], central = anc0$region$u[anc0$region$sector == d$sector[1] & anc0$region$region == d$region[1]],
              p05 = q(d$u)[1], p95 = q(d$u)[3], row.names = NULL) }))
 saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), draws = ND, strength = kBand, phi = pBand, u = uBand),
-        file.path(GD, "v8-coupling-band.rds"))
+        file.path(GD, paste0("v8-coupling-band", SUF, ".rds")))
 options(width = 200)
 cat("strength k (common), EU21 hold the price, theta 0.5: central and the 5-95% band over", ND, "coefficient draws\n"); print(kBand, digits = 3, row.names = FALSE)
 for (sec in c("Bulk", "Diffuse")) {
