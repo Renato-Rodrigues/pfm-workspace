@@ -123,7 +123,12 @@ REMIND's *path*, not its level.
 - **Rents shifting the mean slack** (Battese & Coelli 1995): not identified on this panel. The coefficients run off to
   thousands, γ goes to 1, and countries land above their ceiling (design note 0009 §8.1).
 - **Institutions in the slack:** better in sample, not out of sample, and they fail on Saudi Arabia with rents.
-- **Rents in the power & industry slack:** no consistent sign (rents +, exporter dummy −), and no out-of-sample gain.
+- **Rents in the power & industry slack, for a single model form:** no consistent sign (rents +, exporter dummy −,
+  −0.01 with the institutions), and no out-of-sample gain (27 of 48, *p* 0.47). It is not neutral either. With rents in
+  both slacks, the P&I strength k falls from 0.706 / 0.666 to 0.661 / 0.591 (2050 / 2100; dry run, design note 0009 §11).
+  The weight is small (0.11), but the P&I slack is wide and rents fall almost everywhere in REMIND. A material effect on
+  weak evidence: kept as a declared sensitivity, not the central form. The estimator and the ceiling are the same in
+  both sectors; only the slack's drivers differ, as its size and γ already do.
 - **The world price for REMIND's rents:** right for exporters, misleading for importers. Kept as the sensitivity.
 - **REMIND's rent levels instead of the World Bank's history times REMIND's ratio:** REMIND's levels at the regional price
   are about half the observed ones, and the frontier was estimated on the World Bank's.

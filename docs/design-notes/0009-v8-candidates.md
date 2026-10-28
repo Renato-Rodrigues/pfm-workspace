@@ -506,6 +506,25 @@ price (`pm_pvp` of the fuel over `pm_pvp("good")`).
 - **Decision (ADR 0061):** keep the regional price (stable for every region), with the world price as the sensitivity, and
   the World Bank's levels times REMIND's ratio, never REMIND's levels.
 
+## 11. Rents in both sectors' slack, for a single model form? (2026-10-28)
+
+`analysis/v8/hetCouplingDryRun.R v7 Bulk,Diffuse` → `output/pfm/v7/v8-het-coupling-dryrun-Bulk-Diffuse.rds` (slack only,
+EU21 hold the price, θ 0.5).
+
+| | v7 | rents in B&T | rents in both |
+|---|---:|---:|---:|
+| P&I strength k, 2050 / 2100 | 0.706 / 0.666 | 0.706 / 0.666 | 0.661 / 0.591 |
+| B&T strength k, 2050 / 2100 | 0.596 / 0.489 | 0.580 / 0.403 | 0.580 / 0.403 |
+| Saudi Arabia, P&I distance kept, 2050 / 2100 | 1 / 1 | 1 / 1 | 0.87 / 0.71 |
+
+- **The P&I ranking hardly moves** (rank correlation 0.99), **but the P&I constraint fades about a tenth more by 2100.** The
+  P&I slack is wide (typical size e^0.38 = 1.46 against 0.58 in B&T), and REMIND's rents fall in almost every region, so
+  the small weight (w = 0.11, *z* 3.9) shrinks many distances.
+- **The evidence in P&I is weak:** no out-of-sample gain (27 of 48), the exporter dummy has the opposite sign, and the
+  effect is gone with the institutions.
+- **Decision (ADR 0061):** buildings & transport only in the central v8. "Rents in both" is a declared sensitivity pair.
+  The estimator and the ceiling are shared; which sector's slack depends on rents is decided by the out-of-sample test.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
