@@ -11,7 +11,10 @@
 # panel, on the projected countries in 2050 and 2100 (the frozen scaling, the trend frozen, the driver guard - as the
 # coupling evaluates the ceiling). Shares are of countries; the scenario rows also carry final-energy weights. Standard errors
 # of each net effect come from the frontier's vcov (delta method, the slope is linear in beta); 'significant' is |z| > 1.96.
+# PFM_NET_SPEC (a specification name from the sweep) and PFM_NET_SECTORS (comma list) evaluate another specification instead
+# of the selected one, e.g. a sector's own pick in per-sector-selection.rds -> output/pfm/<group>/net-effects-<X-id>.rds
 source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
+ALT <- Sys.getenv("PFM_NET_SPEC"); ALTSEC <- strsplit(Sys.getenv("PFM_NET_SECTORS", "Bulk,Diffuse"), ",")[[1]]
 args <- commandArgs(trailingOnly = TRUE)
 g <- if (length(args)) args[1] else "v8"
 SCEN <- if (length(args) >= 2) args[2] else c(v8 = "output/pfm/v8/coupling/scen-v7Bfix-gapclosure-v8panel.rds",
@@ -20,8 +23,9 @@ GD <- file.path("output/pfm", g)
 hash <- jsonlite::fromJSON(file.path(GD, "manifest.json"))$panel_hash
 panel <- readRDS(file.path("output/pfm/fit-cache/panels", paste0("panel_", hash, ".rds")))
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
-DRV <- c("Innovator.Power", "Incumbent.Power", "Incumbent.Power.pc")
-LAB <- c(Innovator.Power = "clean-energy build-out", Incumbent.Power = "fossil dependence", Incumbent.Power.pc = "fossil interests per person",
+DRV <- c("Innovator.Power", "Innovator.Power.pc", "Incumbent.Power", "Incumbent.Power.pc")
+LAB <- c(Innovator.Power = "clean-energy build-out", Innovator.Power.pc = "clean-energy interests per person",
+         Incumbent.Power = "fossil dependence", Incumbent.Power.pc = "fossil interests per person",
          Government.Effectiveness..WGI. = "government effectiveness", Rule.of.Law..VDem. = "rule of law",
          Vertical.Accountability..VDem. = "vertical accountability", Horizontal.Accountability..VDem. = "horizontal accountability",
          Overall.Accountability..VDem. = "overall accountability")
@@ -65,8 +69,11 @@ summ <- function(M, S, b, wts = NULL, label) {
                n = length(m), row.names = NULL) }))
 }
 
-res <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
-  cfg <- pfm:::.pfmNormSpec(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]])
+altSpec <- if (nzchar(ALT)) Filter(function(x) identical(x$name, ALT), readRDS(file.path(GD, "sweep.rds"))$specs) else NULL
+if (nzchar(ALT) && !length(altSpec)) stop("PFM_NET_SPEC not in the sweep: ", ALT)
+res <- lapply(stats::setNames(if (nzchar(ALT)) ALTSEC else c("Bulk", "Diffuse"), if (nzchar(ALT)) ALTSEC else c("Bulk", "Diffuse")), function(sec) {
+  cfg <- pfm:::.pfmNormSpec(if (nzchar(ALT)) altSpec[[1]] else
+    Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]])
   ff <- suppressWarnings(suppressMessages(do.call(estimatePolicyStringencyModel, c(list(data = panel, sector = sec, estimator = "frontier",
                          indexMax = 10, modelDir = NULL, updateIndex = FALSE, verbose = FALSE), pfm:::.pfmSpecArgs(cfg)))))
   b <- pfm:::.pfmCeilingBeta(stats::coef(ff$model)); d <- ff$data
@@ -95,8 +102,9 @@ res <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   ic <- stats::cor(d[, intersect(names(LAB)[4:8], names(d))], use = "pairwise")
   list(table = cbind(sector = sec, tab), instCor = ic, rows = rows, rowsSe = rowsSe, scenario = scen, scenarioSe = scenSe, beta = b, vcov = V)
 })
-saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), scenarioPanel = SCEN, labels = LAB, bySector = res),
-        file.path(GD, "net-effects.rds"))
+saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), spec = if (nzchar(ALT)) ALT, scenarioPanel = SCEN, labels = LAB,
+             bySector = res),
+        file.path(GD, if (nzchar(ALT)) paste0("net-effects-", sub(" .*$", "", ALT), ".rds") else "net-effects.rds"))
 options(width = 230)
 for (sec in names(res)) { cat("\n==========", sec, "==========\n")
   x <- res[[sec]]$table; print(x[, c("where", "label", "main", "nOpposite", "nInteractions", "p10", "median", "p90", "shareSameSign", "shareSigSame", "shareSigOpposite", "shareSameSignFE")], digits = 2, row.names = FALSE)

@@ -695,6 +695,42 @@ Shares of countries whose net effect keeps the coefficient's sign, v8 (2023 samp
 - **A v9 candidate:** one state-capacity index in place of separate GE and rule of law, or no interactions between
   institutions and fossil interests per person. This would remove the offsetting pair at its source.
 
+## 20. A specification per sector instead of one for both (2026-10-29)
+
+`analysis/v8/perSectorSelection.R` (cluster job 2773403) → `output/pfm/v8/per-sector-selection.rds`. Each sector is
+ranked on its own ΔR²(theory), theory-screened and walked alone, with the v8 job's gates. The joint ranking reproduces the
+cluster walk, and every candidate the cluster also walked gave the same severe flags. Net effects of the B&T pick:
+`PFM_NET_SPEC="<name>" PFM_NET_SECTORS=Diffuse Rscript analysis/checks/netEffects.R v8` →
+`output/pfm/v8/net-effects-X-2099.rds`.
+
+| v8, same 1,104 rows | ΔR²(theory) | BIC | γ | walked |
+|---|---|---|---|---|
+| P&I, shared (X-1791) | 0.140 | 3160 | 0.9989 | |
+| P&I alone (X-2007: GE, RoL, no accountability; clean-energy saturating) | 0.124 | 3199 | 0.9990 | 16th of 251 |
+| B&T, shared (X-1791) | 0.159 | 1545 | 0.918 | |
+| B&T alone (X-2099: GE, horizontal accountability; both interests per person; H12 region effects; linear) | 0.161 | 1364 | 0.960 | 29th of 1,491 |
+
+- **P&I gains nothing.** Its own pick fits worse on both measures. The shared specification passes there too (24th in the
+  P&I pool) and loses the ranking only to the near-tie parsimony preference.
+- **B&T fits better alone, but not on theory.** ΔR²(theory) is equal (0.161 vs 0.159). The BIC gain (−181) comes mostly
+  from the ten H12 region effects. The shared specification passes in B&T too (220th in the pool).
+- **Its net effects are less stable** (shares of countries keeping the coefficient's sign, 2023 sample / 2050 / 2100,
+  §19 method):
+
+  | B&T term | own pick (X-2099) | shared (§19) |
+  |---|---|---|
+  | fossil interests (per person; shared: fossil dependence) | 77% / 64% / 79%, significant 62% / 33% / 52% | 100% / 97% / 98%, significant 94% / 82% / 92% |
+  | government effectiveness | 73% / 65% / 49%; 9% of final energy in 2100 | 98% / 85% / 85%; 100% of final energy |
+  | the institutions together | 100% / 91% / 84%; 56% of final energy in 2100 | 100% / 100% / 100% |
+
+  Clean-energy interests per person interact with government effectiveness at −0.47 against a coefficient of +0.48. So in
+  2100 better government lowers the B&T ceiling where most final energy is used, and the gap-closure institutions would
+  tighten the large emitters. The fossil coefficient is −0.05: the paper's central term is barely identified.
+- **Recommendation: keep the shared specification** (ADR 0039). Per sector it buys B&T fit through region effects at the cost of
+  the fossil term and the institution channel the coupling uses; P&I would get a worse fit. Report in the SI as a
+  robustness check, and put the question to Elmar (brief Q7).
+- **Not swept:** the shared specification with H12 region effects. A v9 check, if the region effects are wanted.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
