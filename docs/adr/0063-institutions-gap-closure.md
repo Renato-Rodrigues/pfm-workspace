@@ -1,6 +1,6 @@
 # ADR 0063 — The SSP2 institution projection: every country closes 0.6% of its gap to the best observed value each year
 
-- **Status:** **Proposed 2026-10-29.** It records the author's decision of 2026-10-27 (design note 0008, Decided). It revises
+- **Status:** **Accepted 2026-10-29** (author). It records the author's decision of 2026-10-27 (design note 0008, Decided). It revises
   ADR 0051 item 2 (the institution rule of the scenario panel); ADR 0051's other items stand.
 - **Run-Groups:** `v8` (central: `pfmInstitutions = gapclosure` on every coupled row, `scenario-matrix-v8.yml`), and `v7`'s third
   wave (`V7W3EU21`, `V7W3H12`). Every earlier run keeps the rule it was run with: storyline convergence, or hold.

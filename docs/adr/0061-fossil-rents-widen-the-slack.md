@@ -1,6 +1,6 @@
 # ADR 0061 — Fossil rents set the size of the slack in buildings & transport, not the ceiling
 
-- **Status:** **Proposed 2026-10-28.** For acceptance with ADR 0062. Both of its own conditions hold on the selected v8
+- **Status:** **Accepted 2026-10-29** (author), with ADR 0062. Proposed 2026-10-28. Both of its own conditions hold on the selected v8
   specification (2026-10-29): rents slack z 12.1, and better out of sample in 38 of 48 countries (design note 0009 §§17–18).
   It extends ADR 0056's reading; it changes neither ADR 0056 nor the ceiling.
 - **Run-Groups:** `v8` (config.yml: panel key `fossilRents`, sweep `slackDrivers: {Diffuse: [Fossil Rents]}`). Every

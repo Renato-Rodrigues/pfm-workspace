@@ -2,7 +2,7 @@
 
 - **Status:** **Accepted 2026-10-07** (author). Items 1–4 are implemented and in the `v6` re-run of
   2026-10-06; item 5 is the author's decision 7; item 6 is the implemented default. Records 0005 D9, D10, D11 (SSP part), and §7a decisions 1A, 2B and 7.
-- **Revised:** item 2 by ADR 0063 (proposed 2026-10-29): the gap-closure rule is central from v8 (and in v7's third wave).
+- **Revised:** item 2 by ADR 0063 (accepted 2026-10-29): the gap-closure rule is central from v8 (and in v7's third wave).
 - **Run-Groups:** `v6`, `v6-annual` and later. `v5`'s scenario panels were built without items 3–4.
 - **Evidence:** `DATA.md` §5.4–§5.5; `PITFALLS.md` §30–§31; `output/pfm/v6/phase1/{lag-seam,decomposition,ssp-governance}.rds`;
   `analysis/checks/policlimInstitutions.R` → `output/checks/policlim-institutions.rds`; tests

@@ -1,6 +1,6 @@
 # ADR 0062 — The v8 specification: v7's channels, every actor-power term saturating, the fossil terms bounded, the rents slack
 
-- **Status:** **Proposed 2026-10-29.** With ADR 0061 (the rents slack). For acceptance before the v8 coupled batch.
+- **Status:** **Accepted 2026-10-29** (author), with ADR 0061 (the rents slack) and ADR 0063 (the institution rule).
 - **Run-Groups:** `v8` (sweep and downstream job 2764125; `records/v8`). `v7` is unchanged and stays the basis of everything
   quoted on it.
 - **Evidence:** design note 0009 §§7, 9, 11–17; `output/pfm/v8/` (`selected-models-pfm.yml`, `sweep.rds`, `frontier.rds`,
