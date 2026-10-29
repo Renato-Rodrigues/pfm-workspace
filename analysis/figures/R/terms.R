@@ -52,7 +52,9 @@ pfmFrontierCoefs <- function(group, drop = c("(Intercept)", "sigmaSq", "gamma"))
   fr <- pfmArtifact(group, "frontier.rds")
   d <- do.call(rbind, lapply(c("Bulk", "Diffuse"), function(sec) {
     ct <- as.data.frame(fr$bySector[[sec]]$coefTable)
-    ct <- ct[!ct$term %in% drop, ]
+    # the slack terms of a heteroscedastic frontier (v8, ADR 0061) set the size of the distance below the ceiling, not
+    # the ceiling: they are not contributions to the linear predictor these figures show
+    ct <- ct[!ct$term %in% drop & !startsWith(ct$term, "slack_"), ]
     data.frame(sector = sec, raw = ct$term, term = pfmPrettyTerm(ct$term),
                est = ct$estimate, se = ct$stdError, p = ct$pValue,
                kind = ifelse(pfmIsInteraction(ct$term), "interaction", "main effect"),

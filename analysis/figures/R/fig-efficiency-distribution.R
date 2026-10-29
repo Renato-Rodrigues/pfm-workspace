@@ -33,6 +33,10 @@ figEfficiencyDistribution <- function(group = "v5") {
   lev <- c("observed", "donor", "lowBand", "median")
   labs <- c(observed = "estimated (in coverage)", donor = "donor-transferred",
             lowBand  = "low band (below support)", median = "median (unmatched)")
+  # a group whose rule puts every uncovered country at the covered median (v8; design note 0009 section 6.3): only the two
+  # bases it has are listed, and the subtitle names its rule
+  medianRule <- !any(d$basis %in% c("donor", "lowBand"))
+  if (medianRule) { labs[["median"]] <- "covered median (the coverage rule)"; lev <- c("observed", "median") }
   d$basis <- factor(d$basis, levels = lev)
 
   n <- as.data.frame(table(d$sector, d$basis))
@@ -53,16 +57,16 @@ figEfficiencyDistribution <- function(group = "v5") {
     ggplot2::facet_wrap(~ sector, ncol = 1, scales = "free_y") +
     ggplot2::scale_fill_manual(values = c(observed = pfmAccent(), donor = "#7FA8C9",
                                           lowBand = "#D9B48F", median = "grey78"),
-                               labels = labs, drop = FALSE) +
+                               labels = labs[lev], drop = FALSE) +
     # coord_cartesian, not scale limits: scale limits FILTER the data (and drop empty
     # bins with a warning), coord zooms. E is bounded in (0,1] by construction anyway.
     ggplot2::coord_cartesian(xlim = c(0, 1)) +
     ggplot2::guides(fill = ggplot2::guide_legend(nrow = 2)) +
     ggplot2::labs(
       title = "Most countries' position is transferred, not estimated",
-      subtitle = paste("Efficiency ratio E = S/S*, all 248 projected countries.",
-                       "Only the dark bars are\nestimated; the rest inherit a relative gap",
-                       "from the band rule."),
+      subtitle = paste0("Efficiency ratio E = S/S*, all ", length(unique(d$region)), " projected countries. Only the dark bars are\n",
+                        "estimated; the rest ", if (medianRule) "are set at the covered countries' median." else
+                          "inherit a relative gap from the band rule."),
       x = "efficiency ratio  E = S / S*", y = "countries")
   attr(p, "pfmGrid") <- "y"
   pfmStamp(p, group, note = "E = S/S*, never S/10")

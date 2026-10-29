@@ -38,9 +38,12 @@ figImplementabilityMapFull <- function(group = "v5", sector = "Bulk") {
   w$alpha <- ifelse(is.na(w$basis), NA_real_,
                     ifelse(w$basis == "observed", 1, 0.45))
   nBy <- table(d$basis)
+  # a count by basis that is 0 when the basis does not occur (v8 has only "median": design note 0009 section 6.3)
+  nOf <- function(b) if (b %in% names(nBy)) as.integer(nBy[[b]]) else 0L
+  rule <- if (nOf("donor") + nOf("lowBand") == 0) "at the covered median" else "through the donor and band rules"
 
   sub <- sprintf(paste0("%s sector, all %d projected countries. %d ESTIMATED (full colour); ",
-                        "%d transferred\nthrough the donor and band rules (faded) — ",
+                        "%d transferred\n", rule, " (faded) — ",
                         "assumptions with a stated rule, not measurements."),
                  sector, nrow(d), sum(d$basis == "observed"), sum(d$basis != "observed"))
 
@@ -55,13 +58,13 @@ figImplementabilityMapFull <- function(group = "v5", sector = "Bulk") {
     ggplot2::scale_alpha_identity() +
     ggplot2::coord_sf(crs = "+proj=robin", datum = NA, expand = FALSE) +
     ggplot2::labs(
-      title = "What the coupling actually uses: 48 measured, 200 transferred",
+      title = sprintf("What the coupling actually uses: %d measured, %d transferred",
+                      sum(d$basis == "observed"), sum(d$basis != "observed")),
       subtitle = sub, x = NULL, y = NULL)
   attr(p, "pfmGrid") <- "none"
   attr(p, "pfmTheme") <- ggplot2::theme(
     axis.text = ggplot2::element_blank(), axis.ticks = ggplot2::element_blank())
   pfmStamp(p, group,
            note = sprintf("faded = transferred (donor %d / low band %d / median %d)",
-                          nBy[["donor"]] %||% 0L, nBy[["lowBand"]] %||% 0L,
-                          nBy[["median"]] %||% 0L))
+                          nOf("donor"), nOf("lowBand"), nOf("median")))
 }

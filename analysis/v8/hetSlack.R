@@ -33,6 +33,7 @@ nllHet <- function(p, y, X, Z) {
 
 res <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   cfg <- norm(Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]])
+  cfg$slackDrivers <- NULL   # the homoscedastic frontier is the baseline (a v8 spec carries the slack)
   ff <- suppressWarnings(suppressMessages(do.call(estimatePolicyStringencyModel, c(list(data = panel, sector = sec, estimator = "frontier",
                          indexMax = 10, modelDir = NULL, updateIndex = FALSE, verbose = FALSE), .pfmSpecArgs(cfg)))))
   d <- ff$data; mf <- stats::model.frame(ff$formula, d); X <- stats::model.matrix(ff$formula, d)
