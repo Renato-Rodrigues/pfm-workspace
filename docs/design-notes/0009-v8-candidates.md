@@ -590,6 +590,54 @@ reproduces the package's anchor exactly.
   strength and world-price-rents pairs; 24 coupled rows over EU21 and H12; built and validated, not submitted).
 - REMIND's rents valued at the region's price; the world price is the sensitivity (`pfmRentsPrice`, pfm `rentsPrice`).
 
+## 17. The v8 sweep (job 2764125, 2026-10-29)
+
+`analysis/v8/checkV8.R` (from the synced `output/pfm/v8`; Run-Groups `v7` and `v8`).
+
+- **The run:** 72,768 fits, all new (the fossil bound is in the cache key), none failed; Estonia excluded; `DONE`. Theory gate:
+  80 of 5,786 pool specifications pass (v7: 84 of 5,930).
+- **Selected:** `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP iw:fexp fos5`. That is v7's specification
+  with every actor-power term saturating (`satAP` instead of `satInn`), the fossil bound and the rents slack. v7's own form with
+  the bound (`satInn … fos5`, rank 12) fails only the γ gate (P&I γ 0.999004 > 0.999), as predicted in §7.1. The selected form
+  passes with γ 0.9989: a narrow margin.
+- **The frontier:**
+
+  | | v7 | v8 |
+  |---|---|---|
+  | P&I fossil dependence | −0.555 (z −8.1) | −0.813 (z −10.4) |
+  | P&I fossil per person | +0.474 (9.5) | +0.491 (12.5) |
+  | P&I clean energy | +0.125 (3.5) | **−0.031 (−0.8)** |
+  | B&T fossil dependence | −0.160 (−5.8) | −0.168 (−6.6) |
+  | B&T rents slack w | — | **+0.277 (z 12.1)**: ADR 0061's threshold met |
+  | γ P&I / B&T | 0.9984 / 0.9725 | 0.9989 / 0.9178 (B&T at average rents) |
+
+  The clean-energy main effect in power & industry is gone under the saturating form with the bound. It was never a
+  requirement (ADR 0059), but the edge gate's clean-energy direction check then does not apply in that sector (its
+  sample-centre sign is not the expected one).
+- **Mean regression, wild cluster bootstrap:**
+  - **H1** is stronger in both sectors (fossil dependence P&I −0.88, B&T −0.25, both *p* < 0.001).
+  - **H2** holds in P&I (fossil per person × state capability and × rule of law, *p* < 0.001).
+  - **H2 in B&T is weaker than in v7.** The smallest fossil × institution *p* is 0.024 (fossil dependence × accountability),
+    above the Bonferroni 0.05/6 = 0.008; v7 had 0.001. The gate passes it on the asymptotic clustered *p*, so the wild
+    bootstrap does not confirm it at the gate's level. Disclose.
+- **Share of the ceiling used, 2023** (rank correlation with v7: P&I 0.97, B&T 0.84):
+  - Russia P&I 0.46 → 0.33 (the saturating form);
+  - Saudi Arabia B&T 0.94 → 0.66 (the rents slack);
+  - Iceland P&I 0.33 → 0.39, Peru 0.35 → 0.41 (the fossil bound).
+- **The regional ranking u** (EU21; rank correlation with v7 0.96 P&I, 0.95 B&T):
+  - REF stays the most constrained in both sectors.
+  - The others compress: the uncovered countries now sit at the median, not in the low band. In P&I OAS goes 0.78 → 0.49,
+    MEA 0.68 → 0.43, LAM 0.63 → 0.45; in B&T NES 0.96 → 0.60 and ECS 0.85 → 0.60, while MEA holds at 0.58 (the rents raise
+    Saudi Arabia's gap, the median lowers the rest).
+- **Coverage:** all 200 uncovered countries at the median. **Selection stability** (200 resamples): win share 0.01,
+  conditional 0.31, gate-pass share 0.42, median rank 9 (v7: 0.01, 0.24, 0.37, 7).
+- **Open:**
+  - an ADR on the v8 specification (as ADR 0060 for v7): the `satAP` form, the P&I clean-energy term, the narrow γ margin,
+    H2 in B&T;
+  - the out-of-sample check of the rents slack on the v8 specification (ADR 0061's second condition; needs the training
+    panel `panel_c741a229b049c768.rds` locally);
+  - the coupled batch (`scenario-matrix-v8.yml`).
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
