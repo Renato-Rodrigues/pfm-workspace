@@ -30,6 +30,7 @@
 #
 # Re-run it whenever a new coupled batch lands. It is cheap and idempotent.
 
+source("analysis/coupled/_runKey.R")   # titles from v8 on -> the internal run key (pfmRunKey)
 TCO2 <- 272            # pm_taxCO2eq is T$/GtC; x272 gives US$2005/tCO2 (SCENARIOS.md 9)
 
 # Resolution order, most specific first:
@@ -154,7 +155,8 @@ extractCoupledResults <- function(gdxDir = "output/remind-runs/v5",
       gdx <- file.path(d, "fulldata.gdx")
       if (!file.exists(gdx)) next
       nm  <- basename(d)
-      scen <- sub("_[0-9]{4}-[0-9]{2}-[0-9]{2}_.*$", "", nm)
+      title <- sub("_[0-9]{4}-[0-9]{2}-[0-9]{2}_.*$", "", nm)
+      scen <- pfmRunKey(title)   # the run key; the run's own title is kept in `title`
       st <- runState(d)
       isFin <- identical(st, "finished")
       au <- surplusAudit(gdx, bin)
@@ -284,7 +286,7 @@ extractCoupledResults <- function(gdxDir = "output/remind-runs/v5",
       } else NA_real_
 
       runs[[nm]] <- data.frame(
-        dir = nm, scenario = scen, resolution = res,
+        dir = nm, scenario = scen, title = title, resolution = res,
         finished = isFin, nashIter = au$iter,
         earlySurplusMax = au$earlyMax, earlySurplusOver = au$earlyOver,
         lateSurplusMax = au$lateMax, lateSurplusOver = au$lateOver,

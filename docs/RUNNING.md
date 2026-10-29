@@ -389,7 +389,7 @@ checkout.
 ### Step 7 (v8) — The whole v8 batch in one standby submission per resolution (`V8W1EU21`, `V8W1H12`)
 
 Built from `analysis/run-groups/scenario-matrix-v8.yml` into `config/scenario_config_PFM_v8.csv` (60 coupled rows: 42 at
-EU21, 18 at H12; its header lists what runs and why). Every row starts from `-PFMgate-v8`, so the batch has one
+EU21, 18 at H12; its header lists what runs and why). Every row starts from `-PFM-noPolitics-holdBudget-v8`, so the batch has one
 dependency and runs side by side once the gate finishes; the two sequential chains (`v8_sequential`, COUPLING.md §14.1)
 run step after step. Needs `output/remind-inputs/v8`, and `pfm` and `remind_pfm` at the commits that carry
 `pfmPhiWindowEnd`, `pfmRefPrice` and the `gapfirst` strength. On the cluster:
@@ -408,7 +408,7 @@ submitPFM("V8W1H12",  remindDir = "models/remind_pfm-H12",  scenarioConfig = cfg
 submitPFM("V8W1H12",  remindDir = "models/remind_pfm-H12",  scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
 ```
 
-Read `-PFMgate-v8` against `-PFMgateRef` (SCENARIOS.md 3.1) first: if it fails, stop the dependants before they spend
+Read `-PFM-noPolitics-holdBudget-v8` against `-PFMgateRef` (SCENARIOS.md 3.1) first: if it fails, stop the dependants before they spend
 their hours. A hold-the-budget row that does not peak (PITFALLS 26) is re-run under a new tag (`V8RERUN<res>`).
 
 ### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)

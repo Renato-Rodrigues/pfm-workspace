@@ -1023,7 +1023,7 @@ window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`,
   `path_gdx_ref` is the previous step, so it reads `input_refpolicycost.gdx` (= `path_gdx_refpolicycost`, the
   current-policy run) instead (`preparePFM.R`). The validator refuses a coupled row whose `path_gdx_ref` differs from
   its policy-cost reference without `pfmRefPrice = refpolicycost`.
-- **The anchor.** Hold the price keeps `path_gdx_carbonprice` = `-PFMgate`, so every step caps against the same
+- **The anchor.** Hold the price keeps `path_gdx_carbonprice` = the no-politics reference (`-PFM-noPolitics-holdBudget-v8`), so every step caps against the same
   pathway price. Hold the budget re-solves the budget from its fixed past.
 - **The chain stops at 2070**, before the 1000 Gt pathway's peak-budget year (2080), so every hold-the-budget step still
   has a budget to adjust.

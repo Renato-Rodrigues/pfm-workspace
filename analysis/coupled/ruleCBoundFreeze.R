@@ -52,8 +52,9 @@ dirs <- unlist(lapply(file.path(gdxDir, c("EU21", "H12")), list.dirs, recursive 
 # GAMS every iteration, so their realised price should follow the anchor after the last call. That
 # is the evidence that the hold-the-budget price results (which are proportional-mode) are not affected
 # (referee v08, M3).
-dirs <- dirs[grepl("PkBudg1000-PFM(level[BC]|ratio)", basename(dirs)) & file.exists(file.path(dirs, "fulldata.gdx"))]
-scen <- sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(dirs))
+source("analysis/coupled/_runKey.R")   # titles from v8 on -> the internal run key (pfmRunKey)
+dirs <- dirs[grepl("PkBudg1000-PFM(level[BC]|ratio)", pfmRunKey(basename(dirs))) & file.exists(file.path(dirs, "fulldata.gdx"))]
+scen <- pfmRunKey(sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(dirs)))
 res  <- basename(dirname(dirs))
 key  <- paste(res, scen)
 dirs <- dirs[order(key, basename(dirs), decreasing = TRUE)]
@@ -62,7 +63,7 @@ dirs <- dirs[!duplicated(paste(basename(dirname(dirs)), sub("_\\d{4}-.*$", "", b
 rows <- list(); traces <- list()
 for (d in dirs) {
   g <- file.path(d, "fulldata.gdx")
-  sc <- sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d)); rs <- basename(dirname(d))
+  sc <- pfmRunKey(sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d))); rs <- basename(dirname(d))
   calls <- grep("runtime config from GAMS", readLines(file.path(d, "log.txt"), warn = FALSE), value = TRUE)
   callIt <- as.integer(sub(".*iteration ", "", calls))
   lastCall <- if (length(callIt)) max(callIt) else NA_integer_

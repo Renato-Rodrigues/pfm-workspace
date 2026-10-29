@@ -6,7 +6,9 @@
 a <- commandArgs(trailingOnly = TRUE); g <- a[1]; res <- if (length(a) >= 2) a[2] else "H12"
 ex <- new.env(); sys.source("analysis/coupled/extractCoupledResults.R", envir = ex); bin <- ex$gdxdumpBin()
 dir <- file.path("output/remind-runs", g, res)
-pick <- function(pat) { d <- list.files(dir, pattern = pat); if (length(d) != 1) stop(res, ": expected one run for ", pat, ", found ", length(d)); file.path(dir, d) }
+# matched on the run key (analysis/coupled/_runKey.R), so v8's titles (-PFM-noPolitics-holdBudget) are found too
+pick <- function(pat) { d <- list.files(dir); d <- d[grepl(pat, pfmRunKey(d))]
+  if (length(d) != 1) stop(res, ": expected one run for ", pat, ", found ", length(d)); file.path(dir, d) }
 gate <- pick(paste0("-PFMgate-", g, "_")); ref <- pick("-PFMgateRef_")
 rd <- function(run, s) { d <- ex$readSymbol(file.path(run, "fulldata.gdx"), s, bin); names(d)[1:2] <- c("year", "region")
   data.frame(year = as.integer(d$year), region = d$region, v = as.numeric(d[[ncol(d)]])) }

@@ -15,6 +15,7 @@ args <- commandArgs(trailingOnly = TRUE)
 group <- if (length(args) >= 1) args[1] else "v5"
 gdxDir <- if (length(args) >= 2) args[2] else "output/remind-runs/v5"
 
+source("analysis/coupled/_runKey.R")   # titles from v8 on -> the internal run key (pfmRunKey)
 dirs <- unlist(lapply(file.path(gdxDir, c("EU21", "H12")), list.dirs, recursive = FALSE, full.names = TRUE))
 dirs <- dirs[file.exists(file.path(dirs, "log.txt"))]
 rows <- lapply(dirs, function(d) {
@@ -29,7 +30,7 @@ rows <- lapply(dirs, function(d) {
     mod <- sub("^(\\.\\./)+", "", trimws(mod))
   }
   data.frame(resolution = basename(dirname(d)), run = basename(d),
-             scenario = sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d)), commit = hash,
+             scenario = pfmRunKey(sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d))), commit = hash,
              modified = paste(sort(unique(mod)), collapse = ";"), stringsAsFactors = FALSE)
 })
 p <- do.call(rbind, rows)

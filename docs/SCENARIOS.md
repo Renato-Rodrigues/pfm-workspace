@@ -200,11 +200,26 @@ re-run, the newest run is admitted and the older one is flagged `superseded`.
 
 ### 2.6 Run names and the labels the documents use
 
-Run titles, start tags and config switches keep their original names: they are identifiers that the
+Up to `v7`, run titles, start tags and config switches keep their original names: they are identifiers that the
 cluster, the artifacts and the extraction scripts key on. The letters in them are the old closure labels
 (B = hold the price, C = hold the budget). Documents, figures and the methodology use the labels below;
 a title is quoted in code font when it is needed. The old labels are listed in
 `../_archive/_wip/LABELS-2026-10-12.md`.
+
+**From `v8` on, the titles carry the labels** (`scenario-matrix-v8.yml`). The analysis scripts translate each title to
+the internal key of the left column in one place, `analysis/coupled/_runKey.R`, so every script reads every group.
+The artifacts keep the run's own title in `title` and the key in `scenario`.
+
+| `v8` title part | internal key (the table below) |
+|---|---|
+| `-PFM-noPolitics-holdBudget` / `-PFM-noPolitics-holdPrice` | `-PFMgate` / `-PFMgateBfix` |
+| `-PFM-holdPrice` / `-PFM-holdBudget` | `-PFMlevelBfix` / `-PFMlevelC` |
+| `-theta325`, `-theta675` | `Th325`, `Th675` |
+| `-constantLimit`, `-growingLimit` | `-Ehold`, `-backslide` |
+| `-erosion2`, `-erosion2p7`, `-erosion5`, `-erosionHistorical` | `-kappa02`, `-kappa`, `-kappa05`, `-kappaHist` |
+| `-commonStrength`, `-gapFirst`, `-rentsWorldPrice` | `-common`, `-gapfirst`, `-rentsWorld` |
+| `-institutionsHeld`, `-institutionsAndrijevic`, `-institutionsStoryline` | `-held`, `-gcA`, `-story` |
+| `-shrinkingFuture2030` … `-shrinkingFuture2070` | `-seq2030` … `-seq2070` |
 
 | in the run title | label | what it sets |
 |---|---|---|

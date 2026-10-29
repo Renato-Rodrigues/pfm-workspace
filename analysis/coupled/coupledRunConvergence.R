@@ -46,6 +46,7 @@ series <- function(gdx, s) { d <- sym(gdx, s); if (is.null(d)) return(numeric(0)
   setNames(as.numeric(d[[ncol(d)]]), as.character(d[[1]])) }
 relRange <- function(v) if (length(v) < 2 || !all(is.finite(v))) NA_real_ else (max(v) - min(v)) / mean(abs(v))
 
+source("analysis/coupled/_runKey.R")   # titles from v8 on -> the internal run key (pfmRunKey)
 dirs <- unlist(lapply(file.path(gdxDir, c("EU21", "H12")), list.dirs, recursive = FALSE, full.names = TRUE))
 dirs <- dirs[grepl(pat, basename(dirs)) & file.exists(file.path(dirs, "fulldata.gdx"))]
 
@@ -78,7 +79,7 @@ for (d in dirs) {
 
   rows[[length(rows) + 1]] <- data.frame(
     resolution = basename(dirname(d)), dir = basename(d),
-    scenario = sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d)),
+    scenario = pfmRunKey(sub("_\\d{4}-\\d{2}-\\d{2}_.*$", "", basename(d))),
     state = state, crashed = crashed, lastIteration = last, iterationCap = scalar(g, "cm_iteration_max"),
     boundRebuild = scalar(g, "cm_pfmBoundRebuild"), pfmConverged = scalar(g, "pm_pfmConverged"),
     surplusEarlyMax = max(r[yr <= EARLY]), surplusEarlyOver = sum(r[yr <= EARLY] > 1),
