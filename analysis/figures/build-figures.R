@@ -319,6 +319,9 @@ if (!"--guide" %in% args) {
     }
   }
 
+  # ── net effects of the interacted terms (analysis/checks/netEffects.R) — for a group with net-effects.rds
+  if (pfmArtifactExists(GROUP, "net-effects.rds") && run("net-effects")) { message("[net-effects]"); build("net-effects") }
+
   # ── coupled (0005 Phase 5 / 6) — for a group from v6 on that has coupled runs: they read its
   # coupling artifacts and the previous version's beside them (v5 for v6, v6 for v7; pfmPrevGroup).
   # Rails: theta and kappa are declared; the v5 -> v6 drop is mostly lambda's removal; hold the

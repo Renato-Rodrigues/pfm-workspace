@@ -422,7 +422,8 @@ output dates against artifact dates rather than trusting a clean run (`TODO.md` 
 | Fig 1b | observed vs fitted frontier, 2022 | `frontier.rds` | `frontier-fit` — re-render |
 | Fig 1c | efficiency-ratio distribution, by provenance | `frontier.rds`, donor bands | `efficiency-distribution` — re-render |
 | Fig 2a | term contributions β×SD(x) | `frontier.rds` (+ `inference.rds` for significance) | `frontier-coefficients` — re-render; mark significance from the mean regression |
-| Fig 2b | marginal effect of fossil interests across GovEff | `frontier.rds` (`$vcov`, `$support`) | `marginal-effect-incumbency` — re-render; must name which of the two fossil terms |
+| Fig 2b | net effect of each term at the countries' own values, 2023 / 2050 / 2100 — **side by side with Fig 2a** (2026-10-29) | `net-effects.rds` (`analysis/checks/netEffects.R`) | `net-effects` — built on `v7` and `v8`; same term order as 2a; read the institutions jointly |
+| SI | marginal effect of fossil interests across GovEff | `frontier.rds` (`$vcov`, `$support`) | `marginal-effect-incumbency` — one conditional slice; proposed to move to the SI behind 2b; must name which of the two fossil terms |
 | Fig 2c | selection-bootstrap frequencies | `selection-bootstrap.rds` | `selection-stability` — re-render |
 | Fig 3a | anchor vs bound vs gap, 2025–2100 | `coupling/coupling-summary.rds` | `anchor-bound-gap` — re-render |
 | Fig 3b | 2050 regional shortfall distribution | `coupling/coupling-summary.rds` | `shortfall-regions` — re-render |

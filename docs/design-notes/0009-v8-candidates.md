@@ -653,6 +653,48 @@ reproduces the package's anchor exactly.
 - **Records:** `records/v8` committed from the workstation (e91e030); the cluster's own commit dropped with
   `git reset --keep origin/main`.
 
+## 19. Main effects and interactions of opposite sign: the net effects (2026-10-29)
+
+`analysis/checks/netEffects.R v8|v7` → `output/pfm/<group>/net-effects.rds`; figure `net-effects`. A term's net effect at a
+country is its coefficient plus each interaction times the partner term (weighted by freedom of expression), evaluated
+on the 2023 estimation rows and on the v8 preview panel (gap-closure institutions, SSP2) in 2050 and 2100, with a
+delta-method standard error from the frontier's vcov. Every term on v8, as on v7, has at least one interaction of the
+opposite sign. With centred terms, a coefficient is the effect at average values, so opposite signs are not a defect in
+themselves. What matters is whether the net effect changes sign, and where.
+
+Shares of countries whose net effect keeps the coefficient's sign, v8 (2023 sample / 2050 / 2100):
+
+| term | P&I | B&T |
+|---|---|---|
+| fossil dependence | 100% / 100% / 100% | 100% / 97% / 98% |
+| fossil interests per person | 88% / 66% / 70% | 100% / 98% / 99% |
+| clean-energy build-out | 65% / 79% / 88% (coefficient ≈ 0) | 92% / 88% / 98% |
+| government effectiveness | 83% / 75% / 85% | 98% / 85% / 85% |
+| rule of law | 81% / 40% / 33% | 75% / 46% / 47% (coefficient ≈ 0) |
+| vertical accountability | 100% / 100% / 100% | 48% / 73% / 96% (coefficient ≈ 0) |
+| the three institutions together | 83% / 98% / 99% (negative) | 100% / 100% / 100% (positive) |
+
+- **The theory term holds everywhere.** Fossil dependence lowers the ceiling for every country, in the data and in the
+  projection (H3's coherence). Its interactions change its size, not its direction.
+- **Fossil interests per person (P&I)** turn negative where government effectiveness is high relative to rule of law. This
+  covers 12% of the 2023 sample (6% significantly) and 30% of countries by 2100 (16% significantly). On v7 it was 49–60%,
+  so v8 is better here.
+- **Rule of law (P&I) flips in the projection** because of its interaction with fossil interests per person (+1.18): as
+  those fall, the term's net effect goes negative. Government effectiveness and rule of law are collinear (r 0.76), and the
+  two interactions with fossil interests per person (−0.81, +1.18) largely offset each other. The separate net effects are
+  therefore not informative. **The joint effect is the stable quantity:** negative in P&I for 98–99% of countries in the
+  projection, positive in B&T for all. On v7 the B&T joint effect was positive for only 33–37% in the projection, so v8
+  improves it.
+- **The P&I joint institution effect is negative** (raising every institution by one SD lowers the ceiling; median −0.31 in
+  2023, −0.98 in 2100). This is the mechanism behind MODEL.md §5.2's "projected institutions tighten the P&I constraint",
+  through terms that are not identified (§2.5). It grows in the projection because fossil interests per person fall.
+- **No compensation adopted.** Sign constraints or caps on the net effects would be a specification search on the
+  coefficients. Instead:
+  - report the net effects (figure `net-effects`) beside the coefficient figure;
+  - keep "institutions held" as the sensitivity that bounds the P&I institution channel.
+- **A v9 candidate:** one state-capacity index in place of separate GE and rule of law, or no interactions between
+  institutions and fossil interests per person. This would remove the offsetting pair at its source.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
