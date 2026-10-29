@@ -20,7 +20,40 @@
    every interest × institution term weighted by freedom of expression.
 3. **The only change of form: every actor-power term saturates (`satAP`), where v7 saturated clean energy only (`satInn`).**
    It follows from the γ gate, not from a preference (below).
-4. **The coupling:** regional strength central, gap-closure institutions (`analysis/run-groups/scenario-matrix-v8.yml`).
+4. **Countries without policy data take the covered countries' median share of their ceiling** (config.yml
+   `coverage: v8: median`), in place of v7's donor and band rule. Each keeps its own ceiling; only the share it uses is
+   assigned. The United States, outside the CAPMF panel, is at the median as before.
+5. **The regional strength is the central coupling form** (`pfmPhiStrength = regional` on every v8 row,
+   `analysis/run-groups/scenario-matrix-v8.yml`): each region's constraint fades with its own gap, $k_r(t) = g_r(t)/g_r(2025)$.
+   The common strength (v7's form) is the v8 sensitivity pair.
+6. **The institutions follow the gap-closure rule** (ADR 0063), central since design note 0008.
+
+## Why the covered median (decision 4)
+
+Countries without policy data cannot have a measured share of their ceiling, so one is assigned. Up to v7, a country
+borrowed the share of its three most similar observed countries (similar in the model's own weighted drivers), or took a
+low band below the observed range, or the median. Tested out of sample on v7, by treating each observed country in turn as
+unobserved (design note 0009 §6.3; `analysis/v8/uncoveredRule.R`):
+
+| predicting an observed country's share used, 2023 | mean absolute error, P&I | B&T |
+|---|---:|---:|
+| the donor and band rule | 0.151 | 0.087 |
+| the covered median | **0.119** | **0.080** |
+| a regression on the drivers | 0.126 | 0.082 |
+
+Similar drivers do not predict a similar share used: the ceiling has already absorbed what the drivers say. The simpler
+rule is also the better one, and it changes the ranking little (rank correlation 1.00 / 0.98 on v7). On v8 it is the main
+reason the regions compress and less effort is held back than in v7 (below): regions dominated by uncovered countries (OAS,
+MEA, LAM, SSA) no longer carry low-band countries. The tested alternative goes to the Supplementary Information (Note S-cov).
+
+## Why the regional strength (decision 5)
+
+With the rents slack (ADR 0061), an exporter's distance below its ceiling shrinks as its fossil income falls. Under the
+common strength that shrinking lowers the world's average gap, which loosens every region's constraint, those without
+fossil income included. That is not what the mechanism says. Under the regional strength the loosening stays with the region
+whose rents fall. On the preview (below) the world total is nearly unchanged (B&T share held back 2100: 0.105 regional,
+0.107 common), but the regions move. MEA's B&T share in 2100 is 0.92 against 0.86, while ECE, Japan and the EU's south and
+west are held back more. The cost is that each region's path now rests on its own, noisier, gap rather than the world's.
 
 ## Why `satAP` and not v7's `satInn`
 
@@ -110,3 +143,7 @@ ADR 0061 rejected institutions in the slack on v7's evidence. Recorded for v9 (d
 - **Relaxing the γ gate:** see above.
 - **v8 without the fossil bound:** the bound improves the fit in both sectors and removes part of the Iceland artefact (design
   note 0009 §7.1). Without it, v7's specification is re-selected and none of v8's fixes at the low edge apply.
+- **The donor and band rule for countries without data:** worse out of sample than the median (decision 4). A regression of
+  the share used on the drivers was no better and moved Sub-Saharan Africa from 0.48 to 0.98 in the ranking.
+- **The common strength as central:** it spreads an exporter's fading constraint to every region (decision 5). It is kept
+  as the sensitivity pair.

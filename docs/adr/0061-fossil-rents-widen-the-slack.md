@@ -1,7 +1,8 @@
 # ADR 0061 — Fossil rents set the size of the slack in buildings & transport, not the ceiling
 
-- **Status:** **Proposed 2026-10-28.** For acceptance before the `v8` sweep. It extends ADR 0056's reading; it changes
-  neither ADR 0056 nor the ceiling of ADR 0060.
+- **Status:** **Proposed 2026-10-28.** For acceptance with ADR 0062. Both of its own conditions hold on the selected v8
+  specification (2026-10-29): rents slack z 12.1, and better out of sample in 38 of 48 countries (design note 0009 §§17–18).
+  It extends ADR 0056's reading; it changes neither ADR 0056 nor the ceiling.
 - **Run-Groups:** `v8` (config.yml: panel key `fossilRents`, sweep `slackDrivers: {Diffuse: [Fossil Rents]}`). Every
   group up to `v7` is unchanged; their frontiers have no slack terms, and the coupling reads them as before.
 - **Evidence:** design note 0009 §§3, 6.1, 8, 9, 10; `output/pfm/v7/` (`v8-rents-test.rds`, `v8-rents-gates.rds`,
@@ -95,6 +96,41 @@ REMIND's *path*, not its level.
   regional price and 0.23 at the world price (coupled run); REF at 0.33 and 0.30; SSA at 0.11 and 0.12.
 
 **Hence:** the regional price, which behaves for every region, with the world price as a sensitivity.
+
+## How the rents combine with the other movements of the constraint
+
+The coupling builds each region's share in five steps; the rents enter at one of them.
+
+1. **The ceiling moves** with the drivers along the scenario, as in every group since v6:
+   - REMIND's energy system (the fossil and clean-energy shares), recomputed at every coupling call (endogenous);
+   - SSP2 income and population, and the institutions under their rule (exogenous; gap closure in v8, ADR 0063).
+2. **The distance below the ceiling** is each country's 2023 distance (logit scale).
+   - **Up to v7, and in power & industry in v8, it is kept constant.**
+   - **New in v8, in buildings & transport, it scales with fossil rents:** $q_c(t) = q_c\,e^{w(z_c(t) - z_{c,2023})}$. Here
+     $z_c(t)$ is the country's 2023 World Bank rents moved by its REMIND region's rents relative to 2025. Those rents are
+     recomputed from the current REMIND solution at every coupling call, so this step is also endogenous.
+3. **Country, region, strength.** The country's index is the ceiling minus the distance. The regional gap is final-energy
+   weighted. The strength k is the gap relative to 2025, common to the world or per region (regional central in v8).
+4. **The declared erosion** κ multiplies the strength, $k(t)(1-\kappa)^{t-2025}$, unchanged.
+5. **The share:** $\varphi = 1 - \theta\,k\,u$, with θ declared and u fixed in 2023.
+
+What follows from this:
+
+- **The rents add to what was there; they replace nothing.** The ceiling's movement and κ act as before. In buildings &
+  transport the exporters' constraint now also fades as their fossil income falls. Under erosion (κ > 0) the two compound.
+  κ keeps its meaning (the unmeasured channels); the rents are a measured one, so this is not double counting.
+- **The persistence bounds are unchanged by design.** The constant limit and the growing limit hold today's *share* of the
+  ceiling (`pfmPhiHold = ratio`), not the logit distance, so the rents multiplier does not act in them. They stay the bounds
+  they were.
+- **A new feedback.** A higher carbon price lowers fossil extraction and prices, so rents fall, exporters' slack shrinks,
+  their share rises, and the price moves closer to the cost-optimal path. This reinforces itself, but it is bounded: the
+  distance can shrink at most to the multiplier the rents allow (Saudi Arabia 0.45 by 2100), and the regional ratio is
+  capped at 3. The v8 batch's convergence (`cm_pfmConvTol`) is where it would show.
+- **Part of the fading is not climate policy.** Rents also fall in the current-policy world (MEA at 0.50 of 2025 by 2050).
+- **Nothing earlier changes.** Every group up to v7 has no slack terms: their anchors, coupled runs and results are
+  unchanged. The no-politics references (θ = 0) are unaffected in every group.
+- **New exogenous assumptions:** the World Bank history (held after 2021); each country follows its region's REMIND path
+  relative to 2025; REMIND's rents are valued at the regional price (the world price is the sensitivity).
 
 ## Consequences
 
