@@ -638,6 +638,21 @@ reproduces the package's anchor exactly.
     panel `panel_c741a229b049c768.rds` locally);
   - the coupled batch (`scenario-matrix-v8.yml`).
 
+## 18. v8 checks after the sweep (2026-10-29)
+
+- **ADR 0061, second condition, on v8's own specification** (`analysis/v8/hetSlackCV.R v8` → `output/pfm/v8/v8-het-slack-cv.rds`):
+  - **The rents slack in B&T predicts better out of sample** in 38 of 48 countries (*p* 0.0001); in P&I it does not (27 of 48).
+  - **New:** the three institutions in the **P&I** slack now predict better too (35 of 48, *p* 0.002; on v7's specification 29
+    of 48). Not adopted (ADR 0062); a v9 candidate.
+- **The coupling preview** (`analysis/v8/v8CouplingPreview.R` → `output/pfm/v8/v8-coupling-preview.rds`; v7's coupled
+  hold-the-price energy system, EU21, θ 0.50, gap-closure institutions):
+  - **The share of the extra effort held back is smaller than in v7.** P&I 0.121 / 0.138 and B&T 0.135 / 0.105 (2050 / 2100,
+    regional strength), against 0.177 / 0.167 and 0.152 / 0.125 for v7 as published.
+  - **The regional strength redistributes the constraint** between regions without changing the world total.
+  - **Why it is smaller:** mostly the coverage rule (no uncovered countries in the low band) and the saturating fossil terms.
+- **Records:** `records/v8` committed from the workstation (e91e030); the cluster's own commit dropped with
+  `git reset --keep origin/main`.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
