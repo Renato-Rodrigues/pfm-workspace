@@ -1,21 +1,42 @@
-# The v8 coupled batch, first wave (ADR 0055 format; design note 0009; ADR 0061, proposed). Not built for submission until the
-# v8 sweep, downstream steps and REMIND export exist (output/remind-inputs/v8).
+# The v8 coupled batch: every row in one start tag per resolution, so a single standby submission per resolution queues
+# the whole batch (ADR 0055 format; design note 0009; ADRs 0061, 0062, 0063).
 # v8 = v7's ceiling search with the fossil terms bounded below (fossilFloors 0.05), the World Bank fossil rents setting the
 # size of the buildings & transport slack (slackDrivers), the uncovered countries at the covered median E (coverage: median).
 # Central coupling settings, on every coupled row (the `coupled:` block):
-#   pfmPhiStrength: regional   each region's constraint fades with its own gap, so an exporter's fading distance (its
-#                              rents falling) stays with it instead of loosening every region (author, 2026-10-28)
-#   pfmInstitutions: gapclosure the SSP2 institution rule of design note 0008 (central since 2026-10-27)
-# Sensitivities in this wave, at theta 0.50, both closures: the common strength (v7's form), and REMIND's rents valued at
-# the world price (pfmRentsPrice: world; ADR 0061). Labels as in docs/SCENARIOS.md 2.6. Keys, stems, `rule:` and `wave:`
-# are identifiers: Bfix = hold the price, C = hold the budget.
+#   pfmPhiStrength: regional   each region's constraint fades with its own gap (ADR 0062 decision 5)
+#   pfmInstitutions: gapclosure the SSP2 institution rule (ADR 0063)
+# Labels as in docs/SCENARIOS.md 2.6. Keys, stems, `rule:` and `wave:` are identifiers: Bfix = hold the price, C = hold
+# the budget.
+#
+# What runs, and why (the v7 batches and the ADRs):
+#   nulls          the no-politics references: the comparator of every row and the anchor of hold the price
+#   theta          the declared severities 0.325 / 0.50 / 0.675, both closures, both resolutions
+#   strength       the common strength (v7's form, ADR 0062) and the gap-first form (the order of the steps of the meeting
+#                  of 2026-10-09: gap, then normalisation with the 2023 range held, then theta)
+#   rents          REMIND's rents at the world price (ADR 0061)
+#   persistence    the ladder the spine rests on (design note 0006): constant limit, erosion 2.7% (both resolutions), 2%
+#                  and 5%, the growing limit (ADR 0057), and the historical per-sector rates (Supplementary Note S-kappa)
+#   institutions   held at 2023 (every batch), Andrijevic's government effectiveness (ADR 0063), the previous storyline
+#                  rule ("quick convergence")
+#   sequential     the shrinking future (Elmar, 2026-10-09; version B of the email of 2026-10-29): a chain of runs, each
+#                  fixing the past to the previous step (cm_startyear, path_gdx_ref) and capping the price only in its own
+#                  10-year window (pfmPhiWindowEnd), the rest of the future planned unconstrained; the last step's window
+#                  stays open. The reference price comes from the current-policy run (pfmRefPrice = refpolicycost), because
+#                  path_gdx_ref is the previous step. The chain stops at 2070, before the 1000 Gt pathway's peak-budget
+#                  year (2080): a hold-the-budget step that starts after it has no budget left to adjust. The result of
+#                  the chain is its last step (-seq2070). EU21, theta 0.50, both closures.
+#
+# Start points (what v7 taught): every row starts from the no-politics reference (@gate), not from another politics row.
+# In v7 five hold-the-budget rows did not peak from a cold start and two more from a politics start (PITFALLS 26,
+# SCENARIOS.md 3.4); starting all from @gate also leaves one dependency only, so the whole batch runs side by side once
+# -PFMgate finishes. The sequential steps start from the step before them (they must: it is their past).
 #
 # Build:  Rscript analysis/run-groups/buildPFMScenarioConfig.R analysis/run-groups/scenario-matrix-v8.yml
 # It writes models/remind_pfm/config/scenario_config_PFM_v8.csv (a build artifact: edit this file, rebuild, commit both).
-# The parents are the REMIND 3.7.1 bases already run (EU21BASE, H12BASE); the wave's tags never start them.
-# Hold-the-budget rows start from the no-politics reference: in v7 several did not peak from a cold start (PITFALLS 26).
+# The parents are the REMIND 3.7.1 bases already run (EU21BASE, H12BASE); the tags never start them.
 #
-# Start tags: V8W1EU21, V8W1H12. Every coupled row carries pfmGroup v8 and needs output/remind-inputs/v8.
+# Start tags: V8W1EU21 (42 rows), V8W1H12 (18 rows). Every coupled row carries pfmGroup v8 and needs
+# output/remind-inputs/v8. Re-runs get their own tag (V8RERUN<res>), so a re-submission never re-runs the batch.
 
 format: pfm-scenario-matrix/1
 output: config/scenario_config_PFM_v8.csv
@@ -55,8 +76,8 @@ coupled:                              # on every coupled row
   cm_pfmGapClosure: "0"               # lambda is out of the coupling (ADR 0050)
   cm_pfmPhiPath: "1"                  # the share path (ADR 0054)
   pfmGroup: v8
-  pfmPhiStrength: regional            # central for v8 (author, 2026-10-28)
-  pfmInstitutions: gapclosure         # central since design note 0008 (2026-10-27)
+  pfmPhiStrength: regional            # central for v8 (ADR 0062)
+  pfmInstitutions: gapclosure         # central (ADR 0063)
 
 rules:
   gate:                               # no-politics reference (theta = 0), budget held, proportional mode
@@ -75,55 +96,136 @@ rules:
     set: {cm_pfmBindMode: "2", cm_pfmBoundRebuild: "1"}
 
 runs:
-  - key: gate
-    wave: 1
-    section: v8_wave1_nulls
-    parent: PkBudg1000
-    rule: gate
-    warm: null
-    description: >-
-      No-politics reference (theta = 0) with v8's anchor, budget held: must reproduce -PFMgateRef within
-      SCENARIOS.md 3.1. Anchor and price donor of every hold-the-price row.
-  - key: gateBfix
-    wave: 1
-    section: v8_wave1_nulls
-    parent: PkBudg1000
-    rule: gateBfix
-    warm: "@gate"
-    description: "No-politics reference (theta = 0), price held: the comparator of every hold-the-price row."
-  - key: Bfix
-    wave: 1
-    section: v8_wave1_ruleB
-    parent: PkBudg1000
-    rule: Bfix
-    theta: "0.50"
-    warm: "@gateBfix"
-    description: "Hold the price, fading limit, regional strength, theta 0.50: the v8 headline (extra CO2 against -PFMgateBfix)."
-  - key: Bfix
-    wave: 1
-    section: v8_wave1_ruleB
-    parent: PkBudg1000
-    rule: Bfix
-    theta: ["0.325", "0.675"]
-    warm: "@Bfix"
-    description: "Hold the price, fading limit, regional strength, at the other two declared severities."
-  - key: C
-    wave: 1
-    section: v8_wave1_ruleC
-    parent: PkBudg1000
-    rule: C
-    theta: ["0.50", "0.325", "0.675"]
-    warm: "@gate"
-    description: "Hold the budget, fading limit, regional strength, started from the no-politics reference."
-  - {key: Bcommon, wave: 1, section: v8_wave1_strength, parent: PkBudg1000, rule: Bfix, theta: "0.50",
-     variant: common, options: {pfmPhiStrength: common}, warm: "@Bfix",
-     description: "Hold the price, common strength (v7's form): what the regional strength changes."}
-  - {key: Ccommon, wave: 1, section: v8_wave1_strength, parent: PkBudg1000, rule: C, theta: "0.50",
-     variant: common, options: {pfmPhiStrength: common}, warm: "@C",
+  # ---------------------------------------------------------------- the no-politics references
+  - {key: gate, wave: 1, section: v8_nulls, parent: PkBudg1000, rule: gate, warm: null,
+     description: "No-politics reference (theta = 0) with v8's anchor, budget held: must reproduce -PFMgateRef within SCENARIOS.md 3.1. Anchor, price donor and start point of every row."}
+  - {key: gateBfix, wave: 1, section: v8_nulls, parent: PkBudg1000, rule: gateBfix, warm: "@gate",
+     description: "No-politics reference (theta = 0), price held: the comparator of every hold-the-price row."}
+
+  # ---------------------------------------------------------------- the headline and the theta sweep
+  - {key: Bfix, wave: 1, section: v8_theta, parent: PkBudg1000, rule: Bfix, theta: ["0.50", "0.325", "0.675"], warm: "@gate",
+     description: "Hold the price, fading limit, regional strength, gap-closure institutions (theta 0.50 is the v8 headline, extra CO2 against -PFMgateBfix)."}
+  - {key: C, wave: 1, section: v8_theta, parent: PkBudg1000, rule: C, theta: ["0.50", "0.325", "0.675"], warm: "@gate",
+     description: "Hold the budget, fading limit, regional strength, gap-closure institutions."}
+
+  # ---------------------------------------------------------------- the form of the strength
+  - {key: Bcommon, wave: 1, section: v8_strength, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: common, options: {pfmPhiStrength: common}, warm: "@gate",
+     description: "Hold the price, common strength (v7's form): what the regional strength changes (ADR 0062)."}
+  - {key: Ccommon, wave: 1, section: v8_strength, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: common, options: {pfmPhiStrength: common}, warm: "@gate",
      description: "Hold the budget, common strength (v7's form)."}
-  - {key: BrentsWorld, wave: 1, section: v8_wave1_rents, parent: PkBudg1000, rule: Bfix, theta: "0.50",
-     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@Bfix",
+  - {key: Bgapfirst, wave: 1, section: v8_strength, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: gapfirst, options: {pfmPhiStrength: gapfirst}, warm: "@gate",
+     description: "Hold the price, gap first: the projected gap normalised with the 2023 range held, then theta (meeting of 2026-10-09)."}
+  - {key: Cgapfirst, wave: 1, section: v8_strength, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: gapfirst, options: {pfmPhiStrength: gapfirst}, warm: "@gate",
+     description: "Hold the budget, gap first (meeting of 2026-10-09)."}
+
+  # ---------------------------------------------------------------- the rents
+  - {key: BrentsWorld, wave: 1, section: v8_rents, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@gate",
      description: "Hold the price, REMIND's rents valued at the world price (ADR 0061 sensitivity)."}
-  - {key: CrentsWorld, wave: 1, section: v8_wave1_rents, parent: PkBudg1000, rule: C, theta: "0.50",
-     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@C",
+  - {key: CrentsWorld, wave: 1, section: v8_rents, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: rentsWorld, options: {pfmRentsPrice: world}, warm: "@gate",
      description: "Hold the budget, REMIND's rents valued at the world price (ADR 0061 sensitivity)."}
+
+  # ---------------------------------------------------------------- the persistence ladder (design note 0006)
+  - {key: BEhold, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@gate",
+     description: "Hold the price, constant limit: today's limit kept."}
+  - {key: CEhold, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: Ehold, options: {pfmPhiHold: ratio}, warm: "@gate",
+     description: "Hold the budget, constant limit: today's limit kept."}
+  - {key: Bkappa, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@gate",
+     description: "Hold the price, fading + erosion 2.7% a year (the central erosion rate, ADR 0050)."}
+  - {key: Ckappa, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: kappa, options: {pfmPhiKappa: "0.027"}, warm: "@gate",
+     description: "Hold the budget, fading + erosion 2.7% a year."}
+  - {key: Bkappa02, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@gate",
+     description: "Hold the price, fading + erosion 2% a year."}
+  - {key: Ckappa02, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa02, options: {pfmPhiKappa: "0.02"}, warm: "@gate",
+     description: "Hold the budget, fading + erosion 2% a year."}
+  - {key: Bkappa05, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@gate",
+     description: "Hold the price, fading + erosion 5% a year."}
+  - {key: Ckappa05, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappa05, options: {pfmPhiKappa: "0.05"}, warm: "@gate",
+     description: "Hold the budget, fading + erosion 5% a year."}
+  - {key: BkappaHist, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: kappaHist, options: {pfmPhiKappa: "Bulk=0.011,Diffuse=0.046"}, warm: "@gate",
+     description: "Hold the price, fading + the historical narrowing of the gap spread, 1.1% (P&I) and 4.6% (B&T) a year (Supplementary Note S-kappa)."}
+  - {key: CkappaHist, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: kappaHist, options: {pfmPhiKappa: "Bulk=0.011,Diffuse=0.046"}, warm: "@gate",
+     description: "Hold the budget, fading + the historical per-sector rates (Supplementary Note S-kappa)."}
+  - {key: Bbackslide, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@gate",
+     description: "Hold the price, growing limit: today's limit tightening 0.5% a year (a declared bound, ADR 0057)."}
+  - {key: Cbackslide, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: backslide, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@gate",
+     description: "Hold the budget, growing limit (ADR 0057). In v7 it met the budget at 2100 but did not peak: disclosed."}
+
+  # ---------------------------------------------------------------- the institutions (ADR 0063)
+  - {key: Bheld, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: held, institutions: hold, warm: "@gate",
+     description: "Hold the price, institutions held at their 2023 values: bounds the P&I institution channel (design note 0009 section 19)."}
+  - {key: Cheld, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: held, institutions: hold, warm: "@gate",
+     description: "Hold the budget, institutions held at their 2023 values."}
+  - {key: BgcA, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: Bfix, theta: "0.50",
+     variant: gcA, institutions: gapclosureAndrijevic, warm: "@gate",
+     description: "Hold the price, gap closure with government effectiveness from Andrijevic et al. 2020 SSP2 (ADR 0063 sensitivity)."}
+  - {key: CgcA, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: C, theta: "0.50",
+     variant: gcA, institutions: gapclosureAndrijevic, warm: "@gate",
+     description: "Hold the budget, gap closure with Andrijevic's government effectiveness (ADR 0063 sensitivity)."}
+  - {key: Bstory, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: story, institutions: storyline, warm: "@gate",
+     description: "Hold the price, the previous storyline-convergence rule ('quick convergence', ADR 0063 alternative)."}
+  - {key: Cstory, wave: 1, section: v8_institutions, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: story, institutions: storyline, warm: "@gate",
+     description: "Hold the budget, the previous storyline-convergence rule ('quick convergence')."}
+
+  # ---------------------------------------------------------------- the shrinking future: hold the price, a chain of five
+  - {key: Bseq2030, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: seq2030, options: {pfmPhiWindowEnd: "2040"}, warm: "@gate",
+     description: "Shrinking future, hold the price, step 1: the past fixed to current policies (2025), the cap only in 2030-2035, the future after it planned unconstrained."}
+  - {key: Bseq2040, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: seq2040, options: {pfmPhiWindowEnd: "2050", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2040", path_gdx_ref: "@Bseq2030"}, warm: "@Bseq2030",
+     description: "Shrinking future, hold the price, step 2: the past to 2035 fixed to step 1, the cap only in 2040-2045."}
+  - {key: Bseq2050, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: seq2050, options: {pfmPhiWindowEnd: "2060", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2050", path_gdx_ref: "@Bseq2040"}, warm: "@Bseq2040",
+     description: "Shrinking future, hold the price, step 3: the past to 2045 fixed to step 2, the cap only in 2050-2055."}
+  - {key: Bseq2060, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: seq2060, options: {pfmPhiWindowEnd: "2070", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2060", path_gdx_ref: "@Bseq2050"}, warm: "@Bseq2050",
+     description: "Shrinking future, hold the price, step 4: the past to 2055 fixed to step 3, the cap only in 2060."}
+  - {key: Bseq2070, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: Bfix, theta: "0.50", res: [EU21],
+     variant: seq2070, options: {pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2070", path_gdx_ref: "@Bseq2060"}, warm: "@Bseq2060",
+     description: "Shrinking future, hold the price, last step: the past to 2060 fixed to step 4, the cap from 2070 on. The chain's result."}
+
+  # ---------------------------------------------------------------- the shrinking future: hold the budget, a chain of five
+  - {key: Cseq2030, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: seq2030, options: {pfmPhiWindowEnd: "2040"}, warm: "@gate",
+     description: "Shrinking future, hold the budget, step 1: the cap only in 2030-2035, the rest of the budget planned unconstrained."}
+  - {key: Cseq2040, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: seq2040, options: {pfmPhiWindowEnd: "2050", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2040", path_gdx_ref: "@Cseq2030"}, warm: "@Cseq2030",
+     description: "Shrinking future, hold the budget, step 2: the past to 2035 fixed to step 1, the cap only in 2040-2045."}
+  - {key: Cseq2050, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: seq2050, options: {pfmPhiWindowEnd: "2060", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2050", path_gdx_ref: "@Cseq2040"}, warm: "@Cseq2040",
+     description: "Shrinking future, hold the budget, step 3: the past to 2045 fixed to step 2, the cap only in 2050-2055."}
+  - {key: Cseq2060, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: seq2060, options: {pfmPhiWindowEnd: "2070", pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2060", path_gdx_ref: "@Cseq2050"}, warm: "@Cseq2050",
+     description: "Shrinking future, hold the budget, step 4: the past to 2055 fixed to step 3, the cap only in 2060."}
+  - {key: Cseq2070, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: C, theta: "0.50", res: [EU21],
+     variant: seq2070, options: {pfmRefPrice: refpolicycost},
+     set: {cm_startyear: "2070", path_gdx_ref: "@Cseq2060"}, warm: "@Cseq2060",
+     description: "Shrinking future, hold the budget, last step: the past to 2060 fixed to step 4, the cap from 2070 on, the budget met in what is left. The chain's result."}

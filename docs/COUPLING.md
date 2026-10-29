@@ -1000,8 +1000,35 @@ carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v
 `preparePFM.R` only when set): `pfmFormulation`, `pfmPhiHoldYear` (2100 | 2060), `pfmPhiHold`
 (logit | ratio = constant limit), `pfmPhiSpread` (k | model), `pfmPhiOrdering` (model | uniform | reversed |
 permuted), `pfmPhiOrderingSeed`, `pfmPhiKappa` (closure on the strength), `pfmPhiStrength`
-(common | regional). Each is echoed in the log. `phi-override.yml` is refused for v6 groups: the
-ordering tests are the `pfmPhiOrdering` option, which keeps $k(t)$.
+(common | regional | gapfirst), `pfmPhiWindowEnd` (a year: the share applies only before it). Each is echoed in the
+log. `phi-override.yml` is refused for v6 groups: the ordering tests are the `pfmPhiOrdering` option, which keeps
+$k(t)$. Not an option of the share but of the price: `pfmRefPrice` (ref | refpolicycost) says which gdx the reference
+price $P^{	ext{ref}}$ is read from (§14.1).
+
+### 14.1 The sequential runs — the shrinking future (added 2026-10-29)
+
+A chain of coupled runs in which each step fixes its past to the step before it and caps the price only in its own
+window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`, section `v8_sequential`):
+
+| step | `cm_startyear` | `path_gdx_ref` (fixes the past) | `pfmPhiWindowEnd` | `pfmRefPrice` |
+|---|---|---|---|---|
+| 1 | 2030 (the 1000 Gt parent's own) | the current-policy run | 2040 | ref |
+| 2–4 | 2040, 2050, 2060 | the previous step | start + 10 | refpolicycost |
+| 5 (the result) | 2070 | the previous step | — (open) | refpolicycost |
+
+- **The window** (`pfmPhiWindowEnd`, pfm option `windowEnd`): from that year on φ = 1, so the bound is the pathway's
+  price and the step plans that future unconstrained. Before `cm_startyear` REMIND fixes everything to `path_gdx_ref`,
+  so a step's φ acts only from its start to its window's end.
+- **The reference price.** $P^{	ext{ref}}$ is read from `input_ref.gdx` (= `path_gdx_ref`) by default. A step's
+  `path_gdx_ref` is the previous step, so it reads `input_refpolicycost.gdx` (= `path_gdx_refpolicycost`, the
+  current-policy run) instead (`preparePFM.R`). The validator refuses a coupled row whose `path_gdx_ref` differs from
+  its policy-cost reference without `pfmRefPrice = refpolicycost`.
+- **The anchor.** Hold the price keeps `path_gdx_carbonprice` = `-PFMgate`, so every step caps against the same
+  pathway price. Hold the budget re-solves the budget from its fixed past.
+- **The chain stops at 2070**, before the 1000 Gt pathway's peak-budget year (2080), so every hold-the-budget step still
+  has a budget to adjust.
+- **Not yet run.** The hold-the-budget chain with a late `cm_startyear` is untested with the peak-budget algorithm
+  (`cm_iterative_target_adj = 9`); watch its first steps.
 
 **Before submission.** `pfmPreflight(checks = "groups")` fails a row whose `cm_pfmPhiPath` does not
 match its group (1 for a v6 group, 0 for a v5 group); `pfmReplayInterface()` replays the two path

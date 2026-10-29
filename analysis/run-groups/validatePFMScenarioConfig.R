@@ -200,9 +200,9 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
   }
   allowed <- list(pfmFormulation = c("auto", "v6-anchor", "v5-tier"), pfmPhiHold = c("logit", "ratio"),
                   pfmPhiSpread = c("k", "model"), pfmPhiOrdering = c("model", "uniform", "reversed", "permuted"),
-                  pfmPhiStrength = c("common", "regional"),
+                  pfmPhiStrength = c("common", "regional", "gapfirst"),
                   pfmInstitutions = c("storyline", "convergence", "hold", "gapclosure", "gapclosureAndrijevic"),
-                  pfmRentsPrice = c("regional", "world"))
+                  pfmRentsPrice = c("regional", "world"), pfmRefPrice = c("ref", "refpolicycost"))
   for (i in seq_along(recs)) {
     r <- recs[[i]]; t <- titles[i]
     for (cl in intersect(names(allowed), hdr)) {
@@ -213,7 +213,8 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
     kTxt <- trimws(r$pfmPhiKappa %||% "")
     if (grepl("=", kTxt, fixed = TRUE)) {
       kp <- strsplit(strsplit(gsub("[[:space:]]", "", kTxt), ",", fixed = TRUE)[[1]], "=", fixed = TRUE)
-      kn <- vapply(kp, `[`, "", 1); kv <- num(vapply(kp, function(p) if (length(p) == 2) p[2] else "", ""))
+      kn <- vapply(kp, `[`, "", 1)
+      kv <- suppressWarnings(as.numeric(vapply(kp, function(p) if (length(p) == 2) p[2] else "", "")))   # num() takes one value
       if (any(lengths(kp) != 2) || !all(kn %in% c("Bulk", "Diffuse")) || anyNA(kv))
         err(t, ": pfmPhiKappa = '", kTxt, "' is not \"Bulk=<rate>,Diffuse=<rate>\"")
       if (any(is.finite(kv) & (kv <= -1 | kv >= 1))) err(t, ": pfmPhiKappa = '", kTxt, "' has a rate outside (-1, 1)")
@@ -226,9 +227,25 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
     hy <- num(r$pfmPhiHoldYear); if (!is.na(hy) && (hy < 2030 || hy > 2150)) err(t, ": pfmPhiHoldYear = ", hy, " is not a year in 2030-2150")
     sd <- trimws(r$pfmPhiOrderingSeed %||% "")
     if (nzchar(sd) && !grepl("^[0-9]+$", sd)) err(t, ": pfmPhiOrderingSeed = '", sd, "' is not an integer")
-    if (identical(trimws(r$pfmPhiStrength %||% ""), "regional") && nzchar(trimws(r$pfmPhiOrdering %||% "")) &&
+    if (trimws(r$pfmPhiStrength %||% "") %in% c("regional", "gapfirst") && nzchar(trimws(r$pfmPhiOrdering %||% "")) &&
         !identical(trimws(r$pfmPhiOrdering), "model")) {
-      err(t, ": the regional strength sensitivity run is not combined with an ordering test (D15, D16)")
+      err(t, ": the regional and gap-first strengths are not combined with an ordering test (D15, D16)")
+    }
+    # a sequential step: the share applies before pfmPhiWindowEnd only; its past is fixed by path_gdx_ref = the previous
+    # step, so the reference price must come from the policy-cost reference (pfmRefPrice = refpolicycost)
+    we <- trimws(r$pfmPhiWindowEnd %||% "")
+    if (nzchar(we)) {
+      wy <- num(we); sy <- num(r$cm_startyear)
+      if (is.na(wy) || wy < 2025 || wy > 2150) err(t, ": pfmPhiWindowEnd = '", we, "' is not a year in 2025-2150")
+      if (!is.na(wy) && !is.na(sy) && wy <= sy) err(t, ": pfmPhiWindowEnd ", wy, " is not after cm_startyear ", sy)
+    }
+    pr <- trimws(r$path_gdx_ref %||% ""); pc <- trimws(r$path_gdx_refpolicycost %||% "")
+    if (cpl(r) && nzchar(pr) && nzchar(pc) && !identical(pr, pc) && !identical(trimws(r$pfmRefPrice %||% ""), "refpolicycost")) {
+      err(t, ": path_gdx_ref (", pr, ") is not the policy-cost reference (", pc, "): a sequential step fixes its past ",
+          "to it, so the reference price must come from path_gdx_refpolicycost (pfmRefPrice = refpolicycost)")
+    }
+    if (identical(trimws(r$pfmRefPrice %||% ""), "refpolicycost") && !nzchar(pc)) {
+      err(t, ": pfmRefPrice = refpolicycost without a path_gdx_refpolicycost")
     }
     g <- trimws(r$pfmGroup %||% ""); pp <- trimws(r$cm_pfmPhiPath %||% "")
     # a share-path group is v6 or later (v6, v6-annual, v7 ...); the coupling itself reads phi-anchor.rds in the export
