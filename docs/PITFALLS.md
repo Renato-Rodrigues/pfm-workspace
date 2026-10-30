@@ -1143,7 +1143,10 @@ was added while the hold-the-price shrinking-future chain was running; its 2050 
 2040 step handed over, and 2060 and 2070 would have followed.
 - **Before updating a REMIND checkout with a new switch**, list the waiting steps: `ls models/remind_pfm-<res>/*.RData`
   newer than their submission, and `rs` for the chains still running.
-- **To repair**, add the switch to each waiting config and restart the failed step, as REMIND's own
-  `start_subsequentruns_manually.R` does (from the REMIND folder):
+- **To repair**, move the failed step's folder out of `output/`, add the switch to each waiting config and restart the
+  failed step (from the REMIND folder):
   `load("<title>.RData"); cfg$gms$<switch> <- "<value>"; save(cfg, file = "<title>.RData")`, then
-  `source("scripts/start/submit.R"); load("<failed step>.RData"); submit(cfg)`. The later steps chain on from there.
+  `invisible(sapply(list.files("scripts/start", pattern = "[.]R$", full.names = TRUE), source)); load("<failed step>.RData"); submit(cfg)`.
+  Source every start script, as `start.R` does: `submit.R` alone stops at `could not find function "isSlurmAvailable"`
+  after it has created the results folder (REMIND's own `start_subsequentruns_manually.R` has the same gap). The later
+  steps chain on from there.
