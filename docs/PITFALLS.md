@@ -1131,3 +1131,19 @@ fits the v7 panel almost as the v6 panel (log-likelihood −1257.0 / −500.8 ag
   means different data, whatever the group's notes say.
 - To carry a group's data over exactly, copy its cache files (`madrat: cacheSources`) or pin them
   (`madrat-cache-used-pfm.tsv`, ADR 0047) before the new group's cache is prepared.
+
+## 41. A switch added to `main.gms` breaks the chained runs that are still waiting
+
+REMIND starts a chained step (one whose `path_gdx*` names a run of the same submission) from a config saved at
+submission time, `<title>.RData` in the REMIND folder. `run.R` of the finished step loads it, points it at the new
+`fulldata.gdx` and submits it, and `prepare.R` then checks it against the CURRENT `main.gms` (`checkFixCfg` →
+`gms::check_config`). A switch added to `main.gms` after the submission is missing from the saved config, and the
+step stops at once: `Error: Settings are missing in provided cfg (cfg$gms$<switch>)!`. On 2026-10-30 `cm_pfmRefPrice`
+was added while the hold-the-price shrinking-future chain was running; its 2050 step failed this way 10 s after the
+2040 step handed over, and 2060 and 2070 would have followed.
+- **Before updating a REMIND checkout with a new switch**, list the waiting steps: `ls models/remind_pfm-<res>/*.RData`
+  newer than their submission, and `rs` for the chains still running.
+- **To repair**, add the switch to each waiting config and restart the failed step, as REMIND's own
+  `start_subsequentruns_manually.R` does (from the REMIND folder):
+  `load("<title>.RData"); cfg$gms$<switch> <- "<value>"; save(cfg, file = "<title>.RData")`, then
+  `source("scripts/start/submit.R"); load("<failed step>.RData"); submit(cfg)`. The later steps chain on from there.
