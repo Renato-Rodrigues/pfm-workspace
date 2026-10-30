@@ -411,6 +411,23 @@ submitPFM("V8W1H12",  remindDir = "models/remind_pfm-H12",  scenarioConfig = cfg
 Read `-PFM-noPolitics-holdBudget-v8` against `-PFMgateRef` (SCENARIOS.md 3.1) first: if it fails, stop the dependants before they spend
 their hours. A hold-the-budget row that does not peak (PITFALLS 26) is re-run under a new tag (`V8RERUN<res>`).
 
+**The sequential steps from 2040 on (`V8SEQEU21`, 8 rows).** In the first submission both 2040 steps stopped after
+37 s: `abort 'please make sure that cm_taxCO2_startyear is at least as large as the value provided by
+cm_taxCO2_historical'` (`full.lst`). The linear anchor starts from the previous step's highest regional price in the
+last fixed period (~135 $/t in 2035), above the 75 $/t start value meant for 2030. These steps now give the first guess
+at the peak year instead (`cm_taxCO2_startyear = -1`, `cm_taxCO2_peakBudgYr = 500`). Re-submit them alone, once the
+2030 steps have finished. Move the aborted 2040 folders out of `output/` first, so `rs` and the dependency
+lookup see only the new runs:
+
+```bash
+cd models/remind_pfm-EU21 && mkdir -p output/_failed && mv output/*shrinkingFuture2040-v8_2026-10-30_0[46]* output/_failed/ && cd ../..
+```
+
+```r
+submitPFM("V8SEQEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")      # dry run
+submitPFM("V8SEQEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
+```
+
 ### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)
 
 Built from `analysis/run-groups/scenario-matrix-v7.yml` into `config/scenario_config_PFM_v7.csv` (24 coupled rows, 12 per
