@@ -1002,15 +1002,16 @@ carries `phi-anchor.rds` (step `pfm-anchor`) couples by **v6**, any other by **v
 permuted), `pfmPhiOrderingSeed`, `pfmPhiKappa` (closure on the strength), `pfmPhiStrength`
 (common | regional | gapfirst), `pfmPhiWindowEnd` (a year: the share applies only before it). Each is echoed in the
 log. `phi-override.yml` is refused for v6 groups: the ordering tests are the `pfmPhiOrdering` option, which keeps
-$k(t)$. Not an option of the share but of the price: `pfmRefPrice` (ref | refpolicycost) says which gdx the reference
-price $P^{	ext{ref}}$ is read from (§14.1).
+$k(t)$. Not an option of the share but of the price: the GAMS switch `cm_pfmRefPrice` (ref | refpolicycost) says
+which gdx the reference price $P^{\text{ref}}$ is read from, by the R coupling and by the GAMS rebuild of the cap alike
+(§14.1).
 
 ### 14.1 The sequential runs — the shrinking future (added 2026-10-29)
 
 A chain of coupled runs in which each step fixes its past to the step before it and caps the price only in its own
 window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`, section `v8_sequential`):
 
-| step | `cm_startyear` | `path_gdx_ref` (fixes the past) | `pfmPhiWindowEnd` | `pfmRefPrice` |
+| step | `cm_startyear` | `path_gdx_ref` (fixes the past) | `pfmPhiWindowEnd` | `cm_pfmRefPrice` |
 |---|---|---|---|---|
 | 1 | 2030 (the 1000 Gt parent's own) | the current-policy run | 2040 | ref |
 | 2–4 | 2040, 2050, 2060 | the previous step | start + 10 | refpolicycost |
@@ -1019,16 +1020,29 @@ window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`,
 - **The window** (`pfmPhiWindowEnd`, pfm option `windowEnd`): from that year on φ = 1, so the bound is the pathway's
   price and the step plans that future unconstrained. Before `cm_startyear` REMIND fixes everything to `path_gdx_ref`,
   so a step's φ acts only from its start to its window's end.
-- **The reference price.** $P^{	ext{ref}}$ is read from `input_ref.gdx` (= `path_gdx_ref`) by default. A step's
+- **The reference price.** $P^{\text{ref}}$ is read from `input_ref.gdx` (= `path_gdx_ref`) by default. A step's
   `path_gdx_ref` is the previous step, so it reads `input_refpolicycost.gdx` (= `path_gdx_refpolicycost`, the
-  current-policy run) instead (`preparePFM.R`). The validator refuses a coupled row whose `path_gdx_ref` differs from
-  its policy-cost reference without `pfmRefPrice = refpolicycost`.
+  current-policy run) instead. One GAMS switch, `cm_pfmRefPrice = refpolicycost`, serves both sides:
+  `preparePFM.R` hands that gdx to R (`refGdx`), and `functionalForm/datainput.gms` loads it into `p45_pfmPriceRef`,
+  the $P^{\text{ref}}$ of the cap rebuilt in GAMS under hold the budget (`cm_pfmBoundRebuild = 1`, presolve and the
+  postsolve mirror). The validator refuses a coupled row whose `path_gdx_ref` differs from its policy-cost reference
+  without it.
+- **Why one switch (2026-10-30).** The first v8 submission set the reference with a column, `pfmRefPrice`, that only R
+  read. The GAMS rebuild kept taking $P^{\text{ref}}$ from `path_gdx_ref`. In the hold-the-budget 2040 step that was the
+  2030 step, whose price from 2040 on is the uncapped anchor (its window had closed), so $A - P^{\text{ref}} \approx 0$, every market's cap equalled it,
+  and at the first coupling call (iteration 15) the markup check aborted ("market shares differ but markups are zero").
+  Hold the price does not rebuild the cap, so its steps were unaffected. `preparePFM.R` now stops a hold-the-budget row
+  that sets the column without the switch.
 - **The anchor.** Hold the price keeps `path_gdx_carbonprice` = the no-politics reference (`-PFM-noPolitics-holdBudget-v8`), so every step caps against the same
   pathway price. Hold the budget re-solves the budget from its fixed past.
 - **The chain stops at 2070**, before the 1000 Gt pathway's peak-budget year (2080), so every hold-the-budget step still
   has a budget to adjust.
-- **Not yet run.** The hold-the-budget chain with a late `cm_startyear` is untested with the peak-budget algorithm
-  (`cm_iterative_target_adj = 9`); watch its first steps.
+- **The start price.** Steps from 2040 on give the first guess at the peak year (`cm_taxCO2_startyear = -1`,
+  `cm_taxCO2_peakBudgYr = 500`): REMIND's linear anchor starts from the previous step's price in the last fixed period
+  and refuses a start value below it (RUNNING.md Step 7 (v8)).
+- **Status (2026-10-30).** Both 2030 steps finished. The hold-the-price 2040 step is running. The hold-the-budget 2040
+  step is re-submitted with `cm_pfmRefPrice` (the four hold-the-budget steps under start tag `V8RERUNEU21`; the
+  hold-the-price steps stay under `V8SEQEU21`).
 
 **Before submission.** `pfmPreflight(checks = "groups")` fails a row whose `cm_pfmPhiPath` does not
 match its group (1 for a v6 group, 0 for a v5 group); `pfmReplayInterface()` replays the two path

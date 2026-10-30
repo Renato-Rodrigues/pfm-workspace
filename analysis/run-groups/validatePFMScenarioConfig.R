@@ -202,7 +202,8 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
                   pfmPhiSpread = c("k", "model"), pfmPhiOrdering = c("model", "uniform", "reversed", "permuted"),
                   pfmPhiStrength = c("common", "regional", "gapfirst"),
                   pfmInstitutions = c("storyline", "convergence", "hold", "gapclosure", "gapclosureAndrijevic"),
-                  pfmRentsPrice = c("regional", "world"), pfmRefPrice = c("ref", "refpolicycost"))
+                  pfmRentsPrice = c("regional", "world"), pfmRefPrice = c("ref", "refpolicycost"),
+                  cm_pfmRefPrice = c("ref", "refpolicycost"))
   for (i in seq_along(recs)) {
     r <- recs[[i]]; t <- titles[i]
     for (cl in intersect(names(allowed), hdr)) {
@@ -232,7 +233,9 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       err(t, ": the regional and gap-first strengths are not combined with an ordering test (D15, D16)")
     }
     # a sequential step: the share applies before pfmPhiWindowEnd only; its past is fixed by path_gdx_ref = the previous
-    # step, so the reference price must come from the policy-cost reference (pfmRefPrice = refpolicycost)
+    # step, so the reference price must come from the policy-cost reference (cm_pfmRefPrice = refpolicycost). The GAMS
+    # switch, not the column pfmRefPrice: the column reaches only the R side, and the GAMS rebuild of the hold-the-budget
+    # cap then reads P_ref from the previous step (2026-10-30, the 2040 step aborted on the markup check)
     we <- trimws(r$pfmPhiWindowEnd %||% "")
     if (nzchar(we)) {
       wy <- num(we); sy <- num(r$cm_startyear)
@@ -240,12 +243,16 @@ validatePFMScenarioConfig <- function(file = "models/remind_pfm/config/scenario_
       if (!is.na(wy) && !is.na(sy) && wy <= sy) err(t, ": pfmPhiWindowEnd ", wy, " is not after cm_startyear ", sy)
     }
     pr <- trimws(r$path_gdx_ref %||% ""); pc <- trimws(r$path_gdx_refpolicycost %||% "")
-    if (cpl(r) && nzchar(pr) && nzchar(pc) && !identical(pr, pc) && !identical(trimws(r$pfmRefPrice %||% ""), "refpolicycost")) {
+    rg <- trimws(r$cm_pfmRefPrice %||% ""); rc <- trimws(r$pfmRefPrice %||% "")
+    if (cpl(r) && nzchar(pr) && nzchar(pc) && !identical(pr, pc) && !identical(rg, "refpolicycost")) {
       err(t, ": path_gdx_ref (", pr, ") is not the policy-cost reference (", pc, "): a sequential step fixes its past ",
-          "to it, so the reference price must come from path_gdx_refpolicycost (pfmRefPrice = refpolicycost)")
+          "to it, so the reference price must come from path_gdx_refpolicycost (cm_pfmRefPrice = refpolicycost)")
     }
-    if (identical(trimws(r$pfmRefPrice %||% ""), "refpolicycost") && !nzchar(pc)) {
-      err(t, ": pfmRefPrice = refpolicycost without a path_gdx_refpolicycost")
+    if (identical(rc, "refpolicycost") && !identical(rg, "refpolicycost")) {
+      err(t, ": pfmRefPrice = refpolicycost reaches only the R side - set cm_pfmRefPrice = refpolicycost (preparePFM.R stops otherwise)")
+    }
+    if (identical(rg, "refpolicycost") && !nzchar(pc)) {
+      err(t, ": cm_pfmRefPrice = refpolicycost without a path_gdx_refpolicycost")
     }
     g <- trimws(r$pfmGroup %||% ""); pp <- trimws(r$cm_pfmPhiPath %||% "")
     # a share-path group is v6 or later (v6, v6-annual, v7 ...); the coupling itself reads phi-anchor.rds in the export

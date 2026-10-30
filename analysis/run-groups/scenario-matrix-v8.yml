@@ -31,7 +31,7 @@
 #   sequential     the shrinking future (Elmar, 2026-10-09; version B of the email of 2026-10-29): a chain of runs, each
 #                  fixing the past to the previous step (cm_startyear, path_gdx_ref) and capping the price only in its own
 #                  10-year window (pfmPhiWindowEnd), the rest of the future planned unconstrained; the last step's window
-#                  stays open. The reference price comes from the current-policy run (pfmRefPrice = refpolicycost), because
+#                  stays open. The reference price comes from the current-policy run (cm_pfmRefPrice = refpolicycost), because
 #                  path_gdx_ref is the previous step. The chain stops at 2070, before the 1000 Gt pathway's peak-budget
 #                  year (2080): a hold-the-budget step that starts after it has no budget left to adjust. The result of
 #                  the chain is its last step (-shrinkingFuture2070). EU21, theta 0.50, both closures.
@@ -46,10 +46,12 @@
 # It writes models/remind_pfm/config/scenario_config_PFM_v8.csv (a build artifact: edit this file, rebuild, commit both).
 # The parents are the REMIND 3.7.1 bases already run (EU21BASE, H12BASE); the tags never start them.
 #
-# Start tags: V8W1EU21 (34 rows), V8W1H12 (18 rows), V8SEQEU21 (8 rows: the sequential steps from 2040 on, re-submitted
-# 2026-10-30 after both 2040 steps aborted on the start price; their 2030 steps finished in V8W1EU21). Every coupled row
-# carries pfmGroup v8 and needs output/remind-inputs/v8. Re-runs get their own tag (V8RERUN<res>), so a re-submission
-# never re-runs the batch.
+# Start tags: V8W1EU21 (34 rows), V8W1H12 (18 rows); the sequential steps from 2040 on, after both 2040 steps aborted
+# on the start price (2026-10-30; their 2030 steps finished in V8W1EU21): V8SEQEU21 (the 4 hold-the-price steps,
+# submitted 2026-10-30 and chaining) and V8RERUNEU21 (the 4 hold-the-budget steps, re-submitted after the 2040 step
+# aborted again: the GAMS rebuild of the cap read P_ref from the previous step, fixed by cm_pfmRefPrice). Every coupled
+# row carries pfmGroup v8 and needs output/remind-inputs/v8. Re-runs get their own tag (V8RERUN<res>), so a
+# re-submission never re-runs the batch.
 
 format: pfm-scenario-matrix/1
 output: config/scenario_config_PFM_v8.csv
@@ -214,39 +216,39 @@ runs:
      variant: shrinkingFuture2030, options: {pfmPhiWindowEnd: "2040"}, warm: "@noPolitics",
      description: "Shrinking future, hold the price, step 1: the past fixed to current policies (2025), the cap only in 2030-2035, the future after it planned unconstrained."}
   - {key: holdPrice-shrinkingFuture2040, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2040, options: {pfmPhiWindowEnd: "2050", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2040", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2030"}, warm: "@holdPrice-shrinkingFuture2030",
+     variant: shrinkingFuture2040, options: {pfmPhiWindowEnd: "2050"},
+     set: {cm_startyear: "2040", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2030"}, warm: "@holdPrice-shrinkingFuture2030",
      description: "Shrinking future, hold the price, step 2: the past to 2035 fixed to step 1, the cap only in 2040-2045."}
   - {key: holdPrice-shrinkingFuture2050, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2050, options: {pfmPhiWindowEnd: "2060", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2050", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2040"}, warm: "@holdPrice-shrinkingFuture2040",
+     variant: shrinkingFuture2050, options: {pfmPhiWindowEnd: "2060"},
+     set: {cm_startyear: "2050", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2040"}, warm: "@holdPrice-shrinkingFuture2040",
      description: "Shrinking future, hold the price, step 3: the past to 2045 fixed to step 2, the cap only in 2050-2055."}
   - {key: holdPrice-shrinkingFuture2060, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2060, options: {pfmPhiWindowEnd: "2070", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2060", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2050"}, warm: "@holdPrice-shrinkingFuture2050",
+     variant: shrinkingFuture2060, options: {pfmPhiWindowEnd: "2070"},
+     set: {cm_startyear: "2060", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2050"}, warm: "@holdPrice-shrinkingFuture2050",
      description: "Shrinking future, hold the price, step 4: the past to 2055 fixed to step 3, the cap only in 2060."}
   - {key: holdPrice-shrinkingFuture2070, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2070, options: {pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2070", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2060"}, warm: "@holdPrice-shrinkingFuture2060",
+     variant: shrinkingFuture2070, options: {},
+     set: {cm_startyear: "2070", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdPrice-shrinkingFuture2060"}, warm: "@holdPrice-shrinkingFuture2060",
      description: "Shrinking future, hold the price, last step: the past to 2060 fixed to step 4, the cap from 2070 on. The chain's result."}
 
   # ---------------------------------------------------------------- the shrinking future: hold the budget, a chain of five
   - {key: holdBudget-shrinkingFuture2030, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21],
      variant: shrinkingFuture2030, options: {pfmPhiWindowEnd: "2040"}, warm: "@noPolitics",
      description: "Shrinking future, hold the budget, step 1: the cap only in 2030-2035, the rest of the budget planned unconstrained."}
-  - {key: holdBudget-shrinkingFuture2040, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2040, options: {pfmPhiWindowEnd: "2050", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2040", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2030"}, warm: "@holdBudget-shrinkingFuture2030",
+  - {key: holdBudget-shrinkingFuture2040, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8RERUNEU21},
+     variant: shrinkingFuture2040, options: {pfmPhiWindowEnd: "2050"},
+     set: {cm_startyear: "2040", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2030"}, warm: "@holdBudget-shrinkingFuture2030",
      description: "Shrinking future, hold the budget, step 2: the past to 2035 fixed to step 1, the cap only in 2040-2045."}
-  - {key: holdBudget-shrinkingFuture2050, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2050, options: {pfmPhiWindowEnd: "2060", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2050", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2040"}, warm: "@holdBudget-shrinkingFuture2040",
+  - {key: holdBudget-shrinkingFuture2050, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8RERUNEU21},
+     variant: shrinkingFuture2050, options: {pfmPhiWindowEnd: "2060"},
+     set: {cm_startyear: "2050", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2040"}, warm: "@holdBudget-shrinkingFuture2040",
      description: "Shrinking future, hold the budget, step 3: the past to 2045 fixed to step 2, the cap only in 2050-2055."}
-  - {key: holdBudget-shrinkingFuture2060, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2060, options: {pfmPhiWindowEnd: "2070", pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2060", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2050"}, warm: "@holdBudget-shrinkingFuture2050",
+  - {key: holdBudget-shrinkingFuture2060, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8RERUNEU21},
+     variant: shrinkingFuture2060, options: {pfmPhiWindowEnd: "2070"},
+     set: {cm_startyear: "2060", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2050"}, warm: "@holdBudget-shrinkingFuture2050",
      description: "Shrinking future, hold the budget, step 4: the past to 2055 fixed to step 3, the cap only in 2060."}
-  - {key: holdBudget-shrinkingFuture2070, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8SEQEU21},
-     variant: shrinkingFuture2070, options: {pfmRefPrice: refpolicycost},
-     set: {cm_startyear: "2070", cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2060"}, warm: "@holdBudget-shrinkingFuture2060",
+  - {key: holdBudget-shrinkingFuture2070, wave: 1, section: v8_sequential, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21], start: {EU21: V8RERUNEU21},
+     variant: shrinkingFuture2070, options: {},
+     set: {cm_startyear: "2070", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2060"}, warm: "@holdBudget-shrinkingFuture2060",
      description: "Shrinking future, hold the budget, last step: the past to 2060 fixed to step 4, the cap from 2070 on, the budget met in what is left. The chain's result."}

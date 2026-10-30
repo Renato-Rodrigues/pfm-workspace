@@ -428,6 +428,19 @@ submitPFM("V8SEQEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cf
 submitPFM("V8SEQEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
 ```
 
+**The hold-the-budget steps again (`V8RERUNEU21`, 4 rows), 2026-10-30.** The re-submitted hold-the-budget 2040 step
+stopped at its first coupling call (iteration 15): `abort '45_carbonprice: market shares differ but markups are zero'`.
+The GAMS rebuild of the cap (`cm_pfmBoundRebuild = 1`) took the reference price from `path_gdx_ref`, the 2030 step,
+not from the current-policy run R used (COUPLING.md §14.1). Fixed by the GAMS switch `cm_pfmRefPrice = refpolicycost`,
+which both sides now read. The hold-the-price steps keep chaining under `V8SEQEU21` (they do not rebuild the cap).
+`remind_pfm` must be at the commit that declares `cm_pfmRefPrice`; `tools/setup.sh --cluster --update` brings it. Then,
+after moving the aborted folder to `output/_failed/`:
+
+```r
+submitPFM("V8RERUNEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")      # dry run
+submitPFM("V8RERUNEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
+```
+
 ### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)
 
 Built from `analysis/run-groups/scenario-matrix-v7.yml` into `config/scenario_config_PFM_v7.csv` (24 coupled rows, 12 per
