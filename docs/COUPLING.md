@@ -1040,9 +1040,12 @@ window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`,
 - **The start price.** Steps from 2040 on give the first guess at the peak year (`cm_taxCO2_startyear = -1`,
   `cm_taxCO2_peakBudgYr = 500`): REMIND's linear anchor starts from the previous step's price in the last fixed period
   and refuses a start value below it (RUNNING.md Step 7 (v8)).
-- **Status (2026-10-30).** Both 2030 steps finished. The hold-the-price 2040 step is running. The hold-the-budget 2040
-  step is re-submitted with `cm_pfmRefPrice` (the four hold-the-budget steps under start tag `V8RERUNEU21`; the
-  hold-the-price steps stay under `V8SEQEU21`).
+- **Status (2026-10-31).** Both chains have run: every hold-the-price step finished; the hold-the-budget steps finished to
+  2060 and the 2070 step was read at iteration 32 (provisional). The hold-the-price steps ran under `V8SEQEU21` (2050 to
+  2070 restarted by hand after `cm_pfmRefPrice` was added, PITFALLS §41), the hold-the-budget steps under `V8RERUNEU21`.
+- **Results** (design note 0009 §22, `analysis/v8/shrinkingFuture.R` → `output/pfm/v8/coupling/shrinking-future.rds`):
+  under hold the price the chain halves the overshoot (+39 against +75 Gt CO₂ to 2100, EU21, θ 0.50) at the same
+  prices paid, through expectations; under hold the budget it meets the budget and moves the effort later.
 
 **Before submission.** `pfmPreflight(checks = "groups")` fails a row whose `cm_pfmPhiPath` does not
 match its group (1 for a v6 group, 0 for a v5 group); `pfmReplayInterface()` replays the two path

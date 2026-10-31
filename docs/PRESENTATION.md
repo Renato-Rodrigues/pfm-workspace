@@ -442,6 +442,7 @@ output dates against artifact dates rather than trusting a clean run (`TODO.md` 
 | — | estimator sign agreement | `estimator-agreement.rds` | `estimator-agreement` — re-render |
 | — | the historical-replay gate | `historical-replay.rds` | `historical-replay` — re-render |
 | — | cost of one shared specification | `selection-variants.rds` | `sharing-cost` — re-render |
+| — | the shrinking future: emissions of the one-shot run, the chain and each step's plan; what each step planned; the price paid (2026-10-31) | `v8/coupling/shrinking-future.rds` | drawn by `analysis/v8/shrinkingFuture.R` (`fig-shrinking-future-{emissions,plans,prices}.png`), not yet in the registry; for the meeting of 3 November and the SI if the chain enters the paper. Rail: one θ, EU21, 10-year steps; perfect foresight within each step drives the expectation effect |
 
 > ⚠️ **The `saturating-map` figure no longer describes the selected model** — the selected specification
 > carries no saturating transform. Keep it out of the deck unless the talk is about the

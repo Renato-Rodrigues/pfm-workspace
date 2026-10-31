@@ -13,6 +13,10 @@ hold the budget, growing limit; disclosed, §3.4); it meets the budget at 2100. 
 the same specification (`MODEL.md` §2.4a), so they need no coupled runs. The `v6` version of this
 document, with the `v6` batch's 71 runs, is archived at `../_archive/_wip/2026-10-25/docs/SCENARIOS-v6.md`.
 
+**`v8` (2026-10-31).** The `v8` batch (52 coupled runs, run titles §2.6) and the shrinking-future chains (COUPLING.md
+§14.1) are analysed in design note 0009 §21–§22, from `output/pfm/v8/coupling/`. This document stays on `v7`, the
+paper's basis, until the author moves the paper to `v8` (TODO.md).
+
 **Every number below** is read from `output/pfm/v7/coupling/`: `coupled-facts.json` (results per run and
 sensitivity run), `coupled-costs.json` (emissions moved, GDP), `convergence-audit.rds`, `held-budget-prices-levelC.rds`,
 `gate-ref-compare.rds`, `budget-peak.rds`, `emissions-2100.rds` and `strength-support.rds`. `Rscript

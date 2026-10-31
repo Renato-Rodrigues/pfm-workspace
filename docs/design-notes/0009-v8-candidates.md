@@ -731,6 +731,69 @@ cluster walk, and every candidate the cluster also walked gave the same severe f
   robustness check, and put the question to Elmar (brief Q7).
 - **Not swept:** the shared specification with H12 region effects. A v9 check, if the region effects are wanted.
 
+## 21. The v8 coupled batch (2026-10-30)
+
+`analysis/coupled/runCoupledStage.R v8` on the batch of `scenario-matrix-v8.yml` (34 EU21 + 18 H12 coupled runs from
+start tags `V8W1EU21`, `V8W1H12`, and the bases) → `output/pfm/v8/coupling/` (`coupled-facts.json`, `coupled-costs.json`,
+`convergence-audit.rds`, `rulec-bound-freeze.rds`, `held-budget-prices-levelC.rds`). Every run finished with
+modelstat 2 and no infeasibility code. Numbers are cumulative CO₂ 2020–2100 against the matched no-politics reference
+(hold the price: `-PFM-noPolitics-holdPrice-v8`, 1004.8 / 1004.2 Gt EU21 / H12), from `coupled-facts.json`.
+
+| hold the price, θ 0.50 unless named | EU21 v8 | EU21 v7 | H12 v8 | H12 v7 |
+|---|---|---|---|---|
+| θ 0.325 / 0.50 / 0.675 | +44 / +75 / +110 | +59 / +99 / +145 | +39 / +64 / +95 | +55 / +88 / +126 |
+| institutions held at 2023 | +85.5 | +98.4 | +70.3 | +88.6 |
+| constant limit / fading (central) / growing limit | +124 / +75 / +160 | +168 / +99 / +221 | — | — |
+| erosion 2% / 2.7% / 5% a year, historical rates | +35 / +29 / +19, +39 | +36 (2.7%) | +23 (2.7%) | +32 (2.7%) |
+| common strength / gap first / world-price rents | +76 / +55 / +74 | — | +63 / — / +64 | — |
+| institutions: Andrijevic / storyline | +82 / +84 | — | +72 / — | — |
+
+- **v8 is smaller than v7** by about a quarter at θ 0.50 (75 against 99 Gt at EU21, 64 against 88 at H12), and the
+  institutions now act: gap closure takes 10 / 6 Gt off the overshoot (v7: none). Both follow from v8's estimation
+  (fossil floor, rents in the slack, covered median, net effects §19).
+- **The ladder keeps its order**: growing > constant > fading > historical erosion > 2% > 2.7% > 5%.
+- **Gap first** (the meeting's order of steps, fixed 2023 range) gives 55 Gt, a quarter below the central form: its
+  strength is lower late in the century (`gap-order.rds`).
+- **Hold the budget**: every admitted run meets the budget (995–1002 Gt). The 2050 price is 1.11 × (EU21) / 1.05 × (H12)
+  the no-politics price, median over regions (the anchor: 1.16 / 1.14 on v8, 1.21 / 1.19 on v7). The
+  ceiling moves 21 / 18 Gt CO₂eq between regions (`coupled-costs.json`).
+- **Checks.** The no-politics reference differs from `-PFMgateRef` by a uniform shift of the price level (−0.2% in
+  2030 to −0.5% in 2100 at EU21, −0.4% to −0.9% at H12; identical in every region) and 0.5 / 0.9 Gt: the budget loop's tolerance,
+  not a coupling leak. The gate's own test (prices within 1 $/t) is therefore failed; the pinning gate passes
+  (3.3 / 2.5 Gt). Hold the budget with the growing limit meets the budget in 2100 but has not peaked by 2150, as on v7
+  (SCENARIOS.md §3.4, disclosed). Erosion 2%, unpeaked on v7, peaks in 2090 on v8.
+
+## 22. The shrinking future: the sequential chains (2026-10-31)
+
+The chains of COUPLING.md §14.1 (version B of the email of 2026-10-29: the limit applies to the step's own decade
+only, φ = 1 after it; the past fixed to the previous step; P_ref from the current-policy run). Steps 2030, 2040, 2050,
+2060, 2070 for each closure, EU21, θ 0.50. `analysis/v8/shrinkingFuture.R v8` → `output/pfm/v8/coupling/shrinking-future.rds`
+and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communication note:
+`../communication/2026-11-shrinking-future/`.
+
+| cumulative CO₂ 2020–2100, Gt | no-politics | one-shot | chain (2070 step) | chain − one-shot |
+|---|---|---|---|---|
+| hold the price | 1004.8 | 1079.9 (+75.1) | 1044.2 (+39.4) | −35.7 |
+| hold the budget | 1001.5 | 996.1 | 997.5 (provisional) | +1.4 |
+
+- **Hold the price: the chain halves the overshoot** (39 against 75 Gt), with the same prices paid: the emissions-weighted
+  mean price is 193 against 191 $/t in 2050 and 407 against 407 in 2100, and φ in each window is the same as the
+  one-shot run's to ±0.005. Emissions are lower in every decade (2030–40: 296.8 against 299.8 Gt; 2070–2100: 43.6
+  against 54.3). The difference is expectations: each step plans with the full price after its decade, invests for it
+  (capital, learning), and the next step inherits that energy system.
+- **Each step under-promises.** The plans for 2100 rise step by step: +7.5, +11.5, +20.8, +24.6 Gt above the reference,
+  and the result is +39.4.
+- **Hold the budget: the effort moves later.** The chain emits 5.8 Gt more than the one-shot run in 2030–2060 and 4.7 Gt
+  less in 2060–2100. The price is lower to the 2060s (2050: 201 against 221 $/t) and higher after (2100: 523 against
+  500). The end-loading the email anticipated is there but moderate: the chain stops at 2070 and the 1000 Gt budget
+  leaves room.
+- **Provisional:** the hold-the-budget 2070 step had not finished when read (iteration 32; the coupled stage leaves it
+  out as unfinished). Its numbers are from its last iteration.
+- **Reading.** The one-shot run assumes the limit is known to last; the chain assumes, every decade, that it will lift
+  after the next. They bracket expectations about politics; under hold the price the bracket is 39–75 Gt at θ 0.50.
+- **Fixes the chain needed** (COUPLING.md §14.1, RUNNING.md Step 7 (v8), PITFALLS §41): the start price at the peak year
+  for steps from 2040 on; `cm_pfmRefPrice`, so the GAMS rebuild of the hold-the-budget cap uses the same P_ref as R.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
