@@ -774,7 +774,7 @@ and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communi
 | cumulative CO₂ 2020–2100, Gt | no-politics | one-shot | chain (2070 step) | chain − one-shot |
 |---|---|---|---|---|
 | hold the price | 1004.8 | 1079.9 (+75.1) | 1044.2 (+39.4) | −35.7 |
-| hold the budget | 1001.5 | 996.1 | 997.5 (provisional) | +1.4 |
+| hold the budget | 1001.5 | 996.1 | 996.3 | +0.2 |
 
 - **Hold the price: the chain halves the overshoot** (39 against 75 Gt), with the same prices paid: the emissions-weighted
   mean price is 193 against 191 $/t in 2050 and 407 against 407 in 2100, and φ in each window is the same as the
@@ -784,14 +784,14 @@ and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communi
 - **Each step under-promises.** The plans for 2100 rise step by step: +7.5, +11.5, +20.8, +24.6 Gt above the reference,
   and the result is +39.4.
 - **Cost** (`coupled-costs.json`, GDP / consumption discounted at 5%, 2020–2100, against the matched reference): the
-  one-shot hold-the-price run +0.12% / +0.14%, the chain +0.08% / +0.10% (it abates more). The hold-the-budget chain's
-  cost waits for its last step.
-- **Hold the budget: the effort moves later.** The chain emits 5.8 Gt more than the one-shot run in 2030–2060 and 4.7 Gt
-  less in 2060–2100. The price is lower to the 2060s (2050: 201 against 221 $/t) and higher after (2100: 523 against
-  500). The end-loading the email anticipated is there but moderate: the chain stops at 2070 and the 1000 Gt budget
+  one-shot hold-the-price run +0.12% / +0.14%, the chain +0.08% / +0.10% (it abates more); hold the budget: one-shot +0.01% / −0.01%,
+  chain +0.05% / +0.04%.
+- **Hold the budget: the effort moves later.** The chain emits 5.8 Gt more than the one-shot run in 2030–2060 and 5.9 Gt
+  less in 2060–2100. The price is lower to 2070 (2050: 201 against 221 $/t) and higher after (2100: 535 against
+  500); net CO₂ in 2100 is −0.84 against −0.43 Gt a year. The end-loading the email anticipated is there but moderate: the chain stops at 2070 and the 1000 Gt budget
   leaves room.
-- **Provisional:** the hold-the-budget 2070 step had not finished when read (iteration 32; the coupled stage leaves it
-  out as unfinished). Its numbers are from its last iteration.
+- **Every step finished** (2026-11-01; the hold-the-budget 2070 step, first read at iteration 32, replaced by the
+  finished run). Each hold-the-budget step meets the budget within 1.8 Gt.
 - **Reading.** The one-shot run assumes the limit is known to last; the chain assumes, every decade, that it will lift
   after the next. They bracket expectations about politics; under hold the price the bracket is 39–75 Gt at θ 0.50.
 - **Fixes the chain needed** (COUPLING.md §14.1, RUNNING.md Step 7 (v8), PITFALLS §41): the start price at the peak year

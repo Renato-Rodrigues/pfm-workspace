@@ -18,17 +18,18 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 
 ## 🧭 What to do next
 
-**v8, 2026-10-31.** The v8 coupled batch is in and analysed (design note 0009 §21: 52 runs plus the bases, all
-admitted; hold the price +75 / +64 Gt at θ 0.50 against v7's +99 / +88). The shrinking-future chains have run (0009
-§22; note in `../communication/2026-11-shrinking-future/`). Open:
-1. 🟠 **Decide whether v8 replaces v7 as the paper basis** (author). If so: `SCENARIOS.md` rewritten on v8 (it describes
-   v7 now), the paper's methods and numbers, the coupled figures on v8.
-2. 🟢 **The hold-the-budget 2070 chain step**: copy it when finished, rerun `analysis/coupled/runCoupledStage.R v8
-   --allow-skipped`, `analysis/v8/shrinkingFuture.R v8` and the note's build (`build-sf-doc.R`); its numbers are
-   provisional until then.
-3. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, 5-year steps, θ range and H12 if
-   it goes into the paper (questions in the note).
+**v8, 2026-11-01.** The v8 coupled batch is complete and analysed: 66 runs (60 coupled, both shrinking-future chains
+included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 against v7's +99 / +88. `MODEL.md` and
+`SCENARIOS.md` are rewritten on v8 (their v7 versions in `../_archive/_wip/2026-10-31/docs/`). Open:
+1. 🟠 **Decide whether v8 replaces v7 as the paper basis** (author). If so: the paper's methods and numbers, and the
+   coupled figures on v8. The governed docs already describe v8.
+2. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, 5-year steps, θ range and H12 if
+   it goes into the paper (questions in `../communication/2026-11-shrinking-future/`).
+3. 🟢 **Re-run on v8** what the docs still quote as measured on v7: the strength decomposition
+   (`analysis/v6/couplingMechanism.R v8`), the re-scoped replay (`replayRescoped.R v8`; the full replay gate now fails
+   narrowly in buildings & transport, `MODEL.md` §8.4), the trend-shape grid, the θ bounds, the relocation by period.
 4. 🟢 **The v8 emissions band** (band-edge anchors not prepared) and the v8 coupled figures.
+5. 🟢 **Confirm on the cluster that every v8 run read the staged cache** (`RUNNING.md` Step 8) and commit `records/v8`.
 
 **Where it stands (v6, 2026-10-12; kept for the record of that review).** Run-Group `v6` is estimated and coupled: 71 runs, all admitted, at EU21 and H12
 (0005 Phase 5; `SCENARIOS.md`). The candidate paper spines are design note 0006: eight frames on one

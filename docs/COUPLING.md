@@ -4,33 +4,37 @@
 mathematics is `MODEL.md`; the traps that cost whole runs are `PITFALLS.md`.*
 
 **Current state.** Both sides are built and the interface is verified against GAMS itself (§12).
-The Run-Group is **`v6`** (selected specification `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
-fe:OECDp satAP`, `output/remind-inputs/v6/`), coupled through the **share path φ(t)** (§14; ADR 0049,
-0050, 0054) on REMIND 3.7.1. The `v6` batch is complete: 71 runs (49 EU21, 22 H12; the 64 of 2026-10-10 plus seven persistence runs
-added on 2026-10-11 and 2026-10-13), all finished and admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v6/coupling/`. The `v5` version of this
-document is archived at `../_archive/_wip/2026-10-10/docs/COUPLING-v5.md`.
+The Run-Group is **`v8`** (selected specification `X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd
+fe:OECDp satAP iw:fexp fos5`, `output/remind-inputs/v8/`; ADRs 0061–0063), coupled through the **share path φ(t)** (§14;
+ADR 0049, 0050, 0054) with the **regional strength**, gap-closure institutions and, in buildings & transport, the
+distance below the ceiling following fossil rents (`MODEL.md` §3.1a, §5.2), on REMIND 3.7.1. The `v8` batch is
+complete: 66 runs (60 coupled: 42 EU21, 18 H12, the two shrinking-future chains included, §14.1), all finished and
+admitted; what it says is `SCENARIOS.md`, read from `output/pfm/v8/coupling/`. The `v5` version of this document is
+archived at `../_archive/_wip/2026-10-10/docs/COUPLING-v5.md`.
 
-**How to read this document.** §1–§13 are the interface mechanics, shared by both formulations;
-where a part is `v5`-only (the λ closure rates, mode M, the tier year) it says so. **§14 is the `v6`
-formulation**: what a call does, the path symbols, the options. Before a submission, `RUNNING.md`
-step 7c and `PITFALLS.md` §1–§3.
+**How to read this document.** §1–§13 are the interface mechanics, shared by every formulation;
+where a part is `v5`-only (the λ closure rates, mode M, the tier year) it says so. **§14 is the share-path
+formulation** (`v6` on): what a call does, the path symbols, the options; **§14.1 the sequential runs**. Before a
+submission, `RUNNING.md` Step 7 (v8) and `PITFALLS.md` §1–§3.
 
-What the `v6` batch established about the **interface** (`SCENARIOS.md` §3):
+What the `v8` batch established about the **interface** (`SCENARIOS.md` §3):
 
 - **The share path reaches GAMS and converges**: every θ > 0 run loads the path with formulation
-  `v6-anchor` and converges on it in 2–15 calls, final change ≤ 0.0019 over the checkpoint years.
-- **The hold-the-budget rebuild reproduces the R-side cap** to 9.1e-7 (`p45_pfmBoundCheck_iter`) at both
-  resolutions.
-- **The θ = 0 gate**: EU21 reproduces `-PFMgateRef` exactly (0 of 231 cells); H12 differs by at most
-  \$1.57, identically in every region (the budget loop stopping elsewhere; waived and disclosed,
-  `SCENARIOS.md` §3.1). The hold-the-price pinning holds within 2.2 Gt.
-- **Markup written vs seen** differ only where the markup moved in the final iteration: the two are
-  read in different iterations (`PITFALLS.md` §16).
-- **The detectors are operative**: `pm_pfmInfesCode = 0` in every coupled run. The extractor's
-  never-peaked check flags the one budget-forced run whose cumulative CO₂ is still rising at 2150 (EU21
-  `-PFMlevelCMin-v6`, 1011.6 Gt); `pm_pfmBudgetWarn` fired for no run (`PITFALLS.md` §26).
-- **Every option reached the coupling**: all 32 arm-resolution pairs recorded the options and group
-  they were declared with (`coupled-facts.json` `arms`).
+  `v6-anchor` and converges on it in 2–20 calls, final change ≤ 0.0020 over the checkpoint years, the rents feedback
+  included.
+- **The θ = 0 gate** differs from `-PFMgateRef` by a uniform price shift (EU21 at most \$2.27, H12 \$4.17 in 2100;
+  identical in every region; cumulative CO₂ within 0.9 Gt): the budget loop's tolerance, disclosed (`SCENARIOS.md`
+  §3.1). The hold-the-price pinning holds within 3.3 Gt.
+- **Markup written vs seen** differ only where the markup moved in the final iteration (`PITFALLS.md` §16). The
+  markup liveness check caught a real defect: the hold-the-budget rebuild read the reference price from the previous
+  step in a sequential run, fixed by `cm_pfmRefPrice` (§14.1).
+- **The detectors are operative**: `pm_pfmInfesCode = 0` in every coupled run. The never-peaked check flags the one
+  budget-forced run whose cumulative CO₂ is still rising at 2150 (EU21 hold the budget, growing limit, 1055 Gt).
+- **Every option reached the coupling**: every sensitivity run recorded the options and group it was declared with
+  (`coupled-facts.json` `arms`).
+- **Two REMIND-side requirements of the sequential runs**: a step that starts after 2030 gives its first price guess
+  at the peak year (REMIND refuses a start value below the inherited price), and a switch added to `main.gms` breaks the
+  saved configuration of the steps still waiting (`PITFALLS.md` §41).
 
 ---
 
@@ -1040,12 +1044,13 @@ window (the meeting of 2026-10-09; `analysis/run-groups/scenario-matrix-v8.yml`,
 - **The start price.** Steps from 2040 on give the first guess at the peak year (`cm_taxCO2_startyear = -1`,
   `cm_taxCO2_peakBudgYr = 500`): REMIND's linear anchor starts from the previous step's price in the last fixed period
   and refuses a start value below it (RUNNING.md Step 7 (v8)).
-- **Status (2026-10-31).** Both chains have run: every hold-the-price step finished; the hold-the-budget steps finished to
-  2060 and the 2070 step was read at iteration 32 (provisional). The hold-the-price steps ran under `V8SEQEU21` (2050 to
-  2070 restarted by hand after `cm_pfmRefPrice` was added, PITFALLS §41), the hold-the-budget steps under `V8RERUNEU21`.
-- **Results** (design note 0009 §22, `analysis/v8/shrinkingFuture.R` → `output/pfm/v8/coupling/shrinking-future.rds`):
-  under hold the price the chain halves the overshoot (+39 against +75 Gt CO₂ to 2100, EU21, θ 0.50) at the same
-  prices paid, through expectations; under hold the budget it meets the budget and moves the effort later.
+- **Status (2026-11-01).** Both chains have run and every step finished. The hold-the-price steps ran under `V8SEQEU21`
+  (2050 to 2070 restarted by hand after `cm_pfmRefPrice` was added, PITFALLS §41), the hold-the-budget steps under
+  `V8RERUNEU21`.
+- **Results** (SCENARIOS.md §4.11, MODEL.md §5.6a, design note 0009 §22; `analysis/v8/shrinkingFuture.R` →
+  `output/pfm/v8/coupling/shrinking-future.rds`): under hold the price the chain halves the overshoot (+39 against +75 Gt
+  CO₂ to 2100, EU21, θ 0.50) at the same prices paid, through expectations; under hold the budget it meets the budget
+  (996.3 Gt) and moves the effort later (2100 price 535 against 500 $/t).
 
 **Before submission.** `pfmPreflight(checks = "groups")` fails a row whose `cm_pfmPhiPath` does not
 match its group (1 for a v6 group, 0 for a v5 group); `pfmReplayInterface()` replays the two path

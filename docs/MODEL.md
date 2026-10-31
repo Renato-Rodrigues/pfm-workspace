@@ -3,26 +3,36 @@
 *The canonical mathematical statement of the selected PFM. A reader should be able to
 implement the model, and evaluate it by hand, from this document alone.*
 
-**Provenance.** Every number is Run-Group **`v7`** unless it says otherwise. Selected specification
-**`X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn iw:fexp`** (ADR 0060), country
-resolution, n = 1104 = 48 countries × 23 years (2001–2023; Estonia excluded, ADR 0058), IEA 2025 edition,
-five-year moving average, geothermal in the clean-baseload control (ADR 0053), trend logistic (midpoint 2010,
-steepness 0.20, standardized, frozen at 2023). Estimation-side numbers are collected by
-`Rscript analysis/checks/docFacts.R v7` into `output/pfm/v7/doc-facts/facts.json`. Re-read from there, never from
-this page.
+**Provenance.** Every number is Run-Group **`v8`** unless it says otherwise. Selected specification
+**`X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP iw:fexp fos5`** (ADR 0062), with fossil
+rents setting the size of the buildings & transport slack (ADR 0061), country resolution, n = 1104 = 48 countries ×
+23 years (2001–2023; Estonia excluded, ADR 0058), IEA 2025 edition, five-year moving average, geothermal in the
+clean-baseload control (ADR 0053), trend logistic (midpoint 2010, steepness 0.20, standardized, frozen at 2023).
+Estimation-side numbers are collected by `Rscript analysis/checks/docFacts.R v8` into
+`output/pfm/v8/doc-facts/facts.json`. Re-read from there, never from this page.
 
-> **Coupled results** are from the first `v7` REMIND 3.7.1 batch (30 runs, EU21 and H12, plus five hold-the-budget
-> re-runs), in `output/pfm/v7/coupling/coupled-facts.json`. This document quotes only what the model definition
-> needs; the full reading is `SCENARIOS.md`. **Results are reported to 2100 and no later.**
+> **What `v8` changes against `v7`** (design note 0009; ADRs 0061–0063): (1) the two fossil terms are bounded below
+> at the training 5th percentile (`fos5`); (2) every actor-power term saturates (`satAP`; `v7`: clean energy only);
+> (3) in buildings & transport the World Bank fossil rents set the size of the slack, not the ceiling (§3.1a);
+> (4) countries without policy data take the covered median share of their ceiling (§5.4); (5) each region's
+> constraint fades with its own gap, the **regional strength** (§5.2); (6) institution series close 0.6% of their gap
+> to the best observed value a year (ADR 0063). The channels, the weight and the selection rule are `v7`'s.
 
-> **Analyses not re-run on `v7`** are labelled "measured on `v6`" (or `v5`) where they appear: the offline
-> strength and specification band (`phase1/`, §5.2, §5.3.0), the coupled specification and coverage
-> sensitivities (§5.3.2, §5.4) and the λ placebo audit (§4.3.2). Their conclusions are about the method; their
-> numbers are not `v7` numbers. The `v6` version of this document is `../_archive/_wip/2026-10-25/docs/MODEL-v6.md`.
+> **Coupled results** are from the `v8` REMIND 3.7.1 batch (52 coupled runs, EU21 and H12) and the two
+> shrinking-future chains (EU21), in `output/pfm/v8/coupling/coupled-facts.json` and `shrinking-future.rds`. This
+> document quotes only what the model definition needs; the full reading is `SCENARIOS.md`. **Results are reported to
+> 2100 and no later.**
+
+> **Analyses not re-run on `v8`** are labelled "measured on `v7`" (or `v6`, `v5`) where they appear: the trend-shape
+> grid (§2.3.1), the strength decomposition and support shares (§2.3, §5.2), the θ bounds (§5.3.1), the coverage and
+> ranking-uncertainty tests (§5.4), the offline strength and specification band (`phase1/`, §5.3.0) and the λ placebo
+> audit (§4.3.2). Their conclusions are about the method; their numbers are not `v8` numbers. The `v7` version of this
+> document is `../_archive/_wip/2026-10-31/docs/MODEL-v7.md` (the `v6` version: `../_archive/_wip/2026-10-25/docs/MODEL-v6.md`).
 
 **Scope.** The model *as selected*. How the spec was selected is ADR 0036/0039/0045/0046/0052, the edge-of-data
-gate design note 0007 §5, the theory gate ADR 0059; the formulation of the share is ADR 0049, 0050 and 0054. The
-REMIND interface is `COUPLING.md` (§14). Traps are `PITFALLS.md`.
+gate design note 0007 §5, the theory gate ADR 0059, the `v8` changes ADR 0061–0063; the formulation of the share is ADR
+0049, 0050, 0054 and 0062. The REMIND interface is `COUPLING.md` (§14, §14.1 for the sequential runs). Traps are
+`PITFALLS.md`.
 
 **Naming.** This document says **PFM** throughout (`pfm*` in code since 2026-10-02; artifacts of
 `v5` and earlier may still carry `psm*`).
@@ -43,22 +53,24 @@ REMIND interface is `COUPLING.md` (§14). Traps are `PITFALLS.md`.
 | $y^{*}$ | transformed response, $\operatorname{logit}(S/M)$ squeezed | $\mathbb{R}$ |
 | $\eta$ | linear predictor | $\mathbb{R}$ |
 | $A^{\text{in}}$ | Clean-energy build-out, **share**, saturating (§2.3) | standardized |
-| $A^{\text{ic}}$ | Fossil dependence, **share** — the dependence / lock-in channel, linear | standardized |
-| $A^{\text{ic,pc}}$ | Fossil interests **per person** = share × primary energy per capita — the scale channel, linear | standardized |
+| $A^{\text{ic}}$ | Fossil dependence, **share** — the dependence / lock-in channel, bounded below at the training 5th percentile, saturating | standardized |
+| $A^{\text{ic,pc}}$ | Fossil interests **per person** = share × primary energy per capita — the scale channel, bounded and saturating like $A^{\text{ic}}$ | standardized |
+| $z$ | fossil rents (World Bank oil, gas and coal rents), $\log(1 + \%\text{ of GDP})$ — the size of the buildings & transport slack (§3.1a) | standardized |
 | $G$ | Government Effectiveness (WGI) — state capability | standardized |
 | $R$ | Rule of Law (V-Dem) | standardized |
 | $V$ | Vertical Accountability (V-Dem) — electoral accountability of rulers to citizens | standardized |
 | $w$ | **interaction weight**: V-Dem freedom of expression and alternative information (`v2x_freexp_altinf`) — new in `v7` | $[0,1]$, unstandardized |
 | $T(t)$ | logistic time trend, frozen at the last historical year | standardized |
-| $v, u$ | symmetric noise $N(0,\sigma_v^2)$; one-sided political slack $N^{+}(0,\sigma_u^2)$ | — |
-| $\gamma$ | slack variance share $\sigma_u^2/\sigma^2$ | $[0,1]$ |
+| $v, u$ | symmetric noise $N(0,\sigma_v^2)$; one-sided political slack $N^{+}(0,\sigma_u^2)$, with $\log\sigma_u = c + \omega z$ in buildings & transport | — |
+| $\gamma$ | slack variance share $\sigma_u^2/\sigma^2$ (buildings & transport: at average rents) | $[0,1]$ |
 | $S^{*}$ | **feasibility frontier** (ceiling) | $[0,10]$ |
 | $E = S/S^{*}$ | efficiency ratio — the implementability factor | $(0,1]$ |
 | $q_{c,s}$ | anchored distance below the ceiling, on the logit scale, $\eta - y$ at $t_a$ | $\geq 0$ |
 | $g_{r,s}$ | regional relative gap $1 - E$ | $[0,1]$ |
 | $u_{r,s}$ | regional **ranking**, min–max of $g$ at $t_a$ | $[0,1]$ |
-| $k_s(t)$ | **strength**: weighted mean gap relative to $t_0$ | $k(t_0) = 1$ |
+| $k_{r,s}(t)$ | **strength**: the region's own gap relative to $t_0$ (regional, central from `v8`); $k_s(t)$ the world's weighted mean gap (common, the sensitivity) | $k(t_0) = 1$ |
 | $\varphi_{r,s}(t)$ | **feasibility share** — fraction of the extra effort beyond current policy a region carries | $[0,1]$ |
+| $t_s$, $\varphi^{(t_s)}$ | start year of a step of a **sequential (shrinking-future) run**, and its windowed share (§5.6a; COUPLING.md writes τ) | — |
 | $\theta$ | severity — declared and swept, never estimated | $[0,1)$ |
 | $\kappa$ | erosion rate of the strength (a declared sensitivity, ADR 0050) | per year |
 | $\lambda_s$ | ECM adjustment speed — a reported diagnostic only, **not in the coupling** (§4) | per year |
@@ -90,8 +102,10 @@ unnecessary.
 
 ### 2.2 The selected specification
 
-`X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satInn iw:fexp`, fitted separately per
-sector on an identical design (the Shared Specification rule):
+`X-1791 WGIge|RoL|VerAcc bothIncAP lev ctl:GDPq.Pop.Hyd fe:OECDp satAP iw:fexp fos5`, fitted separately per
+sector on an identical design (the Shared Specification rule; selecting each sector alone gives power & industry a
+worse-fitting specification and buildings & transport one whose fit comes from region effects and whose fossil and
+institution effects are unstable, design note 0009 §20):
 
 $$
 \begin{aligned}
@@ -106,8 +120,10 @@ $$
 
 Three actor-power terms, three institutions, **nine weighted interactions**, three controls $\mathbf{z}$ (GDP
 per capita Q-centred, log population, clean-baseload share: hydro, nuclear and geothermal) and the
-trend: **19 slope terms**. **No lagged outcome, no Mundlak, levels transform; clean-energy build-out saturates, the
-two fossil terms enter linearly** (`satInn`, §2.3). The drivers and the weight enter at $t-1$; the lag counts
+trend: **19 slope terms**. **No lagged outcome, no Mundlak, levels transform; every actor-power term saturates, and
+the two fossil terms are first bounded below at the training 5th percentile** (`satAP`, `fos5`, §2.3). In buildings &
+transport the slack's size depends on fossil rents (§3.1a); the ceiling $\eta$ does not contain them. The drivers and
+the weight enter at $t-1$; the lag counts
 years, so on a scenario panel in REMIND's 5- to 20-year steps the driver at $t-1$ is interpolated
 (`PITFALLS.md` §31).
 
@@ -126,7 +142,7 @@ coefficients as though one were a refit of the other:
 | | estimator | what it estimates | inference | artifact |
 |---|---|---|---|---|
 | **mean regression** | satP: `glm(gaussian(identity))` on $y^{*}$ | conditional **mean** of $y^{*}$ | country-clustered CR1; wild-cluster bootstrap-$t$, $B$ = 999, $G$ = 48 | `inference.rds` (§2.5) |
-| **frontier** | half-normal SFA on $y^{*}$ | conditional **maximum attainable** $y^{*}$ | ML standard errors (no clustered sandwich exists for the SFA likelihood), checked by `vcovCheck` | `frontier.rds` (§3.3) |
+| **frontier** | half-normal SFA on $y^{*}$; buildings & transport with a heteroscedastic slack (Caudill, Ford & Gropper 1995) | conditional **maximum attainable** $y^{*}$ | ML standard errors (no clustered sandwich exists for the SFA likelihood), checked by `vcovCheck` | `frontier.rds` (§3.3) |
 
 The coupling consumes only the frontier. The mean regression is the inferential companion that
 the selection metrics (ΔR²(theory), significance counts, the theory gate) are computed on.
@@ -152,24 +168,32 @@ $$A^{\text{ic,pc}} = A^{\text{ic}} \times \text{primary energy per capita}$$
 Weights are fixed design constants, not estimated. The drivers measure the economic weight of fossil and
 clean-energy interests, a structural-power proxy (ADR 0056).
 
-**Saturation (`satInn`, the clean-energy-only family; ADR 0040, 0052).** Clean-energy build-out enters as
+**The fossil bound (`fos5`; design note 0009 §7.1, ADR 0062).** Before saturation and standardization, each fossil
+term is bounded below at its training 5th percentile: $A^{\text{ic}} \leftarrow \max(A^{\text{ic}}, a_{0.05})$, the same
+bound frozen in `driverScaling` and applied to every scenario panel. A country whose fossil share falls below anything
+but the cleanest twentieth of the sample is read at that edge, not extrapolated beyond it. It removes part of the
+Iceland artefact (§3.4.3) and improves the fit in both sectors.
+
+**Saturation (`satAP`, every actor-power term; ADR 0040, 0052, 0062).** Each actor-power term enters as
 $x/(x+\bar x)$, with $\bar x$ the training median, before standardization: the curve is steepest at zero and
-flattens above the median, so the clean-energy share does not extrapolate linearly into a range no country has
-occupied. **The two fossil terms enter linearly** (on `v6` they saturated too, `satAP`). Below the observed
-fossil range they therefore extrapolate linearly; the edge-of-data gate (§2.4a) is what checks that this does not
-move the projected ceilings by more than a declared amount. On the coupled 1000 Gt pathway (hold the price, EU21,
-final-energy-weighted share of countries; `coupling/strength-support.rds`), clean-energy build-out is above
-anything observed for 89% of countries in 2050 and 94% in 2100 in power & industry (97% / 99% in buildings &
-transport); fossil dependence is below anything observed for 1% in 2050 and **50% in 2100** in power & industry
-(2% / 19% in buildings & transport); fossil interests per person below for 14% / 18% (17% / 17%).
+flattens above the median, so no share extrapolates linearly into a range no country has occupied. `v7` saturated
+clean energy only (`satInn`); with the bound, that form reaches power & industry γ 0.999004, above the declared gate
+(ADR 0046), and the selection walk moves to `satAP` (ADR 0062). The edge-of-data gate (§2.4a) checks that the low end
+does not move the projected ceilings by more than a declared amount. **Measured on `v7`** (coupled 1000 Gt pathway,
+hold the price, EU21, final-energy-weighted share of countries; `coupling/strength-support.rds`): clean-energy build-out
+is above anything observed for 89% of countries in 2050 and 94% in 2100 in power & industry (97% / 99% in buildings &
+transport); fossil dependence below anything observed for 1% in 2050 and 50% in 2100 in power & industry (2% / 19% in
+buildings & transport). On `v8` the bound holds the fossil terms at the 5th percentile instead.
 
 **The `bothIncAP` form (ADR 0044, ADR 0045).** Fossil interests enter twice — as a share (how
 dependent the energy system is) and per capita (how large the fossil interest is) — which
 nests both the share-only and per-capita-only forms. Clean-energy build-out enters as a share.
 
 > 🔴 **The two fossil channels pull in OPPOSITE directions, and only the pair is
-> interpretable.** On the frontier the power & industry share is **−0.555** and the per-capita term **+0.474**;
-> in buildings & transport −0.160 and +0.086 (§3.3). Their interactions with the institutions differ in sign too.
+> interpretable.** On the frontier the power & industry share is **−0.813** and the per-capita term **+0.491**;
+> in buildings & transport −0.168 and +0.162 (§3.3). Their interactions with the institutions differ in sign too.
+> Read at each country's own values, the net effect of fossil dependence keeps its sign in every country-year in power
+> & industry and in 99% in buildings & transport (`net-effects.rds`; design note 0009 §19, figure `net-effects`).
 > A sentence that names one channel and not the other inverts the sign of the other half. The
 > channels are not orthogonal (share × energy per capita), so this is a decomposition, not two
 > independent findings. The paper reports the fossil effect's dependence on an institution, not one coefficient
@@ -181,13 +205,19 @@ alive. **Never revert.**
 
 **Institutional channels.** $G$ = WGI Government Effectiveness; $R$ = V-Dem Rule of Law (in 100% of bootstrap
 winners, §6); $V$ = V-Dem Vertical Accountability. The institution series are harmonised to the anchor year in
-every scenario (ADR 0051). **The institution main effects are not identified in power & industry** (§2.5, §3.3),
-nor in the poorest countries with very low fossil energy per person (ADR 0060).
+every scenario (ADR 0051) and projected by **gap closure** (ADR 0063): every country closes 0.6% of its distance to the
+best observed value a year from its 2023 value,
+$$x_c(t) = 1 - (1 - x_{c,2023})\,e^{-0.006\,(t-2023)},$$
+the pace of Andrijevic et al.'s SSP2 convergence and within V-Dem's own history; the weight $w$ moves to the higher of
+its 2023 value and its 2014–2023 mean by 2040 and is held. **The institution main effects are not identified in power
+& industry** (§2.5, §3.3), nor in the poorest countries with very low fossil energy per person (ADR 0060). Read jointly
+(the three moved together), their net effect is negative in power & industry and positive in buildings & transport
+(design note 0009 §19).
 
 **Smoothing.** `panelDataHistorical(movingAverage = 5)` applies a centred five-year moving average
 (window shortened at the panel ends, so 2023 = mean of 2021–2023) to every panel column after
 normalisation, the outcome included. Annual data were a robustness rung on `v6` (`v6-annual`, ADR 0053); there is
-no `v7` annual sibling.
+no `v7` or `v8` annual sibling.
 
 **Standardization.** Every driver and interaction factor is standardized on the estimation rows;
 means/SDs are **frozen** in `driverScaling` and reused for scenario panels. Coefficients are per
@@ -210,9 +240,10 @@ non-EU, **other**. Country dummies are an agreement rung only.
 #### 2.3.1 The trend shape is DECLARED, not selected
 
 The trend shape is not a selection dimension: `createChannelConfigs()` hard-codes one $(m,k)$, so the
-selected specification is conditional on that constant. Holding the selected specification fixed and varying only
-the trend (`analysis/checks/trendShapeGrid.R v7` → `output/pfm/v7/trend-shape-grid.rds`; one subprocess per fit,
-120 s cap), frontier logLik at **identical parameter count**:
+selected specification is conditional on that constant. **Measured on `v7`** (the grid has not been re-run on `v8`'s
+specification): holding the selected specification fixed and varying only the trend
+(`analysis/checks/trendShapeGrid.R v7` → `output/pfm/v7/trend-shape-grid.rds`; one subprocess per fit, 120 s cap),
+frontier logLik at **identical parameter count**:
 
 | $(m,k)$ | Power & industry Δ logLik vs selected | Power & industry $\gamma$ | Buildings & transport Δ logLik | Buildings & transport $\gamma$ |
 |---|---:|---:|---:|---:|
@@ -253,55 +284,61 @@ It is a candidate for the trend in the next Run-Group's sweep, not a change to t
 
 | | Power & industry | Buildings & transport |
 |---|---:|---:|
-| ΔR²(theory) | **0.128** | **0.161** |
-| pseudo-R² | 0.727 | 0.780 |
-| trend share of linear-predictor variance | 0.685 | 0.535 |
-| max VIF | 7.51 | 7.62 |
-| significant actor-power / institution / interaction terms | 5 / 3 / 3 | 2 / 2 / 1 |
-| smallest significant theory $\lvert t\rvert$ | 3.12 | 3.15 |
+| ΔR²(theory) | **0.140** | **0.159** |
+| pseudo-R² | 0.739 | 0.778 |
+| trend share of linear-predictor variance | 0.672 | 0.535 |
+| max VIF | 7.67 | 7.83 |
+| significant actor-power / institution / interaction terms | 6 / 4 / 4 | 3 / 3 / 2 |
+| smallest significant theory $\lvert t\rvert$ | 2.52 | 2.29 |
 | tier | Green | Green |
 | $n$ | 1104 | 1104 |
 
-**Selection position.** 36,384 specifications ranked; **84** pass every gate (the admissibility gates, the
-edge-of-data gate and the theory gate; 5,930 pass the gates before the theory gate). The maximin order sorts by
-trend share first (`trendKey`); the selected specification is **rank 18** (mean ΔR²(theory) 0.1445, minimum
-0.128, ΣBIC 4718.8, fragility 0). Of the seventeen ahead of it, thirteen fail a gate (most the theory gate's H2 in
-buildings & transport) and four pass and are rejected by the **sanity walk** (four or five severe flags each:
-the all-linear variants of X-1791, X-1794 and X-1860, and the `satInc` variant of X-1860). It is accepted with 0 severe flags and
-47 warnings (`forced = FALSE`).
+**Selection position.** 36,384 specifications ranked; **80** pass every gate (the admissibility gates, the
+edge-of-data gate and the theory gate; 5,786 pass the gates before the theory gate). The maximin order sorts by
+trend share first (`trendKey`); the selected specification is **rank 18** (mean ΔR²(theory) 0.1495, minimum
+0.140, ΣBIC 4677.4, fragility 0). The sanity walk rejects the six candidates ahead of it in the pool (one to six
+severe flags each; `v7`'s own form with the bound, `… satInn iw:fexp fos5`, on one flag only: power & industry γ
+0.999004, above the gate) and accepts it with 0 severe flags and 85 warnings (`forced = FALSE`; ADR 0062).
 
 Gates in force: `supportShareGate` **0.275** (ADR 0045, 0052), `ceilingFallGate` 0.90 (ADR 0043; the selected
-specification ends at 1.15 / 1.26 of its 2025 ceiling on the 1000 Gt pathway), `gammaGate` 0.999 (ADR 0046),
+specification ends at 1.07 / 1.27 of its 2025 ceiling on the 1000 Gt pathway), `gammaGate` 0.999 (ADR 0046),
 VIF hard 10 / soft 6; the edge-of-data gate and the theory gate (§2.4a).
 
 > ⚠️ **Rank 18 is not dominance.** The best *per-sector* specifications fit more: power & industry
-> `X-2980 WGIge|RoL|OvAcc … satInn` reaches ΔR² 0.140 and buildings & transport `X-1854 … satInc` 0.202 — a
-> **sharing cost** of 0.012 (8.6%) in power & industry and 0.041 (20.3%) in buildings & transport
-> (`selection-variants.rds`).
+> `X-1791 … satInn fos5` reaches ΔR² 0.144 and buildings & transport `X-1854 WGIge|RoL|HorAcc … satInc fos5` 0.206 —
+> a **sharing cost** of 0.004 (2.8%) in power & industry and 0.047 (22.8%) in buildings & transport
+> (`selection-variants.rds`). Selected sector by sector with the same gates, power & industry picks a worse-fitting
+> specification and buildings & transport one whose BIC gain comes from twelve region effects and whose fossil and
+> institution effects lose their sign for most final energy by 2100 (design note 0009 §20): the shared specification
+> is kept.
 
-#### 2.4a The two gates new in `v7`
+#### 2.4a The two gates (from `v7`)
 
 **The edge-of-data gate** (`.pfmEdgeGate`, design note 0007 §5). A specification is admitted only if, on the
 coupled 1000 Gt drivers mapped to EU21, (i) the share of a region's weight on which the fossil effect acts against
 the theoretical expectation is below 0.25, (ii) the size of that adverse effect is below 0.25, and (iii) capping
 the drivers at the observed range moves the projected ceilings by less than 0.5 (cap quantiles 0.05 / 0.95). The
-selected specification: cap shift **0.21** (power & industry) and **0.09** (buildings & transport). `v6`'s
-specification on the `v7` data fails it (0.56 and 1.29; ADR 0060).
+selected `v8` specification passes it; the `v8` sweep keeps the verdict, not the cap shifts (on `v7`: 0.21 and 0.09;
+`v6`'s specification on the `v7` data failed at 0.56 and 1.29, ADR 0060). The clean-energy direction check applies
+only where the sample-centre sign is the expected one, so it does not apply in power & industry on `v8` (ADR 0062).
 
 **The theory gate** (ADR 0059). The hypotheses are stated before the estimate (paper Methods §1) and required of
 the specification, on the mean regression with wild-cluster $p$:
 
 | | hypothesis | requirement | power & industry | buildings & transport |
 |---|---|---|---|---|
-| **H1** | structural power | fossil dependence lowers stringency, $p < 0.05$ | −0.731 ($p$ .008) | −0.199 ($p$ .015) |
-| **H2** | contingency | at least one fossil × institution term significant after Bonferroni correction over the sector's fossil × institution terms; share and per-person terms both count; **sign free** | fossil pc × GovEff −1.021, fossil pc × RoL +1.346 (both $p$ < .001) | fossil pc × VerAcc +0.698 ($p$ .001) |
-| **H3** | coherence | the fossil effect, including its interactions, is negative in ≥ 75% of country-years | 100% | 95% |
+| **H1** | structural power | fossil dependence lowers stringency, $p < 0.05$ | −0.883 ($p_{\text{wild}}$ < .001) | −0.249 ($p_{\text{wild}}$ < .001) |
+| **H2** | contingency | at least one fossil × institution term significant after Bonferroni correction over the sector's fossil × institution terms; share and per-person terms both count; **sign free** | fossil pc × GovEff −0.761, fossil pc × RoL +1.376 (both $p$ < .001) | fossil pc × VerAcc +0.632 ($p_{\text{asym}}$ .004; $p_{\text{wild}}$ .068) |
+| **H3** | coherence | the fossil effect, including its interactions, is negative in ≥ 75% of country-years | 100% | 99% |
 
-Declared sensitivities of the gate (ADR 0059 acceptance): H3 at 0.70 and 0.80, $p$ at 0.10 (Run-Groups
-`v7-h3070`, `v7-h3080`, `v7-p10`; `RUNNING.md` Step 6c). **All three select the same specification at the same rank
-(18)**, accepted with 0 severe flags (`output/pfm/<group>/sweep.rds`). H3 never binds: no specification fails it at
-0.70, 0.75 or 0.80. At $p$ 0.10, 152 specifications pass the gates instead of 84, and the sanity walk rejects the seven
-ahead of the selected one (four or five severe flags each) before accepting it.
+> ⚠️ **H2 in buildings & transport passes on the asymptotic clustered $p$ the gate reads, not under the wild
+> bootstrap**: the smallest wild-bootstrap fossil × institution $p$ is .024 (fossil dependence × accountability),
+> above the Bonferroni level 0.05/6 = .008 (`v7`: .001). Treat the buildings & transport contingency as suggestive, not
+> established, and quote the wild value with H2 (ADR 0062).
+
+Declared sensitivities of the gate (ADR 0059 acceptance), **run on `v7`**: H3 at 0.70 and 0.80, $p$ at 0.10
+(Run-Groups `v7-h3070`, `v7-h3080`, `v7-p10`; `RUNNING.md` Step 6c) all selected `v7`'s specification at the same rank;
+H3 never bound. They have not been re-run on `v8`.
 
 > ⚠️ **Post-selection inference.** The selection requires H1–H2, so the reported $p$-values of the terms the gate
 > reads are biased downwards; they are conditional on a specification chosen in part for them. The rule was
@@ -316,45 +353,46 @@ average marginal effect in index points per SD (§2.7). Interaction rows are the
 
 | Term | Power & industry $\hat\beta$ | $p_{\text{asym}}$ | $p_{\text{wild}}$ | AME | Buildings & transport $\hat\beta$ | $p_{\text{asym}}$ | $p_{\text{wild}}$ | AME |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Clean-energy build-out | −0.122 | .254 | .238 | −0.181 | 0.046 | .480 | .549 | 0.088 |
-| Fossil dependence (share) | **−0.731** | .002 | **.008** | −1.085 | **−0.199** | .002 | **.015** | −0.385 |
-| Fossil interests (pc) | **0.518** | <.001 | **<.001** | 0.768 | 0.050 | .459 | .547 | 0.096 |
-| Gov. Effectiveness | 0.067 | .649 | .642 | 0.100 | **0.316** | .001 | **.003** | 0.612 |
-| Rule of Law | 0.293 | .113 | .193 | 0.434 | −0.154 | .139 | .214 | −0.297 |
-| Vertical Accountability | −0.189 | .189 | .373 | −0.280 | 0.114 | .174 | .334 | 0.221 |
-| Innov × GovEff | **−0.377** | <.001 | **.001** | −0.560 | 0.062 | .393 | .470 | 0.120 |
-| Innov × RoL | 0.398 | .130 | .170 | 0.591 | 0.102 | .343 | .413 | 0.197 |
-| Innov × VerAcc | −0.189 | .596 | .606 | −0.280 | −0.283 | .239 | .349 | −0.546 |
-| Fossil × GovEff | 0.131 | .480 | .559 | 0.195 | 0.060 | .453 | .487 | 0.116 |
-| Fossil × RoL | 0.684 | .119 | .231 | 1.015 | 0.260 | .058 | .074 | 0.503 |
-| Fossil × VerAcc | −0.557 | .328 | .397 | −0.827 | −0.292 | .108 | .149 | −0.564 |
-| Fossil pc × GovEff | **−1.021** | <.001 | **<.001** | −1.515 | −0.084 | .567 | .659 | −0.162 |
-| Fossil pc × RoL | **1.346** | <.001 | **<.001** | 1.997 | −0.327 | .113 | .209 | −0.633 |
-| Fossil pc × VerAcc | −0.357 | .231 | .380 | −0.530 | **0.698** | <.001 | **.001** | 1.349 |
-| GDP p.c. (Q-centred) | 0.100 | .252 | .325 | 0.149 | −0.059 | .250 | .355 | −0.114 |
-| Population (log) | **0.378** | <.001 | **<.001** | 0.562 | **0.293** | <.001 | **<.001** | 0.566 |
-| Clean baseload share | **−0.297** | .023 | **.040** | −0.441 | 0.021 | .698 | .767 | 0.040 |
-| Logistic trend | **1.300** | <.001 | **<.001** | 1.929 | **0.621** | <.001 | **<.001** | 1.201 |
+| Clean-energy build-out | −0.137 | .254 | .297 | −0.203 | 0.052 | .439 | .524 | 0.100 |
+| Fossil dependence (share) | **−0.883** | <.001 | **<.001** | −1.309 | **−0.249** | <.001 | **<.001** | −0.482 |
+| Fossil interests (pc) | **0.625** | <.001 | **<.001** | 0.925 | 0.056 | .523 | .635 | 0.109 |
+| Gov. Effectiveness | −0.044 | .790 | .798 | −0.065 | **0.286** | .007 | **.014** | 0.553 |
+| Rule of Law | 0.365 | .052 | .130 | 0.540 | −0.145 | .146 | .263 | −0.280 |
+| Vertical Accountability | −0.264 | .067 | .162 | −0.391 | 0.150 | .080 | .251 | 0.289 |
+| Innov × GovEff | **−0.333** | <.001 | **.004** | −0.493 | 0.083 | .234 | .305 | 0.160 |
+| Innov × RoL | 0.291 | .246 | .288 | 0.432 | 0.138 | .274 | .366 | 0.267 |
+| Innov × VerAcc | 0.013 | .967 | .971 | 0.019 | −0.404 | .162 | .315 | −0.781 |
+| Fossil × GovEff | 0.209 | .239 | .342 | 0.309 | 0.103 | .120 | .141 | 0.200 |
+| Fossil × RoL | 0.494 | .247 | .366 | 0.732 | 0.262 | .074 | .129 | 0.507 |
+| Fossil × VerAcc | −0.501 | .383 | .464 | −0.742 | **−0.371** | .022 | **.024** | −0.717 |
+| Fossil pc × GovEff | **−0.761** | <.001 | **<.001** | −1.127 | −0.087 | .441 | .521 | −0.168 |
+| Fossil pc × RoL | **1.376** | <.001 | **<.001** | 2.038 | −0.234 | .221 | .409 | −0.453 |
+| Fossil pc × VerAcc | **−0.715** | .012 | **.049** | −1.059 | 0.632 | .004 | .068 | 1.221 |
+| GDP p.c. (Q-centred) | 0.128 | .135 | .207 | 0.190 | −0.054 | .304 | .411 | −0.104 |
+| Population (log) | **0.411** | <.001 | **.001** | 0.608 | **0.316** | <.001 | **<.001** | 0.611 |
+| Clean baseload share | **−0.376** | .002 | **.006** | −0.557 | 0.011 | .833 | .871 | 0.021 |
+| Logistic trend | **1.298** | <.001 | **<.001** | 1.923 | **0.620** | <.001 | **<.001** | 1.199 |
 
-> No term changes verdict between the asymptotic and the wild-cluster $p$ at 0.05 (on `v6` one did).
+> **One term changes verdict between the asymptotic and the wild-cluster $p$ at 0.05**: buildings & transport
+> `Fossil pc × VerAcc` (.004 asymptotic, .068 wild) — the term the theory gate's H2 reads in that sector (§2.4a).
 
 **What the table says, on signs and wild $p$:**
 
-- **Structural power (H1) in both sectors.** Fossil dependence lowers stringency: −0.731 in power & industry,
-  −0.199 in buildings & transport.
-- **No institution main effect is significant in power & industry** ($p_{\text{wild}}$ .64 / .19 / .37), and the
+- **Structural power (H1) is stronger than on `v7` in both sectors.** Fossil dependence lowers stringency: −0.883 in
+  power & industry, −0.249 in buildings & transport (both $p_{\text{wild}}$ < .001; `v7`: −0.731 / −0.199).
+- **No institution main effect is significant in power & industry** ($p_{\text{wild}}$ .80 / .13 / .16), and the
   frontier gives GovEff and VerAcc the opposite sign (§3.3). **The power & industry institution main effects are
   not identified.**
-- **State capability is significant in buildings & transport** (GovEff +0.316, $p_{\text{wild}}$ .003; positive in
-  6 of 7 estimators, §2.5.1).
-- **Contingency (H2) acts through fossil interests per person in both sectors.** In power & industry with state
-  capability (−1.021) and rule of law (+1.346); in buildings & transport with accountability (+0.698). On `v6` the
-  buildings & transport contingency ran through the fossil *share* × accountability (−0.492, $p$ < .001); on `v7`
-  that term is −0.292 ($p$ .149). Only the pair of fossil terms is interpretable (§2.3).
-- **Fossil interests per person raise power & industry stringency** (+0.518) — the scale reading the design
+- **State capability is significant in buildings & transport** (GovEff +0.286, $p_{\text{wild}}$ .014).
+- **Contingency (H2) in power & industry acts through fossil interests per person** with state capability (−0.761),
+  rule of law (+1.376) and accountability (−0.715). **In buildings & transport it is suggestive only**: fossil
+  dependence × accountability −0.371 ($p_{\text{wild}}$ .024) and fossil pc × accountability +0.632 (.068), neither
+  below the Bonferroni level. Only the pair of fossil terms is interpretable (§2.3), and the separate institution
+  effects are read jointly (design note 0009 §19).
+- **Fossil interests per person raise power & industry stringency** (+0.625) — the scale reading the design
   carries alongside the dependence reading, and a disclosed tension (§8.3).
 - **Population and the trend are significant in both sectors**; the clean-baseload share is negative in power &
-  industry (−0.297, $p_{\text{wild}}$ .040).
+  industry (−0.376, $p_{\text{wild}}$ .006).
 
 #### 2.5.1 Sign stability across estimators (`estimator-agreement.rds`)
 
@@ -364,15 +402,15 @@ absent from the year-FE estimators):
 
 | | Power & industry | Buildings & transport |
 |---|---|---|
-| terms with every sign agreeing | **6 of 19** | **9 of 19** |
-| which | fossil dependence (−), `Fossil pc × RoL` (+), `Fossil × RoL` (+), `Fossil × VerAcc` (−), `Innov × VerAcc` (−), trend (+) | fossil dependence (−), `Fossil pc × VerAcc` (+), clean-energy (+), `Innov × GovEff` (+), `Innov × VerAcc` (−), population (+), RoL (−), VerAcc (+), trend (+) |
-| fossil dependence | − in 7, significant in 6 | − in 7, significant in 6 |
-| GovEff | + in 5, − in 2 | + in 6, − in 1 |
+| terms with every sign agreeing | **5 of 19** | **9 of 19** |
+| which | fossil dependence (−), `Fossil × RoL` (+), `Fossil × VerAcc` (−), clean baseload (−), trend (+) | fossil dependence (−), fossil pc (+), `Fossil pc × GovEff` (−), `Fossil pc × VerAcc` (+), `Innov × GovEff` (+), `Innov × VerAcc` (−), GDP (−), population (+), trend (+) |
+| fossil dependence | − in 7, significant in 7 | − in 7, significant in 6 |
+| GovEff | + in 3, − in 4 | + in 6, − in 1 |
 
-> ⚠️ **Sign agreement is weak in power & industry.** Thirteen of nineteen power & industry terms change sign
-> somewhere in the battery, the institution main effects and `Fossil pc × GovEff` (− in 6) among them. The two
-> hypotheses' anchors hold: fossil dependence is negative under every estimator in both sectors, and the
-> contingency terms the gate reads keep their sign in six or seven of seven.
+> ⚠️ **Sign agreement is weak in power & industry.** Fourteen of nineteen power & industry terms change sign
+> somewhere in the battery, the institution main effects among them; `Fossil pc × GovEff` and `Fossil pc × RoL` keep
+> their sign in six of seven. The two hypotheses' anchors hold: fossil dependence is negative under every estimator in
+> both sectors.
 
 ### 2.6 How much of this survives dropping one country (`influence.rds`)
 
@@ -382,33 +420,36 @@ significant at full sample:
 
 | Term | $p$ | $p_{\max}$ over refits | pivotal | verdict |
 |---|---:|---:|---|---|
-| **Power & industry** fossil dependence | .003 | .031 | — | robust |
-| Power & industry fossil interests per person | <.001 | .004 | — | robust |
-| Power & industry Fossil pc × GovEff | <.001 | .0002 | — | robust |
-| Power & industry Fossil pc × RoL | <.001 | .0001 | — | robust |
-| Power & industry Innov × GovEff | <.001 | .009 | — | robust |
-| **Buildings & transport** fossil dependence | .003 | .052 | 1 — RUS | 🟠 borderline |
-| Buildings & transport GovEff | .003 | .045 | — | robust |
-| Buildings & transport Fossil pc × VerAcc | <.001 | .809 | 2 — CHN, SAU | 🟠 holds except two |
+| **Power & industry** fossil dependence | <.001 | .002 | — | robust |
+| Power & industry fossil interests per person | <.001 | .0003 | — | robust |
+| Power & industry Fossil pc × GovEff | <.001 | .0003 | — | robust |
+| Power & industry Fossil pc × RoL | <.001 | <.0001 | — | robust |
+| Power & industry Innov × GovEff | .002 | .019 | — | robust |
+| Power & industry Fossil pc × VerAcc | .015 | .051 | 1 — ZAF | 🟠 borderline |
+| **Buildings & transport** fossil dependence | <.001 | .044 | — | robust |
+| Buildings & transport GovEff | .010 | .082 | 1 — ISL | 🟠 borderline |
+| Buildings & transport Fossil × VerAcc | .027 | .383 | 7 — ARG, CHE, CRI, ISL, LUX, LVA, MLT | 🔴 fragile |
+| Buildings & transport Fossil pc × VerAcc | .006 | .994 | 2 — CHN, SAU | 🟠 holds except two |
 
-> **H1 is more robust than on `v6`** (power & industry largest leave-one-out $p$ .031 against .243). The buildings &
-> transport contingency rests on two countries: without China or without Saudi Arabia, `Fossil pc × VerAcc` is not
-> significant.
+> **H1 is robust in both sectors** (largest leave-one-out $p$ .002 in power & industry, .044 in buildings & transport;
+> `v7`: .031 / .052). The buildings & transport contingency is not: one of its two candidate terms loses significance
+> without any of seven countries, the other without China or Saudi Arabia.
 
 Terms not significant at full sample whose removal of one country would *create* significance
-exist in both sectors (buildings & transport `Fossil × RoL`: seven countries; power & industry RoL: three).
+exist in both sectors (power & industry RoL: six countries, VerAcc: five; buildings & transport `Fossil × RoL`: six).
 **No claim rests on any of them, and dropping a country to obtain a result is exactly what must
 not be done.**
 
 #### 2.6.1 One country with leverage: Saudi Arabia
 
-SAU is the top influencer on **eight of fifteen** buildings & transport theory terms (every per-capita term and
-its interactions, rule of law, GovEff, and two clean-energy interactions) and on four power & industry terms
-(RoL, `Innov × GovEff`, `Fossil pc × RoL`, `Fossil pc × VerAcc`), and pivotal in buildings & transport
-`Fossil pc × VerAcc`. It combines the lowest Vertical Accountability in the sample with the highest fossil
-interests per person — the plane the accountability × fossil interests interaction identifies. The conjunction
-has n = 1. **No control fixes this**: the binding constraint is support, and no covariate creates data where there
-is none (§2.7).
+SAU is the top influencer on **eight of fifteen** buildings & transport theory terms (fossil interests per person,
+the three institutions, two clean-energy interactions, `Fossil pc × RoL`, `Fossil pc × VerAcc`) and on one power &
+industry term (`Fossil pc × RoL`), and pivotal in buildings & transport `Fossil pc × VerAcc`. It combines the lowest
+Vertical Accountability in the sample with the highest fossil interests per person — the plane the accountability ×
+fossil interests interaction identifies. The conjunction has n = 1. **No control fixes this in the ceiling**: the
+binding constraint is support, and no covariate creates data where there is none (§2.7). On `v8` its distance below the
+buildings & transport ceiling is partly explained by its rents, through the slack (§3.1a): its share of the ceiling used
+falls from 0.94 to 0.66 in 2023 (ADR 0062).
 
 ### 2.7 Marginal effects
 
@@ -418,8 +459,8 @@ $$\text{AME}_k = \frac{1}{N}\sum_{c,t} M\,\operatorname{logit}^{-1}(\eta)\big(1-
 
 with $\partial\eta/\partial x_k$ including interaction terms (and the weight $w$) and delta-method clustered SEs;
 tabulated in §2.5 and persisted in `inference.rds`. Every driver is standardized, so every AME is per
-SD. Examples: buildings & transport **GovEff** AME **0.612** index points per SD (SE 0.190); power & industry
-**fossil dependence** **−1.085** (SE 0.346), the largest identified power & industry main-effect AME.
+SD. Examples: buildings & transport **GovEff** AME **0.553** index points per SD (SE 0.205); power & industry
+**fossil dependence** **−1.309** (SE 0.309), the largest identified power & industry main-effect AME.
 
 **Support discipline:** AMEs are reported only over the driver range where they are identified
 (`computeMarginalEffectSupport`). An interaction evaluated outside the observed joint support is
@@ -441,7 +482,29 @@ v\sim N(0,\sigma_v^2),\quad u\sim N^{+}(0,\sigma_u^2)$$
 
 Slack is separated from noise by Jondrow et al. (1982): with $\varepsilon = v-u$,
 $\mu^{*} = -\varepsilon\gamma$, $\sigma^{*} = \sqrt{\gamma(1-\gamma)\sigma^2}$, and
-$\mathbb{E}[u\mid\varepsilon] = \mu^{*} + \sigma^{*}\phi(\mu^{*}/\sigma^{*})/\Phi(\mu^{*}/\sigma^{*})$.
+$\mathbb{E}[u\mid\varepsilon] = \mu^{*} + \sigma^{*}\phi(\mu^{*}/\sigma^{*})/\Phi(\mu^{*}/\sigma^{*})$
+(with $\gamma$ and $\sigma$ evaluated row by row where the slack is heteroscedastic).
+
+### 3.1a Fossil rents set the size of the buildings & transport slack (ADR 0061)
+
+In buildings & transport the slack's scale depends on fossil rents; the ceiling does not:
+
+$$u_{c,t} \sim \big|N(0,\sigma_{u,c,t}^2)\big|,\qquad \log\sigma_{u,c,t} = c + \omega\, z_{c,t-1}$$
+
+with $z$ the World Bank's oil, gas and coal rents, $\log(1 + \%\text{ of GDP})$, standardized on the training rows.
+Estimated with the ceiling (Caudill, Ford & Gropper 1995): **ω = +0.277** (z 12.1), $c$ = −0.587. Countries with large
+rents sit further below a ceiling their institutions and interests would allow — the rentier reading (Ross 2012) — so
+the rents are a statement about the slack, not the ceiling: in the ceiling they raised power & industry stringency
+and failed the gates (design note 0009 §§3, 6.1). Out of sample (each covered country left out in turn), the rents
+slack predicts better than the homoscedastic one in **38 of 48** countries in buildings & transport (sign test $p$
+0.0001) and in 27 of 48 in power & industry ($p$ 0.47), which therefore keeps the homoscedastic slack
+(`v8-het-slack-cv.rds`). **In the coupling** a country's distance below the buildings & transport ceiling follows its
+rents (§5.2):
+
+$$q_c(t) = q_c\, e^{\,\omega\,(z_c(t) - z_{c,2023})},$$
+
+with $z_c(t)$ the country's 2023 rents moved by its REMIND region's rents relative to 2025 (valued at the region's own
+primary-energy price; the ratio bounded to [0, 3]). A country without a rents series keeps its anchored distance.
 
 ### 3.2 In index units
 
@@ -456,15 +519,17 @@ $$G^{\text{ap}} = S^{*} - \hat S^{\text{exp}},\qquad E = \frac{S}{S^{*}} \in (0,
 
 ### 3.3 Estimated frontier (`frontier.rds`)
 
-Half-normal SFA, both sectors on the identical design, $n = 1104$ each.
+Half-normal SFA, both sectors on the identical design, $n = 1104$ each; buildings & transport with the rents slack
+(§3.1a).
 
 | | Power & industry | Buildings & transport |
 |---|---:|---:|
-| $\gamma = \sigma_u^2/\sigma^2$ | **0.9984** | **0.9725** |
-| $\sigma^2$ | 2.206 | 0.488 |
-| LR test against OLS | 518.0 | 317.7 |
-| logLik | −1265.3 | −529.1 |
-| covariance check (`vcovCheck`) | ok, ratio 1.01 | ok, ratio 0.98 |
+| $\gamma = \sigma_u^2/\sigma^2$ | **0.9989** | **0.9178** (at average rents) |
+| $\sigma^2$ | 2.095 | 0.337 (at average rents) |
+| slack weight ω on rents | — | **+0.277** (z 12.1) |
+| LR test against OLS | 534.8 | 512.9 |
+| logLik | −1232.1 | −435.6 |
+| covariance check (`vcovCheck`) | ok, ratio 1.02 | ok |
 | converged | yes | yes |
 
 **Frontier coefficients** (ML standard errors; $p$ asymptotic — see §2.2 for why there is no
@@ -472,104 +537,108 @@ clustered alternative):
 
 | Term | Power & industry $\hat\beta_F$ | $p$ | Buildings & transport $\hat\beta_F$ | $p$ |
 |---|---:|---:|---:|---:|
-| Clean-energy build-out | **0.125** | <.001 | **0.138** | <.001 |
-| Fossil dependence (share) | **−0.555** | <.001 | **−0.160** | <.001 |
-| Fossil interests (pc) | **0.474** | <.001 | **0.086** | <.001 |
-| Gov. Effectiveness | **−0.493** | <.001 | **0.250** | <.001 |
-| Rule of Law | **0.694** | <.001 | −0.056 | .26 |
-| Vertical Accountability | **−0.391** | <.001 | 0.060 | .12 |
-| Innov × GovEff | **−0.175** | <.001 | 0.018 | .53 |
-| Innov × RoL | **0.250** | <.001 | **0.156** | <.001 |
-| Innov × VerAcc | **−0.266** | .011 | **−0.317** | <.001 |
-| Fossil × GovEff | **0.373** | <.001 | 0.064 | .075 |
-| Fossil × RoL | −0.145 | .36 | **0.244** | <.001 |
-| Fossil × VerAcc | −0.143 | .49 | **−0.304** | .004 |
-| Fossil pc × GovEff | **−1.084** | <.001 | **−0.121** | .001 |
-| Fossil pc × RoL | **1.475** | <.001 | **−0.261** | <.001 |
-| Fossil pc × VerAcc | −0.106 | .29 | **0.567** | <.001 |
-| GDP p.c. (Q-centred) | 0.060 | .090 | 0.001 | .95 |
-| Population (log) | **0.261** | <.001 | **0.256** | <.001 |
-| Clean baseload share | **−0.206** | <.001 | 0.031 | .11 |
-| Logistic trend | **0.901** | <.001 | **0.497** | <.001 |
-| FE OECD / other (vs EU) | **−0.200** (<.001) / **−1.090** (<.001) | | **−0.146** (<.001) / **−0.380** (<.001) | |
+| Clean-energy build-out | −0.031 | .41 | **0.083** | <.001 |
+| Fossil dependence (share) | **−0.813** | <.001 | **−0.168** | <.001 |
+| Fossil interests (pc) | **0.491** | <.001 | **0.162** | <.001 |
+| Gov. Effectiveness | **−0.518** | <.001 | **0.167** | <.001 |
+| Rule of Law | **0.670** | <.001 | 0.029 | .48 |
+| Vertical Accountability | **−0.431** | <.001 | 0.035 | .29 |
+| Innov × GovEff | **−0.210** | <.001 | **0.066** | .008 |
+| Innov × RoL | **0.224** | .011 | 0.052 | .28 |
+| Innov × VerAcc | 0.056 | .61 | −0.079 | .32 |
+| Fossil × GovEff | **0.439** | <.001 | **0.092** | <.001 |
+| Fossil × RoL | **−0.267** | .028 | **0.149** | .016 |
+| Fossil × VerAcc | 0.008 | .96 | **−0.339** | <.001 |
+| Fossil pc × GovEff | **−0.813** | <.001 | **−0.110** | <.001 |
+| Fossil pc × RoL | **1.180** | <.001 | −0.074 | .16 |
+| Fossil pc × VerAcc | −0.050 | .66 | **0.262** | .002 |
+| GDP p.c. (Q-centred) | **0.113** | <.001 | 0.011 | .38 |
+| Population (log) | **0.253** | <.001 | **0.273** | <.001 |
+| Clean baseload share | **−0.354** | <.001 | −0.009 | .57 |
+| Logistic trend | **0.974** | <.001 | **0.481** | <.001 |
+| FE OECD / other (vs EU) | 0.052 (.26) / **−1.039** (<.001) | | **−0.129** (<.001) / **−0.269** (<.001) | |
+| slack: constant $c$ / rents ω | — | | −0.587 (<.001) / **+0.277** (<.001) | |
 
+> ⚠️ **The clean-energy main effect in power & industry is gone** (−0.031, $p$ .41; `v7` +0.125). The clean-energy
+> terms carry no requirement (ADR 0059) and were already reported as not identified (ADR 0062).
+>
 > ⚠️ **The two estimators disagree about power & industry institutions.** The mean regression finds no power &
-> industry institution main effect (GovEff +0.067, RoL +0.293, VerAcc −0.189, all $p_{\text{wild}}$ > .19); the
-> frontier finds GovEff **−0.493**, VerAcc **−0.391** and RoL **+0.694**. They estimate different
+> industry institution main effect (GovEff −0.044, RoL +0.365, VerAcc −0.264, all $p_{\text{wild}}$ > .13); the
+> frontier finds GovEff **−0.518**, VerAcc **−0.431** and RoL **+0.670**. They estimate different
 > things — the average versus the attainable maximum — but "state capability raises the power & industry
 > *ceiling*" is **not** a supported sentence, and nor is its negation. In buildings & transport both estimators
-> agree on GovEff (+0.316 mean, +0.250 frontier).
+> agree on GovEff (+0.286 mean, +0.167 frontier).
 >
 > ✅ **The terms the theory gate reads agree in sign across the two estimators**: fossil dependence (−/−), fossil pc
 > × GovEff and × RoL in power & industry, fossil pc × VerAcc in buildings & transport.
 >
 > ⚠️ **Frontier $p$-values are ML and understate uncertainty.** The design effect of country clustering
-> on the same design is **1.93×** (power & industry) and **2.20×** (buildings & transport) in the mean regression
+> on the same design was **1.93×** (power & industry) and **2.20×** (buildings & transport) in the `v7` mean regression
 > (`efficiency-ratio-band.rds`, §5.3.1). Quote frontier signs; quote mean-regression $p$.
 
 ### 3.4 ⚠️ The $\gamma$ caveat — read before using any ceiling
 
-$\gamma$ = 0.998 / 0.973 attributes nearly all composed error to slack. Both are inside the γ gate
-(0.999, ADR 0046); power & industry γ is close enough to 1 that the noise/slack split is weakly identified and
-the *level* of a single country's ceiling is the least trustworthy thing the model produces (accepted with
-disclosure since ADR 0053). The coupling reads the ceilings as an **ordering** (§5.2). The robustness battery
-re-estimates under three alternative error structures; $\rho$ is the Spearman correlation of country slack ranks
-against the headline:
+$\gamma$ = 0.9989 / 0.918 attributes nearly all composed error to slack. Both are inside the γ gate
+(0.999, ADR 0046), but **the power & industry margin is 0.0001**: `v7`'s own form with the bound crossed it (§2.4), and
+a small change of panel or form could push this one over. The noise/slack split is weakly identified there and the
+*level* of a single country's ceiling is the least trustworthy thing the model produces (accepted with disclosure
+since ADR 0053). The rents slack lowers buildings & transport γ (0.973 → 0.918 at average rents): part of what looked
+like slack is now its measured size. The coupling reads the ceilings as an **ordering** (§5.2). The robustness battery
+re-estimates under three alternative error structures (homoscedastic in both sectors); $\rho$ is the Spearman
+correlation of country slack ranks against the headline:
 
 | Rung | Power & industry $\gamma$ | Power & industry $\rho$ | Buildings & transport $\gamma$ | Buildings & transport $\rho$ |
 |---|---:|---:|---:|---:|
-| headline (pooled half-normal) | **0.9984** | — | **0.9725** | — |
-| truncated-normal $u$ | 0.997 | 0.39 | 0.979 | **0.78** |
-| panel (Battese–Coelli 92) | 0.916 | 0.05 | 0.909 | 0.46 |
-| time-decay (BC), $\eta$ | 0.064, $\eta$ = 0.156 | 0.03 | 0.217, $\eta$ = 0.113 | **0.66** |
+| headline (pooled half-normal) | **0.9989** | — | **0.9178** | — |
+| truncated-normal $u$ | 0.997 | 0.38 | 0.981 | **0.90** |
+| panel (Battese–Coelli 92) | 0.871 | 0.42 | 0.872 | 0.65 |
+| time-decay (BC), $\eta$ | 0.051, $\eta$ = 0.161 | 0.03 | 0.221, $\eta$ = 0.114 | **0.79** |
 
-> 🔴 **Power & industry slack ranks are not robust on any rung** (0.39 / 0.05 / 0.03). Buildings & transport holds
-> on two of three (0.78 / 0.66) and weakens on the panel rung (0.46). **Report tiers, never named country
+> 🔴 **Power & industry slack ranks are not robust on any rung** (0.38 / 0.42 / 0.03). Buildings & transport holds
+> on two of three (0.90 / 0.79) and weakens on the panel rung (0.65). **Report tiers, never named country
 > rankings of slack, in both sectors.**
 
 #### 3.4.1 Propagated to what the coupling consumes (`frontier-rung-phi.rds`)
 
 `slackRankCor` ranks countries on absolute slack, which the coupling never sees; it consumes $E$,
-then $\varphi$. Rebuilt per rung (`analysis/checks/propagateFrontierRungsToPhi.R v7 2023`, the anchor
+then $\varphi$. Rebuilt per rung (`analysis/checks/propagateFrontierRungsToPhi.R v8 2023`, the anchor
 year, 48 covered countries, θ = 0.50; offline, not through the coupling's anchor artifact):
 
 **Country $E$ versus the headline:**
 
 | Rung | Power & industry $\rho$ | median $\lvert\Delta E\rvert$ | Buildings & transport $\rho$ | median $\lvert\Delta E\rvert$ |
 |---|---:|---:|---:|---:|
-| truncated-normal | **0.974** | 0.049 | **0.979** | 0.052 |
-| panel (BC92) | 0.610 | 0.113 | 0.340 | 0.099 |
-| time-decay | 0.740 | 0.186 | 0.632 | 0.135 |
+| truncated-normal | **0.962** | 0.052 | **0.900** | 0.018 |
+| panel (BC92) | 0.685 | 0.106 | 0.546 | 0.111 |
+| time-decay | 0.766 | 0.187 | 0.838 | 0.102 |
 
 **Delivered $\varphi = \min(\varphi^{\text{Bulk}},\varphi^{\text{Diffuse}})$, GDP weights, the regions
 with a covered country (20 at EU21, 11 at H12):**
 
 | Rung | EU21 Spearman | median / max $\lvert\Delta\varphi\rvert$ | H12 Spearman | median / max $\lvert\Delta\varphi\rvert$ |
 |---|---:|---|---:|---|
-| truncated-normal | **0.920** | 0.041 / 0.081 (IND) | 0.845 | 0.041 / 0.081 (IND) |
-| panel (BC92) | 0.507 | 0.091 / 0.216 (NES) | 0.418 | 0.114 / 0.287 (SSA) |
-| time-decay | 0.419 | **0.114** / 0.380 (NES) | 0.214 | 0.113 / 0.500 (SSA) |
+| truncated-normal | **0.907** | 0.047 / 0.152 (IND) | 0.818 | 0.036 / 0.152 (IND) |
+| panel (BC92) | 0.636 | 0.034 / 0.274 (SSA) | 0.682 | 0.028 / 0.305 (SSA) |
+| time-decay | 0.457 | **0.100** / 0.450 (SSA) | 0.369 | 0.068 / 0.500 (SSA) |
 
-> 🔴 **The γ band is NOT small, as on `v6`.** The truncated-normal rung moves $\varphi$ little, but the panel and
-> decay rungs reorder it (Spearman 0.51 / 0.42 at EU21) and move it by a median of about 0.1 — the size of a θ
-> step. The frontier error structure is a first-order uncertainty in $\varphi$ and belongs beside θ in any φ band.
+> 🔴 **The γ band is NOT small.** The truncated-normal rung moves $\varphi$ little, but the decay rung reorders it
+> (Spearman 0.46 at EU21) and moves it by a median of 0.1 — the size of a θ step. The frontier error structure is a
+> first-order uncertainty in $\varphi$ and belongs beside θ in any φ band.
 
-**Rank intervals** across the four rungs (`rankInterval`): EU21 max width **18.5 of 20**, 60%
+**Rank intervals** across the four rungs (`rankInterval`): EU21 max width **18.5 of 20**, 55%
 separable; H12 max width 9.5 of 11, 45% separable. **A range over four fitted models, not a sampling
 confidence interval.**
 
 **Which sector binds is not robust.** In this offline reconstruction (GDP weights) power & industry binds in
-6 / 4 / 8 / 12 of 20 EU21 regions across headline / truncated-normal / panel / decay, 14 of 20 regions change
-binding sector, four are always buildings & transport (ENC, ESW, EWN, FRA) and two always power & industry (LAM,
-SSA). At country level power & industry binds in 33 / 30 / 32 / 23 of 48, and 19 countries flip. In the coupled
-anchor, with final-energy weights, power & industry has the larger rank in 11 of 21 EU21 regions and 6 of 12 H12
-regions, with REF tied at the top of both sectors (`SCENARIOS.md` §6.2a). **Any sentence of the form "the
-constraint binds on sector X" is a statement about one rung and one weighting.**
+5 / 3 / 4 / 12 of 20 EU21 regions across headline / truncated-normal / panel / decay, 13 of 20 regions change
+binding sector, six are always buildings & transport (ENC, ESW, EWN, FRA, MEA, NES) and one always power & industry
+(SSA). At country level power & industry binds in 39 / 33 / 32 / 22 of 48, and 25 countries flip. **Any sentence of the
+form "the constraint binds on sector X" is a statement about one rung and one weighting.**
 
 #### 3.4.2 The sector ordering in the estimation sample
 
-On $E$ read straight out of `frontier.rds`, **power & industry is the more constrained sector in 33 of 48
-countries at 2023** (median $E$: power & industry 0.704, buildings & transport 0.754).
+On $E$ read straight out of `frontier.rds`, **power & industry is the more constrained sector in 39 of 48
+countries at 2023** (median $E$: power & industry 0.718, buildings & transport 0.799).
 
 **`projection.rds$implementability` is $S/10$, not $E$** (`computeImplementabilityFactor()` is
 `index / indexMax`). Nothing in the coupling reads it; any offline figure built from that column is
@@ -577,9 +646,9 @@ on the prohibited measure (§7).
 
 #### 3.4.3 The countries at the edge
 
-The lowest $E$ in power & industry at 2023 (`output/pfm/v7/efficiency-extremes.rds`): Iceland 0.33,
-Indonesia 0.33, Peru 0.35, Argentina 0.39, Russia 0.46; Saudi Arabia 0.55. Decomposed by term
-(`analysis/checks/efficiencyExtremes.R`), three of them are artefacts of the form, not measured slack:
+**Measured on `v7`** (`output/pfm/v7/efficiency-extremes.rds`): the lowest $E$ in power & industry at 2023 were
+Iceland 0.33, Indonesia 0.33, Peru 0.35, Argentina 0.39, Russia 0.46; Saudi Arabia 0.55. Decomposed by term
+(`analysis/checks/efficiencyExtremes.R`), three were artefacts of the form, not measured slack:
 
 - **Iceland**: the linear fossil-dependence term evaluated below the sample's 5th percentile (+2.0
   logit), and an outcome (instruments scored) that is low where a renewable power system needs few;
@@ -587,11 +656,11 @@ Indonesia 0.33, Peru 0.35, Argentina 0.39, Russia 0.46; Saudi Arabia 0.55. Decom
   outside the joint support (+2.4; design note 0007);
 - **Saudi Arabia**: the vertical-accountability main effect, not identified in power & industry (+1.8).
 
-Russia's low ceiling follows from its drivers. No indicator measures producer interests (extraction
-or export rents; §8.3). This is why country $E$ is reported only as tiers. In the coupling, Russia is
-73% of REF, Saudi Arabia 20% of MEA, Indonesia 18% of OAS, and Iceland 8% of NEN (no effect). The
-saturating twin does not remove the Iceland case. Fossil rents are tested as a `v8` candidate in
-design note 0009.
+**What `v8` changes** (ADR 0062; rank correlation of country $E$ with `v7`: 0.97 power & industry, 0.84 buildings &
+transport): the fossil bound lifts Iceland to 0.39 and Peru to 0.41; the saturating fossil terms lower Russia to 0.33;
+the rents slack lowers Saudi Arabia's buildings & transport share used from 0.94 to 0.66. Russia's low ceiling follows
+from its drivers. This is why country $E$ is reported only as tiers. In the coupling, Russia is 73% of REF, Saudi
+Arabia 20% of MEA, Indonesia 18% of OAS, and Iceland 8% of NEN (no effect).
 
 ---
 
@@ -625,21 +694,20 @@ scored rows per sector.
 
 | Sector | $\lambda$ | $t_{1/2}$ | ECM skill vs persistence | static-level skill | event AUC |
 |---|---:|---:|---:|---:|---:|
-| Power & industry | 0.109 | 6.0 y | −0.164 | −0.676 | 0.47 |
-| Buildings & transport | 0.076 | 8.8 y | −0.787 | −0.599 | 0.41 |
+| Power & industry | 0.117 | 5.6 y | −0.175 | −0.524 | 0.47 |
+| Buildings & transport | 0.079 | 8.4 y | −0.737 | −0.511 | 0.41 |
 
 | Four sectors | $\lambda$ | $t_{1/2}$ | skill |
 |---|---:|---:|---:|
-| Electricity | 0.117 | 5.6 y | **+0.087** |
-| Industry | 0.166 | 3.8 y | −0.484 |
-| Buildings | 0.109 | 6.0 y | −0.682 |
-| Transport | 0.147 | 4.3 y | −0.986 |
+| Electricity | 0.123 | 5.3 y | **+0.057** |
+| Industry | 0.174 | 3.6 y | −0.523 |
+| Buildings | 0.108 | 6.1 y | −0.657 |
+| Transport | 0.147 | 4.4 y | −1.002 |
 
 > **Only electricity beats "assume nothing changes"**, and narrowly. Everything else is a
 > descriptive rate, not a forecast. The static level forecast loses to persistence in both sectors —
 > which is why this model delivers ceilings and rankings and never level paths. The out-of-sample correlation of
-> the static forecast is 0.565 (power & industry) and 0.810 (buildings & transport), against 0.554 / 0.802 on `v6`
-> (ADR 0060).
+> the static forecast is 0.628 (power & industry) and 0.829 (buildings & transport), against 0.565 / 0.810 on `v7`.
 
 #### 4.3.1 Why λ cannot carry a coupling (ADR 0050)
 
@@ -698,8 +766,10 @@ $t_a = 2023$, on the logit scale, and held:
 $$q_{c,s} = \eta_{c,s,t_a} - y_{c,s,t_a},\qquad S_{c,s}(t) = M\,\operatorname{logit}^{-1}\!\big(\eta_{c,s}(t) - q_{c,s}\big)$$
 
 The ceiling $\eta(t)$ moves with the scenario's drivers (REMIND's energy system, SSP income and
-population, the harmonised institution projections; the weight $w$ held at its last value); the distance does
-not. Uncovered countries take $y$ from the band rule (§5.4).
+population, the institutions under gap closure; the weight $w$ as in §2.3). The distance is held in power & industry;
+**in buildings & transport it follows the country's fossil rents**, $q_{c,s}(t) = q_{c,s}\,e^{\omega(z_c(t)-z_{c,2023})}$
+(§3.1a), recomputed from the current REMIND solution at every coupling call. Uncovered countries take the covered
+median share of their own ceiling (§5.4).
 
 **Ranking.** Regional relative gaps at $t_a$, final-energy weighted, give
 
@@ -708,16 +778,25 @@ $$g_{r,s} = 1 - E_{r,s},\qquad \boxed{\;u_{r,s} = \frac{g_{r,s}-\min_r g}{\max_r
 computed once per Run-Group and staged as `phi-anchor.rds`. **Relative**, not absolute, because an
 absolute gap ranks regions by how much they *could* do rather than how far they fall short.
 
-**Strength.**
+**Strength — regional, the `v8` central form (ADR 0062 decision 5).** Each region's constraint fades with its own
+gap:
 
-$$G_s(t) = \sum_r w_r\, g_{r,s}(t),\qquad \boxed{\;k_s(t) = \frac{G_s(t)}{G_s(t_0)}\;},\quad t_0 = 2025$$
+$$\boxed{\;k_{r,s}(t) = \frac{g_{r,s}(t)}{g_{r,s}(t_0)}\;},\quad t_0 = 2025$$
 
-so $k(t_0) = 1$ in every scenario. $k$ is endogenous: each PFM call recomputes it on the current
-REMIND solution.
+The **common** strength of `v6`–`v7`, $G_s(t) = \sum_r w_r\, g_{r,s}(t)$, $k_s(t) = G_s(t)/G_s(t_0)$, is the sensitivity
+pair (`pfmPhiStrength = common`). Why regional: with the rents in the distance, an exporter's fading constraint would
+otherwise lower the world's mean gap and loosen every region's constraint, those without fossil income included; the
+regional form keeps it with the exporter. Either way $k(t_0) = 1$ in every scenario, and $k$ is endogenous: each PFM
+call recomputes it on the current REMIND solution.
 
 **Share.**
 
-$$\boxed{\;\varphi_{r,s}(t) = \operatorname{clip}_{[0,1]}\big(1 - \theta\,k_s(t)\,u_{r,s}\big)\;}$$
+$$\boxed{\;\varphi_{r,s}(t) = \operatorname{clip}_{[0,1]}\big(1 - \theta\,k_{r,s}(t)\,u_{r,s}\big)\;}$$
+
+A third form, **gap first** (`pfmPhiStrength = gapfirst`, the order of the steps proposed at the meeting of 9 October:
+the gap, then its normalisation with the 2023 range held, then θ), is a declared sensitivity:
+$\varphi_{r,s}(t) = 1 - \theta\,\operatorname{clip}_{[0,1]}\big((g_{r,s}(t) - g^{\min}_{s,t_a})/(g^{\max}_{s,t_a} - g^{\min}_{s,t_a})\big)$
+(`gap-order.rds`, design note 0009; `COUPLING.md` §14).
 
 θ means *severity at 2025*. A clip at 0 is flagged as a run defect; $k_s > 1/\theta$ is logged.
 
@@ -725,16 +804,18 @@ $$\boxed{\;\varphi_{r,s}(t) = \operatorname{clip}_{[0,1]}\big(1 - \theta\,k_s(t)
 strength moves; $\varphi$ is a **parameter** refreshed between coupling iterations, never a decision
 variable.
 
-**The ranking on `v7`** (`output/remind-inputs/v7/phi-anchor.rds`, EU21). Russia & reforming countries (REF) are
-the most constrained region in both sectors ($u$ = 1). China is no longer the floor in buildings & transport ($u$
-0.35; `v6` 1.00), nor India in power & industry (0.51; `v6` 1.00); the Spearman correlation with the `v6` ranking is
-0.92 in power & industry and 0.68 in buildings & transport (ADR 0060). At θ = 0.50 and $k = 1$ the delivered
-share ranges from 0.50 (REF) to 0.99 (NEN) at EU21 and from 0.50 (REF) to 0.86 (CHA) at H12.
+**The ranking on `v8`** (`output/remind-inputs/v8/phi-anchor.rds`). Russia & reforming countries (REF) are
+the most constrained region in both sectors ($u$ = 1), as on `v7` (rank correlation with `v7` 0.96 power & industry,
+0.95 buildings & transport). The rest compress, mainly through the coverage rule: in power & industry OAS 0.49, MEA 0.43,
+LAM 0.45 (`v7` 0.78 / 0.68 / 0.63); in buildings & transport NES 0.60, ECS 0.60, MEA 0.58. At θ = 0.50 and $k = 1$ the
+delivered share (the worse sector) ranges from 0.50 (REF) to 1.00 (NEN) at EU21 and from 0.50 (REF) to 0.93 (CHA) at
+H12; ECE is next to REF at EU21 (0.65).
 
-**What the strength does on the coupled energy system** (`coupling/strength-support.rds`, EU21, hold the price,
-fading limit, θ = 0.50; `analysis/v6/couplingMechanism.R v7`). Power & industry $k$ is **0.707 / 0.667** in 2050 /
-2100 (H12 0.705 / 0.664); buildings & transport 0.597 / 0.488 (H12 0.598 / 0.491). One driver group moving at a time
-(the others held at 2025), in 2100:
+**What the strength does on the coupled energy system** (`coupled-facts.json`, EU21, hold the price, fading limit,
+θ = 0.50, the final-energy-weighted strength). Power & industry $k$ is **0.632 / 0.727** in 2050 / 2100 (H12 0.629 /
+0.724); buildings & transport 0.624 / 0.494 (H12 0.622 / 0.493). With institutions held at 2023, power & industry $k$
+is 0.86 in 2100. **Measured on `v7`** (`coupling/strength-support.rds`, `analysis/v6/couplingMechanism.R v7`, not re-run
+on `v8`): one driver group moving at a time (the others held at 2025), in 2100:
 
 | moving | power & industry $k_{2100}$ | buildings & transport $k_{2100}$ |
 |---|---:|---:|
@@ -744,31 +825,34 @@ fading limit, θ = 0.50; `analysis/v6/couplingMechanism.R v7`). Power & industry
 | all (the run) | 0.67 | 0.49 |
 
 **In power & industry the energy transition relaxes the constraint and the projected institutions tighten it**,
-through power & industry institution terms that are not identified (§2.5). Holding the institutions at their anchor
-values changes the hold-the-price result by −0.4 Gt CO₂ (EU21; `SCENARIOS.md`), so the effect on the coupled
-quantity is small although the effect on $k$ is not. On `v6` the buildings & transport strength rose again after
-mid-century (to 0.96 in 2060); on `v7` it falls throughout (ADR 0060).
+through power & industry institution terms that are not identified (§2.5); read jointly, the three institutions' net
+effect in power & industry is negative (design note 0009 §19). On `v8` the power & industry strength rises again after
+2050 (0.63 → 0.73), where `v7`'s fell (0.71 → 0.67). Holding the institutions at their anchor values adds 10.3 Gt CO₂ to
+the hold-the-price result at EU21 and 5.9 at H12 (`v7`: −0.4 / +0.7): under gap closure the institutions now take a
+tenth off the overshoot (`SCENARIOS.md`). The buildings & transport strength falls throughout, as on `v7`.
 
-**Out of training support** (the drivers with a guard range: income, population and institutions; SSP2
-projections, so the same in every run of the selected specification): 5% of weighted drivers in 2030, 10% in
-2050, 19% in 2100 in power & industry (5% / 9% / 16% in buildings & transport), reported with every $k(t)$. The
-actor-power terms are reported separately, as the share of countries beyond the observed range (§2.3): the fade
-after mid-century is read through the saturating clean-energy curve and the linear fossil terms on energy systems
-beyond the observed range for most countries.
+**Out of training support** (**measured on `v7`**; the drivers with a guard range: income, population and
+institutions; SSP2 projections): 5% of weighted drivers in 2030, 10% in 2050, 19% in 2100 in power & industry (5% / 9% /
+16% in buildings & transport), reported with every $k(t)$. The actor-power terms are reported separately, as the share
+of countries beyond the observed range (§2.3): on `v8` the fade after mid-century is read through saturating curves
+and, at the low end, through the fossil bound.
 
-*Offline* (`phase1/strength.rds`, uncoupled REMIND bases) was **measured on `v6`** and is not re-run on `v7`.
+*Offline* (`phase1/strength.rds`, uncoupled REMIND bases) was **measured on `v6`** and is not re-run since.
 
 #### 5.2a Options on the strength (each one a declared sensitivity; `COUPLING.md` §14)
 
 | option | form | headline | sensitivity run |
 |---|---|---|---|
-| **κ, the erosion rate** | $k_s(t)\,(1-\kappa)^{t-2025}$ | κ = 0 | 0.027 central (half-life 25 y), 0.02, 0.05; fixed 2026-10-08 before any run (ADR 0050 decision 5); `v7` wave 2, `SCENARIOS.md` §4.9 |
-| growing limit | $k$ rising at a declared rate (ADR 0057) | none | `v7` wave 2, `SCENARIOS.md` §4.9 |
+| **κ, the erosion rate** | $k(t)\,(1-\kappa)^{t-2025}$ | κ = 0 | 0.027 central (half-life 25 y), 0.02, 0.05, and the historical per-sector rates (1.1% / 4.6%); fixed before any run (ADR 0050 decision 5); `v8` batch, `SCENARIOS.md` §4.9 |
+| growing limit | $k$ rising at a declared rate (ADR 0057) | none | `v8` batch, `SCENARIOS.md` §4.9 |
 | hold year | drivers held after 2060 | none (to 2100) | `pfmPhiHoldYear = 2060` |
-| constant limit | hold $E$ instead of $q$ ($k \approx 1$) | distance kept | `pfmPhiHold = ratio` |
-| regional strength | $k_{r,s}(t)$ per region | common | `pfmPhiStrength = regional` |
+| constant limit | hold $E$ instead of $q$ ($k \approx 1$; the rents do not act) | distance kept | `pfmPhiHold = ratio` |
+| common strength | the world's $k_s(t)$ | **regional** (from `v8`) | `pfmPhiStrength = common` |
+| gap first | gap normalised with the 2023 range, then θ | regional | `pfmPhiStrength = gapfirst` |
 | ordering | $u$ uniform, permuted or reversed | the model's | `pfmPhiOrdering` |
-| institutions | held at their anchor values | harmonised projection | `pfmInstitutions = hold` |
+| institutions | held at 2023; Andrijevic's government effectiveness; the previous storyline rule | gap closure (ADR 0063) | `pfmInstitutions = hold`, `gapclosureAndrijevic`, `storyline` |
+| rents valuation | REMIND's rents at the world price | the region's own price | `pfmRentsPrice = world` |
+| window (the shrinking future) | φ only before a year, 1 after it | none | `pfmPhiWindowEnd`; §5.6a |
 
 **A historical reference for κ** (not an estimate; `analysis/v8/persistentSlack.R` → `output/pfm/v7/v8-persistent-slack.rds`,
 design note 0009 §6.2). κ shrinks the political differences, so its counterpart in the data is how fast the spread of
@@ -784,31 +868,31 @@ No historical experiment assigned carbon prices by political gap, so $\theta$ is
 
 | $\theta$ | role |
 |---:|---|
-| **0** | uncoupled no-politics reference — every φ = 1 (`-PFMgate-v7`, `-PFMgateBfix-v7`) |
+| **0** | uncoupled no-politics reference — every φ = 1 (`-PFM-noPolitics-holdBudget-v8`, `-PFM-noPolitics-holdPrice-v8`) |
 | **0.325** | declared low point of the sweep |
 | **0.50** | **declared central value** (`cm_pfmTheta`); every headline uses it |
 | **0.675** | declared high point, symmetric about 0.50 |
 
 **The efficiency analogy, and why it anchors nothing.** Solving $1-\theta\bar u=\bar E$ for the median
-region (`coupling-summary.rds$anchorDerivation`, region resolution, 2025, $n$ = 21) gives θ = **0.708**
-(power & industry: median $E$ 0.748, median $u$ 0.356) and **0.498** (buildings & transport: 0.768, 0.466). Both
-are admissible, but the analogy is resolution-dependent ($u$ is normalised over whatever units the frame holds;
-on `v6` it gave 0.372 / 0.468) and **no θ value may be called "the efficiency anchor"**.
+region (`coupling-summary.rds$anchorDerivation`, region resolution, 2025, $n$ = 21) gives θ = **0.805**
+(power & industry: median $E$ 0.756, median $u$ 0.303) and **0.384** (buildings & transport: 0.822, 0.463). Both
+are admissible, but the analogy is resolution- and version-dependent (`v7` 0.708 / 0.498, `v6` 0.372 / 0.468) and
+**no θ value may be called "the efficiency anchor"**.
 
-**Coupled**, hold the price adds +59.4 / +98.8 / +144.8 Gt CO₂ by 2100 at θ = 0.325 / 0.50 / 0.675 (EU21), 212 Gt
-per unit θ; H12 +55.2 / +87.9 / +125.6, 185 Gt per unit θ (`SCENARIOS.md` §4).
+**Coupled**, hold the price adds +44.4 / +75.1 / +109.8 Gt CO₂ by 2100 at θ = 0.325 / 0.50 / 0.675 (EU21), 161 Gt
+per unit θ; H12 +39.4 / +64.3 / +95.1, 139 Gt per unit θ (`SCENARIOS.md` §4; `v7`: +99 / +88 at θ 0.50).
 
 #### 5.3.0 $\varphi$ is also specification-dependent
 
-The specification is as undetermined as θ: the selected specification wins **1%** of bootstrap resamples (**24%**
+The specification is as undetermined as θ: the selected specification wins **1%** of bootstrap resamples (**31%**
 conditional on sanity-eligible winners, §6). The conditional winners are all weighted X-1791 or X-1860
-specifications with both fossil terms, and they split about **57 / 43** between the clean-energy-only family
-(`satInn`, selected) and the both-saturate family (`satAP`).
+specifications with both fossil terms and the bound, and they split about **55 / 45** between the both-saturate family
+(`satAP`, selected) and the clean-energy-only family (`satInn`).
 
 **Measured on `v6`** (`v6` `phase1/spec-band.rds`, `SCENARIOS-v6` §4.9): the two families gave a power & industry
 $k_{2050}$ of 0.63–0.90 (both-saturate) and 0.86–1.22 (clean-energy-only) on the uncoupled 1000 Gt energy system;
 coupled, the clean-energy-only `X-2079 satInn` gave +107.5 Gt against +118.2 for the selected both-saturate spec;
-saturation 0.5× / 2× +115.2 / +130.0; annual data +164.4. No `v7` specification band has been run.
+saturation 0.5× / 2× +115.2 / +130.0; annual data +164.4. No `v7` or `v8` specification band has been run.
 
 > **The discipline this implies.** $\varphi$ is a property of a region **given a specification, a
 > frontier error structure and a declared severity**, never a measured property of the region.
@@ -825,8 +909,8 @@ saturation 0.5× / 2× +115.2 / +130.0; annual data +164.4. No `v7` specificatio
 | **5. Partial identification (bounds)** | revealed-preference restrictions | an interval | **empty on `v7`**, for the multiplicative cap only (below) |
 | **6. Expert elicitation** | a structured protocol | a documented prior | out of scope |
 
-**Route 5 — bounds** (`analysis/checks/computeThetaBounds.R`, `analysis/checks/efficiencyRatioBand.R v7`
-→ `coupling/theta-bounds.rds`, `efficiency-ratio-band.rds`). These bound θ for a **multiplicative**
+**Route 5 — bounds, measured on `v7`** (`analysis/checks/computeThetaBounds.R`, `analysis/checks/efficiencyRatioBand.R v7`
+→ `coupling/theta-bounds.rds`, `efficiency-ratio-band.rds`; not re-run on `v8`). These bound θ for a **multiplicative**
 level cap, $\varphi_r P^{\circ}$, read on the offline bound's price paths.
 
 *Upper bound — revealed preference.* A region cannot credibly be modelled below the price it has
@@ -852,23 +936,34 @@ $$\boxed{\;\theta \in [0.119,\ 0.063]\;=\;\varnothing\;}\qquad\text{empty on `v7
 
 | source | what varies | size | reported in |
 |---|---|---|---|
-| **1. Severity θ** | declared, 0.325 / 0.50 / 0.675 | hold the price +59 to +145 Gt (EU21) | **main text** |
-| **2. How long the limit lasts** (erosion κ; growing / constant limit) | κ 0.02 / 0.027 / 0.05; growing; constant hold the price +221.1 (growing), +167.6 (constant), +98.8 (fading), +44.4 / +35.5 / +19.3 (erosion 2% / 2.7% / 5%) Gt at EU21; H12 constant +145.3, erosion 2.7% +31.9 | **main text** (the largest single sensitivity) |
-| 3. Specification family | clean-energy-only (selected) vs both-saturate | measured on `v6` only (§5.3.0) | SI |
-| 4. Curve shape | half-saturation 0.5× / 2× | measured on `v6` only | SI |
-| 5. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.114, Spearman down to 0.42 (EU21, offline, §3.4.1) | SI — rank intervals |
-| 6. Out-of-coverage assignment | donor / low band / median; nearest donors; USA | measured on `v6`: hold the price 110–155 Gt | SI (the widest data-side band) |
-| 7. Institution projections | harmonised vs held | hold the price −0.4 Gt (EU21), +0.7 (H12); $k$ moves a lot (§5.2) | main text (fixed-institutions variants) |
-| 8. Energy-system feedback | φ recomputed on the live energy system | power & industry $k_{2050}$ 0.71 on the coupled pathway | **main text** as a result, not an uncertainty |
-| 9. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none: the same specification is selected (§2.4a) | SI, one sentence |
+| **1. Severity θ** | declared, 0.325 / 0.50 / 0.675 | hold the price +44 to +110 Gt (EU21) | **main text** |
+| **2. How long the limit lasts** (erosion κ; growing / constant limit) | κ 0.02 / 0.027 / 0.05 / historical; growing; constant | hold the price +159.9 (growing), +123.8 (constant), +75.1 (fading), +34.7 / +29.4 / +19.3 (erosion 2% / 2.7% / 5%), +38.9 (historical rates) Gt at EU21; H12 erosion 2.7% +23.0 | **main text** (the largest single sensitivity) |
+| 3. Strength form | regional (central) / common / gap first | +75.1 / +75.5 / +55.0 Gt (EU21) | SI |
+| 4. Expectations: the shrinking future | the limit applied decade by decade, each step expecting it to lift | hold the price +39.4 against +75.1 Gt (EU21, §5.6a) | main text or SI (author) |
+| 5. Specification family | both-saturate (selected) vs clean-energy-only | measured on `v6` only (§5.3.0) | SI |
+| 6. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.100, Spearman down to 0.46 (EU21, offline, §3.4.1) | SI — rank intervals |
+| 7. Out-of-coverage assignment | the covered median (from `v8`) against the donor / band rule | rule tested out of sample on `v7` (§5.4); not coupled | SI |
+| 8. Institution projections | gap closure / held / Andrijevic / storyline | hold the price +75.1 / +85.5 / +82.4 / +83.9 Gt (EU21); H12 held +70.3 | main text (fixed-institutions variants) |
+| 9. Rents valuation | regional / world price | +75.1 / +73.5 Gt (EU21) | SI |
+| 10. Energy-system feedback | φ recomputed on the live energy system | power & industry $k_{2050}$ 0.63 on the coupled pathway | **main text** as a result, not an uncertainty |
+| 11. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none on `v7` (the same specification selected); not re-run on `v8` | SI, one sentence |
 
 **The reporting rule.** The main text carries θ and κ as declared bands and treats $\varphi$ as
 **ordinal**. Any sentence about **which sector binds** carries source 5's caveat.
 
-### 5.4 Countries the sample never saw — the band rule
+### 5.4 Countries the sample never saw — the covered median
 
 Uncovered countries keep their **own** ceiling and inherit only a relative gap,
-$\hat S = \hat E\cdot S^{*}_{\text{own}}$. Placement uses the model's own signed linear index
+$\hat S = \hat E\cdot S^{*}_{\text{own}}$. **From `v8`, $\hat E$ is the covered countries' median** for every uncovered
+country (config.yml `coverage: v8: median`; `computeDonorAssignment(rule = "median")`; ADR 0062 decision 4). Out of
+sample on `v7`, the median predicts a covered country's $E$ better than its donors do (mean absolute error 0.119
+against 0.151 in power & industry, 0.080 against 0.087 in buildings & transport; a ridge regression on the drivers
+0.126 / 0.082): similar drivers do not predict a similar share used, because the ceiling has already absorbed what the
+drivers say (`analysis/v8/uncoveredRule.R` → `output/pfm/v7/v8-uncovered-rule.rds`, design note 0009 §6.3). On `v8` it is
+the main reason the regions compress (§5.2): regions dominated by uncovered countries (OAS, MEA, LAM, SSA) no longer
+carry low-band countries. The donors are still found and reported as diagnostics.
+
+**The band rule of `v7` and earlier.** Placement used the model's own signed linear index
 $\ell_i = \sum_k\beta_k x_{ik}$:
 
 | branch | assigned $E$ | when |
@@ -886,20 +981,13 @@ Distance is in the model's own metric over the nine base drivers, $w_k = |\beta_
 | Power & industry | 46 | 54 | **100** |
 | Buildings & transport | 37 | **108** | 55 |
 
-> ⚠️ **Most uncovered countries are placed by a quantile rule, not a donor**: 154 of 200 in power & industry and
-> 163 in buildings & transport. On `v6` the coupled sensitivity runs (all-median, all-low, nearest donors always,
-> USA donor and USA low) moved the hold-the-price headline from +110 to +155 Gt (`SCENARIOS-v6` §4.9); they are not
-> re-run on `v7`. Disclose it with any coverage figure.
+> ⚠️ **On `v7` most uncovered countries were placed by a quantile rule, not a donor**: 154 of 200 in power & industry
+> and 163 in buildings & transport. On `v6` the coupled sensitivity runs (all-median, all-low, nearest donors always,
+> USA donor and USA low) moved the hold-the-price headline from +110 to +155 Gt (`SCENARIOS-v6` §4.9). The band rule
+> stays the rule of every group up to `v7`.
 
-**From `v8`: the covered median for every uncovered country** (config.yml `coverage: rule: median`; `pfmRun` passes it
-to the donor step as `donorRule`, `computeDonorAssignment(rule = "median")`). Out of sample on `v7`, the median predicts a
-covered country's $E$ better than its donors do (mean absolute error 0.119 against 0.151 in power & industry, 0.080
-against 0.087 in buildings & transport; a ridge regression on the drivers 0.126 / 0.082), and the EU21 ranking $u$
-barely moves (rank correlation 1.00 / 0.98; OAS and MEA move most, by about 0.1): `analysis/v8/uncoveredRule.R` →
-`output/pfm/v7/v8-uncovered-rule.rds`, design note 0009 §6.3. The donors are still found and reported as diagnostics.
-The band rule above stays the rule of every group up to `v7`.
-
-**How much of each region's u rests on one observed country** (covered countries only, EU21, anchor 2023;
+**How much of each region's u rests on one observed country** (**measured on `v7`**; covered countries only, EU21,
+anchor 2023;
 `analysis/v8/rankingUncertainty.R` → `output/pfm/v7/v8-ranking-uncertainty.rds`, 1000 draws of the frontier coefficients;
 design note 0009 §7.3). Report these with any regional ranking.
 
@@ -914,12 +1002,12 @@ The bands are narrow: the extremes come from the specification, not from impreci
 uncovered countries at the covered median dilute the single-country regions in proportion to their uncovered final
 energy (observed share of final energy: SSA 14%, MEA 22%, OAS 39%, LAM 41%).
 
-**One documented override:** `basisOverride = c(USA = "median")`. US federal policy spans states with
-world-leading regulation and states with almost none; donor transfer would assign it a polity it is
-not. **The USA must be reported as a range** (on `v6`: USA donor +117.4, USA low +134.8 Gt).
+**The USA**, outside the CAPMF panel, is at the median under either rule (`basisOverride = c(USA = "median")` up to
+`v7`). US federal policy spans states with world-leading regulation and states with almost none. **The USA must be
+reported as a range** (on `v6`: USA donor +117.4, USA low +134.8 Gt).
 
 **Provenance travels with the number.** Each region reports
-`shareObserved / shareDonor / shareLowBand / shareMedian`.
+`shareObserved / shareDonor / shareLowBand / shareMedian` (on `v8` the uncovered share is all `shareMedian`).
 
 ### 5.5 Aggregation weights
 
@@ -938,7 +1026,7 @@ max/median < 20 — the signature of accidentally equal weights (`PITFALLS.md` �
 Notation: $A_t$ the global anchor path, $P^{\text{ref}}$ the current-policy (NPi) price.
 
 **Mode R — $\varphi$ bounds the price *ratio*** (`cm_pfmBindMode = 1`): $P_{t,r} = \varphi_r(t)\,A_t$,
-each market its own path times the anchor. The budget is always met. Not in the `v7` batch.
+each market its own path times the anchor. The budget is always met. Not in the `v7` or `v8` batch.
 
 **Mode L — $\varphi$ caps the increment** (`cm_pfmBindMode = 2`): the boxed form of §5.1, with
 $\varphi(t)$ and **no speed limit**. The budget may become unreachable — **that is the finding, not a
@@ -949,28 +1037,62 @@ makes the recursion a contraction onto $P^{\text{ref}}$ within a few calls (`SCE
 
 **Closures — mode L**, when the political bound and the budget cannot both hold:
 
-| closure | mechanism | the headline it supports | `v7` rows |
+| closure | mechanism | the headline it supports | `v8` rows |
 |---|---|---|---|
-| **hold the price** | pin the anchor to the θ = 0 budget-holding run (`cm_pfmAnchorFromGdx`), budget forcing off | *political feasibility adds $X$ Gt CO₂ to the 1000 Gt pathway by 2100* | `-PFMlevelBfix…` |
-| **hold the budget** | keep the budget (`cm_iterative_target_adj = 9`), rebuild the cap every iteration from the live anchor and that period's share (`cm_pfmBoundRebuild = 1`) | *the budget holds; the price rises and abatement moves* | `-PFMlevelC…` |
+| **hold the price** | pin the anchor to the θ = 0 budget-holding run (`cm_pfmAnchorFromGdx`), budget forcing off | *political feasibility adds $X$ Gt CO₂ to the 1000 Gt pathway by 2100* | `-PFM-holdPrice…` |
+| **hold the budget** | keep the budget (`cm_iterative_target_adj = 9`), rebuild the cap every iteration from the live anchor and that period's share (`cm_pfmBoundRebuild = 1`; the reference price from `cm_pfmRefPrice`) | *the budget holds; the price rises and abatement moves* | `-PFM-holdBudget…` |
 | delay | allow the budget to be met later | *politics delays the price path by $N$ years* | never run |
 
-**What the `v7` batch shows** (θ = 0.50; `SCENARIOS.md` §4):
+**What the `v8` batch shows** (θ = 0.50; `SCENARIOS.md` §4; `coupled-facts.json`):
 
 | | EU21 | H12 |
 |---|---:|---:|
-| **hold the price**: Δ cumulative CO₂ 2020–2100 vs `-PFMgateBfix-v7` | **+98.8 Gt** | **+87.9 Gt** |
-| hold the price across θ 0.325 / 0.675 | +59.4 / +144.8 | +55.2 / +125.6 |
-| hold the price, constant limit | +167.6 | +145.3 |
-| **hold the budget**: cumulative CO₂ 2020–2100, every run | 999.3–1001.1 Gt | 997.6–1001.7 Gt |
-| hold the budget: anchor 2050 vs θ = 0 | ×1.21 | ×1.19 |
-| hold the budget: abatement moved between regions, 2020–2100 | 17.1 Gt CO₂eq | 18.4 Gt CO₂eq |
+| **hold the price**: Δ cumulative CO₂ 2020–2100 vs `-PFM-noPolitics-holdPrice-v8` | **+75.1 Gt** | **+64.3 Gt** |
+| hold the price across θ 0.325 / 0.675 | +44.4 / +109.8 | +39.4 / +95.1 |
+| hold the price, constant limit | +123.8 | — |
+| **hold the budget**: cumulative CO₂ 2020–2100, every run | 995–1002 Gt | 995–1002 Gt |
+| hold the budget: anchor 2050 vs θ = 0 | ×1.16 | ×1.14 |
+| hold the budget: abatement moved between regions, 2020–2100 | 20.6 Gt CO₂eq | 17.9 Gt CO₂eq |
+
+`v7` gave +98.8 / +87.9 Gt, ×1.21 / ×1.19 and 17.1 / 18.4 Gt CO₂eq: the `v8` overshoot is about a quarter smaller,
+mainly through the coverage rule (§5.4) and the fossil terms' form (ADR 0062).
+
+#### 5.6a The shrinking future — the sequential runs (`COUPLING.md` §14.1)
+
+A **chain** of coupled runs, one **step** per decade. Step $t_s$ ∈ {2030, 2040, 2050, 2060, 2070} fixes every period
+before $t_s$ to the previous step's solution (REMIND's `cm_startyear` and `path_gdx_ref`) and applies the political
+limit only to its own decade:
+
+$$\varphi^{(t_s)}_{r,s}(t) = \varphi_{r,s}(t)\ \text{ for } t_s \le t < t_s + 10,\qquad \varphi^{(t_s)}_{r,s}(t) = 1\ \text{ for } t \ge t_s + 10,$$
+
+so after its decade a step plans as if the limit lifted: with the full anchor (hold the price) or with whatever meets
+the budget from its fixed past (hold the budget). The last step leaves its window open; its run is the chain's result.
+$P^{\text{ref}}$ comes from the current-policy run (`cm_pfmRefPrice = refpolicycost`), since `path_gdx_ref` now points
+at the previous step. A step's run is two things: the realised path to the end of its decade, and the **plan** it made
+for the rest, which the next step revises.
+
+**On `v8`** (EU21, θ = 0.50; `analysis/v8/shrinkingFuture.R` → `coupling/shrinking-future.rds`; design note 0009 §22):
+
+| cumulative CO₂ 2020–2100 | no-politics | one-shot | chain | chain − one-shot |
+|---|---:|---:|---:|---:|
+| hold the price | 1004.8 | 1079.9 (+75.1) | 1044.2 (+39.4) | −35.7 |
+| hold the budget | 1001.5 | 996.1 | 996.3 | +0.2 |
+
+- **Hold the price: the chain halves the overshoot at the same prices paid** (emissions-weighted mean 193 against 191
+  $/t CO₂ in 2050, 407 against 407 in 2100; φ in each decade within ±0.005). Each step invests for the full price it
+  expects after its decade, and the next step inherits that energy system: an **expectation channel** the one-shot run
+  does not have. Each step under-promises: the plans for 2100 are +7.5, +11.5, +20.8, +24.6 Gt, the result +39.4.
+- **Hold the budget: the effort moves later.** The chain emits 5.8 Gt more than the one-shot run in 2030–2060 and 5.9 Gt
+  less after; its price is lower to 2070 and higher after (535 against 500 $/t CO₂ in 2100).
+- **Reading.** The one-shot run assumes the limit is known to last; the chain assumes, every decade, that it will lift
+  after the next. REMIND has perfect foresight within each step, so the expectation effect is as strong as that
+  foresight. One θ, EU21, ten-year steps.
 
 ---
 
 ## 6. Selection stability (`selection-bootstrap.rds`, 200 resamples)
 
-Selected specification `X-1791 … satInn iw:fexp`. Top-**40** pool, 200 resamples; **35** pool members are rejected
+Selected specification `X-1791 … satAP iw:fexp fos5`. Top-**40** pool, 200 resamples; **37** pool members are rejected
 by the full-sample sanity walk and are never eligible.
 
 > ⚠️ **A raw selection frequency is not evidence.** The menu offers several accountability options;
@@ -981,27 +1103,25 @@ by the full-sample sanity walk and are never eligible.
 |---|---:|---:|
 | Government Effectiveness (`WGIge`) | **100%** | 100% |
 | Rule of Law (`RoL`) *(selected)* | **100%** | 100% |
-| channel set `WGIge|RoL|VerAcc` *(selected)* | **47.5%** | **72.5%** |
-| channel set `WGIge|RoL|HorAcc` | 42.0% | 27.5% |
-| channel sets with Overall / Diagonal accountability | 7.4% / 3.1% | — |
+| channel set `WGIge|RoL|VerAcc` *(selected)* | **67.9%** | **82.7%** |
+| channel set `WGIge|RoL|HorAcc` | 20.0% | 17.3% |
+| channel sets with Overall / Diagonal accountability | 9.7% / 2.4% | — |
 | actor power `bothIncAP` *(selected)* | **100%** | 100% |
 
-**The selected specification.** Wins **1%** of resamples (**24%** conditional on the walk's rejections; 44% of the
-resamples that yield an admissible winner, `specFreqConditional`; `v6`: 15% on the first measure). The other
-conditional winners: `X-1791 … satAP iw:fexp` 16.5%, `X-1860 WGIge|RoL|HorAcc … satAP iw:fexp@accRoL` 14.7%,
-`X-1860 … satInn iw:fexp` 12.8%, `X-1791 … satAP iw:poly` (electoral democracy as the weight) 11.9%. **Every
-conditional winner is weighted.**
+**The selected specification.** Wins **1%** of resamples (**31%** conditional on the walk's rejections; 55% of the
+resamples that yield an admissible winner, `specFreqConditional`; `v7`: 1% / 24% / 44%). The other conditional winners:
+`X-1791 … satInn iw:fexp@accRoL fos5` (the weight scoped to accountability and rule of law) 27.3%,
+`X-1860 WGIge|RoL|HorAcc … satInn iw:fexp fos5` 17.3%. **Every conditional winner is weighted and bounded.**
 
 > ✅ **State capability and rule of law belong**: 100% of winners. ✅ **Fossil interests in both share and
 > per-capita form belong**: `bothIncAP` 100%. ✅ **A democracy weight on the interactions belongs**: every
 > conditional winner carries one.
 >
-> 🔴 **Which accountability channel, which democracy index and which actor-power transform are not identified.**
-> The selected channel set is the conditional majority (72.5%) but not the raw one; the transform splits about
-> 57 / 43.
+> 🔴 **Which accountability channel, the weight's scope and which actor-power transform are not identified.**
+> The selected channel set is now the raw majority too (67.9%); the transform splits about 55 / 45.
 
 > **What may be claimed.** *State capability, rule of law, the two fossil terms and a democracy weight belong.*
-> **Neither the channel set nor the specification is uniquely selected**; the selected specification is a 1% (24%
+> **Neither the channel set nor the specification is uniquely selected**; the selected specification is a 1% (31%
 > conditional) winner. Any sentence asserting the model *is* `X-1791` rather than *was run at* `X-1791` is false.
 
 ---
@@ -1029,7 +1149,10 @@ Validated exclusions — each rejected by this project's own tests, not by prefe
 | A power & industry institution main effect as a finding | Not identified: insignificant in the mean regression, opposite signs on the frontier (§2.5, §3.3) |
 | One fossil coefficient without the other | The share and per-person terms pull in opposite directions; only the pair is interpretable (§2.3) |
 | Theory-gate $p$-values as unconditional inference | The selection requires H1–H2 (§2.4a, ADR 0059) |
-| Scenario results late in the century without their out-of-support share | A reporting duty since ADR 0052: 19% of guarded drivers out of support by 2100, the energy system beyond the observed range for most countries by 2050 (§2.3, §5.2) |
+| Scenario results late in the century without their out-of-support share | A reporting duty since ADR 0052: 19% of guarded drivers out of support by 2100 (`v7`), the energy system beyond the observed range for most countries by 2050 (§2.3, §5.2) |
+| Fossil rents in the ceiling | Against the theory in power & industry, γ at the boundary, gates failed; rents act on the slack only (§3.1a, ADR 0061) |
+| A shrinking-future step's plan quoted as an outcome | Each step's plan for the years after its decade is revised by the next; the chain's result is its last step (§5.6a) |
+| The buildings & transport contingency (H2) as established | It passes on the asymptotic $p$ only; not under the wild bootstrap, and fragile to dropping one country (§2.4a, §2.6) |
 | Any result after 2100 in paper-facing text | Results are reported to 2100 (author, 2026-10-25) |
 | Ranking estimators on AIC/BIC across families | Different response scales and quasi-likelihoods |
 | Calling the feedback causal | The IV is an endogeneity-confirmed null (§8.1) |
@@ -1044,10 +1167,10 @@ global VRE diffusion) **confirms endogeneity** but **identifies no causal fossil
 
 | rung | Fossil dependence $\hat\beta$ (2SLS) | SE | $p$ | first-stage $F$ | Wu–Hausman $p$ |
 |---|---:|---:|---:|---:|---:|
-| Power & industry, with trend | 15.9 | **40.9** | .70 | 3.4 | 4e−33 |
-| Power & industry, no trend | 10.3 | 49.0 | .83 | 10.5 | 8e−92 |
-| Buildings & transport, with trend | −3.1 | 3.5 | .37 | 8.8 | 2e−22 |
-| Buildings & transport, no trend | 97.0 | **2467** | .97 | 4.4 | 2e−94 |
+| Power & industry, with trend | 43.2 | **185.7** | .82 | 2.0 | 2e−32 |
+| Power & industry, no trend | 21.0 | 137.8 | .88 | 7.7 | 7e−93 |
+| Buildings & transport, with trend | −3.0 | 4.2 | .47 | 10.6 | 9e−22 |
+| Buildings & transport, no trend | 4.6 | 12.7 | .72 | 4.5 | 2e−94 |
 
 Three of four rungs are weakly instrumented ($F$ < 10), and no estimate is distinguishable from zero. **Do not
 report the point estimates.** Report that endogeneity is confirmed at $p < 10^{-21}$ in every rung and
@@ -1056,43 +1179,49 @@ cannot show what it is.* Label the feedback **conditional scenario accounting**,
 "causes" anywhere near the loop.**
 
 **8.2 The ceiling-feedback sign.** The feedback is live in both sectors: on the coupled 1000 Gt pathway the power &
-industry strength falls to 0.71 by 2050 and buildings & transport to 0.60 (§5.2), and the median covered ceiling
-rises (to 1.15 / 1.26 of its 2025 value by 2100). The power & industry direction rests on how fossil dependence
-behaves below anything observed — linearly on `v7` (§2.3) — and on power & industry institution terms that are not
-identified. It is not causal (§8.1).
+industry strength falls to 0.63 by 2050 and buildings & transport to 0.62 (§5.2), and the median covered ceiling
+rises (to 1.07 / 1.27 of its 2025 value by 2100). The power & industry direction rests on how fossil dependence
+behaves at the low edge — bounded and saturating on `v8` (§2.3) — and on power & industry institution terms that are
+not identified. In buildings & transport a second feedback acts through the rents: a higher carbon price lowers fossil
+rents, the exporters' slack shrinks and their share rises (§3.1a). Part of that fading is not climate policy: rents
+also fall in the current-policy world (MEA at 0.50 of 2025 by 2050; ADR 0061). It is not causal (§8.1).
 
 **8.3 The exposure confound.** `Fossil × GovEff` (share) is **positive** where theory expects
-negative — +0.131 in the power & industry mean regression (not significant), +0.373 on the power & industry
+negative — +0.209 in the power & industry mean regression (not significant), +0.439 on the power & industry
 frontier, positive in six of seven estimators — and power & industry fossil interests per person is positive and
-significant (+0.518). Large, capable fossil economies also regulate more; the model cannot tell exposure from
-resistance. A fossil-rents reader would be needed and none exists.
+significant (+0.625). Large, capable fossil economies also regulate more; the model cannot tell exposure from
+resistance. `v8` adds fossil rents, but on the slack of buildings & transport only: in the ceiling they raise power &
+industry stringency (rent-rich democracies price strictly) and fail the gates (ADR 0061), so the confound stays open
+in power & industry.
 
-**8.4 The historical-replay gate — passes, and cannot discriminate.** Running the coupled system
-over the historical panel (seed year 2000) must reproduce observed stringency at least as well as
-the uncoupled ECM (`historical-replay.rds`, `$pass = TRUE`):
+**8.4 The historical-replay gate — fails narrowly in buildings & transport on `v8`, and cannot discriminate.**
+Running the coupled system over the historical panel (seed year 2000) must reproduce observed stringency at least as
+well as the uncoupled ECM (`historical-replay.rds`, `$pass = FALSE` on `v8`; `TRUE` on `v7`):
 
 | Sector | RMSE coupled | RMSE ECM | skill vs ECM | skill vs persistence | ceiling binds |
 |---|---:|---:|---:|---:|---:|
-| Power & industry | 0.808 | 0.808 | +0.0005 | +0.730 | **0.45%** of rows |
-| Buildings & transport | 0.520 | 0.522 | +0.0048 | +0.768 | 2.17% of rows |
+| Power & industry | 0.815 | 0.815 | +0.001 | +0.727 | **0.27%** of rows |
+| Buildings & transport | 0.530 | 0.520 | **−0.018** | +0.764 | 2.72% of rows |
 
-> **Read the margin before the verdict.** The ceiling binds in under 3% of rows, so the coupled and
-> uncoupled systems are almost the same model on history and the "pass" is a tie. In the coupled `v7`
-> runs the hold-the-price cap binds in 99% of region-periods — a regime this gate says nothing about.
+> **Read the margin before the verdict.** The ceiling binds in under 3% of rows, so the coupled and uncoupled systems
+> are almost the same model on history: on `v7` the "pass" was a tie, and on `v8` the buildings & transport "fail" is
+> a 1.8% worse RMSE on the same rows. In the coupled runs the hold-the-price cap binds in about 94% of region-periods —
+> a regime this gate says nothing about. **Disclose the `v8` verdict as it is**; the re-scoped check below is the
+> discriminating one, and it has not been re-run on `v8`.
 
-**Re-scoped to where it can discriminate** (`analysis/checks/replayRescoped.R v7`): on the rows where
-the coupled path differs from the uncoupled one — 67 power & industry country-years in 4 countries (6.1%) and 157
-buildings & transport in 8 (14.2%) — RMSE is 0.503 against 0.514 (skill **+0.021**) in power & industry and 0.472
-against 0.491 (skill **+0.039**) in buildings & transport. Where the ceiling acts on history it improves the fit a
-little in both sectors (`v6`: +0.036 / +0.009). Quote this, not the diluted full-sample figure.
+**Re-scoped to where it can discriminate** (**measured on `v7`**, `analysis/checks/replayRescoped.R v7`): on the rows
+where the coupled path differed from the uncoupled one — 67 power & industry country-years in 4 countries (6.1%) and 157
+buildings & transport in 8 (14.2%) — RMSE was 0.503 against 0.514 (skill **+0.021**) in power & industry and 0.472
+against 0.491 (skill **+0.039**) in buildings & transport. Where the ceiling acted on history it improved the fit a
+little in both sectors (`v6`: +0.036 / +0.009). Re-run it on `v8` before quoting either.
 
 **8.5 The time trend does most of the explanatory work.**
 
 | | Power & industry | Buildings & transport |
 |---|---:|---:|
-| $\hat\beta$ on $T(t)$ per SD, frontier | **0.901** | **0.497** |
-| $\hat\beta$ on $T(t)$ per SD, mean regression (§2.5) | 1.300 | 0.621 |
-| trend share of linear-predictor variance (§2.4) | **0.685** | **0.535** |
+| $\hat\beta$ on $T(t)$ per SD, frontier | **0.974** | **0.481** |
+| $\hat\beta$ on $T(t)$ per SD, mean regression (§2.5) | 1.298 | 0.620 |
+| trend share of linear-predictor variance (§2.4) | **0.672** | **0.535** |
 
 **So is the model usable?** Yes, with the framing kept ordinal:
 
@@ -1108,21 +1237,28 @@ model does not attribute to institutions or actor power. The defensible claim is
 **cross-sectional ordering** and **how the drivers move the ceilings**, not about how the ceiling got
 where it is. Nothing here should be phrased as "institutions caused the ceiling to rise".
 
+**8.6 What the energy system expects of politics.** The one-shot coupled run lets REMIND know that the limit lasts;
+the shrinking future (§5.6a) lets every decade expect it to lift. Under hold the price the two bracket the overshoot at
++39 to +75 Gt (EU21, θ 0.50), with the same prices paid: expectations about future politics are a channel of the
+same size as θ's range. The PFM has no estimate of what actors expect, and REMIND's perfect foresight within a step sets
+the strength of the effect; five-year steps, version A (the limit known for the whole remaining horizon at each step)
+and the θ range are open (`../communication/2026-11-shrinking-future/`).
+
 ---
 
 ## 9. Artifact map
 
-All in `output/pfm/v7/`.
+All in `output/pfm/v8/` unless named (the analyses measured on `v7` are in `output/pfm/v7/`).
 
 | Quantity | File | Path within |
 |---|---|---|
 | Selected specification | `selected-models-pfm.yml` | — |
-| Every estimation number in this document | `doc-facts/facts.json` | written by `analysis/checks/docFacts.R v7` |
+| Every estimation number in this document | `doc-facts/facts.json` | written by `analysis/checks/docFacts.R v8` |
 | ΔR²(theory), trend share, VIF, tier, maximin, gates, sanity walk | `sweep.rds`, `sanity-pool.rds` | `$results`, `$maximin`, `$theory`, `$sanity` |
-| Theory gate: screen, calibration | `theory-term-screen.rds`, `theory-gate-calibration.rds`, `inference-screen.rds` | — |
-| Edge-of-data gate | `edge-of-data.rds`, `edge-gate-preview.rds` | — |
+| Selection sector by sector; net effects of the interacted terms | `per-sector-selection.rds`, `net-effects.rds`, `net-effects-X-2099.rds` | design note 0009 §§19–20 |
+| The rents slack out of sample | `v8-het-slack-cv.rds` | — |
 | Sharing cost, per-tier winners | `selection-variants.rds` | `$perSector`, `$winners` |
-| Selection stability; `v6`/`v7` comparison | `selection-bootstrap.rds`, `selection-compare.rds`, `v6v7-reproduction.rds` | — |
+| Selection stability | `selection-bootstrap.rds` | — |
 | Mean regression: coefficients, wild-cluster $p$, AMEs | `inference.rds` | `$bySector$<s>$table` |
 | Sign agreement across 7 estimators | `estimator-agreement.rds` | `$bySector$<s>$agreement` |
 | Leave-one-country-out influence | `influence.rds` | `$bySector$<s>$byTerm` |
@@ -1130,18 +1266,22 @@ All in `output/pfm/v7/`.
 | Frontier $\beta_F$, $\gamma$, LR, covariance check, rungs | `frontier.rds` | `$bySector$<s>$coefTable`, `$gamma`, `$lr`, `$vcovCheck`, `$robustness` |
 | Rungs propagated to $E$ and φ | `frontier-rung-phi.rds` | `$minRule`, `$countryBind` |
 | Ceilings, gaps, efficiency per country-year | `frontier.rds` | `$bySector$<s>$scores` |
-| The anchor: $q$, $u$, weights, frontier design | `phi-anchor.rds` (staged in `output/remind-inputs/v7/`) | step `pfm-anchor` |
+| The anchor: $q$, $u$, weights, frontier design, the rents slack's anchor | `phi-anchor.rds` (staged in `output/remind-inputs/v8/`) | step `pfm-anchor` |
 | λ, half-life, skill (2 and 4 sectors) — diagnostic | `temporal-validation.rds`, `sector-speeds.rds` | — |
 | Historical-replay gate | `historical-replay.rds` | `$pass`, `$bySector$<s>$metrics` |
 | Country projections | `projection.rds`, `projections/<scenario>.rds` | — |
-| Donor / band assignment | `coverage/`, `donor-assignment-band-<sector>.rds` | — |
-| Offline bound, efficiency analogy, θ bounds | `coupling/coupling-summary.rds`, `coupling/theta-bounds.rds`, `efficiency-ratio-band.rds` | `$anchorDerivation` |
+| Coverage (the covered median), donors as diagnostics | `coverage/`, `donor-assignment-band-<sector>.rds` | — |
+| Offline bound, efficiency analogy | `coupling/coupling-summary.rds` | `$anchorDerivation` |
+| θ bounds, the strength decomposition (measured on `v7`) | `output/pfm/v7/coupling/theta-bounds.rds`, `efficiency-ratio-band.rds`, `coupling/strength-support.rds` | — |
 | Coupled runs: prices, φ per market, convergence, run QC | `coupling/coupled-runs.rds` | `$runs`, `$prices`, `$phi`, `$convergence` |
-| Strength on the coupled runs: support, decomposition, beyond-range shares | `coupling/strength-support.rds` | `$support`, `$decomposition`, `$beyond` |
-| Every coupled number quoted in the docs | `coupling/coupled-facts.json`, `coupled-costs.json`, `budget-peak.rds`, `gate-ref-compare.rds`, `emissions-2100.rds` | written by `runCoupledStage.R v7` and `analysis/checks/` |
+| The shrinking future: each step's plan, the chain, the one-shot run | `coupling/shrinking-future.rds`, `fig-shrinking-future-*.png` | written by `analysis/v8/shrinkingFuture.R v8` |
+| Every coupled number quoted in the docs | `coupling/coupled-facts.json`, `coupled-costs.json`, `convergence-audit.rds`, `rulec-bound-freeze.rds` | written by `runCoupledStage.R v8` |
 
 **Code entry points.** `estimatePolicyStringencyModel()`, `computeFeasibilityFrontier()`,
 `computeAnchorGap()`, `computeStrengthPath()`, `pfmV6Shares()`, `pfmV6CouplingDefaults()`,
 `computeDonorAssignment()`, `runPFMTemporalValidation()`, `computeWildClusterBootstrap()`,
 `projectFeasiblePath()`, `exportFeasibilityBound()`, `iterativePFM()`; the gates `.pfmEdgeGate()`,
-`.pfmTheoryScreen()`, `.pfmTheoryCoherence()`; the weight `.pfmIwParse()`, `.pfmIwFactor()`.
+`.pfmTheoryScreen()`, `.pfmTheoryCoherence()`; the weight `.pfmIwParse()`, `.pfmIwFactor()`; `v8`: the rents slack
+(`estimatePolicyStringencyModel(slackDrivers)`, class `pfmHetFrontier`, `.pfmCeilingBeta()`,
+`.pfmScenarioFossilRents()`), the institution rule (`pfmInstitutionProjection(rule = "gapclosure")`), the strength
+forms and the window (`pfmCouplingV6.R`: `strength = regional | common | gapfirst`, `windowEnd`).

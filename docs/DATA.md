@@ -43,7 +43,8 @@ iteration.
 | Institutions | V-Dem Country-Year Core (`VDem`) | **v16** (`V-Dem-CY-Core-v16.csv`) | 1789–2025 | 249 / 249 | Rule of Law, Vertical / Horizontal / Diagonal Accountability; state capacity (Policy Implementation, Absence of Corruption, Meritocracy, …) |
 | Income, population | mrdrivers `GDP`, `Population` (WDI + UN WPP history, SSP projections) | mrdrivers 7.2.1 | 1960–2150 (history to 2023) | 249 / 249 | log GDP, log population, log GDP per capita, GDP per capita Q-centred |
 | Area | FAO land area (`FAOLandArea`) | 2023 snapshot | time-invariant | — | log land area |
-| SSP extensions | Andrijevic et al. (2020) and successors (`SSPextensions`) | `ssp-extensions_all_data.xlsx` (copy of Dec 2025) | 2000–2100 (cache to 2150, held) | 249 / 249 (after median fill, §5.3) | urban share, Gini, Gender Inequality Index (history and future); Government Effectiveness, Control of Corruption, Rule of Law (future) |
+| SSP extensions | Andrijevic et al. (2020) and successors (`SSPextensions`) | `ssp-extensions_all_data.xlsx` (copy of Dec 2025) | 2000–2100 (cache to 2150, held) | 249 / 249 (after median fill, §5.3) | urban share, Gini, Gender Inequality Index (history and future); Government Effectiveness, Control of Corruption, Rule of Law (future; replaced by the gap-closure rule from `v8`, §5.4) |
+| **Fossil rents** (from `v8`) | World Bank WDI oil, natural gas and coal rents, % of GDP (`FossilRents` → `calcFossilRents`; source `WDIRents/wdi-fossil-rents.csv`, downloaded 2026-10-27) | WDI, 2026 download | 1970–2021 (held after) | — | $\log(1 + \%\text{ of GDP})$, the size of the buildings & transport slack (ADR 0061); in scenarios each country's 2023 value moved by its REMIND region's rents relative to 2025 (`.pfmScenarioFossilRents`, at the region's own primary-energy price; `MODEL.md` §3.1a). The source file must also be in the cluster's source folder, or arrive as a cache file (`RUNNING.md` Step 6d) |
 
 Not in the panel but read by the project: Climate-policy support (Vlasceanu et al. 2024, Andre et al.
 2024; `ClimatePolicySupport`), OECD EPS (`OECD_EPS`, discontinued, 1990–2020; superseded by CAPMF),
@@ -60,12 +61,15 @@ follows the institution rule (§5.4), not the Andrijevic Rule-of-Law path.
 Four settings decide what the historical panel *is*. They are a Run-Group property, resolved once
 and recorded (`pfm::pfmPanelDef()`):
 
-| | `v5` and earlier (legacy) | `v6` | `v6-annual` |
-|---|---|---|---|
-| years | 2000–2022 | **2000–2023** | 2000–2023 |
-| moving average | centred, 5 years | centred, 5 years | **none (annual values)** |
-| IEA edition | 2024 (`default`) | **2025 (`latest`)** | 2025 (`latest`) |
-| clean-baseload control ("Hydro Nuclear Share") | hydro + nuclear | **hydro + nuclear + geothermal** | hydro + nuclear + geothermal |
+| | `v5` and earlier (legacy) | `v6` | `v6-annual` | `v7` | `v8` |
+|---|---|---|---|---|---|
+| years | 2000–2022 | **2000–2023** | 2000–2023 | 2000–2023 | 2000–2023 |
+| moving average | centred, 5 years | centred, 5 years | **none (annual values)** | centred, 5 years | centred, 5 years |
+| IEA edition | 2024 (`default`) | **2025 (`latest`)** | 2025 (`latest`) | 2025 | 2025 |
+| clean-baseload control ("Hydro Nuclear Share") | hydro + nuclear | **hydro + nuclear + geothermal** | hydro + nuclear + geothermal | idem | idem |
+| V-Dem democracy indices, overall accountability | — | — | — | **yes** (the interaction weight, ADR 0060) | yes |
+| fossil rents | — | — | — | — | **yes** (`panel: v8: fossilRents`, the slack, ADR 0061) |
+| uncovered countries | band rule | band rule | band rule | band rule | **covered median** (`coverage: v8: median`, ADR 0062) |
 
 - **Where it is set.** `config.yml` → `panel:` (default for new groups, with `groups:` overrides).
   The sweep writes the effective definition into the group's `manifest.json` (`panel`). Every later
@@ -147,6 +151,9 @@ The same SSP drives the aggregation weights (`pfmCouplingWeights`).
 | Rule of Law (Andrijevic) | SSP extensions, SSP1–3 | SSP1–3 only | **SSP4 and SSP5 not published: SSP2 path used** (`calcSSPextensions` says so in the log). Not a sweep candidate (§2) |
 | V-Dem Rule of Law, Vertical / Horizontal / Diagonal Accountability, state capacity | **declared institution rule (§5.4)** | only under `storyline` | no SSP projection exists |
 | WGI Voice and Accountability, Political Stability, Regulatory Quality | **declared institution rule (§5.4)** | only under `storyline` | idem |
+| from `v8` under `gapclosure`: every institution series above, Government Effectiveness and Control of Corruption included | **gap closure (§5.4)** | no | replaces the SSP-extension paths; Andrijevic's government effectiveness is the sensitivity `gapclosureAndrijevic` |
+| the interaction weight (V-Dem freedom of expression) | to the higher of its 2023 value and its 2014–2023 mean by 2040 (half cosine), then held | no | ADR 0063 decision 4; no regime change projected |
+| fossil rents (from `v8`) | 2023 WDI value × the REMIND region's rents relative to 2025 | through REMIND | bounded to [0, 3] times; a country without a series keeps its anchored slack |
 | land area | constant | no | |
 
 ### 5.3 SSP-extension coverage and gaps
@@ -162,12 +169,15 @@ of their own.
 
 `pfm::pfmInstitutionProjection(rule, ssp)`; the rule is set per run (`cfg$pfmInstitutions` in
 REMIND's `default.cfg`, scenario-config column `pfmInstitutions`; registry key `institutions`
-offline). The author's choice (2026-10-02) is **(b) storyline as the headline, (a) convergence and
-(d) hold as sensitivities**:
+offline). **From `v8` the central rule is gap closure** (ADR 0063, the author's decision of 2026-10-27; design note
+0008), on every coupled row; held, Andrijevic and storyline are the sensitivities. Up to `v7` the headline was (b)
+storyline, with (a) convergence and (d) hold as sensitivities.
 
 | rule | what it does |
 |---|---|
-| **(b) `storyline`** (default) | logistic convergence of each country to a target percentile of the cross-section at the last observed year, with SSP-specific target and speed (table below). SSP2 is identical to (a), so every SSP2 result — and all of `v5` — is unchanged |
+| **`gapclosure`** (central from `v8`) | every country closes 0.6% of its distance to the best observed value a year, from its 2023 panel value: $x_c(t) = 1 - (1 - x_{c,2023})\,e^{-0.006(t-2023)}$, on the panel's normalised scale. Covers every institution series, government effectiveness and control of corruption included (their SSP-extension paths are replaced). The pace of Andrijevic et al.'s SSP2 convergence (0.54–0.62% a year) and inside V-Dem's own history (0.4–0.6% since 2000); a gap halves in 116 years. Starts from the panel's own 2023 value, so there is no seam |
+| `gapclosureAndrijevic` | as `gapclosure`, with Andrijevic et al.'s published SSP2 path for government effectiveness |
+| (b) `storyline` (central to `v7`) | logistic convergence of each country to a target percentile of the cross-section at the last observed year, with SSP-specific target and speed (table below). SSP2 is identical to (a), so every SSP2 result — and all of `v5` — is unchanged. 1.3–2.1% a year: faster than Andrijevic's SSP1 |
 | (a) `convergence` | the same logistic path for every SSP: 75th percentile, half the gap closed by 2080, complete by 2150. What every Run-Group up to `v5` used. The SSPs then differ only through the series in §5.2 that have an SSP projection |
 | (d) `hold` | the last observed value, held. No institutional change: the bound |
 
@@ -186,8 +196,10 @@ target keeps its value. The rule's path starts from the last *observed* raw valu
 smoothed value there. Since 2026-10-06 (decision 2B) the path is then harmonised to the panel like
 every other series (§5.5), so the scenario starts where history ends. Under (d) `hold` this means the
 held value moves from the panel's anchor value to the raw last observation by 2040, not a flat line
-from 2023. The storyline rule is in the headline (0005 D10, decision 1A of 2026-10-06), with an
-"institutions held" variant for each headline cell.
+from 2023. The storyline rule was in the headline up to `v7` (0005 D10, decision 1A of 2026-10-06), with an
+"institutions held" variant for each headline cell; from `v8` gap closure is, with the same held variant
+(`-institutionsHeld`). On the `v8` batch holding the institutions adds 10.3 Gt CO₂ to the hold-the-price headline at
+EU21 (`SCENARIOS.md` §4.2a).
 
 ### 5.5 Harmonisation to history
 
@@ -212,7 +224,7 @@ historical range is clamped (`MODEL.md` §7, design note 0005 D7).
 
 1. **Outcomes are never imputed.** A country-year with no CAPMF value is out of the sample; a region
    aggregates over its data-bearing members only.
-1a. **Estonia is excluded from estimation** in `v6` and `v7`: of the 49 countries with CAPMF values, 48 are
+1a. **Estonia is excluded from estimation** from `v6` on (`v6`–`v8`): of the 49 countries with CAPMF values, 48 are
    estimated. Its energy data are wrong upstream (a negative `PE|Coal` in the 2024 IEA edition; in the 2025 edition,
    the oil shale burned in its power, CHP and heat plants is missing from `PE`). It still receives a ceiling in
    projections. PITFALLS §27; ADR 0058.
