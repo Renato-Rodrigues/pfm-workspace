@@ -148,6 +148,14 @@ A run that changes one declared or estimated choice against the headline (rankin
 countries, curve shape, specification, erosion…). The **fixed-institutions variants** (`-held`) keep
 institutions at their anchor values.
 
+### Shrinking future: chain, step, one-shot run
+A **chain** of coupled runs, one **step** per decade (2030 … 2070), each fixing its past to the step before
+(`cm_startyear`, `path_gdx_ref`) and applying the political limit only to its own decade (`pfmPhiWindowEnd`); after
+it the step plans as if the limit lifted. The last step is the chain's **result**. A **one-shot run** is the ordinary
+coupled run, which applies the limit to every year at once. Titles `-shrinkingFuture<start year>` (`v8`; COUPLING.md
+§14.1, design note 0009 §22). Not to be confused with the **plan** of a step: what that step expected for the years
+after its decade, which the next step revises.
+
 ---
 
 ## Infrastructure

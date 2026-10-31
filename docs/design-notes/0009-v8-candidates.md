@@ -783,6 +783,9 @@ and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communi
   (capital, learning), and the next step inherits that energy system.
 - **Each step under-promises.** The plans for 2100 rise step by step: +7.5, +11.5, +20.8, +24.6 Gt above the reference,
   and the result is +39.4.
+- **Cost** (`coupled-costs.json`, GDP / consumption discounted at 5%, 2020–2100, against the matched reference): the
+  one-shot hold-the-price run +0.12% / +0.14%, the chain +0.08% / +0.10% (it abates more). The hold-the-budget chain's
+  cost waits for its last step.
 - **Hold the budget: the effort moves later.** The chain emits 5.8 Gt more than the one-shot run in 2030–2060 and 4.7 Gt
   less in 2060–2100. The price is lower to the 2060s (2050: 201 against 221 $/t) and higher after (2100: 523 against
   500). The end-loading the email anticipated is there but moderate: the chain stops at 2070 and the 1000 Gt budget

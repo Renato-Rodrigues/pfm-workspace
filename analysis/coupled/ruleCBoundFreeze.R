@@ -72,6 +72,9 @@ for (d in dirs) {
   diffB  <- iterSeries(g, "o45_diff_to_Budg")
   bind   <- iterSeries(g, "p45_pfmBindShare_iter")
   infes  <- iterSeries(g, "p45_pfmInfes_iter")
+  # p45_pfmAnchor_iter records the 2050 anchor (presolve.gms), so it is empty in a sequential step that starts after
+  # 2050 (2050 is in its fixed past): carry NA on the price trace's iterations instead.
+  if (!length(anchor)) anchor <- setNames(rep(NA_real_, length(maxP)), names(maxP))
   # Hold the price runs have budget forcing off and carry no budget trace; fall back to the anchor's.
   if (!length(diffB)) diffB <- setNames(rep(NA_real_, length(anchor)), names(anchor))
   it <- as.integer(names(diffB)); last <- max(it)
