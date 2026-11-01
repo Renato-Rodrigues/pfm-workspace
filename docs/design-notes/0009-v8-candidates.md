@@ -797,6 +797,31 @@ and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communi
 - **Fixes the chain needed** (COUPLING.md §14.1, RUNNING.md Step 7 (v8), PITFALLS §41): the start price at the peak year
   for steps from 2040 on; `cm_pfmRefPrice`, so the GAMS rebuild of the hold-the-budget cap uses the same P_ref as R.
 
+### 22a. The chains by region (2026-11-01)
+
+`analysis/v8/shrinkingFutureRegions.R v8` → `output/pfm/v8/coupling/shrinking-future-regions.rds` and three figures
+(`fig-shrinking-future-regional-{prices,price-ratio,co2}.png`). Each region's carbon price relative to the no-politics
+reference of the same closure, and each region's cumulative CO₂ 2020–2100 (trapezoid over the reported years; the
+regional sums are within 0.6 Gt of `pm_actualbudgetco2` in every run). CO₂ only, EU21, θ 0.50.
+
+- **Hold the price: every region pays the same price on the chain as on the one-shot run.** Chain over one-shot: median
+  over regions 1.000 in every year; the largest deviation is REF in 2050 (0.65 against 0.61 of the reference price). The
+  regional pattern is the frontier's: REF lowest (0.52 of the reference in 2030, 0.69 in 2100), then SSA, NES, JPN, the
+  USA (0.78–0.81 in 2030), the European regions 0.85–1.00, NEN at the reference. Each earlier step planned the reference
+  price in every region after its window (ratio 1.000).
+- **Where the chain gives the overshoot back.** Cumulative CO₂ above the reference, one-shot → chain: SSA +24.0 → +13.6,
+  MEA +13.8 → +6.5, REF +13.2 → +5.1, OAS +7.6 → +4.2, LAM +5.2 → +3.4, IND +4.6 → +2.6, the USA +4.5 → +3.0, JPN
+  +2.1 → +0.8 Gt. SSA, REF and MEA give 29%, 23% and 21% of the 35.6 Gt the chain saves; every region with an overshoot
+  loses a third to three-fifths of it. At equal prices, this is the expectations effect of §22, region by region.
+- **Hold the budget: the chain shifts every region's price by nearly the same factor.** Chain over one-shot: median 0.94
+  in 2030, 0.90 in 2040–2060, 0.98 in 2070, 1.02 in 2080, 1.06 in 2100; across regions the factor spans at most 0.05 in
+  a year. The ordering of regions is kept; the level moves later. In 2100 the chain's prices relative to the reference
+  are 1.27 (NEN), 1.24 (UKI), 1.17 (CHA, MEA), 0.87 (REF).
+- **Relocation is halved on the chain.** The regions emitting more than the reference add 17.4 Gt CO₂ on the one-shot run
+  and 8.9 Gt on the chain: REF +9.0 → +3.7, SSA +6.3 → +1.6; the USA +1.8 → +2.9 and IND −1.4 → +0.4 move the other way.
+  MEA abates as much (−8.6 → −8.5), CHA and OAS less (−4.2 → −1.7, −3.6 → −1.7). These CO₂ numbers are not the batch's
+  relocation (20.6 Gt CO₂eq, `SCENARIOS.md` §4.3), which counts all gases.
+
 ## References
 
 - Kumbhakar, S. C., Lien, G. & Hardaker, J. B. Technical efficiency in competing panel data models: a study of Norwegian
