@@ -42,7 +42,7 @@ suppressMessages(madrat::setConfig(cachefolder = normalizePath(file.path("data/m
 # the Run-Group's panel definition (the IEA edition behind the energy drivers), as phase1.R and a run set it
 rc <- pfmResolveConfig("config.yml", group = g, verbose = FALSE)
 pd <- pfm:::.pfmPanelDefForGroup(file.path("output/pfm", g), rc$panel)
-options(pfm.panel = pd[intersect(c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal", "democracy", "overallAccountability"), names(pd))])
+options(pfm.panel = pd[intersect(c("firstYear", "lastYear", "movingAverage", "ieaVersion", "geothermal", "democracy", "overallAccountability", "fossilRents"), names(pd))])
 # the anchor the coupled runs read (output/remind-inputs/<group>/phi-anchor.rds, EU21), with its weights
 a <- pfm:::pfmAnchorFor(file.path("output/remind-inputs", g), "EU21")
 heads <- CR[CR$resolution == "EU21" & sub("^SSP2-EU21-PkBudg1000-", "", CR$scenario) %in% paste0(c("PFMlevelBfix-", "PFMlevelC-"), g), ]
@@ -51,10 +51,15 @@ for (i in seq_len(nrow(heads))) {
   run <- sub("^SSP2-EU21-PkBudg1000-", "", heads$scenario[i])
   gdx <- file.path(RUNS, "EU21", heads$dir[i], "fulldata.gdx")
   cache <- file.path(CPL, paste0("scen-", run, ".rds"))
+  # the run's own institution rule and rents price (pfm-coupling.yml, written by preparePFM.R; v8: gap closure)
+  yc <- file.path(RUNS, "EU21", heads$dir[i], "pfm-coupling.yml")
+  yc <- if (file.exists(yc)) yaml::read_yaml(yc) else list()
+  inst <- yc$institutions %||% "storyline"; rentsPrice <- yc$rentsPrice %||% "regional"
   scen <- if (file.exists(cache) && identical(attr(readRDS(cache), "gdx"), normalizePath(gdx, winslash = "/"))) readRDS(cache) else {
     say("building the scenario panel of ", run)
     s <- panelDataScenario(gdxFile = gdx, aggregate = TRUE, gdxRegionMappingFile = "regionmapping_21_EU11.csv",
-                           outputRegionMappingFile = "country", ssp = "SSP2", institutions = "storyline")
+                           outputRegionMappingFile = "country", ssp = "SSP2", institutions = inst,
+                           fossilRentsPrice = rentsPrice)
     attr(s, "gdx") <- normalizePath(gdx, winslash = "/"); saveRDS(s, cache); s }
   vars <- getNames(scen)
   grp <- list(`actor power` = grep("Power", vars, value = TRUE),

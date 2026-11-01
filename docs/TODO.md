@@ -21,13 +21,17 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 **v8, 2026-11-01.** The v8 coupled batch is complete and analysed: 66 runs (60 coupled, both shrinking-future chains
 included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 against v7's +99 / +88. `MODEL.md` and
 `SCENARIOS.md` are rewritten on v8 (their v7 versions in `../_archive/_wip/2026-10-31/docs/`). Open:
-1. 🟠 **Decide whether v8 replaces v7 as the paper basis** (author). If so: the paper's methods and numbers, and the
-   coupled figures on v8. The governed docs already describe v8.
+1. ✅ **The paper is on v8** (author, 2026-11-01). Its claims ledger, Methods and outline were rewritten on v8
+   (`papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`; the v7 drafts in its `drafts/`); the
+   spine's numbers were re-read (6–8% to 2100, 13–15% higher emissions in 2050) and **the author confirms its wording**.
+   Re-run on v8 the same day: the strength decomposition and support shares, the edge-of-data cap test, the θ bounds,
+   the re-scoped replay (now worse in buildings & transport, skill −0.068: paper claim C21 refuted), H3, the net
+   effects on the coupled panel, the coverage test, the κ reference, the coefficient band.
 2. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, 5-year steps, θ range and H12 if
-   it goes into the paper (questions in `../communication/2026-11-shrinking-future/`).
-3. 🟢 **Re-run on v8** what the docs still quote as measured on v7: the strength decomposition
-   (`analysis/v6/couplingMechanism.R v8`), the re-scoped replay (`replayRescoped.R v8`; the full replay gate now fails
-   narrowly in buildings & transport, `MODEL.md` §8.4), the trend-shape grid, the θ bounds, the relocation by period.
+   it goes into the paper (questions in `../communication/2026-11-shrinking-future/`; paper claim C25, pending).
+3. 🟢 **Still measured on v7**: the theory-gate threshold sensitivities (H3 0.70 / 0.80, *p* 0.10 — a cluster sweep per
+   threshold, `RUNNING.md` Step 6c; paper claim C7 pending until then), the trend-shape grid, the ranking-uncertainty
+   bands (`analysis/v8/rankingUncertainty.R v8`), the relocation by period.
 4. 🟢 **The v8 emissions band** (band-edge anchors not prepared) and the v8 coupled figures.
 5. 🟢 **Confirm on the cluster that every v8 run read the staged cache** (`RUNNING.md` Step 8) and commit `records/v8`.
 

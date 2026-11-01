@@ -12,8 +12,8 @@ the two **shrinking-future chains** (§4.11). Every row is generated from `analy
 (ADR 0055). Every run finished; **one does not peak its budget** (EU21 hold the budget, growing limit; it meets the
 budget at 2100, as on `v7`; §3.4). The `v7` version of this document, with the `v7` batch's 40 runs, is archived at
 `../_archive/_wip/2026-10-31/docs/SCENARIOS-v7.md` (`v6`: `../_archive/_wip/2026-10-25/docs/SCENARIOS-v6.md`).
-**Whether `v8` replaces `v7` as the paper's basis is the author's decision** (`TODO.md`); this document describes the
-current version.
+**`v8` is the paper's basis since 2026-11-01** (author; `v7` was 2026-10-25 to 2026-10-31); this document describes
+the current version.
 
 **Every number below** is read from `output/pfm/v8/coupling/`: `coupled-facts.json` (results per run and
 sensitivity run), `coupled-costs.json` (emissions moved, GDP), `convergence-audit.rds`, `held-budget-prices-levelC.rds`,
@@ -219,7 +219,7 @@ place, `analysis/coupled/_runKey.R`, so every script reads every group. The arti
 | no further suffix | **fading limit**, regional strength, gap-closure institutions, θ = 0.50: the headline | — |
 | `-theta325`, `-theta675` | severity θ = 0.325, 0.675 | `Th325`, `Th675` |
 | `-constantLimit`, `-growingLimit` | **constant limit** (k ≈ 1) / **growing limit** (tightens 0.5% a year) | `-Ehold`, `-backslide` |
-| `-erosion2`, `-erosion2p7`, `-erosion5`, `-erosionHistorical` | **fading + erosion** 2% / 2.7% / 5% a year / the historical per-sector rates (1.1% / 4.6%) | `-kappa02`, `-kappa`, `-kappa05`, `-kappaHist` |
+| `-erosion2`, `-erosion2p7`, `-erosion5`, `-erosionHistorical` | **fading + erosion** 2% / 2.7% / 5% a year / the historical per-sector rates (1.1% / 4.6%, measured on `v7`; on `v8` 0.7% / 5.7%, `MODEL.md` §5.2a) | `-kappa02`, `-kappa`, `-kappa05`, `-kappaHist` |
 | `-commonStrength`, `-gapFirst` | the world's strength (`v7`'s form) / gap first | `-common`, `-gapfirst` |
 | `-rentsWorldPrice` | REMIND's rents at the world price | `-rentsWorld` |
 | `-institutionsHeld`, `-institutionsAndrijevic`, `-institutionsStoryline` | institutions held at 2023 / Andrijevic's government effectiveness / the previous storyline rule | `-held`, `-gcA`, `-story` |
@@ -646,7 +646,8 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v8`**: the lowest 2050 market
 
 ## 7. Needed improvements, in priority order
 
-1. 🟠 **Decide the paper's basis** (`v7` or `v8`; author). The `v8` batch is complete and analysed.
+1. ✅ **The paper's basis is `v8`** (author, 2026-11-01): the paper's claims, Methods and outline are on `v8`
+   (`papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`).
 2. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, five-year steps, the θ range and
    H12 if it goes into the paper.
 3. 🟢 **The coupled figures on `v8`**: `v6-coupled-theta`, `v6-coupled-arms`, `v6-rulec-relocation` and

@@ -24,9 +24,11 @@ Estimation-side numbers are collected by `Rscript analysis/checks/docFacts.R v8`
 > 2100 and no later.**
 
 > **Analyses not re-run on `v8`** are labelled "measured on `v7`" (or `v6`, `v5`) where they appear: the trend-shape
-> grid (§2.3.1), the strength decomposition and support shares (§2.3, §5.2), the θ bounds (§5.3.1), the coverage and
-> ranking-uncertainty tests (§5.4), the offline strength and specification band (`phase1/`, §5.3.0) and the λ placebo
-> audit (§4.3.2). Their conclusions are about the method; their numbers are not `v8` numbers. The `v7` version of this
+> grid (§2.3.1), the ranking-uncertainty test (§5.4), the offline strength and specification band (`phase1/`, §5.3.0),
+> the theory-gate threshold sensitivities (§2.4a) and the λ placebo audit (§4.3.2). Re-run on `v8` on 2026-11-01: the
+> strength decomposition and support shares (§2.3, §5.2), the edge-of-data cap test (§2.4a), the θ bounds (§5.3.1),
+> the re-scoped replay (§8.4), H3 (`theory-gate-calibration.rds`), the net effects on the coupled panel, the coverage
+> test (§5.4), the κ reference (§5.2a) and the coefficient band (§5.3.2). Their conclusions are about the method; their numbers are not `v8` numbers. The `v7` version of this
 > document is `../_archive/_wip/2026-10-31/docs/MODEL-v7.md` (the `v6` version: `../_archive/_wip/2026-10-25/docs/MODEL-v6.md`).
 
 **Scope.** The model *as selected*. How the spec was selected is ADR 0036/0039/0045/0046/0052, the edge-of-data
@@ -179,11 +181,14 @@ $x/(x+\bar x)$, with $\bar x$ the training median, before standardization: the c
 flattens above the median, so no share extrapolates linearly into a range no country has occupied. `v7` saturated
 clean energy only (`satInn`); with the bound, that form reaches power & industry γ 0.999004, above the declared gate
 (ADR 0046), and the selection walk moves to `satAP` (ADR 0062). The edge-of-data gate (§2.4a) checks that the low end
-does not move the projected ceilings by more than a declared amount. **Measured on `v7`** (coupled 1000 Gt pathway,
-hold the price, EU21, final-energy-weighted share of countries; `coupling/strength-support.rds`): clean-energy build-out
-is above anything observed for 89% of countries in 2050 and 94% in 2100 in power & industry (97% / 99% in buildings &
-transport); fossil dependence below anything observed for 1% in 2050 and 50% in 2100 in power & industry (2% / 19% in
-buildings & transport). On `v8` the bound holds the fossil terms at the 5th percentile instead.
+does not move the projected ceilings by more than a declared amount. **On the coupled 1000 Gt pathway** (hold the
+price, EU21, final-energy-weighted share of countries; `analysis/v6/couplingMechanism.R v8` → `coupling/strength-support.rds`,
+2026-11-01): clean-energy build-out is above anything observed for 89% of countries in 2050 and 94% in 2100 in power &
+industry (97% / 99% in buildings & transport); fossil dependence is below the observed minimum for 79% in 2050 and 92%
+in 2100 in power & industry (71% / 96% in buildings & transport), fossil interests per person for 22% / 60% (22% /
+27%). There the bound holds the fossil terms at the 5th percentile, so **by mid-century the interests stop moving the
+ceiling for most of the world's final energy** (`v7`, unbounded and linear: fossil dependence below the range for 1% in
+2050 and 50% in 2100).
 
 **The `bothIncAP` form (ADR 0044, ADR 0045).** Fossil interests enter twice — as a share (how
 dependent the energy system is) and per capita (how large the fossil interest is) — which
@@ -319,7 +324,11 @@ coupled 1000 Gt drivers mapped to EU21, (i) the share of a region's weight on wh
 the theoretical expectation is below 0.25, (ii) the size of that adverse effect is below 0.25, and (iii) capping
 the drivers at the observed range moves the projected ceilings by less than 0.5 (cap quantiles 0.05 / 0.95). The
 selected `v8` specification passes it; the `v8` sweep keeps the verdict, not the cap shifts (on `v7`: 0.21 and 0.09;
-`v6`'s specification on the `v7` data failed at 0.56 and 1.29, ADR 0060). The clean-energy direction check applies
+`v6`'s specification on the `v7` data failed at 0.56 and 1.29, ADR 0060). Offline on the coupled hold-the-price panel
+(`analysis/checks/edgeOfData.R v8` → `edge-of-data.rds`, 2026-11-01): capping the institutions inside the interactions
+at the 5th–95th percentiles moves no regional rank $u$ by 0.15 or more and the strength by at most 0.01 (`v7`: one rank
+by 0.16, the strength by 0.02); fossil dependence acts against the reading in no region's final energy above 10%,
+fossil interests per person in 11% of the Middle East's (power & industry), below the 0.25 limit. The clean-energy direction check applies
 only where the sample-centre sign is the expected one, so it does not apply in power & industry on `v8` (ADR 0062).
 
 **The theory gate** (ADR 0059). The hypotheses are stated before the estimate (paper Methods §1) and required of
@@ -573,7 +582,7 @@ clustered alternative):
 > × GovEff and × RoL in power & industry, fossil pc × VerAcc in buildings & transport.
 >
 > ⚠️ **Frontier $p$-values are ML and understate uncertainty.** The design effect of country clustering
-> on the same design was **1.93×** (power & industry) and **2.20×** (buildings & transport) in the `v7` mean regression
+> on the same design is **1.94×** (power & industry) and **2.46×** (buildings & transport) in the `v8` mean regression
 > (`efficiency-ratio-band.rds`, §5.3.1). Quote frontier signs; quote mean-regression $p$.
 
 ### 3.4 ⚠️ The $\gamma$ caveat — read before using any ceiling
@@ -814,26 +823,34 @@ H12; ECE is next to REF at EU21 (0.65).
 **What the strength does on the coupled energy system** (`coupled-facts.json`, EU21, hold the price, fading limit,
 θ = 0.50, the final-energy-weighted strength). Power & industry $k$ is **0.632 / 0.727** in 2050 / 2100 (H12 0.629 /
 0.724); buildings & transport 0.624 / 0.494 (H12 0.622 / 0.493). With institutions held at 2023, power & industry $k$
-is 0.86 in 2100. **Measured on `v7`** (`coupling/strength-support.rds`, `analysis/v6/couplingMechanism.R v7`, not re-run
-on `v8`): one driver group moving at a time (the others held at 2025), in 2100:
+is 0.86 in 2100. One driver group moving at a time (the others held at 2025), on the hold-the-price headline's final
+energy system (`analysis/v6/couplingMechanism.R v8` → `coupling/strength-support.rds`, 2026-11-01; the run's own
+institution rule and rents; the recomputation matches the last call's $k$ within 0.002; the world's final-energy-weighted
+strength):
 
-| moving | power & industry $k_{2100}$ | buildings & transport $k_{2100}$ |
+| moving | power & industry $k_{2050}$ / $k_{2100}$ | buildings & transport $k_{2050}$ / $k_{2100}$ |
 |---|---:|---:|
-| the economic weight of fossil and clean-energy interests (actor power) | **0.42** | 0.56 |
-| institutions | **1.36** | 0.85 |
-| income and population | 0.95 | 1.01 |
-| all (the run) | 0.67 | 0.49 |
+| the economic weight of fossil and clean-energy interests (actor power) | **0.63 / 0.63** | 0.66 / 0.58 |
+| institutions (gap closure) | 1.07 / **1.21** | 0.80 / 0.68 |
+| income and population | 0.92 / 0.91 | 0.82 / 0.74 |
+| all (the run) | 0.63 / 0.73 | 0.62 / 0.49 |
+
+(`v7`, 2100: actor power 0.42 / 0.56, institutions 1.36 / 0.85, income and population 0.95 / 1.01, all 0.67 / 0.49.)
+**The interests do their work by 2050 and then stop** in power & industry (clean energy saturated, the fossil terms at
+their bound, §2.3); the rents are not in the actor-power group and are held at 2025 in its row.
 
 **In power & industry the energy transition relaxes the constraint and the projected institutions tighten it**,
 through power & industry institution terms that are not identified (§2.5); read jointly, the three institutions' net
 effect in power & industry is negative (design note 0009 §19). On `v8` the power & industry strength rises again after
-2050 (0.63 → 0.73), where `v7`'s fell (0.71 → 0.67). Holding the institutions at their anchor values adds 10.3 Gt CO₂ to
+2050 (0.63 → 0.73), where `v7`'s fell (0.71 → 0.67): with the interests at rest after 2050, the institutions set the
+late path. In buildings & transport every driver group relaxes the constraint. Holding the institutions at their anchor values adds 10.3 Gt CO₂ to
 the hold-the-price result at EU21 and 5.9 at H12 (`v7`: −0.4 / +0.7): under gap closure the institutions now take a
 tenth off the overshoot (`SCENARIOS.md`). The buildings & transport strength falls throughout, as on `v7`.
 
-**Out of training support** (**measured on `v7`**; the drivers with a guard range: income, population and
-institutions; SSP2 projections): 5% of weighted drivers in 2030, 10% in 2050, 19% in 2100 in power & industry (5% / 9% /
-16% in buildings & transport), reported with every $k(t)$. The actor-power terms are reported separately, as the share
+**Out of training support** (the drivers with a guard range: income, population and institutions; the coupled
+hold-the-price headline, `strength-support.rds`): 2% of weighted drivers in 2030, 5% in 2050, 6% in 2100 in both sectors
+(`v7`: 10% / 19% in 2050 / 2100 in power & industry): under gap closure the institutions stay inside the observed range.
+Reported with every $k(t)$. The actor-power terms are reported separately, as the share
 of countries beyond the observed range (§2.3): on `v8` the fade after mid-century is read through saturating curves
 and, at the low end, through the fossil bound.
 
@@ -854,13 +871,15 @@ and, at the low end, through the fossil bound.
 | rents valuation | REMIND's rents at the world price | the region's own price | `pfmRentsPrice = world` |
 | window (the shrinking future) | φ only before a year, 1 after it | none | `pfmPhiWindowEnd`; §5.6a |
 
-**A historical reference for κ** (not an estimate; `analysis/v8/persistentSlack.R` → `output/pfm/v7/v8-persistent-slack.rds`,
-design note 0009 §6.2). κ shrinks the political differences, so its counterpart in the data is how fast the spread of
-the gaps $g = 1-E$ narrowed. Between 2008 and 2023 the cross-country standard deviation fell from 0.188 to 0.154 in power &
-industry (1.1% a year) and from 0.186 to 0.099 in buildings & transport (4.6% a year); across the EU21 regions (covered
-countries) the rates are 1.1% and 3.6%. The declared values 2% and 2.7% lie within these rates; 5% is faster than either
-sector's history; the constant limit is slower than both. A four-component frontier does not identify persistent slack on
-this panel (country effects skewed the wrong way), so no rate is estimated.
+**A historical reference for κ** (not an estimate; `analysis/v8/persistentSlack.R v8` → `output/pfm/v8/v8-persistent-slack.rds`,
+2026-11-01; design note 0009 §6.2). κ shrinks the political differences, so its counterpart in the data is how fast the
+spread of the gaps $g = 1-E$ narrowed. Between 2008 and 2023 the cross-country standard deviation fell from 0.193 to 0.159
+in power & industry (0.7% a year) and from 0.199 to 0.097 in buildings & transport (5.7% a year); across the EU21 regions
+(covered countries) the rates are 0.4% and 5.7%. The declared values 2% and 2.7% lie between the two sectors' rates; 5% is
+near the faster one; the constant limit is slower than both. **The historical-erosion runs use the rates measured on `v7`**
+(1.1% / 4.6%; `v7`: 0.188 → 0.154 and 0.186 → 0.099), fixed in the scenario matrix before this measurement; disclose it.
+Both `v7` rates lie between the two `v8` rates. A four-component frontier does not identify persistent slack
+on this panel (country effects skewed the wrong way), so no rate is estimated.
 
 ### 5.3 $\theta$ is declared and swept, not estimated
 
@@ -906,31 +925,31 @@ saturation 0.5× / 2× +115.2 / +130.0; annual data +164.4. No `v7` or `v8` spec
 | **2. Efficiency analogy** | median $E$ and median $u$ | one point | admissible, resolution-dependent (§5.3) |
 | **3. Price–efficiency elasticity** | a carbon-price panel + the stringency panel | an *empirical* θ range | the most promising; open |
 | **4. Calibration** | observed regional price dispersion | θ that best reproduces history | feasible, circular risk |
-| **5. Partial identification (bounds)** | revealed-preference restrictions | an interval | **empty on `v7`**, for the multiplicative cap only (below) |
+| **5. Partial identification (bounds)** | revealed-preference restrictions | an interval | **empty on `v8`**, for the multiplicative cap only (below) |
 | **6. Expert elicitation** | a structured protocol | a documented prior | out of scope |
 
-**Route 5 — bounds, measured on `v7`** (`analysis/checks/computeThetaBounds.R`, `analysis/checks/efficiencyRatioBand.R v7`
-→ `coupling/theta-bounds.rds`, `efficiency-ratio-band.rds`; not re-run on `v8`). These bound θ for a **multiplicative**
-level cap, $\varphi_r P^{\circ}$, read on the offline bound's price paths.
+**Route 5 — bounds** (`analysis/checks/efficiencyRatioBand.R v8`, `analysis/checks/computeThetaBounds.R v8` →
+`efficiency-ratio-band.rds`, `coupling/theta-bounds.rds`, 2026-11-01). These bound θ for a **multiplicative** level cap,
+$\varphi_r P^{\circ}$, read on the offline bound's price paths.
 
 *Upper bound — revealed preference.* A region cannot credibly be modelled below the price it has
 already legislated: $\theta \le (1-P^{\text{ref}}_{r,t}/P^{\circ}_{r,t})/u_r$, minimised over
-region-years with $P^{\circ}>P^{\text{ref}}$ and $t\ge2030$: $\theta_{\max} = $ **0.063**, binding at
-ECE in 2030. At θ = 0.50 eight regions violate it (DEU, ECE, ECS, ENC, ESC, ESW, EWN, FRA).
+region-years with $P^{\circ}>P^{\text{ref}}$ and $t\ge2030$: $\theta_{\max} = $ **0.061**, binding at
+ECE in 2030 (`v7` 0.063). At θ = 0.50 eight regions violate it (DEU, ECE, ECS, ENC, ESC, ESW, EWN, FRA).
 
 *Lower bound — resolution.* $u$ is min–max normalised, so the spread θ induces in $\varphi$ is exactly
 θ; below the width at which $E$ itself is resolved the differentiation is inside its own noise. A CI on
-$\eta_F$ maps to $E$ by transforming the endpoints. Median 95% CI width on $E$ at 2023: ML band 0.068
-(power & industry) / 0.054 (buildings & transport); **cluster-scaled 0.124 / 0.119**, pooled 0.119 (design effect
-1.93× / 2.20×).
+$\eta_F$ maps to $E$ by transforming the endpoints. Median 95% CI width on $E$ at 2023: ML band 0.056
+(power & industry) / 0.057 (buildings & transport); **cluster-scaled 0.105 / 0.142**, pooled 0.127 (design effect
+1.94× / 2.46×; `v7`: cluster-scaled 0.124 / 0.119, pooled 0.119).
 
-$$\boxed{\;\theta \in [0.119,\ 0.063]\;=\;\varnothing\;}\qquad\text{empty on `v7`, as on `v5` (on `v6` it was }[0.134,\ 0.164])$$
+$$\boxed{\;\theta \in [0.127,\ 0.061]\;=\;\varnothing\;}\qquad\text{empty on `v8`, as on `v7` and `v5` (on `v6` it was }[0.134,\ 0.164])$$
 
 > **What it says, and what it does not.** Every declared θ is above the upper bound: **the multiplicative level cap
 > is incompatible with revealed preference at any θ that differentiates regions beyond the noise of $E$.** The
 > selected cap is **relative** (§5.1) — it caps the increment over current policy, so $P^{*}\ge P^{\text{ref}}$ by
 > construction wherever $A \ge P^{\text{ref}}$ — and the revealed-preference bound does not bind it. The
-> resolution floor (0.119) does apply to the selected share: every declared θ is above it.
+> resolution floor (0.127) does apply to the selected share: every declared θ is above it.
 
 #### 5.3.2 Sources of uncertainty in $\varphi$, and where each is reported
 
@@ -942,11 +961,12 @@ $$\boxed{\;\theta \in [0.119,\ 0.063]\;=\;\varnothing\;}\qquad\text{empty on `v7
 | 4. Expectations: the shrinking future | the limit applied decade by decade, each step expecting it to lift | hold the price +39.4 against +75.1 Gt (EU21, §5.6a) | main text or SI (author) |
 | 5. Specification family | both-saturate (selected) vs clean-energy-only | measured on `v6` only (§5.3.0) | SI |
 | 6. Frontier error structure | four frontier variants | median \|Δφ\| up to 0.100, Spearman down to 0.46 (EU21, offline, §3.4.1) | SI — rank intervals |
-| 7. Out-of-coverage assignment | the covered median (from `v8`) against the donor / band rule | rule tested out of sample on `v7` (§5.4); not coupled | SI |
+| 7. Out-of-coverage assignment | the covered median (from `v8`) against the donor / band rule | rule tested out of sample (§5.4): median MAE 0.125 / 0.080 against 0.153 / 0.088; not coupled | SI |
+| 7a. Frontier coefficients | 200 draws from the frontier's covariance, the anchor rebuilt (`analysis/v8/couplingBand.R v8 200 regional` → `v8-coupling-band-regional.rds`) | 2050 share, median 5–95% width 0.049 (P&I) / 0.064 (B&T), about 60% of θ's spread (0.081 / 0.103); $k_{2100}$ 0.64–0.82 / 0.45–0.54 | main text, next to θ and κ |
 | 8. Institution projections | gap closure / held / Andrijevic / storyline | hold the price +75.1 / +85.5 / +82.4 / +83.9 Gt (EU21); H12 held +70.3 | main text (fixed-institutions variants) |
 | 9. Rents valuation | regional / world price | +75.1 / +73.5 Gt (EU21) | SI |
 | 10. Energy-system feedback | φ recomputed on the live energy system | power & industry $k_{2050}$ 0.63 on the coupled pathway | **main text** as a result, not an uncertainty |
-| 11. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none on `v7` (the same specification selected); not re-run on `v8` | SI, one sentence |
+| 11. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none on `v7` (the same specification selected); not re-run on `v8` (a cluster sweep) | SI, one sentence |
 
 **The reporting rule.** The main text carries θ and κ as declared bands and treats $\varphi$ as
 **ordinal**. Any sentence about **which sector binds** carries source 5's caveat.
@@ -956,10 +976,12 @@ $$\boxed{\;\theta \in [0.119,\ 0.063]\;=\;\varnothing\;}\qquad\text{empty on `v7
 Uncovered countries keep their **own** ceiling and inherit only a relative gap,
 $\hat S = \hat E\cdot S^{*}_{\text{own}}$. **From `v8`, $\hat E$ is the covered countries' median** for every uncovered
 country (config.yml `coverage: v8: median`; `computeDonorAssignment(rule = "median")`; ADR 0062 decision 4). Out of
-sample on `v7`, the median predicts a covered country's $E$ better than its donors do (mean absolute error 0.119
-against 0.151 in power & industry, 0.080 against 0.087 in buildings & transport; a ridge regression on the drivers
-0.126 / 0.082): similar drivers do not predict a similar share used, because the ceiling has already absorbed what the
-drivers say (`analysis/v8/uncoveredRule.R` → `output/pfm/v7/v8-uncovered-rule.rds`, design note 0009 §6.3). On `v8` it is
+sample, the median predicts a covered country's $E$ better than the band rule and its donors do (mean absolute error
+0.125 against 0.153 and 0.159 in power & industry, 0.080 against 0.088 and 0.089 in buildings & transport; a ridge
+regression on the drivers 0.126 / 0.081; `v7`: 0.119 / 0.080 against 0.151 / 0.087): similar drivers do not predict a
+similar share used, because the ceiling has already absorbed what the drivers say (`analysis/v8/uncoveredRule.R v8` →
+`output/pfm/v8/v8-uncovered-rule.rds`, 2026-11-01; design note 0009 §6.3). Between the two rules the EU21 ranking $u$ has
+rank correlation 0.99 (power & industry) and 0.98 (buildings & transport), the Middle East moving most (0.12 / 0.16). On `v8` it is
 the main reason the regions compress (§5.2): regions dominated by uncovered countries (OAS, MEA, LAM, SSA) no longer
 carry low-band countries. The donors are still found and reported as diagnostics.
 
@@ -1201,19 +1223,21 @@ well as the uncoupled ECM (`historical-replay.rds`, `$pass = FALSE` on `v8`; `TR
 | Sector | RMSE coupled | RMSE ECM | skill vs ECM | skill vs persistence | ceiling binds |
 |---|---:|---:|---:|---:|---:|
 | Power & industry | 0.815 | 0.815 | +0.001 | +0.727 | **0.27%** of rows |
-| Buildings & transport | 0.530 | 0.520 | **−0.018** | +0.764 | 2.72% of rows |
+| Buildings & transport | 0.529 | 0.520 | **−0.018** | +0.763 | 2.72% of rows |
 
 > **Read the margin before the verdict.** The ceiling binds in under 3% of rows, so the coupled and uncoupled systems
 > are almost the same model on history: on `v7` the "pass" was a tie, and on `v8` the buildings & transport "fail" is
 > a 1.8% worse RMSE on the same rows. In the coupled runs the hold-the-price cap binds in about 94% of region-periods —
 > a regime this gate says nothing about. **Disclose the `v8` verdict as it is**; the re-scoped check below is the
-> discriminating one, and it has not been re-run on `v8`.
+> discriminating one.
 
-**Re-scoped to where it can discriminate** (**measured on `v7`**, `analysis/checks/replayRescoped.R v7`): on the rows
-where the coupled path differed from the uncoupled one — 67 power & industry country-years in 4 countries (6.1%) and 157
-buildings & transport in 8 (14.2%) — RMSE was 0.503 against 0.514 (skill **+0.021**) in power & industry and 0.472
-against 0.491 (skill **+0.039**) in buildings & transport. Where the ceiling acted on history it improved the fit a
-little in both sectors (`v6`: +0.036 / +0.009). Re-run it on `v8` before quoting either.
+**Re-scoped to where it can discriminate** (`analysis/checks/replayRescoped.R v8` → `historical-replay-rescoped.rds`,
+2026-11-01): on the rows where the coupled path differs from the uncoupled one — 46 power & industry country-years in 2
+countries (4.2%; Switzerland, Saudi Arabia) and 202 buildings & transport in 9 (18.3%) — RMSE is 0.699 against 0.722
+(skill **+0.031**) in power & industry and 0.663 against 0.620 (skill **−0.068**) in buildings & transport (mean pull
+of the ceiling on those rows 0.13 index points). **Where the ceiling acts on history it improves the fit in power &
+industry and worsens it in buildings & transport** (`v7`: +0.021 / +0.039; `v6`: +0.036 / +0.009). Report it as a
+limitation (paper claim C21).
 
 **8.5 The time trend does most of the explanatory work.**
 
