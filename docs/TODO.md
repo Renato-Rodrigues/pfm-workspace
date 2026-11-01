@@ -29,10 +29,12 @@ included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 aga
    effects on the coupled panel, the coverage test, the κ reference, the coefficient band.
 2. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, 5-year steps, θ range and H12 if
    it goes into the paper (questions in `../communication/2026-11-shrinking-future/`; paper claim C25, pending).
-3. 🟢 **Still measured on v7**: the theory-gate threshold sensitivities (H3 0.70 / 0.80, *p* 0.10 — a cluster sweep per
-   threshold; the groups `v8-h3070`, `v8-h3080`, `v8-p10` are in `config.yml`, to run per `RUNNING.md` Step 6e; paper
-   claim C7 pending until then), the trend-shape grid, the ranking-uncertainty
+3. 🟢 **Still measured on v7**: the trend-shape grid, the ranking-uncertainty
    bands (`analysis/v8/rankingUncertainty.R v8`), the relocation by period.
+3a. ✅ **The theory-gate threshold sensitivities on v8** (2026-11-01; `v8-h3070`, `v8-h3080`, `v8-p10`; MODEL.md §2.4a;
+   paper claim C7): H3 0.70 / 0.80 select v8's specification; *p* 0.10 selects the neighbouring rank 17
+   (`… satInn iw:poly fos5`). 🟢 Open (author): couple it (hold the price, EU21 + H12) to measure its effect on the
+   headline, or report it uncoupled.
 4. 🟢 **The v8 emissions band** (band-edge anchors not prepared) and the v8 coupled figures.
 5. 🟢 **Confirm on the cluster that every v8 run read the staged cache** (`RUNNING.md` Step 8) and commit `records/v8`.
 

@@ -24,8 +24,8 @@ Estimation-side numbers are collected by `Rscript analysis/checks/docFacts.R v8`
 > 2100 and no later.**
 
 > **Analyses not re-run on `v8`** are labelled "measured on `v7`" (or `v6`, `v5`) where they appear: the trend-shape
-> grid (§2.3.1), the ranking-uncertainty test (§5.4), the offline strength and specification band (`phase1/`, §5.3.0),
-> the theory-gate threshold sensitivities (§2.4a) and the λ placebo audit (§4.3.2). Re-run on `v8` on 2026-11-01: the
+> grid (§2.3.1), the ranking-uncertainty test (§5.4), the offline strength and specification band (`phase1/`, §5.3.0)
+> and the λ placebo audit (§4.3.2). Re-run on `v8` on 2026-11-01: the theory-gate threshold sensitivities (§2.4a), the
 > strength decomposition and support shares (§2.3, §5.2), the edge-of-data cap test (§2.4a), the θ bounds (§5.3.1),
 > the re-scoped replay (§8.4), H3 (`theory-gate-calibration.rds`), the net effects on the coupled panel, the coverage
 > test (§5.4), the κ reference (§5.2a) and the coefficient band (§5.3.2). Their conclusions are about the method; their numbers are not `v8` numbers. The `v7` version of this
@@ -345,9 +345,29 @@ the specification, on the mean regression with wild-cluster $p$:
 > above the Bonferroni level 0.05/6 = .008 (`v7`: .001). Treat the buildings & transport contingency as suggestive, not
 > established, and quote the wild value with H2 (ADR 0062).
 
-Declared sensitivities of the gate (ADR 0059 acceptance), **run on `v7`**: H3 at 0.70 and 0.80, $p$ at 0.10
-(Run-Groups `v7-h3070`, `v7-h3080`, `v7-p10`; `RUNNING.md` Step 6c) all selected `v7`'s specification at the same rank;
-H3 never bound. They have not been re-run on `v8`.
+Declared sensitivities of the gate (ADR 0059 acceptance), **run on `v8`** (Run-Groups `v8-h3070`, `v8-h3080`,
+`v8-p10`, re-selected from `v8`'s cached fits, 2026-11-01; `RUNNING.md` Step 6e; `analysis/checks/selectionCompare.R`):
+
+- **H3 at 0.70 and 0.80:** `v8`'s specification (rank 18), identical estimates. H3 never binds.
+- **$p$ at 0.10:** 161 rather than 80 specifications pass H1–H2, and the walk selects **rank 17**,
+  `X-1791 … satInn iw:poly fos5`: the same drivers, institutions, controls and fixed effects, the clean-energy terms
+  alone saturating and the interactions weighted by electoral democracy. At $p$ 0.05 it fails H2 narrowly in
+  buildings & transport (smallest fossil × institution $p$ 0.013 against 0.008).
+
+| against `v8` (`v8-p10` / `v8`) | power & industry | buildings & transport |
+|---|---|---|
+| γ | 0.969 / 0.9989 | 0.931 / 0.918 |
+| fossil dependence (H1) | −0.70 / −0.88; LOO $p_{\max}$ .017 / .002 | −0.22 / −0.25; LOO $p_{\max}$ .071 / .044 |
+| contingency (H2) | fossil pc × GovEff −1.22 / −0.76, × RoL +1.77 / +1.38 (wild $p$ < .001) | fossil × VerAcc −0.37 / −0.37, wild $p$ .077 / .024 |
+| out-of-sample Pearson (trained to 2015) | 0.641 / 0.628 | 0.811 / 0.829 |
+| 2023 ranking below the ceiling (efficiency ratio), Spearman | 0.92 | 0.99 |
+
+H1–H3 hold for both, at the respective level. Under `v8-p10` the power & industry frontier moves (γ off the boundary,
+a weaker fossil main effect, a stronger institutional contingency) and the country ordering below it changes somewhat;
+in buildings & transport the fossil effect is no longer robust to leaving out one country at 0.05 (Russia: $p_{\max}$
+.071), and the contingency is weaker. The `v8-p10`
+specification is not coupled, so its effect on the coupled result is not measured. On `v7` all three sensitivities
+selected `v7`'s specification.
 
 > ⚠️ **Post-selection inference.** The selection requires H1–H2, so the reported $p$-values of the terms the gate
 > reads are biased downwards; they are conditional on a specification chosen in part for them. The rule was
@@ -966,7 +986,7 @@ $$\boxed{\;\theta \in [0.127,\ 0.061]\;=\;\varnothing\;}\qquad\text{empty on `v8
 | 8. Institution projections | gap closure / held / Andrijevic / storyline | hold the price +75.1 / +85.5 / +82.4 / +83.9 Gt (EU21); H12 held +70.3 | main text (fixed-institutions variants) |
 | 9. Rents valuation | regional / world price | +75.1 / +73.5 Gt (EU21) | SI |
 | 10. Energy-system feedback | φ recomputed on the live energy system | power & industry $k_{2050}$ 0.63 on the coupled pathway | **main text** as a result, not an uncertainty |
-| 11. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | none on `v7` (the same specification selected); not re-run on `v8` (a cluster sweep) | SI, one sentence |
+| 11. Theory-gate thresholds | H3 0.70 / 0.80; $p$ 0.10 | H3: none (`v8`'s specification); $p$ 0.10: the neighbouring rank 17 (clean-energy saturation, electoral-democracy weight; P&I γ 0.969, 2023 ranking Spearman 0.92 / 0.99; not coupled; §2.4a) | SI, one paragraph |
 
 **The reporting rule.** The main text carries θ and κ as declared bands and treats $\varphi$ as
 **ordinal**. Any sentence about **which sector binds** carries source 5's caveat.

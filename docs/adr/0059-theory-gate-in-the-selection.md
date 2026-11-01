@@ -3,6 +3,8 @@
 - **Status:** **Accepted 2026-10-25** (author). Proposed 2026-10-22. Applies from Run-Group `v7`; `v6` and earlier are
   unchanged. Accepted with three conditions: the paper states that the selection rule was revised for v7 and why; it
   reports the post-selection caveat; the H3 (0.70 / 0.80) and p (0.10) sensitivities are run before the results are final.
+  **The third condition is met:** on `v7` (all three select `v7`'s specification) and on `v8` (2026-11-01: H3 0.70 /
+  0.80 select `v8`'s specification; p 0.10 selects the neighbouring rank 17; `MODEL.md` §2.4a).
 - **Run-Groups:** `v7` (`config.yml` `sweep: groups: v7: theoryGate`).
 - **Evidence:** design note 0007 §§13–15; `analysis/checks/theoryTermScreen.R`, `inferenceScreen.R`, `offsetRatio.R`,
   `theoryGateCalibration.R` → `output/pfm/v7/theory-term-screen.rds`, `inference-screen.rds`, `offset-ratio.rds`,
