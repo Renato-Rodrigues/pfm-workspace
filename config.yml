@@ -114,6 +114,20 @@ panel:
       democracy: true
       overallAccountability: true
       fossilRents: true
+    # the theory-gate sensitivities of ADR 0059 on v8 (the paper's basis since 2026-11-01): v8's panel, so the sweep
+    # re-selects from v8's cached fits (seed data/madrat/<group> with a copy of data/madrat/v8 first; RUNNING Step 6e)
+    v8-h3070:
+      democracy: true
+      overallAccountability: true
+      fossilRents: true
+    v8-h3080:
+      democracy: true
+      overallAccountability: true
+      fossilRents: true
+    v8-p10:
+      democracy: true
+      overallAccountability: true
+      fossilRents: true
 
 # ── Sweep: actor-power form and its extrapolation gate (design note 0005 D7) ─────────
 # Arguments of pfm::runPFMSweep(). Like `panel`, read ONLY for a group not swept yet: the sweep
@@ -305,6 +319,62 @@ sweep:
         structural: true
         contingency: true
         coherence: 0.75
+    # Theory-gate sensitivities on v8 (ADR 0059 acceptance; the paper's claim C7): v8's sweep options in full, one
+    # threshold changed (written out, not merged with a YAML anchor, as for v7's).
+    v8-h3070:   # H3 coherence 0.70
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      fossilFloors: ["0.05"]
+      slackDrivers:
+        Diffuse: ["Fossil Rents"]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      theoryGate:
+        p: 0.05
+        structural: true
+        contingency: true
+        coherence: 0.70
+    v8-h3080:   # H3 coherence 0.80
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      fossilFloors: ["0.05"]
+      slackDrivers:
+        Diffuse: ["Fossil Rents"]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      theoryGate:
+        p: 0.05
+        structural: true
+        contingency: true
+        coherence: 0.80
+    v8-p10:   # H1-H2 at p 0.10
+      interactionWeights: [none, "Freedom of Expression (VDem)", "Electoral Democracy (VDem)",
+                           "Freedom of Expression (VDem)@accRoL", "Electoral Democracy (VDem)@accRoL"]
+      extraAccountability: [OvAcc]
+      fossilFloors: ["0.05"]
+      slackDrivers:
+        Diffuse: ["Fossil Rents"]
+      edgeGate:
+        share: 0.25
+        effect: 0.25
+        capShift: 0.5
+        cap: [0.05, 0.95]
+        mapping: regionmapping_21_EU11.csv
+      theoryGate:
+        p: 0.10
+        structural: true
+        contingency: true
+        coherence: 0.75
 
 # ── Policy Scenario Registry (ADR 0035) ──────────────────────────────────────────
 # The REMIND pathways the one shared Fitted Model is projected onto. Each entry:
@@ -334,6 +404,12 @@ coverage:
   rule: donor
   groups:
     v8:
+      rule: median
+    v8-h3070:
+      rule: median
+    v8-h3080:
+      rule: median
+    v8-p10:
       rule: median
 
 # The SSP2 pair below (the gating entry = PkBudg1000, the other = NPi) is also what every offline

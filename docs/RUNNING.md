@@ -343,6 +343,31 @@ length of v7's first sweep on 64 cores. Checked end to end on the workstation (`
 7. The coupled batch: `analysis/run-groups/scenario-matrix-v8.yml` (regional strength central; start tags `V8W1EU21`,
    `V8W1H12`), as in Step 7.
 
+### Step 6e — The theory-gate sensitivities of v8 (ADR 0059; paper claim C7)
+
+Step 6c on v8, the paper's basis: `v8-h3070` (H3 coherence 0.70), `v8-h3080` (0.80), `v8-p10` (H1–H2 at p 0.10).
+`config.yml` gives each v8's panel (rents included), sweep options (fossil bound, rents slack, edge and theory gates) and
+coverage rule in full, one threshold changed. Seed each data cache with v8's, **manifest included** (it lists the rents,
+and the panel is v8's), so the cache check reports ready and the panel hash, hence the fits, are v8's:
+
+```bash
+cd /p/projects/elevate/WP3.4/pfm-workspace
+git pull                                   # config.yml with the three groups; the installed pfm is the one of the v8 batch
+ls data/madrat/v8/calcFossilRents.rds data/madrat/v8/cache-manifest.tsv
+for g in v8-h3070 v8-h3080 v8-p10; do mkdir -p data/madrat/$g && cp -n data/madrat/v8/* data/madrat/$g/; done
+bash tools/clusterRun.sh --standby 'v8-h3070 v8-h3080 v8-p10' --stage sweep,diagnostics --no-update --dry-run
+bash tools/clusterRun.sh --standby 'v8-h3070 v8-h3080 v8-p10' --stage sweep,diagnostics --no-update
+```
+
+The dry-run plan must show, for each group, the `panel` ending `, World Bank fossil rents`, the `sweep` with the fossil
+bound at 0.05, the slack on `Diffuse: Fossil Rents` and the group's theory-gate threshold, and `coverage : median`.
+In each log (`output/pfm/<group>/pfm-<group>-<job>.err`, last line `DONE`): `72768 jobs: 0 newly fit` (anything newly fit
+means the panel is not v8's: stop and compare the cache), `Theory gate (...): <n> of <m> pool spec(s) pass` and the
+`Selected PFM spec`. Then commit `records/<group>/` as in Step 6 and bring each group back:
+`tools/syncFromCluster.sh <user>@<host> /p/projects/elevate/WP3.4/pfm-workspace <group> --estimation`. On the
+workstation, `Rscript analysis/checks/selectionCompare.R <group> v8` compares each selection with v8's (rank 18,
+`X-1791 … satAP iw:fexp fos5`).
+
 ## Step 7 — Run the coupled REMIND batch
 
 Each coupled row names its Run-Group in the scenario config's column `pfmGroup`. It still says
