@@ -688,6 +688,11 @@ Rscript analysis/checks/gateRefCompare.R v8        # -> gate-ref-compare.rds (th
 Rscript analysis/checks/budgetPeak.R v8            # -> budget-peak.rds (which hold-the-budget runs peak)
 Rscript analysis/checks/emissions2100.R v8         # -> emissions-2100.rds (net CO2 to 2100, net-zero year)
 Rscript analysis/v8/shrinkingFuture.R v8           # -> shrinking-future.rds and its three figures
+Rscript analysis/v8/shrinkingFutureRegions.R v8    # -> shrinking-future-regions.rds, the chains by region (six figures)
+Rscript analysis/v8/scenarioSet.R price v8         # -> scenario-set-price.rds, one closure's set: world and regions
+Rscript analysis/v8/scenarioSet.R budget v8        #    (fig-set-<closure>-*.png; prices are the floor pm_taxCO2eq)
+node analysis/figures/pptx/fig-closure.js price|budget <out.pptx>; node analysis/figures/pptx/fig-scenario-map.js <out.pptx>
+                                                   # the schematics (PNG: analysis/figures/pptx/export-png.ps1)
 Rscript analysis/figures/build-figures.R --group=v8                    # the figures
 ```
 

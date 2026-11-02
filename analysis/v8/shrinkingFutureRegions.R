@@ -102,7 +102,9 @@ saveRDS(list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), runsDir = R
 
 # ---- figures ------------------------------------------------------------------------------------------------------
 cap <- paste0("Model version ", g, "; REMIND EU21, SSP2, 1000 Gt budget, theta 0.50. The chain's result is its 2070 step;\n",
-              "each step fixes the past to the step before and caps the price only in its own 10-year window.")
+              "each step fixes the past to the step before and caps the price only in its own 10-year window. Prices: the floor
+",
+              "every market pays (pm_taxCO2eq); the markup of the less constrained sector is not included.")
 thm <- theme_minimal(base_size = 10) + theme(legend.position = "bottom", panel.grid.minor = element_blank(),
                                              plot.caption = element_text(hjust = 0, size = 8))
 col <- c("no-politics reference" = "grey45", "one-shot run" = "#C2571A", "chain result" = "#1B6CA8")
