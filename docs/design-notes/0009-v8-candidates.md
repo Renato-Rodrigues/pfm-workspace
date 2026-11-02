@@ -799,19 +799,22 @@ and three figures (`fig-shrinking-future-{emissions,plans,prices}.png`). Communi
 
 ### 22a. The chains by region (2026-11-01)
 
-`analysis/v8/shrinkingFutureRegions.R v8` → `output/pfm/v8/coupling/shrinking-future-regions.rds` and three figures
-(`fig-shrinking-future-regional-{prices,price-ratio,co2}.png`). Each region's carbon price relative to the no-politics
+`analysis/v8/shrinkingFutureRegions.R v8` → `output/pfm/v8/coupling/shrinking-future-regions.rds` and six figures
+(`fig-shrinking-future-regional-{prices,price-ratio,co2,price-range,price-box,co2-box}.png`: the regional paths, the
+region × year ratios, the regional CO₂, and the range over the 21 regions as bands and as box plots). The chain's
+schematic is an editable PowerPoint slide: `node analysis/figures/pptx/fig-shrinking-future-chain.js <out.pptx>`, PNG by
+`analysis/figures/pptx/export-png.ps1` (`analysis/figures/output/v8/doc/`). Both are in the communication note. Each region's carbon price relative to the no-politics
 reference of the same closure, and each region's cumulative CO₂ 2020–2100 (trapezoid over the reported years; the
 regional sums are within 0.6 Gt of `pm_actualbudgetco2` in every run). CO₂ only, EU21, θ 0.50.
 
 - **Hold the price: every region pays the same price on the chain as on the one-shot run.** Chain over one-shot: median
-  over regions 1.000 in every year; the largest deviation is REF in 2050 (0.65 against 0.61 of the reference price). The
+  over regions 1.000 in every year; the largest deviation is REF in 2055 (0.71 against 0.65 of the reference price). The
   regional pattern is the frontier's: REF lowest (0.52 of the reference in 2030, 0.69 in 2100), then SSA, NES, JPN, the
   USA (0.78–0.81 in 2030), the European regions 0.85–1.00, NEN at the reference. Each earlier step planned the reference
   price in every region after its window (ratio 1.000).
 - **Where the chain gives the overshoot back.** Cumulative CO₂ above the reference, one-shot → chain: SSA +24.0 → +13.6,
   MEA +13.8 → +6.5, REF +13.2 → +5.1, OAS +7.6 → +4.2, LAM +5.2 → +3.4, IND +4.6 → +2.6, the USA +4.5 → +3.0, JPN
-  +2.1 → +0.8 Gt. SSA, REF and MEA give 29%, 23% and 21% of the 35.6 Gt the chain saves; every region with an overshoot
+  +2.1 → +0.8 Gt. SSA, REF and MEA give 29%, 23% and 20% of the 35.6 Gt the chain saves; every region with an overshoot
   loses a third to three-fifths of it. At equal prices, this is the expectations effect of §22, region by region.
 - **Hold the budget: the chain shifts every region's price by nearly the same factor.** Chain over one-shot: median 0.94
   in 2030, 0.90 in 2040–2060, 0.98 in 2070, 1.02 in 2080, 1.06 in 2100; across regions the factor spans at most 0.05 in

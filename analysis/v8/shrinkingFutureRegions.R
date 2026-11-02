@@ -141,6 +141,64 @@ f3 <- ggplot(cb, aes(dcum, region, fill = run)) + geom_vline(xintercept = 0, col
        title = "Where the extra CO2 is emitted, and where the chain gives it back", caption = cap) + thm
 ggsave(file.path(OUT, "fig-shrinking-future-regional-co2.png"), f3, width = 10, height = 6, dpi = 200)
 
+# 4. the range over regions: price relative to the reference, median line, interquartile band (dark) and min-max band
+#    (light), the one-shot run and the chain, with the regions at the two ends named in 2100
+rs <- main[main$year >= 2025, ]
+band <- do.call(rbind, lapply(split(rs, ~ closure + run + year, drop = TRUE), function(x) {
+  q <- stats::quantile(x$ratio, c(0, 0.25, 0.5, 0.75, 1), names = FALSE)
+  data.frame(closure = x$closure[1], run = x$run[1], year = x$year[1], lo = q[1], q1 = q[2], med = q[3], q3 = q[4], hi = q[5],
+             loR = x$region[which.min(x$ratio)], hiR = x$region[which.max(x$ratio)])
+}))
+band$closure <- factor(band$closure, levels = c("hold the price", "hold the budget"))
+band$run <- factor(band$run, levels = c("one-shot run", "chain result"))
+ends <- band[band$year == 2100, ]
+f4 <- ggplot(band, aes(year)) + geom_hline(yintercept = 1, colour = "grey55", linetype = "22") +
+  geom_ribbon(aes(ymin = lo, ymax = hi, fill = run), alpha = 0.13) +
+  geom_ribbon(aes(ymin = q1, ymax = q3, fill = run), alpha = 0.30) +
+  geom_line(aes(y = med, colour = run), linewidth = 0.9) +
+  geom_text(data = ends, aes(x = 2101, y = lo, label = loR, colour = run), hjust = 0, size = 2.6,
+            position = position_nudge(y = ifelse(ends$run == "chain result", -0.02, 0.02)), show.legend = FALSE) +
+  geom_text(data = ends, aes(x = 2101, y = hi, label = hiR, colour = run), hjust = 0, size = 2.6,
+            position = position_nudge(y = ifelse(ends$run == "chain result", 0.02, -0.02)), show.legend = FALSE) +
+  facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL, aesthetics = c("colour", "fill")) +
+  scale_x_continuous(limits = c(2025, 2108), breaks = seq(2030, 2100, 10)) +
+  labs(x = NULL, y = "carbon price relative to the\nno-politics reference",
+       title = "The 21 regions' carbon price relative to the reference: median, interquartile range and full range",
+       caption = paste0(cap, "\nLine: median over regions; dark band: interquartile range; light band: lowest to highest region ",
+                        "(named in 2100). Under hold the price the two runs' bands coincide.")) + thm
+ggsave(file.path(OUT, "fig-shrinking-future-regional-price-range.png"), f4, width = 10, height = 4.8, dpi = 200)
+
+# 5. box and whisker: the distribution over regions of the price relative to the reference, by year
+bx <- main[main$year %in% KY, ]
+bx$closure <- factor(bx$closure, levels = c("hold the price", "hold the budget"))
+bx$run <- factor(bx$run, levels = c("one-shot run", "chain result"))
+f5 <- ggplot(bx, aes(factor(year), ratio, fill = run, colour = run)) + geom_hline(yintercept = 1, colour = "grey55", linetype = "22") +
+  geom_boxplot(alpha = 0.25, width = 0.7, outlier.shape = NA, position = position_dodge(width = 0.8), linewidth = 0.45) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.8, seed = 1), size = 0.9, alpha = 0.7) +
+  facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL, aesthetics = c("colour", "fill")) +
+  labs(x = NULL, y = "carbon price relative to the\nno-politics reference",
+       title = "Each region's carbon price relative to the reference: the distribution over the 21 regions",
+       caption = paste0(cap, "\nBox: interquartile range and median; whiskers: up to 1.5 times the interquartile range; points: the regions.")) + thm
+ggsave(file.path(OUT, "fig-shrinking-future-regional-price-box.png"), f5, width = 10, height = 4.6, dpi = 200)
+
+# 6. box and whisker: regional cumulative CO2 2020-2100 above the reference, the regions beyond 2 Gt named
+cb2 <- cm; cb2$closure <- factor(cb2$closure, levels = c("hold the price", "hold the budget"))
+cb2$run <- factor(cb2$run, levels = c("one-shot run", "chain result"))
+f6 <- ggplot(cb2, aes(run, dcum, colour = run, fill = run)) + geom_hline(yintercept = 0, colour = "grey55") +
+  geom_line(aes(group = region), colour = "grey75", linewidth = 0.35) +
+  geom_boxplot(alpha = 0.2, width = 0.45, outlier.shape = NA, linewidth = 0.45) +
+  geom_point(size = 1.4, alpha = 0.8) +
+  ggrepel::geom_text_repel(data = cb2[abs(cb2$dcum) > 2 & cb2$run == "one-shot run", ], aes(label = region), size = 2.5,
+                           show.legend = FALSE, nudge_x = -0.3, direction = "y", hjust = 1, segment.size = 0.2, min.segment.length = 0) +
+  ggrepel::geom_text_repel(data = cb2[abs(cb2$dcum) > 2 & cb2$run == "chain result", ], aes(label = region), size = 2.5,
+                           show.legend = FALSE, nudge_x = 0.3, direction = "y", hjust = 0, segment.size = 0.2, min.segment.length = 0) +
+  facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL, aesthetics = c("colour", "fill")) +
+  labs(x = NULL, y = "cumulative CO2 2020-2100 above the\nno-politics reference, Gt",
+       title = "Regional cumulative CO2 above the reference: each region on the one-shot run and on the chain",
+       caption = paste0(cap, "\nGrey lines join a region's two values; regions beyond 2 Gt are named.")) + thm +
+  theme(legend.position = "none")
+ggsave(file.path(OUT, "fig-shrinking-future-regional-co2-box.png"), f6, width = 9, height = 5, dpi = 200)
+
 options(width = 220)
 cat("\n== check: sum of regional differences vs pm_actualbudgetco2 differences (Gt) ==\n"); print(chk, row.names = FALSE, digits = 5)
 cat("\n== spread of the price ratio over regions ==\n"); print(spread, row.names = FALSE, digits = 3)
