@@ -27,6 +27,7 @@ V <- data.frame(stringsAsFactors = FALSE, rbind(
   c("growing limit", "persistence", "-growingLimit", "-backslide", "EU21"),
   c("constant limit", "persistence", "-constantLimit", "-Ehold", "EU21"),
   c("historical erosion", "persistence", "-erosionHistorical", "-kappaHist", "EU21"),
+  c("historical erosion (v8 rates)", "persistence", "-erosionHistoricalV8", "-kappaHistV8", "EU21"),
   c("erosion 2%", "persistence", "-erosion2", "-kappa02", "EU21"),
   c("erosion 2.7%", "persistence", "-erosion2p7", "-kappa", "EU21 H12"),
   c("erosion 5%", "persistence", "-erosion5", "-kappa05", "EU21"),
@@ -37,6 +38,7 @@ V <- data.frame(stringsAsFactors = FALSE, rbind(
   c("Andrijevic institutions", "institutions", "-institutionsAndrijevic", "-gcA", "EU21 H12"),
   c("storyline institutions", "institutions", "-institutionsStoryline", "-story", "EU21")))
 names(V) <- c("label", "family", "suffix", "costSuffix", "res")
+OPTIONAL <- "historical erosion (v8 rates)"   # added 2026-11-03 (V8KAPPAEU21): skipped until it has run
 FAM <- c("severity", "persistence", "strength and rents", "institutions")
 
 pick <- function(res, title) {
@@ -75,8 +77,11 @@ runs <- list()
 for (res in c("EU21", "H12")) {
   pre <- prefix(res)
   runs[[length(runs) + 1]] <- read1(res, "no-politics reference", "reference", paste0(pre, "noPolitics-", closureTitle, "-v8"))
-  for (i in seq_len(nrow(V))) if (grepl(res, V$res[i]))
-    runs[[length(runs) + 1]] <- read1(res, V$label[i], V$family[i], paste0(pre, closureTitle, V$suffix[i], "-v8"))
+  for (i in seq_len(nrow(V))) if (grepl(res, V$res[i])) {
+    r <- tryCatch(read1(res, V$label[i], V$family[i], paste0(pre, closureTitle, V$suffix[i], "-v8")),
+                  error = function(e) if (V$label[i] %in% OPTIONAL) { message("[scenarioSet] skipped (not run yet): ", V$label[i]); NULL } else stop(e))
+    if (!is.null(r)) runs[[length(runs) + 1]] <- r
+  }
 }
 RG <- do.call(rbind, lapply(runs, `[[`, "regions")); CU <- do.call(rbind, lapply(runs, `[[`, "cum"))
 WO <- do.call(rbind, lapply(runs, `[[`, "world"))

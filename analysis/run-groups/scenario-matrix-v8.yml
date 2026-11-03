@@ -13,7 +13,7 @@
 #   theta     none = 0.50 (the headline); -theta325, -theta675
 #   variant   none = the fading limit, regional strength, gap-closure institutions (the central case);
 #             commonStrength, gapFirst, rentsWorldPrice, constantLimit, growingLimit, erosion2 / erosion2p7 / erosion5
-#             (2% / 2.7% / 5% a year), erosionHistorical, institutionsHeld / institutionsAndrijevic /
+#             (2% / 2.7% / 5% a year), erosionHistorical (v7's rates), erosionHistoricalV8 (v8's), institutionsHeld / institutionsAndrijevic /
 #             institutionsStoryline, shrinkingFuture<start year>
 # The analysis scripts translate a title to the internal key of the earlier batches (-PFMlevelBfix, -PFMlevelC, Th325,
 # -Ehold, -kappa ...) in one place, analysis/coupled/_runKey.R; keys in this file are `<closure>-<variant>`.
@@ -51,7 +51,7 @@
 # submitted 2026-10-30 and chaining) and V8RERUNEU21 (the 4 hold-the-budget steps, re-submitted after the 2040 step
 # aborted again: the GAMS rebuild of the cap read P_ref from the previous step, fixed by cm_pfmRefPrice). Every coupled
 # row carries pfmGroup v8 and needs output/remind-inputs/v8. Re-runs get their own tag (V8RERUN<res>), so a
-# re-submission never re-runs the batch.
+# re-submission never re-runs the batch. The historical erosion on v8's rates (2026-11-03): V8KAPPAEU21 (2 rows).
 
 format: pfm-scenario-matrix/1
 output: config/scenario_config_PFM_v8.csv
@@ -178,6 +178,17 @@ runs:
   - {key: holdBudget-erosionHistorical, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21],
      variant: erosionHistorical, options: {pfmPhiKappa: "Bulk=0.011,Diffuse=0.046"}, warm: "@noPolitics",
      description: "Hold the budget, fading + the historical per-sector rates (Supplementary Note S-kappa)."}
+  # the same on v8's own measurement (analysis/v8/persistentSlack.R v8 -> output/pfm/v8/v8-persistent-slack.rds
+  # spread$rateCountry0823: 0.00706 P&I, 0.05684 B&T, the narrowing of the cross-country spread of the gaps 2008-2023;
+  # MODEL.md 5.2a). Added 2026-11-03, its own start tag V8KAPPAEU21 (the rows above stay as run, on v7's rates)
+  - {key: holdPrice-erosionHistoricalV8, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8KAPPAEU21},
+     variant: erosionHistoricalV8, options: {pfmPhiKappa: "Bulk=0.007,Diffuse=0.057"}, warm: "@noPolitics",
+     description: "Hold the price, fading + the historical narrowing of the gap spread measured on v8, 0.7% (P&I) and 5.7% (B&T) a year (MODEL.md 5.2a)."}
+  - {key: holdBudget-erosionHistoricalV8, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21],
+     start: {EU21: V8KAPPAEU21},
+     variant: erosionHistoricalV8, options: {pfmPhiKappa: "Bulk=0.007,Diffuse=0.057"}, warm: "@noPolitics",
+     description: "Hold the budget, fading + the historical per-sector rates measured on v8, 0.7% (P&I) and 5.7% (B&T) a year."}
   - {key: holdPrice-growingLimit, wave: 1, section: v8_persistence, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
      variant: growingLimit, options: {pfmPhiHold: ratio, pfmPhiKappa: "-0.005"}, warm: "@noPolitics",
      description: "Hold the price, growing limit: today's limit tightening 0.5% a year (a declared bound, ADR 0057)."}

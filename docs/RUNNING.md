@@ -466,6 +466,21 @@ submitPFM("V8RERUNEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = 
 submitPFM("V8RERUNEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
 ```
 
+**The historical erosion on v8's own rates (`V8KAPPAEU21`, 2 rows), 2026-11-03.** `-erosionHistorical-v8` runs on the
+rates measured on `v7` (1.1% / 4.6% a year); `-erosionHistoricalV8-v8` uses `v8`'s measurement, the narrowing of the
+cross-country spread of the gaps 2008–2023 (0.7% power & industry, 5.7% buildings & transport;
+`v8-persistent-slack.rds`, MODEL.md §5.2a), hold the price and hold the budget, EU21, θ 0.50. Both start from
+`-PFM-noPolitics-holdBudget-v8`, which has finished; nothing else needs to run first. `remind_pfm` at the commit that
+adds the two rows, then:
+
+```r
+submitPFM("V8KAPPAEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")      # dry run
+submitPFM("V8KAPPAEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, dry = FALSE, slurmConfig = "standby")
+```
+
+After they finish and are synced back: `Rscript analysis/v8/scenarioSet.R price` and `... budget` (the new label
+"historical erosion (v8 rates)" is skipped until the runs exist), and the coupled facts as for the batch.
+
 ### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)
 
 Built from `analysis/run-groups/scenario-matrix-v7.yml` into `config/scenario_config_PFM_v7.csv` (24 coupled rows, 12 per

@@ -12,7 +12,7 @@ pfmRunKey <- function(title) {
   # one word per variant, in the order of SCENARIOS.md 2.6
   variants <- c(commonStrength = "common", gapFirst = "gapfirst", rentsWorldPrice = "rentsWorld",
                 constantLimit = "Ehold", growingLimit = "backslide", erosion2p7 = "kappa", erosion2 = "kappa02",
-                erosion5 = "kappa05", erosionHistorical = "kappaHist", institutionsHeld = "held",
+                erosion5 = "kappa05", erosionHistorical = "kappaHist", erosionHistoricalV8 = "kappaHistV8", institutionsHeld = "held",
                 institutionsAndrijevic = "gcA", institutionsStoryline = "story")
   out <- title
   for (k in names(rules)) out <- sub(k, rules[[k]], out, fixed = TRUE)
