@@ -119,6 +119,15 @@ f1 <- ggplot(pp, aes(year, price, colour = run)) + geom_line(linewidth = 0.7) + 
   labs(x = NULL, y = "carbon price, US$ per t CO2", title = "Hold the price: the carbon price in each region",
        caption = paste0(cap, "\nRegions ordered by the one-shot run's 2050 price relative to the reference (lowest first). Where the one-shot run's\nline is not visible it lies under the chain's: the two prices are equal to within about 1%, except REF in 2045-2055.")) + thm
 ggsave(file.path(OUT, "fig-shrinking-future-regional-prices.png"), f1, width = 11, height = 6.4, dpi = 200)
+# 1b. the same, hold the budget
+pb <- rbind(transform(P[P$key == "noPolitics", ], run = "no-politics reference"), main)
+pb <- pb[pb$closure == "hold the budget", ]; pb$region <- factor(pb$region, levels = ordR)
+pb$run <- factor(pb$run, levels = names(col))
+f1b <- ggplot(pb, aes(year, price, colour = run)) + geom_line(linewidth = 0.7) + facet_wrap(~region, ncol = 7) +
+  scale_colour_manual(values = col, name = NULL) + scale_x_continuous(breaks = c(2030, 2060, 2090)) +
+  labs(x = NULL, y = "carbon price, US$ per t CO2", title = "Hold the budget: the carbon price in each region",
+       caption = paste0(cap, "\nRegions in the same order as for hold the price.")) + thm
+ggsave(file.path(OUT, "fig-shrinking-future-regional-prices-budget.png"), f1b, width = 11, height = 6.4, dpi = 200)
 
 # 2. heat map: price relative to the no-politics reference, region x year, both runs and both closures
 hm <- main[main$year %in% KY, ]; hm$region <- factor(hm$region, levels = ordR)
@@ -182,6 +191,41 @@ f5 <- ggplot(bx, aes(factor(year), ratio, fill = run, colour = run)) + geom_hlin
        title = "Each region's carbon price relative to the reference: the distribution over the 21 regions",
        caption = paste0(cap, "\nBox: interquartile range and median; whiskers: up to 1.5 times the interquartile range; points: the regions.")) + thm
 ggsave(file.path(OUT, "fig-shrinking-future-regional-price-box.png"), f5, width = 10, height = 4.6, dpi = 200)
+
+# 4b, 5b. the same two figures in US$ per t CO2, with the no-politics reference (its price is the same in every region,
+#   so its range is a line and its box a bar)
+lv <- rbind(transform(P[P$key == "noPolitics", ], run = "no-politics reference"), main)
+lv$closure <- factor(lv$closure, levels = c("hold the price", "hold the budget")); lv$run <- factor(lv$run, levels = names(col))
+bandL <- do.call(rbind, lapply(split(lv[lv$year >= 2025, ], ~ closure + run + year, drop = TRUE), function(x) {
+  q <- stats::quantile(x$price, c(0, 0.25, 0.5, 0.75, 1), names = FALSE)
+  data.frame(closure = x$closure[1], run = x$run[1], year = x$year[1], lo = q[1], q1 = q[2], med = q[3], q3 = q[4], hi = q[5],
+             loR = x$region[which.min(x$price)])
+}))
+endsL <- bandL[bandL$year == 2100 & bandL$run != "no-politics reference", ]
+f4b <- ggplot(bandL, aes(year)) +
+  geom_ribbon(aes(ymin = q1, ymax = q3, fill = run), alpha = 0.25) +
+  geom_line(aes(y = lo, colour = run), linewidth = 0.45, linetype = "13") +
+  geom_line(aes(y = hi, colour = run), linewidth = 0.45, linetype = "13") +
+  geom_line(aes(y = med, colour = run), linewidth = 0.9) +
+  geom_text(data = endsL, aes(x = 2101, y = lo, label = loR, colour = run), hjust = 0, size = 2.6,
+            position = position_nudge(y = ifelse(endsL$run == "chain result", -14, 14)), show.legend = FALSE) +
+  facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL, aesthetics = c("colour", "fill")) +
+  scale_x_continuous(limits = c(2025, 2108), breaks = seq(2030, 2100, 10)) +
+  labs(x = NULL, y = "carbon price, US$ per t CO2",
+       title = "The 21 regions' carbon price: median, interquartile range and full range",
+       caption = paste0(cap, "\nLine: median over regions; band: interquartile range; dotted: lowest and highest region ",
+                        "(the lowest named in 2100).\nThe no-politics price is the same in every region (grey line).")) + thm
+ggsave(file.path(OUT, "fig-shrinking-future-regional-price-level-range.png"), f4b, width = 10, height = 4.8, dpi = 200)
+bxL <- lv[lv$year %in% KY, ]
+f5b <- ggplot(bxL, aes(factor(year), price, fill = run, colour = run)) +
+  geom_boxplot(alpha = 0.25, width = 0.75, outlier.shape = NA, position = position_dodge(width = 0.85), linewidth = 0.45) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.85, seed = 1), size = 0.8, alpha = 0.7) +
+  facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL, aesthetics = c("colour", "fill")) +
+  labs(x = NULL, y = "carbon price, US$ per t CO2",
+       title = "Each region's carbon price: the distribution over the 21 regions",
+       caption = paste0(cap, "\nBox: interquartile range and median; whiskers: up to 1.5 times the interquartile range; points: the regions.",
+                        "\nThe no-politics price is the same in every region, so its box is a bar.")) + thm
+ggsave(file.path(OUT, "fig-shrinking-future-regional-price-level-box.png"), f5b, width = 10, height = 4.8, dpi = 200)
 
 # 6. box and whisker: regional cumulative CO2 2020-2100 above the reference, the regions beyond 2 Gt named
 cb2 <- cm; cb2$closure <- factor(cb2$closure, levels = c("hold the price", "hold the budget"))

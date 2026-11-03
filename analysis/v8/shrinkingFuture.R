@@ -114,9 +114,9 @@ P <- merge(P, ref, by = c("closure", "year")); P$dco2 <- P$co2 - P$co2ref
 P <- P[order(P$closure, P$key, P$year), ]
 plans1 <- P[P$role == "plan of an earlier step" & P$year >= P$step, ]
 lines1 <- P[P$role != "plan of an earlier step", ]
-p1 <- ggplot() + geom_hline(yintercept = 0, colour = "grey70") +
+p1 <- ggplot() +
   geom_line(data = plans1, aes(year, dco2, group = step), colour = "#1B6CA8", alpha = 0.45, linewidth = 0.6, linetype = "22") +
-  geom_line(data = lines1[lines1$role != "no-politics reference", ], aes(year, dco2, colour = role), linewidth = 0.9) +
+  geom_line(data = lines1, aes(year, dco2, colour = role), linewidth = 0.9) +
   facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL) +
   labs(x = NULL, y = "CO2 emissions above the\nno-politics reference, Gt per year",
        caption = paste0(cap, " Dashed: the plan each earlier step made for its future.")) + thm
@@ -137,6 +137,26 @@ p3 <- ggplot(pr, aes(year, priceW, colour = role)) + geom_line(linewidth = 0.9) 
   facet_wrap(~closure) + scale_colour_manual(values = col, name = NULL) +
   labs(x = NULL, y = "carbon price, US$ per t CO2\n(emissions-weighted mean over regions)", caption = cap) + thm
 ggsave(file.path(OUT, "fig-shrinking-future-prices.png"), p3, width = 9, height = 4.6, dpi = 200)
+
+# the price as the emissions figure: the level (top) and the difference from the no-politics reference (bottom), the
+# no-politics reference, the one-shot run, the chain's result and, dashed, each earlier step's plan from its start year
+refP <- P[P$key == "noPolitics", c("closure", "year", "priceW")]; names(refP)[3] <- "priceRefW"
+P4 <- merge(P, refP, by = c("closure", "year")); P4$dprice <- P4$priceW - P4$priceRefW
+PANEL <- c("carbon price", "carbon price minus the no-politics reference")
+lng <- rbind(transform(P4, panel = PANEL[1], v = priceW), transform(P4, panel = PANEL[2], v = dprice))
+lng$panel <- factor(lng$panel, levels = PANEL); lng <- lng[lng$year >= 2025, ]
+pl4 <- lng[lng$role == "plan of an earlier step" & lng$year >= lng$step, ]
+ln4 <- lng[lng$role != "plan of an earlier step", ]
+p4 <- ggplot() +
+  geom_line(data = pl4, aes(year, v, group = step), colour = "#1B6CA8", alpha = 0.45, linewidth = 0.6, linetype = "22") +
+  geom_line(data = ln4, aes(year, v, colour = role), linewidth = 0.9) +
+  facet_grid(panel ~ closure, scales = "free_y", switch = "y") + scale_colour_manual(values = col, name = NULL) +
+  scale_x_continuous(breaks = seq(2030, 2100, 10)) +
+  labs(x = NULL, y = "US$ per t CO2 (emissions-weighted mean over regions)",
+       caption = paste0(cap, " Dashed: the price each earlier step planned from its start year.\n",
+                        "The no-politics price is the same in every region and in both closures.")) +
+  thm + theme(strip.placement = "outside")
+ggsave(file.path(OUT, "fig-shrinking-future-price-plans.png"), p4, width = 9, height = 7, dpi = 200)
 
 options(width = 200)
 cat("\n== runs ==\n"); print(R[, c("closure", "key", "finished", "cum2100", "peakCum", "peakYear", "dir")], row.names = FALSE, digits = 5)
