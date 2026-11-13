@@ -28,7 +28,7 @@ const item = (name, t1, t2, x, y, w, h, fill, line) => {
 
 // ---------- left: the drivers ----------
 const X1 = 0.04, W1 = 1.55, IH = 0.42, IG = 0.06;
-head("Interests head", "Interests (from the energy system)", X1, 0.04, 2.2, C.interestLine);
+head("Interests head", "Sectoral interests (from the energy system)", X1, 0.04, 2.2, C.interestLine);
 const ints = [["fossil dependence", "structural power"], ["fossil interests per person", "resources for instrumental power"],
               ["clean-energy build-out", "the clean-energy coalition"]];
 ints.forEach(([a, b], i) => item(`Interest ${i + 1}`, a, b, X1, 0.27 + i * (IH + IG), W1, IH, C.interest, C.interestLine));
@@ -43,8 +43,8 @@ ins.forEach(([a, b], i) => item(`Institution ${i + 1}`, a, b, X1, y2 + 0.23 + i 
 // ---------- middle: interactions, weight, controls ----------
 const X2 = 1.9, W2 = 1.6;
 box("Interactions box", X2, 1.2, W2, 0.78, { fill: "FFFFFF", line: C.slate });
-label("Interactions text", [{ text: "main effects + interest × institution", options: { bold: true, breakLine: true } },
-  { text: "each driver on its own, and the weight of an interest depending on the institutions it meets (sign left to the data)" }],
+label("Interactions text", [{ text: "main effects + sectoral interest × institution", options: { bold: true, breakLine: true } },
+  { text: "each driver on its own, and the weight of a sectoral interest depending on the institutions it meets (sign left to the data)" }],
   { x: X2 + 0.06, y: 1.2, w: W2 - 0.12, h: 0.78, fontSize: S.size.tiny, align: "center", valign: "middle" });
 box("Weight box", X2, 2.1, W2, 0.55, { fill: "FBE7DE", line: C.coral });
 label("Weight text", [{ text: "× freedom of expression (0–1)", options: { bold: true, breakLine: true } },
@@ -62,7 +62,7 @@ label("Controls text", [{ text: "controls and common terms", options: { bold: tr
 const X3 = 3.85, W3 = 2.6;
 box("Ceiling box", X3, 0.27, W3, 0.72, { fill: C.deep, line: C.deep });
 label("Ceiling text", [{ text: "The ceiling S*", options: { bold: true, breakLine: true, fontSize: S.size.body } },
-  { text: "the most stringent policy that countries with comparable interests and institutions have sustained" }],
+  { text: "the most stringent policy that countries with comparable sectoral interests and institutions have sustained" }],
   { x: X3 + 0.08, y: 0.27, w: W3 - 0.16, h: 0.72, fontSize: S.size.tiny, color: "FFFFFF", align: "center", valign: "middle" });
 arrow("Interactions to ceiling", X2 + W2, 1.45, X3, 0.75, { color: C.deep });
 arrow("Controls to ceiling", X2 + W2, 3.1, X3 + 0.15, 0.99, { color: C.faint, width: 0.8, dash: "dash" });

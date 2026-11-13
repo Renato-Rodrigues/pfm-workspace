@@ -86,3 +86,19 @@
   governing coalition.
 - **"Structural power" as the main label:** too technical for the main text, and it invites the
   debate. It is used in the methods sentence instead.
+
+## Amendment 2026-11-08 — the group is called "sectoral interests"
+
+- **Decision (author, 2026-11-08).** In reader-facing text the driver group is named **sectoral interests**, never
+  bare "interests": an economics reader can take bare "interests" for interest payments or rates. The group label
+  ("Interests:", "interests × institutions", "the interests term") becomes "sectoral interests" ("sectoral interests
+  × institutions", "the sectoral-interest term"). Qualified phrases stay as they are: **fossil interests**,
+  **clean-energy interests**, **fossil interests per person**. The definition at first use: *sectoral interests,
+  the economic weight of the fossil and clean-energy sectors*.
+- **Why "sectoral".** It names what is measured (energy-system shares of sectors) and matches the literature's
+  sector-specific structural power (Culpepper 2011; Culpepper & Reinke 2014).
+- **Rejected.** "Economic interests" (still reads as money for some readers, does not say which economy);
+  "actor interests" (no actor is observed: the reason "actor power" left the main text above); "economic weight"
+  without "interests" (loses the political-economy link of the theory).
+- **Unchanged.** Code, data and model names (`actor power`, `A`, `Incumbent`, `Innovator`); ADRs and archived
+  or frozen documents (`pfm-paper-v5`) keep their wording as the record.

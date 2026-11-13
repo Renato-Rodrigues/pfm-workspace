@@ -1,0 +1,14 @@
+{
+  "git.autoRepositoryDetection": true,
+  "git.repositoryScanMaxDepth": 2,
+  "git.scanRepositories": [
+    "models",
+    "papers",
+    "models/mrpfm",
+    "models/pfm",
+    "models/remind_pfm",
+    "papers/paper-forge",
+    "papers/pfm-paper-v6"
+  ]
+}
+

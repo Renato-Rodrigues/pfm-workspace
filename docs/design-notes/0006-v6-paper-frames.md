@@ -41,8 +41,8 @@ carbon-price ceiling; κ is the erosion rate (ADR 0050).
 | Fading + erosion 5% a year (κ = 0.05) | 0.18 → 0.01 | +22.1 | ×1.05 | 5.3 | 0.001 |
 
 **A robustness caveat on the fading limit (2026-10-13, design note 0007).** The power & industry relaxation behind the
-fading-limit row rests partly on countries at the edge of the institutional data. The interest × institution
-interactions are linear and are evaluated far from the sample for China and Saudi Arabia, so they can reverse a
+fading-limit row rests partly on countries at the edge of the institutional data. The sectoral-interest × institution
+interactions (sectoral interests: the economic weight of the fossil and clean-energy sectors, ADR 0056) are linear and are evaluated far from the sample for China and Saudi Arabia, so they can reverse a
 driver's direction. Offline, on the coupled hold-the-price energy system (`output/pfm/v6/edge-options.rds`), the 2050
 power & industry k is:
 

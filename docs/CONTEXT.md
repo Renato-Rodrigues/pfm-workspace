@@ -25,7 +25,8 @@ frontier — the best observed among comparable countries — not a physical or 
 The one-sided residual $u \ge 0$: the distance between what a country's drivers permit and what
 it actually did. The symmetric half of the residual is ordinary noise. **From `v8`, in buildings & transport its size
 depends on fossil rents** ($\log\sigma_u = c + \omega z$, ADR 0061): rent-rich countries sit further below a ceiling
-their institutions and interests would allow. Rents never enter the ceiling.
+their institutions and sectoral interests (the economic weight of the fossil and clean-energy sectors, ADR 0056)
+would allow. Rents never enter the ceiling.
 
 ### Efficiency ratio ($E$) — the implementability factor
 $E = S/S^{*}$, the share of its own political potential a country has realised. The principled
@@ -54,6 +55,15 @@ interests"; incumbents = **fossil interests** (measured by fossil dependence), i
 **clean-energy interests** (measured by clean-energy build-out). Fossil dependence is a proxy for **structural power**
 (leverage from economic importance), the fossil interest per person for the resources behind
 **instrumental power** (ADR 0044); actual lobbying, finance or access is not observed. Avoid bare "incumbent": in political science it means the officeholder.
+As a group, the two are the **sectoral interests** (next entry).
+
+### Sectoral interests
+The reader-facing name of the actor-power driver group (ADR 0056, amendment 2026-11-08): **the economic weight of
+the fossil and clean-energy sectors** — fossil interests (fossil dependence, fossil interests per person) and
+clean-energy interests (clean-energy build-out). Never bare "interests": an economics reader can take it for interest
+payments or rates. Forms: "sectoral interests × institutions", "the sectoral-interest terms". "Fossil interests",
+"clean-energy interests" and "fossil interests per person" are already qualified and stay. Model, code and data names
+do not change (actor power, $A$, `Incumbent`, `Innovator`, `bothIncAP`).
 
 ### Saturating transform
 Actor power enters as $\tilde A = A/(A+\bar A)$, with $\bar A$ the frozen training median (every actor-power term from

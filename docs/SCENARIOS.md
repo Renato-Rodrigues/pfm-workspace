@@ -307,7 +307,7 @@ the EU21 headline 3.6%).
 
 ## 4. What the results say
 
-Cumulative figures are `pm_actualbudgetco2("2100")` in Gt CO₂; prices are 2050, \$2005/tCO₂, and name their market.
+Cumulative figures are `pm_actualbudgetco2("2100")` in Gt CO₂; prices are 2050, \$2017/tCO₂ (REMIND's base year), and name their market.
 Price ratios are "× the θ = 0 run" (`-PFM-noPolitics-holdBudget-v8`).
 
 ### 4.2a The quantity headline — the cap on the price path that holds the budget
@@ -706,7 +706,7 @@ By hand, `gdxdump fulldata.gdx symb=<name> format=csv`:
 |---|---|
 | cumulative CO₂ | `pm_actualbudgetco2` — element `"2100"`. It runs past 2100 for the peak check; report only `"2100"` |
 | global net CO₂ by period | `vm_emiAll(t, regi, "co2")` summed over regions (GtC; ×44/12) |
-| the **floor** every market pays | `pm_taxCO2eq` — **multiply by 272 to get \$2005/tCO₂**. ⚠️ **This is not the ES price** |
+| the **floor** every market pays | `pm_taxCO2eq` — **multiply by 272 to get \$2017/tCO₂**. ⚠️ **This is not the ES price** |
 | **ES** / **ETS** market price | `pm_taxCO2eq + pm_taxemiMkt(t,regi,"ES"/"ETS")` — dims **(year, region, market)** |
 | emissions by market | `vm_co2eqMkt(t, regi, market)` (GtC; ×44/12) |
 | the cost-optimal anchor | `p45_taxCO2eq_anchor(ttot)` — ×272 |

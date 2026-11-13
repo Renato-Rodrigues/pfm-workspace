@@ -38,7 +38,9 @@ Two consequences for how work is judged here:
 | how the tree is organised, and where a new version goes | `README.md` |
 | setting up, running on the cluster, syncing back, reproducing a version | `docs/RUNNING.md` |
 | the next model version (v6) | `docs/design-notes/0005-v6-implementation-plan.md` |
-| the paper (being written, on Run-Group `v8` since 2026-11-01; `v7` 2026-10-25 to 2026-10-31) | `papers/pfm-paper-v6/CLAUDE.md` |
+| the paper (the model paper, being written on Run-Group `v8`; set up 2026-11-13) | `papers/pfm-model-paper/CLAUDE.md` |
+| the tests and runs the paper still needs, step by step | `papers/pfm-model-paper/docs/evidence-runbook.md` |
+| the results-first paper (superseded 2026-11-13, never drafted; kept as a quarry: claims ledger, Methods `v8`, outline) | `papers/pfm-paper-v6/CLAUDE.md` |
 | the `v5` paper (frozen, superseded) | `papers/pfm-paper-v5/CLAUDE.md` |
 
 Nothing else at `docs/` top level is authoritative. Its subfolders hold decisions (`adr/`) and open
@@ -69,8 +71,8 @@ analysis/       EVIDENCE: run-groups/ coupled/ checks/ v6/ figures/ (its README)
 tools/          OPERATING A WORKSPACE: setup.sh, repos.txt, madrat cache, cluster sync, reproduction checks
 docs/           the governed documents + adr/ design-notes/
 papers/         own git repos, not in the project repo: paper-forge/ (the toolkit — edit
-                skills HERE, never in a workspace's copy), pfm-paper-v5/ (frozen at v18); the v6
-                paper becomes pfm-paper-v6/
+                skills HERE, never in a workspace's copy), pfm-model-paper/ (the paper),
+                pfm-paper-v6/ (superseded, a quarry), pfm-paper-v5/ (frozen at v18)
 records/<group>/ tracked reproduction records: madrat cache manifest and pins (ADR 0047)
 data/madrat/<group>/ the Run-Group's prepared madrat cache (pfmPrepareCache; config.yml madrat:, ADR 0047)
 output/         pfm/<group>/  pfm/fit-cache/  remind-inputs/<group>/  remind-runs/<group>/<res>/

@@ -708,7 +708,7 @@ cluster walk, and every candidate the cluster also walked gave the same severe f
 | P&I, shared (X-1791) | 0.140 | 3160 | 0.9989 | |
 | P&I alone (X-2007: GE, RoL, no accountability; clean-energy saturating) | 0.124 | 3199 | 0.9990 | 16th of 251 |
 | B&T, shared (X-1791) | 0.159 | 1545 | 0.918 | |
-| B&T alone (X-2099: GE, horizontal accountability; both interests per person; H12 region effects; linear) | 0.161 | 1364 | 0.960 | 29th of 1,491 |
+| B&T alone (X-2099: GE, horizontal accountability; both sectoral interests per person, sectoral interests being the economic weight of the fossil and clean-energy sectors, ADR 0056; H12 region effects; linear) | 0.161 | 1364 | 0.960 | 29th of 1,491 |
 
 - **P&I gains nothing.** Its own pick fits worse on both measures. The shared specification passes there too (24th in the
   P&I pool) and loses the ranking only to the near-tie parsimony preference.
@@ -824,6 +824,73 @@ regional sums are within 0.6 Gt of `pm_actualbudgetco2` in every run). CO₂ onl
   and 8.9 Gt on the chain: REF +9.0 → +3.7, SSA +6.3 → +1.6; the USA +1.8 → +2.9 and IND −1.4 → +0.4 move the other way.
   MEA abates as much (−8.6 → −8.5), CHA and OAS less (−4.2 → −1.7, −3.6 → −1.7). These CO₂ numbers are not the batch's
   relocation (20.6 Gt CO₂eq, `SCENARIOS.md` §4.3), which counts all gases.
+
+## 23. The weight's scope and the theory gate's funnel (2026-11-09)
+
+The author asked (1) whether the freedom-of-expression weight should condition only state capacity and rule of law, not
+accountability, and (2) where the 5,786 admissible specifications drop out on the way to the 80. Both offline on `v8`.
+
+### 23.1 The weight on state capacity and rule of law only
+
+`analysis/v8/weightScopeTest.R v8 [walk]` → `output/pfm/v8/weight-scope-test.rds`. The selected `X-1791 … satAP iw:fexp
+fos5` refitted with seven scopes of the weight, nothing else changed. The scopes beyond `accRoL` were added to
+`.pfmIwScopes` for the script's session only: the package and the fit cache are unchanged. The three scopes the sweep
+has (all, none, `accRoL`) reproduce its fits exactly.
+
+- **The double count is real in the sample.** On the 1,104 estimation rows the weight correlates with vertical
+  accountability at 0.93 (rule of law 0.87, government effectiveness 0.50): weighting the accountability pair is close to
+  squaring it.
+- **State capacity and rule of law weighted (`geRoL`):**
+  - it fits buildings & transport better: ΔR²(theory) 0.178 against 0.159, BIC 1452 against 1545;
+  - power & industry is nearly unchanged: ΔR²(theory) 0.137 against 0.140; fossil dependence −0.90;
+    fossil pc × GovEff −0.72 and × RoL +0.93 (wild *p* < .001, robust to leaving out any one country);
+  - H2 in buildings & transport holds under the wild bootstrap (fossil pc × VerAcc +0.19, *p* .001 against the
+    Bonferroni level .008; selected: .068). This would remove the ⚠️ of `MODEL.md` §2.4a;
+  - costs: the buildings & transport fossil main effect no longer survives leaving out Russia (largest *p* .178,
+    selected .044), and its contingency is still carried by China and Saudi Arabia (largest LOO *p* .84, selected .99).
+  - It passes the gates before the theory gate and H1–H2. In the ranking it sits at rank 30 (pool position 10), behind
+    the selected specification (rank 18, position 7): **the declared rule would not have selected it**.
+- **It fails the edge-of-data gate in buildings & transport** (the sanity walk; the selected specification reproduces
+  the cluster's flags). On the coupled 1000 Gt drivers (EU21) the fossil effect acts against the expectation on 97% of
+  China's final energy, 74% of the Middle East's and 81% of the Reforming economies' (limit 25%). Unweighted, the
+  accountability interaction applies at full strength in closed regimes and turns the fossil effect around there. State
+  capacity alone (`ge`) fails the same way (China 97%, the Middle East 41%).
+- The other scopes: state capacity only rank 39, rule of law only rank 61, none 53, `accRoL` 59, accountability only 160;
+  all pass H1–H2 at 0.05.
+
+**Decision (author, 2026-11-09): state capacity and rule of law weighted, accountability unweighted, is the more
+defensible formulation, and goes into the next sweep** (TODO "the next sweep"). Theory-led: in vertical accountability
+freedom of expression is largely part of the institution. What it takes:
+
+1. a scope `geRoL = "Government\\.Effectiveness|Rule\\.of\\.Law"` in pfm's `.pfmIwScopes` (`R/pfmInteractionWeight.R`;
+   append it, so `accRoL` keeps code 1 and the cached `accRoL` fits stay valid);
+2. `"Freedom of Expression (VDem)@geRoL"` (and the electoral-democracy twin, if it stays) in the next group's
+   `interactionWeights` (config.yml);
+3. whether it is a dimension of the search or the declared weight. On `v8` it is not selected by the rule and fails the
+   edge-of-data gate in buildings & transport, so a declared choice needs the edge failure addressed (or the gate's
+   reading of it revisited) and an ADR. Both are open.
+
+### 23.2 The theory gate split into its requirements
+
+`analysis/v8/theoryGateFunnel.R v8` → `output/pfm/v8/theory-gate-funnel.rds` (from `sweep.rds` only; it reproduces the
+80 at *p* 0.05 and the 161 at 0.10 exactly).
+
+| step (in this order) | *p* 0.01 | **0.05** | 0.10 | 0.15 | 0.20 |
+|---|---|---|---|---|---|
+| admissible before the theory gate | 5,786 | 5,786 | 5,786 | 5,786 | 5,786 |
+| H1 power & industry | 119 | **290** | 499 | 633 | 750 |
+| + H1 buildings & transport | 107 | **247** | 387 | 468 | 551 |
+| + H2 power & industry | 99 | **160** | 239 | 319 | 412 |
+| + H2 buildings & transport | 19 | **80** | 161 | 273 | 388 |
+
+- By sector, at 0.05: the theory holds in both for 80, in power & industry only for 105, in buildings & transport only
+  for 829, in neither for 4,772. Of the 5,706 removed, 1,119 fail H1 only, 167 H2 only, 4,420 both.
+- **Power & industry binds, through H1.** Its fossil main effect is positive in 64.5% of the admissible specifications
+  (significantly in 26.8%) and significantly negative in only 5.0%. In buildings & transport it is negative in 70%.
+  The gate selects for a sign most of the power & industry search does not show: this belongs with the post-selection
+  caveat of `MODEL.md` §2.4a.
+- The artifact also holds the 16-cell matrix of the four requirements, other orders, and a soft funnel (fossil sign →
+  H1 → H2 without Bonferroni → H2).
 
 ## References
 

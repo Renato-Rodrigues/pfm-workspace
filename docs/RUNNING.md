@@ -204,7 +204,7 @@ Decided by the author (2026-10-21):
 | Choice | v7 setting (`config.yml`) |
 |---|---|
 | interaction weights, the search chooses | none; freedom of expression (` iw:fexp`); electoral democracy (` iw:poly`) |
-| scope of the weight, both kept | every interest × institution term (A3); accountability and rule-of-law terms only (A7, `@accRoL`, ` iw:fexp@accRoL`) |
+| scope of the weight, both kept | every sectoral-interest × institution term (A3; sectoral interests: the economic weight of the fossil and clean-energy sectors, ADR 0056); accountability and rule-of-law terms only (A7, `@accRoL`, ` iw:fexp@accRoL`) |
 | weight in time | read year by year, lagged like the drivers (implemented) |
 | accountability slot | vertical, horizontal, diagonal, and overall accountability (`extraAccountability: [OvAcc]`) |
 | edge-of-data gate | share 0.25, effect 0.25, cap shift 0.5, cap 5–95%, EU21 regions |

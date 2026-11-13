@@ -18,6 +18,16 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 
 ## 🧭 What to do next
 
+**The model paper, 2026-11-13 (author).** The paper is now `papers/pfm-model-paper` (*Nature Climate Change*; headline
+"political limits on carbon pricing can loosen as the energy transition proceeds"; main text: need, theory,
+equations, estimates, coupling, relevance for integrated assessment; the search, robustness, data and the full
+equations in Methods and SI). It replaces `papers/pfm-paper-v6`, kept as a quarry. 🟠 **The evidence it still needs,
+in priority order, with the steps of each test and run: `papers/pfm-model-paper/docs/evidence-runbook.md`** (tier 1:
+the index maximum T7, the exogenous-cap run R3, the split-sample gate T1, the *p* 0.10 specification coupled R7; tier
+2: the country bootstrap and emissions band T2 + R1, coverage R2, normalisation and ordering T8 / R5; tier 3: θ from
+prices T6). Items 7.1–7.6 below are taken up there and in its `docs/framing.md`. 🟠 Verify the journal's word limit
+(`papers/pfm-model-paper/docs/allocation.md` §5).
+
 **v8, 2026-11-01.** The v8 coupled batch is complete and analysed: 66 runs (60 coupled, both shrinking-future chains
 included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 against v7's +99 / +88. `MODEL.md` and
 `SCENARIOS.md` are rewritten on v8 (their v7 versions in `../_archive/_wip/2026-10-31/docs/`). Open:
@@ -37,6 +47,35 @@ included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 aga
    headline, or report it uncoupled.
 4. 🟢 **The v8 emissions band** (band-edge anchors not prepared) and the v8 coupled figures.
 5. 🟢 **Confirm on the cluster that every v8 run read the staged cache** (`RUNNING.md` Step 8) and commit `records/v8`.
+6. 🟢 **The next sweep (`v9`)** — evaluated and designed 2026-11-10; nothing implemented. **Design note 0011** is the
+   plan (the search, the package changes, the run), **0010** the evidence (§8, §11) and the detailed tests and runs
+   (§9, §10).
+   1. **Decide D1–D7** (0011 §4): whether the four-term block is a search level; dropping the `@accRoL` scope; the γ
+      gate (0.999 or 0.995); the wild-bootstrap confirmation as a gate (it rejects v8's specification in buildings &
+      transport); the weight if the unweighted control is selected; new data editions; whether the paper moves to v9.
+   2. **Then the ADR** declaring the menu and the gates, **then the implementation** (0011 §3: `interactionBlock`, the
+      `geRoL` scope, H1–H2 under the wild bootstrap in the walk), each with its acceptance check against v8.
+   3. **The sweep carries**: the interaction block (all nine / the six fossil terms / the three per-person terms / those
+      three with fossil dependence × state capacity) crossed with the weight's scope (every pair / state capacity and
+      rule of law, author 2026-11-09 / none). **It does not carry**: a new trend shape (2010 / 0.30 is 101 logLik worse
+      in power & industry on v8's specification, 0010 §11.5), institutions in the power & industry slack, H12 region
+      effects, sign restrictions, a peer term.
+   4. **Candidates kept outside the sweep** (0011 §3.5): a slack whose spread falls as the ceiling rises (+537 / +206
+      logLik; changes the power & industry ordering); one state-capacity index; Estonia (ADR 0058); the ceiling-fall
+      gate with PoliClim-informed institutions.
+7. 🟠 **For the paper on v8, from the tests of 2026-11-10** (0010 §11.7; author's decisions):
+   1. **The fading and the constant limit as a bracket** (+75 to +124 Gt, EU21) instead of a central case with a bound:
+      within countries since 2008, power & industry is nearer the constant limit (0010 §11.2). A decision on the spine's number.
+   2. **The persistence evidence in the main text** (0010 §11.3): the distance below the ceiling erodes at 2–8% a year
+      in power & industry and 5–16% in buildings & transport; the ordering is gone in about 15 years.
+   3. **The quantile frontier** in place of the γ caveat on the ordering (0010 §11.1); **the normalisation** in the
+      Methods, with one coupled run on a rank-based ranking (0010 §11.4).
+   4. **The interaction subsets in the SI** (0010 §8.3): the fossil-dependence sign in all 512; no term dropped on v8.
+   5. **Still to run** (0010 §9, §10): the country bootstrap of the frontier on the cluster (`frontierBlockBootstrap.R`),
+      then the emissions band (R1); the split-sample replication of the gate (T1); θ from prices (T6); the coverage and
+      ordering runs (R2, R5); the exogenous cap (R3).
+   6. **Write the novelty sentence and the relevance criteria** (`papers/pfm-paper-v6/literature/index.md`,
+      `docs/relevance.md`: still templates); the claims ledger does not yet carry any of 0010's results.
 
 **Where it stands (v6, 2026-10-12; kept for the record of that review).** Run-Group `v6` is estimated and coupled: 71 runs, all admitted, at EU21 and H12
 (0005 Phase 5; `SCENARIOS.md`). The candidate paper spines are design note 0006: eight frames on one
@@ -111,8 +150,8 @@ files `output/pfm/v6/{income-screen,ordering-checks,residual-ordering-phi}.rds`)
      the theory gate at H3 0.70 / 0.80 and p 0.10 (re-selection from the cached fits).
   4. The weight's scenario path: held at its last value; ask PoliClim to project `v2x_freexp_altinf` with
      `v2x_rule` and `v2x_veracc`.
-  5. v8: reduce the correlation of the interaction moderators (one per interest, or a composite of rule of law and
-     accountability), the cause of offsetting interaction terms (0007 §14).
+  5. v8: reduce the correlation of the interaction moderators (one per sectoral interest, or a composite of rule of law and
+     accountability; sectoral interests: the economic weight of the fossil and clean-energy sectors, ADR 0056), the cause of offsetting interaction terms (0007 §14).
   The v6 → v7 data differ slightly upstream (PITFALLS §40).
 - **Estonia back into the estimation — after v7 (ADR 0058: excluded in v7, decided 2026-10-14).** The negative `PE|Coal` behind its exclusion is
   gone in the `v6` energy data (IEA 2025 edition, `data/madrat/v6`: Estonia's coal +0.0004 EJ in 2022–2023, no

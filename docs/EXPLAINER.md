@@ -54,9 +54,9 @@ predict a stringency of 14.
 
 | group | in the model | idea |
 |---|---|---|
-| **actor power** | clean-energy build-out; fossil dependence; fossil interests per person | the economic weight of fossil and clean-energy interests |
+| **actor power** | clean-energy build-out; fossil dependence; fossil interests per person | **sectoral interests** (the economic weight of the fossil and clean-energy sectors, ADR 0056): fossil and clean-energy interests |
 | **institutional quality** | government effectiveness; rule of law; vertical accountability (can voters hold rulers to account) | can the state deliver, are its rules kept, and does it have to answer for it |
-| **how they combine** | each actor-power term multiplied by each institution, **weighted by how freely opinion and information circulate** | the same interest matters differently in different states, and an institution can only be used against an interest where people can speak |
+| **how they combine** | each actor-power term multiplied by each institution, **weighted by how freely opinion and information circulate** | the same sectoral interest matters differently in different states, and an institution can only be used against a sectoral interest where people can speak |
 | **controls** | income, population, clean baseload (hydro, nuclear, geothermal), a common time trend | structure |
 
 Fossil interests enter **twice** on purpose. The *share* of fossil fuels in the energy system measures
@@ -82,7 +82,7 @@ distance between what a country's drivers permit and what it actually did. Call 
 $S^{*}$.
 
 **In buildings and transport, how far below the frontier a country sits depends on its fossil rents** — the income
-from oil, gas and coal. Countries that earn a lot from them price fuels less than their institutions and interests
+from oil, gas and coal. Countries that earn a lot from them price fuels less than their institutions and sectoral interests
 would allow (the "rentier state"). The rents change the shortfall, not the frontier: put into the frontier they gave
 results against the theory. Left out of the shortfall, they would leave a country like Saudi Arabia looking as if it
 used almost all of its potential; with them, it uses about two-thirds.

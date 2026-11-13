@@ -60,7 +60,7 @@ const drivers = [
   ["State capability", "WGI gov. effectiveness", "inst"],
   ["Rule of law", "V-Dem", "inst"],
   ["Accountability", "V-Dem, vertical", "inst"],
-  ["Economic interests", "fossil and clean energy", "int"],
+  ["Sectoral interests", "fossil and clean energy", "int"],
 ];
 drivers.forEach(([t1, t2, k], i) => {
   const y = dy0 + i * (dh + dg);
@@ -76,7 +76,7 @@ const P = { x: B.x + 1.42, y: dy0 + 0.55, w: 0.85, h: 0.5 };
 box("Politics box", P.x, P.y, P.w, P.h, { fill: "FFFFFF", line: C.slate, lw: 0.75, r: 0.04 });
 body("Politics text", "main effects\n+ interactions", P.x, P.y, P.w, P.h, { fontSize: S.size.small, align: "center", valign: "middle" });
 driversMidY.forEach((y, i) => line("Driver link " + (i + 1), dx + dw, y, P.x, P.y + P.h / 2, { color: C.faint, width: 0.75 }));
-body("Politics note", "interactions: interests conditioned by institutions", P.x - 0.2, P.y + P.h + 0.04, P.w + 0.4, 0.28,
+body("Politics note", "interactions: sectoral interests conditioned by institutions", P.x - 0.2, P.y + P.h + 0.04, P.w + 0.4, 0.28,
      { fontSize: S.size.tiny, italic: true, color: C.muted, align: "center" });
 body("Weight note", "interactions weighted by freedom of expression (V-Dem)", P.x, P.y - 0.46, P.w + 0.1, 0.42,
      { fontSize: S.size.tiny, color: C.muted, align: "center", valign: "bottom" });
