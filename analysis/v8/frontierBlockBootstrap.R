@@ -11,16 +11,35 @@
 # Reported: 5-95% bands of u, k and phi beside the ML band (v8-coupling-band-<strength>.rds), each refit's gamma, the
 # resamples that failed, and the two resamples at the 5th and 95th percentile of the world's mean constraint in 2050
 # (their coefficients are kept: the anchors of the emissions-band runs, R1).
-# NOT VALIDATED (2026-11-10): a trial of 10 resamples on the workstation returned none in 25 minutes and was stopped.
-# frontier::sfa's Fortran search cannot be interrupted and stalls on some resamples. Before a full run: fit each resample
-# in its own Rscript under system2(timeout = ), as analysis/checks/trendShapeGrid.R does, and run it as a cluster job.
-# As written, a resample is fitted in the main process and the results are saved after every 10.
+# Each refit runs in a worker process (frontier::sfa's Fortran search cannot be interrupted and stalls on some
+# resamples): the parent starts PFM_BOOT_WORKERS workers (default 6), each writes a marker before a resample and its
+# result after; a resample that runs longer than PFM_BOOT_TIMEOUT seconds (default 240) is counted as failed, its worker
+# is killed and restarted. Results are kept in output/pfm/<group>/block-bootstrap-work/, so a second call resumes.
+#   (internal) Rscript analysis/v8/frontierBlockBootstrap.R <group> worker <k>
 source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 args <- commandArgs(trailingOnly = TRUE)
-g <- if (length(args)) args[1] else "v8"; NB <- if (length(args) >= 2) as.integer(args[2]) else 200L
-STR <- if (length(args) >= 3) args[3] else "regional"; OPT <- list(strength = STR)
-GD <- file.path("output/pfm", g); modelDir <- "output/pfm/fit-cache"; set.seed(20261110)
+g <- if (length(args)) args[1] else "v8"; WORKER <- length(args) >= 3 && args[2] == "worker"
+NB <- if (!WORKER && length(args) >= 2) as.integer(args[2]) else 200L
+STR <- if (!WORKER && length(args) >= 3) args[3] else "regional"; OPT <- list(strength = STR)
+GD <- file.path("output/pfm", g); WK <- file.path(GD, "block-bootstrap-work"); dir.create(WK, showWarnings = FALSE)
+if (WORKER) {   # a worker: refit its share of the resamples, one file per result
+  k <- as.integer(args[3]); S <- readRDS(file.path(WK, "setup.rds"))
+  refitW <- function(sec, ids) { f <- S$frames[[sec]]; rows <- unlist(lapply(ids, function(i) which(f$df$region == i)))
+    d <- f$df[rows, , drop = FALSE]; if ("regionFE" %in% colnames(d) && is.factor(d$regionFE)) d$regionFE <- droplevels(d$regionFE)
+    m <- frontier::sfa(f$fml, data = d); if (length(f$slack)) m <- pfm:::.pfmHetFrontierFit(f$fml, d, f$slack, m)
+    cf <- stats::coef(m); b <- pfm:::.pfmCeilingBeta(cf)
+    if (!all(f$names %in% names(b))) stop("a term is missing from the refit (a group left empty)")
+    list(beta = b[f$names], gamma = if ("gamma" %in% names(cf)) cf[["gamma"]] else NA_real_) }
+  for (i in which((seq_along(S$ids) - 1L) %% S$workers == (k - 1L))) {
+    if (file.exists(file.path(WK, sprintf("res-%04d.rds", i))) || file.exists(file.path(WK, sprintf("fail-%04d.txt", i)))) next
+    writeLines(c(i, Sys.getpid(), format(Sys.time(), "%Y-%m-%d %H:%M:%S")), file.path(WK, sprintf("current-%02d.txt", k)))
+    r <- tryCatch(suppressWarnings(list(Bulk = refitW("Bulk", S$ids[[i]]), Diffuse = refitW("Diffuse", S$ids[[i]]))), error = function(e) conditionMessage(e))
+    if (is.character(r)) writeLines(r, file.path(WK, sprintf("fail-%04d.txt", i))) else saveRDS(r, file.path(WK, sprintf("res-%04d.rds", i)))
+  }
+  unlink(file.path(WK, sprintf("current-%02d.txt", k))); quit(status = 0)
+}
+modelDir <- "output/pfm/fit-cache"; set.seed(20261110)
 say <- function(...) message("[block-bootstrap:", g, "] ", ...)
 options(pfm.panel = list(firstYear = 2000L, lastYear = 2023L, movingAverage = 5L, ieaVersion = "latest", geothermal = TRUE,
                          democracy = TRUE, overallAccountability = TRUE, fossilRents = TRUE))
@@ -87,30 +106,47 @@ frames <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   stopifnot(max(abs(b0[names(anc0$designs[[sec]]$beta)] - anc0$designs[[sec]]$beta)) < 1e-6)
   list(fml = fit$formula, df = df, slack = slack, names = names(anc0$designs[[sec]]$beta))
 })
-refit <- function(sec, ids) {
-  f <- frames[[sec]]; rows <- unlist(lapply(ids, function(i) which(f$df$region == i)))
-  d <- f$df[rows, , drop = FALSE]; if ("regionFE" %in% colnames(d) && is.factor(d$regionFE)) d$regionFE <- droplevels(d$regionFE)
-  m <- frontier::sfa(f$fml, data = d)
-  if (length(f$slack)) m <- pfm:::.pfmHetFrontierFit(f$fml, d, f$slack, m)
-  cf <- stats::coef(m); b <- pfm:::.pfmCeilingBeta(cf)
-  if (!all(f$names %in% names(b))) stop("a term is missing from the refit (a group left empty)")
-  list(beta = b[f$names], gamma = if ("gamma" %in% names(cf)) cf[["gamma"]] else NA_real_)
-}
 countries <- unique(as.character(frames$Bulk$df$region))
 outFile <- file.path(GD, "frontier-block-bootstrap.rds")
-res <- list(); failed <- 0L; t0 <- Sys.time()
-for (i in seq_len(NB)) {
-  ids <- sample(countries, length(countries), replace = TRUE)
-  r <- tryCatch({
-    fb <- suppressWarnings(refit("Bulk", ids)); fd <- suppressWarnings(refit("Diffuse", ids))
-    a <- anchorFor(list(Bulk = fb$beta, Diffuse = fd$beta)); s <- summ(pfmV6Shares(a, scen, theta = 0.5, options = OPT))
-    s$u <- a$region[, c("sector", "region", "u")]; s$gamma <- c(Bulk = fb$gamma, Diffuse = fd$gamma)
-    s$beta <- list(Bulk = fb$beta, Diffuse = fd$beta); s
-  }, error = function(e) { failed <<- failed + 1L; NULL })
-  if (!is.null(r)) res[[length(res) + 1L]] <- r
-  if (i %% 10 == 0) { saveRDS(list(partial = TRUE, done = i, failed = failed, res = res), sub("\\.rds$", "-partial.rds", outFile))
-    say(i, " resamples, ", failed, " failed, ", round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), " min") }
+NW <- as.integer(Sys.getenv("PFM_BOOT_WORKERS", "6")); TLIM <- as.numeric(Sys.getenv("PFM_BOOT_TIMEOUT", "240"))
+setupFile <- file.path(WK, "setup.rds")
+if (file.exists(setupFile) && length(readRDS(setupFile)$ids) == NB) S <- readRDS(setupFile) else {
+  unlink(list.files(WK, full.names = TRUE))
+  S <- list(frames = frames, ids = lapply(seq_len(NB), function(i) sample(countries, length(countries), replace = TRUE)), workers = NW)
+  saveRDS(S, setupFile) }
+NW <- S$workers
+has <- function(i) file.exists(file.path(WK, sprintf("res-%04d.rds", i))) || file.exists(file.path(WK, sprintf("fail-%04d.txt", i)))
+left <- function(k) { i <- which((seq_len(NB) - 1L) %% NW == (k - 1L)); i[!vapply(i, has, logical(1))] }
+start <- function(k) system2(file.path(R.home("bin"), "Rscript"), c("analysis/v8/frontierBlockBootstrap.R", g, "worker", k), wait = FALSE, stdout = FALSE, stderr = FALSE)
+for (k in seq_len(NW)) { unlink(file.path(WK, sprintf("current-%02d.txt", k))); if (length(left(k))) start(k) }
+t0 <- Sys.time(); lastSay <- 0; restarted <- rep(Sys.time(), NW)
+repeat {
+  Sys.sleep(10); todo <- vapply(seq_len(NW), function(k) length(left(k)), integer(1)); if (!sum(todo)) break
+  for (k in which(todo > 0)) {
+    cur <- file.path(WK, sprintf("current-%02d.txt", k)); x <- if (file.exists(cur)) tryCatch(readLines(cur), error = function(e) NULL) else NULL
+    if (length(x) == 3) {
+      age <- as.numeric(difftime(Sys.time(), as.POSIXct(x[3]), units = "secs")); i <- as.integer(x[1])
+      if (age > TLIM && !has(i)) {   # stalled: count it as failed, kill the worker, start it again
+        tools::pskill(as.integer(x[2])); system2("taskkill", c("/F", "/PID", x[2]), stdout = FALSE, stderr = FALSE)
+        writeLines(paste("timeout after", TLIM, "s"), file.path(WK, sprintf("fail-%04d.txt", i))); unlink(cur)
+        say("resample ", i, " stalled; worker ", k, " restarted"); start(k); restarted[k] <- Sys.time() }
+    } else if (as.numeric(difftime(Sys.time(), restarted[k], units = "secs")) > 120) { start(k); restarted[k] <- Sys.time() }   # the worker died or never started
+  }
+  done <- sum(vapply(seq_len(NB), has, logical(1)))
+  if (done - lastSay >= 20) { lastSay <- done; say(done, " of ", NB, " resamples, ", length(list.files(WK, pattern = "^fail-")), " failed, ",
+                                                    round(as.numeric(difftime(Sys.time(), t0, units = "mins")), 1), " min") }
 }
+fails <- list.files(WK, pattern = "^fail-", full.names = TRUE); failed <- length(fails)
+failReasons <- table(vapply(fails, function(f) substr(readLines(f, warn = FALSE)[1], 1, 60), character(1)))
+res <- list()
+for (f in list.files(WK, pattern = "^res-", full.names = TRUE)) {
+  fb <- readRDS(f); r <- tryCatch({
+    a <- anchorFor(list(Bulk = fb$Bulk$beta, Diffuse = fb$Diffuse$beta)); s <- summ(pfmV6Shares(a, scen, theta = 0.5, options = OPT))
+    s$u <- a$region[, c("sector", "region", "u")]; s$gamma <- c(Bulk = fb$Bulk$gamma, Diffuse = fb$Diffuse$gamma)
+    s$beta <- list(Bulk = fb$Bulk$beta, Diffuse = fb$Diffuse$beta); s }, error = function(e) { failed <<- failed + 1L; NULL })
+  if (!is.null(r)) res[[length(res) + 1L]] <- r
+}
+say(length(res), " resamples used, ", failed, " failed"); print(failReasons)
 q <- function(x) stats::quantile(x, c(0.05, 0.5, 0.95), na.rm = TRUE)
 ml <- tryCatch(readRDS(file.path(GD, paste0("v8-coupling-band", if (STR == "common") "" else paste0("-", STR), ".rds"))), error = function(e) NULL)
 kAll <- do.call(rbind, lapply(seq_along(res), function(i) cbind(draw = i, res[[i]]$k)))
@@ -136,10 +172,10 @@ gam <- do.call(rbind, lapply(res, `[[`, "gamma"))
 # of 1 - phi over regions and sectors), and the resamples at its 5th and 95th percentile: the anchors of run R1
 load <- vapply(res, function(r) mean(1 - r$phi$phi[r$phi$year == 2050]), numeric(1))
 edge <- c(p05 = which.min(abs(load - q(load)[1])), p95 = which.min(abs(load - q(load)[3])))
-out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), resamples = NB, used = length(res), failed = failed, strength = kBand,
-            phi = pBand, u = uBand, gamma = gam, gammaAtGate = colMeans(gam >= 0.999, na.rm = TRUE), load2050 = load,
+out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), resamples = NB, used = length(res), failed = failed, failReasons = failReasons, timeout = TLIM, strength = kBand,
+            phi = pBand, u = uBand, kDraws = kAll, shareLoosening = stats::aggregate(k ~ sector + year, data = kAll, FUN = function(x) mean(x < 1)), gamma = gam, gammaAtGate = colMeans(gam >= 0.999, na.rm = TRUE), load2050 = load,
             edges = lapply(edge, function(i) list(resample = i, load = load[i], beta = res[[i]]$beta)))
-saveRDS(out, outFile); unlink(sub("\\.rds$", "-partial.rds", outFile)); say("wrote ", outFile)
+saveRDS(out, outFile); say("wrote ", outFile)
 options(width = 220)
 cat("resamples used", length(res), "of", NB, "| share with gamma >= 0.999:", paste(names(out$gammaAtGate), round(out$gammaAtGate, 2), collapse = ", "), "\n")
 cat("\nstrength k: the country bootstrap against the ML draws\n"); print(kBand, digits = 3, row.names = FALSE)

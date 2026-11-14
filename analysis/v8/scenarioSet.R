@@ -40,6 +40,24 @@ V <- data.frame(stringsAsFactors = FALSE, rbind(
 names(V) <- c("label", "family", "suffix", "costSuffix", "res")
 OPTIONAL <- "historical erosion (v8 rates)"   # added 2026-11-03 (V8KAPPAEU21): skipped until it has run
 FAM <- c("severity", "persistence", "strength and rents", "institutions")
+# robustness of the coupled result (2026-11-14, V8ROB<res>; hold the price only): read once they have run. Until one
+# of them exists the set, its families and its figures are as before.
+ROB <- data.frame(stringsAsFactors = FALSE, rbind(
+  c("neighbouring specification", "robustness", "-specP10", "-specP10", "EU21 H12"),
+  c("coverage: nearest donors", "robustness", "-coverageNearest", "-covNearest", "EU21"),
+  c("coverage: low band", "robustness", "-coverageLow", "-covLow", "EU21"),
+  c("ordering: uniform", "robustness", "-orderingUniform", "-ordUniform", "EU21"),
+  c("ordering: permuted (1)", "robustness", "-orderingPermuted1", "-ordPerm1", "EU21"),
+  c("ordering: permuted (2)", "robustness", "-orderingPermuted2", "-ordPerm2", "EU21"),
+  # the exogenous governance cap (V8EXOEU21)
+  c("governance cap (six WGI), fixed", "robustness", "-exoGov6Fixed", "-exoGov6Fixed", "EU21"),
+  c("governance cap (government effectiveness), fixed", "robustness", "-exoGovGEFixed", "-exoGovGEFixed", "EU21"),
+  c("governance ranking, fading", "robustness", "-exoGov6Fading", "-exoGov6Fading", "EU21"),
+  c("governance cap (six WGI), fixed, on the price level", "robustness", "-exoGov6FixedLevelForm", "-exoGov6FixedLevel", "EU21"),
+  c("model ranking, on the price level", "robustness", "-levelForm", "-levelForm", "EU21")))
+names(ROB) <- names(V)
+if (length(Sys.glob(file.path(RR, "*", paste0("*-PFM-", closureTitle, ROB$suffix, "-v8_*"))))) {
+  V <- rbind(V, ROB); OPTIONAL <- c(OPTIONAL, ROB$label); FAM <- c(FAM, "robustness") }
 
 pick <- function(res, title) {
   d <- sort(Sys.glob(file.path(RR, res, paste0(title, "_*"))), decreasing = TRUE)

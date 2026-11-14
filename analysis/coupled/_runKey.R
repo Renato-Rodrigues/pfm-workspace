@@ -13,7 +13,13 @@ pfmRunKey <- function(title) {
   variants <- c(commonStrength = "common", gapFirst = "gapfirst", rentsWorldPrice = "rentsWorld",
                 constantLimit = "Ehold", growingLimit = "backslide", erosion2p7 = "kappa", erosion2 = "kappa02",
                 erosion5 = "kappa05", erosionHistorical = "kappaHist", erosionHistoricalV8 = "kappaHistV8", institutionsHeld = "held",
-                institutionsAndrijevic = "gcA", institutionsStoryline = "story")
+                institutionsAndrijevic = "gcA", institutionsStoryline = "story",
+                # robustness of the coupled result (2026-11-14, start tags V8ROB<res>)
+                specP10 = "specP10", coverageNearest = "covNearest", coverageLow = "covLow",
+                orderingUniform = "ordUniform", orderingPermuted1 = "ordPerm1", orderingPermuted2 = "ordPerm2",
+                # the exogenous governance cap (2026-11-14, start tag V8EXOEU21); the longer names first
+                exoGov6FixedLevelForm = "exoGov6FixedLevel", exoGov6Fixed = "exoGov6Fixed", exoGovGEFixed = "exoGovGEFixed",
+                exoGov6Fading = "exoGov6Fading", levelForm = "levelForm")
   out <- title
   for (k in names(rules)) out <- sub(k, rules[[k]], out, fixed = TRUE)
   out <- sub("-theta([0-9]+)", "Th\\1", out)                         # -PFMlevelC-theta325 -> -PFMlevelCTh325

@@ -52,6 +52,9 @@
 # aborted again: the GAMS rebuild of the cap read P_ref from the previous step, fixed by cm_pfmRefPrice). Every coupled
 # row carries pfmGroup v8 and needs output/remind-inputs/v8. Re-runs get their own tag (V8RERUN<res>), so a
 # re-submission never re-runs the batch. The historical erosion on v8's rates (2026-11-03): V8KAPPAEU21 (2 rows).
+# Robustness of the coupled result (2026-11-14): V8ROBEU21 (6 rows), V8ROBH12 (1 row); three of them carry another
+# pfmGroup (v8-p10, v8-nearest, v8-alllow) and need that group's output/remind-inputs/<group>.
+# The exogenous governance cap (2026-11-14): V8EXOEU21 (6 rows), groups v8-gov6 and v8-govGE (analysis/v8/exogenousCap.R v8 stage).
 
 format: pfm-scenario-matrix/1
 output: config/scenario_config_PFM_v8.csv
@@ -111,6 +114,10 @@ rules:
   holdBudget:                         # hold the budget: level cap rebuilt in GAMS every iteration
     stem: PFM-holdBudget
     set: {cm_pfmBindMode: "2", cm_pfmBoundRebuild: "1"}
+  holdPriceLevelForm:                 # hold the price with the share on the price LEVEL (mode R: price = share x anchor), not on
+    stem: PFM-holdPrice               # the step above current policy: the form of the exogenous caps in the literature (2026-11-14)
+    set: {cm_iterative_target_adj: "0", cm_pfmBindMode: "1", cm_pfmAnchorFromGdx: "on",
+          path_gdx_carbonprice: "@noPolitics"}
 
 runs:
   # ---------------------------------------------------------------- the no-politics references
@@ -263,3 +270,64 @@ runs:
      variant: shrinkingFuture2070, options: {},
      set: {cm_startyear: "2070", cm_pfmRefPrice: refpolicycost, cm_taxCO2_startyear: "-1", cm_taxCO2_peakBudgYr: "500", path_gdx_ref: "@holdBudget-shrinkingFuture2060"}, warm: "@holdBudget-shrinkingFuture2060",
      description: "Shrinking future, hold the budget, last step: the past to 2060 fixed to step 4, the cap from 2070 on, the budget met in what is left. The chain's result."}
+
+  # ---------------------------------------------------------------- robustness of the coupled result (the model paper's
+  # gap plan, papers/pfm-model-paper/docs/evidence-runbook.md batch 1; added 2026-11-14). Hold the price, theta 0.50,
+  # from the no-politics reference. Start tags V8ROBEU21 (6 rows), V8ROBH12 (1 row). Three rows name another Run-Group,
+  # which must be exported first (output/remind-inputs/<group>): v8-p10 (stages downstream, remind), v8-nearest and
+  # v8-alllow (PFM_VARIANT_BASE=v8 analysis/run-groups/makeGroupVariants.R).
+  - {key: holdPrice-specP10, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21, H12],
+     start: {EU21: V8ROBEU21, H12: V8ROBH12},
+     variant: specP10, group: v8-p10, warm: "@noPolitics",
+     description: "Hold the price on the neighbouring specification (Run-Group v8-p10: the theory gate at p 0.10 selects rank 17, clean-energy terms alone saturating, electoral-democracy weight): the specification band of the coupled result (0010 R7)."}
+  - {key: holdPrice-coverageNearest, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8ROBEU21},
+     variant: coverageNearest, group: v8-nearest, warm: "@noPolitics",
+     description: "Hold the price, the countries without data on their nearest donors always (the rule up to v7) instead of the covered median (0010 R2)."}
+  - {key: holdPrice-coverageLow, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8ROBEU21},
+     variant: coverageLow, group: v8-alllow, warm: "@noPolitics",
+     description: "Hold the price, every country without data in the low band: the pessimistic end of the coverage assumption (0010 R2)."}
+  - {key: holdPrice-orderingUniform, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8ROBEU21},
+     variant: orderingUniform, options: {pfmPhiOrdering: uniform, pfmPhiStrength: common}, warm: "@noPolitics",
+     description: "Hold the price, every region at the mean position: what the total owes to how much, without who (0010 R5). With the common strength (an ordering test is not combined with the regional one, D15/D16): compare with -commonStrength."}
+  - {key: holdPrice-orderingPermuted1, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8ROBEU21},
+     variant: orderingPermuted1, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "1", pfmPhiStrength: common}, warm: "@noPolitics",
+     description: "Hold the price, the regional ordering permuted (seed 1): what the result owes to who is constrained (0010 R5)."}
+  - {key: holdPrice-orderingPermuted2, wave: 1, section: v8_robustness, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8ROBEU21},
+     variant: orderingPermuted2, options: {pfmPhiOrdering: permuted, pfmPhiOrderingSeed: "2", pfmPhiStrength: common}, warm: "@noPolitics",
+     description: "Hold the price, the regional ordering permuted (seed 2)."}
+
+  # ---------------------------------------------------------------- an exogenous, governance-indexed cap (the model paper's
+  # gap plan GP-2, 0010 R3; added 2026-11-14). What the estimated ranking and the endogenous strength each change against
+  # the caps of the literature. Start tag V8EXOEU21 (6 rows), EU21, theta 0.50, from the no-politics reference. The
+  # Run-Groups v8-gov6 and v8-govGE are staged by `Rscript analysis/v8/exogenousCap.R v8 stage` (v8's export with the
+  # regional ranking replaced by a governance ranking: the six WGI together, or government effectiveness alone).
+  # Comparators already run: -constantLimit (estimated ranking, fixed) and the headline (estimated ranking, fading).
+  - {key: holdPrice-exoGov6Fixed, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: exoGov6Fixed, group: v8-gov6, options: {pfmPhiHold: ratio}, warm: "@noPolitics",
+     description: "Hold the price, an exogenous cap: the regional ranking from the six Worldwide Governance Indicators, fixed over time (constant limit), on the step above current policy."}
+  - {key: holdBudget-exoGov6Fixed, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: exoGov6Fixed, group: v8-gov6, options: {pfmPhiHold: ratio}, warm: "@noPolitics",
+     description: "Hold the budget, the same exogenous cap (six WGI, fixed)."}
+  - {key: holdPrice-exoGovGEFixed, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: exoGovGEFixed, group: v8-govGE, options: {pfmPhiHold: ratio}, warm: "@noPolitics",
+     description: "Hold the price, an exogenous cap: the regional ranking from government effectiveness alone, fixed over time."}
+  - {key: holdPrice-exoGov6Fading, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: exoGov6Fading, group: v8-gov6, warm: "@noPolitics",
+     description: "Hold the price, the governance ranking (six WGI) with the model's own fading strength: separates who is limited from how the limit evolves."}
+  - {key: holdPrice-exoGov6FixedLevelForm, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPriceLevelForm, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: exoGov6FixedLevelForm, group: v8-gov6, options: {pfmPhiHold: ratio}, warm: "@noPolitics",
+     description: "Hold the price, the exogenous cap in the form closest to the literature: the governance ranking (six WGI), fixed, applied to the price level (mode R) instead of the step above current policy. Mode R with theta above 0 was last run on v6: read the first log."}
+  - {key: holdPrice-levelForm, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPriceLevelForm, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXOEU21},
+     variant: levelForm, warm: "@noPolitics",
+     description: "Hold the price, the model's own ranking and fading strength applied to the price level (mode R): what the choice of capping only the step above current policy changes."}
