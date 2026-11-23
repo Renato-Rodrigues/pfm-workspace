@@ -514,8 +514,7 @@ cfg <- "config/scenario_config_PFM_v8.csv"
 for (t in c("V8OPENEU21", "V8EXO2EU21", "V8EXPEU21", "V8EXP2EU21", "V8NPIBUDEU21", "V8BANDEU21"))
   submitPFM(t, remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")                # dry runs
 submitPFM("V8EXPH12", remindDir = "models/remind_pfm-H12", scenarioConfig = cfg, slurmConfig = "standby")          # dry run
-# then the same seven calls with dry = FALSE (V8NPIBUDEU21 with preflight = FALSE: an uncoupled row, which the
-# preflight's group check refuses)
+# then the same seven calls with dry = FALSE (pfm before the uncoupled-start-group fix of 2026-11-23: V8NPIBUDEU21 needed preflight = FALSE)
 ```
 
 Read N0 first when it finishes: the budget loop (`cm_iterative_target_adj = 5`) must meet 2981 Gt by 2100; if it does not
