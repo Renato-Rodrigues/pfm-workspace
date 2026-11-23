@@ -17,5 +17,5 @@ remind_pfm-H12    cluster  models/remind_pfm-H12     https://github.com/Renato-R
 paper-forge       local    papers/paper-forge        https://github.com/Renato-Rodrigues/paper-forge  main
 pfm-paper-v5      local    papers/pfm-paper-v5       -                                                main
 pfm-model-paper   local    papers/pfm-model-paper    -                                                master
-pfm-gmd           local    papers/pfm-gmd            -                                                main
-pfm-ncc           local    papers/pfm-ncc            -                                                main
+pfm-gmd           local    papers/pfm-gmd            https://github.com/Renato-Rodrigues/pfm-gmd.git  main
+pfm-ncc           local    papers/pfm-ncc            https://github.com/Renato-Rodrigues/pfm-ncc.git  main

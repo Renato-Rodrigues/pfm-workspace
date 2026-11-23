@@ -398,14 +398,34 @@ the index-maximum test.
 | 11 | Restructure v06 into the two-layer GMD paper; deposits (GP-16) | P1 | writing | 1–2 weeks | partial |
 | 12 | Abatement-cost refit (`analysis/v8/abatementCost.R`, untracked) | P1 | offline | run and read | partial |
 
-**The emissions band is blocked (found 2026-11-23 while staging it).** Re-evaluated with the current code, the high edge
-(resample 130) gives a NaN share (NES, buildings and transport, 2050), likely a zero 2025 gap that makes the regional strength
-0/0. The same NaN hits the bootstrap itself: 123 of its 184 resamples have a NaN mean constraint in 2050 (`load2050`), so the
-5th and 95th percentile edges were picked from 61. And the bootstrap's central ranking (2026-11-15) differs from the
-coupled runs' anchor (the group's export) by up to 0.064 in u (central mean constraint 0.1303 against 0.1333); the strength
-agrees (0.633 against 0.632, power and industry, 2050). Cause not identified. To unblock: decide how a zero-gap region's
-strength is set (a `pfm` change), re-evaluate the bootstrap from its cached refits around the export's anchor, re-select the
-edges, then stage. Until then the bands of the regional shares and of the strength quoted from the bootstrap carry this caveat.
+**The emissions band is blocked (found 2026-11-23 while staging it; diagnosed the same day).**
+
+*Issue 1, NaN shares.* Under the regional strength the share is φ = 1 − θ·k_r·u with k_r = g(t)/g(2025)
+(`models/pfm/R/pfmCouplingV6.R` l. 198). When a region's 2025 gap is exactly zero (its countries at or above their
+re-estimated ceiling), k_r is 0/0 and φ is NaN. Re-evaluating all 184 resamples: 124 have at least one NaN share in 2050;
+236 of the 237 NaN rows are the least limited region (u = 0, where φ should simply be 1), most often NES (power and
+industry, 40), NEN and CHA (buildings and transport). The bootstrap took quantiles with `na.rm`, so the 2050 load
+distribution and the band's edges rest on the 60–61 resamples without a NaN, and each region's share band drops the
+resamples in which it was least limited. The aggregate strength k and the rankings u are not affected (no division by a
+regional gap). The coupled runs are not affected: the coupled anchor's smallest 2025 gap is 0.131 (P&I) and 0.073 (B&T).
+With φ = 1 − θ·u where the 2025 gap is zero (k_r = 1; φ = 1 for u = 0): no NaN in 184 resamples; the 2050 load is
+0.114 / 0.159 / 0.222 (5 / 50 / 95%) against a central 0.133, so the edges move from 0.105 / 0.189 to 0.114 / 0.222
+and the band is asymmetric; the median share-band width moves 0.236 → 0.245 (P&I) and 0.224 → 0.227 (B&T), 5.0 and 3.6
+times the ML band (4.8 and 3.5 before); REF's P&I band widens most (0.367 → 0.469).
+
+*Issue 2, the bootstrap's centre.* Its central ranking (2026-11-15) differs from the coupled anchor (the group's
+export, which today's code reproduces exactly) by up to 0.064 in u (NES, P&I); the order is unchanged (rank
+correlation 1.000 / 0.996), the ends are the same regions (REF most, NEN least limited), and the median shift is 1.8% of
+the band width. Not reproducible from anything committed: no `pfm` commit between 2026-11-01 and 2026-11-23, no
+`config.yml` change, the madrat cache files unchanged since 2026-10-28, the loader uses the source tree, and recomputing
+the anchor under other weights does not reproduce it. Most likely an uncommitted working state at the time, since
+reverted.
+
+*Recommended* (author to decide): (1) in `pfmV6Shares`, set k_r = 1 where the 2025 gap is zero, with a count in the
+log and a test; it changes no coupled run. (2) Re-run the bootstrap's evaluation (the refits are cached), which also
+re-centres it on the export, and add a guard that stops if its central u differs from the export's and records the
+`pfm` commit and whether the tree was clean. (3) Re-select the edges and stage them (`emissionsBand.R`), then submit
+`V8BANDEU21`. (4) Re-read every bootstrap number the papers quote (share bands, rank intervals, the shares at the ends).
 
 ## 13. Decisions
 
