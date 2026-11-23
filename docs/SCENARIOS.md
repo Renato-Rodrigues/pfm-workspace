@@ -647,7 +647,7 @@ from `p45_taxCO2eq_anchor`. **Confirmed absent on `v8`**: the lowest 2050 market
 ## 7. Needed improvements, in priority order
 
 1. ✅ **The paper's basis is `v8`** (author, 2026-11-01): the paper's claims, Methods and outline are on `v8`
-   (`papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`).
+   (`../_archive/_wip/2026-11-23/papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`).
 2. 🟢 **The shrinking future after the meeting of 3 November**: version A as a check, five-year steps, the θ range and
    H12 if it goes into the paper.
 3. 🟢 **The coupled figures on `v8`**: `v6-coupled-theta`, `v6-coupled-arms`, `v6-rulec-relocation` and

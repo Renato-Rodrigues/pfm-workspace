@@ -274,7 +274,7 @@ runs:
      description: "Shrinking future, hold the budget, last step: the past to 2060 fixed to step 4, the cap from 2070 on, the budget met in what is left. The chain's result."}
 
   # ---------------------------------------------------------------- robustness of the coupled result (the model paper's
-  # gap plan, papers/pfm-model-paper/docs/evidence-runbook.md batch 1; added 2026-11-14). Hold the price, theta 0.50,
+  # gap plan, ../_archive/_wip/2026-11-23/papers/pfm-model-paper/docs/evidence-runbook.md batch 1; added 2026-11-14). Hold the price, theta 0.50,
   # from the no-politics reference. Start tags V8ROBEU21 (6 rows), V8ROBH12 (1 row). Three rows name another Run-Group,
   # which must be exported first (output/remind-inputs/<group>): v8-p10 (stages downstream, remind), v8-nearest and
   # v8-alllow (PFM_VARIANT_BASE=v8 analysis/run-groups/makeGroupVariants.R).

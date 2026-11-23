@@ -21,7 +21,7 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 **The publication plan, 2026-11-23 (author).** Two papers, planned in `docs/design-notes/0012-publication-plan.md`: a
 *Geoscientific Model Development* model paper (`papers/pfm-gmd`; the PFM framed as a module for any IAM, REMIND the case
 study) and a *Nature Climate Change* paper on persistence and expectations (`papers/pfm-ncc`; *Mitigation pathways that
-treat political limits as permanent overstate their emissions cost*). `papers/pfm-model-paper` is frozen as a quarry.
+treat political limits as permanent overstate their emissions cost*). `../_archive/_wip/2026-11-23/papers/pfm-model-paper` is frozen as a quarry.
 D1–D18 decided; set up 2026-11-23 (code pushed, workspaces, GMD support in paper-forge, the batch built). 🟠 **Next: the
 batch** (`docs/RUNNING.md`, Step 7 (v8), "The batch for the two papers": `V8OPENEU21`, `V8EXO2EU21`, `V8EXPEU21`,
 `V8EXPH12`, `V8NPIBUDEU21`, `V8BANDEU21`; copy the two band groups up first). The emissions band was unblocked on
@@ -29,21 +29,21 @@ batch** (`docs/RUNNING.md`, Step 7 (v8), "The batch for the two papers": `V8OPEN
 selected estimates (a valid maximum, −1215.6; 0012 §12 item 12). The
 model-paper entry below predates this plan; its evidence runbook is carried into `papers/pfm-gmd`.
 
-**The model paper, 2026-11-13 (author).** The paper is now `papers/pfm-model-paper` (*Nature Climate Change*; headline
+**The model paper, 2026-11-13 (author).** The paper is now `../_archive/_wip/2026-11-23/papers/pfm-model-paper` (*Nature Climate Change*; headline
 "political limits on carbon pricing can loosen as the energy transition proceeds"; main text: need, theory,
 equations, estimates, coupling, relevance for integrated assessment; the search, robustness, data and the full
-equations in Methods and SI). It replaces `papers/pfm-paper-v6`, kept as a quarry. 🟠 **The evidence it still needs,
-in priority order, with the steps of each test and run: `papers/pfm-model-paper/docs/evidence-runbook.md`** (tier 1:
+equations in Methods and SI). It replaces `../_archive/_wip/2026-11-23/papers/pfm-paper-v6`, kept as a quarry. 🟠 **The evidence it still needs,
+in priority order, with the steps of each test and run: `../_archive/_wip/2026-11-23/papers/pfm-model-paper/docs/evidence-runbook.md`** (tier 1:
 the index maximum T7, the exogenous-cap run R3, the split-sample gate T1, the *p* 0.10 specification coupled R7; tier
 2: the country bootstrap and emissions band T2 + R1, coverage R2, normalisation and ordering T8 / R5; tier 3: θ from
 prices T6). Items 7.1–7.6 below are taken up there and in its `docs/framing.md`. 🟠 Verify the journal's word limit
-(`papers/pfm-model-paper/docs/allocation.md` §5).
+(`../_archive/_wip/2026-11-23/papers/pfm-model-paper/docs/allocation.md` §5).
 
 **v8, 2026-11-01.** The v8 coupled batch is complete and analysed: 66 runs (60 coupled, both shrinking-future chains
 included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 against v7's +99 / +88. `MODEL.md` and
 `SCENARIOS.md` are rewritten on v8 (their v7 versions in `../_archive/_wip/2026-10-31/docs/`). Open:
 1. ✅ **The paper is on v8** (author, 2026-11-01). Its claims ledger, Methods and outline were rewritten on v8
-   (`papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`; the v7 drafts in its `drafts/`); the
+   (`../_archive/_wip/2026-11-23/papers/pfm-paper-v6/docs/claims.md`, `methods-v8.md`, `paper-outline-v8.md`; the v7 drafts in its `drafts/`); the
    spine's numbers were re-read (6–8% to 2100, 13–15% higher emissions in 2050) and **the author confirms its wording**.
    Re-run on v8 the same day: the strength decomposition and support shares, the edge-of-data cap test, the θ bounds,
    the re-scoped replay (now worse in buildings & transport, skill −0.068: paper claim C21 refuted), H3, the net
@@ -85,7 +85,7 @@ included), all finished and admitted; hold the price +75 / +64 Gt at θ 0.50 aga
    5. **Still to run** (0010 §9, §10): the country bootstrap of the frontier on the cluster (`frontierBlockBootstrap.R`),
       then the emissions band (R1); the split-sample replication of the gate (T1); θ from prices (T6); the coverage and
       ordering runs (R2, R5); the exogenous cap (R3).
-   6. **Write the novelty sentence and the relevance criteria** (`papers/pfm-paper-v6/literature/index.md`,
+   6. **Write the novelty sentence and the relevance criteria** (`../_archive/_wip/2026-11-23/papers/pfm-paper-v6/literature/index.md`,
       `docs/relevance.md`: still templates); the claims ledger does not yet carry any of 0010's results.
 
 **Where it stands (v6, 2026-10-12; kept for the record of that review).** Run-Group `v6` is estimated and coupled: 71 runs, all admitted, at EU21 and H12
@@ -103,7 +103,7 @@ evidence is the persistence ladder (`analysis/v6/persistenceLadder.R` →
    ran at it (hold the price +245.3 Gt; hold the budget ×1.64 global price, 97.5 Gt moved); no re-run.
 3. ✅ **`V6PERSH12` and `V6BACK` processed** (2026-10-13): 71 runs admitted, the ladder at H12 matches EU21
    (+176.3 / +112.8 / +39.3 Gt against +189.1 / +118.2 / +41.2), 0006 and the methodology updated.
-4. ✅ **The paper workspace** (2026-10-13): `papers/pfm-paper-v6`, set up from paper-forge **without** the
+4. ✅ **The paper workspace** (2026-10-13): `../_archive/_wip/2026-11-23/papers/pfm-paper-v6`, set up from paper-forge **without** the
    `v5` draft (D19 as amended, author 2026-10-13). Literature and the D-m drafting checklist carried over; the
    Methods written fresh (`docs/methods-v6.md`, with D-M2 (i) and D-M4); `pfm-paper-v5` marked superseded.
    **Next, once the spine is chosen:** the claim in `paper.yml`, then `paper-claims` and `paper-design`.
@@ -200,7 +200,7 @@ on 2026-10-02), and the bodies of the items closed on 2026-09-17/18 are in
 
 | item | status | where it went |
 |---|---|---|
-| **36** | ⛔ superseded 2026-10-02 | no `v5` manuscript: `papers/pfm-paper-v5` is frozen at v18 and the `v6` paper replaces it (0005 D19, Phase 6) |
+| **36** | ⛔ superseded 2026-10-02 | no `v5` manuscript: `../_archive/_wip/2026-11-23/papers/pfm-paper-v5` is frozen at v18 and the `v6` paper replaces it (0005 D19, Phase 6) |
 | **41** | ⛔ superseded 2026-10-02 | no `v5` runs (author, 2026-10-01); hold the budget at θ 0.325 / 0.50 / 0.675 is `v6` first batch (0005 Phase 5) |
 | **6** | ⛔ superseded 2026-10-02 | the USA assignment rules (donor / low) are `v6` second batch (0005 Phase 5, D-M2) |
 | **12** | ⛔ superseded 2026-10-02 | λ is removed from the coupling in `v6` (0005 D13); the `v5` disclosure question lapsed with the `v5` paper |
@@ -215,7 +215,7 @@ on 2026-10-02), and the bodies of the items closed on 2026-09-17/18 are in
 | **9** | ⛔ obsolete 2026-10-02 | the coupling uses no `.Rprofile`: since 2026-08-11 the run folder carries its configuration (`pfm-coupling.yml` from REMIND's `preparePFM.R`, `pfm-coupling-runtime.yml` from `presolve.gms`; `COUPLING.md` §2, corrected 2026-10-02). The item's other points: the SSP check → D9, the cost of a PFM call → E17 |
 | **38** | → D-M3 | the deposit, built into `v6` (0005 Phase 6) |
 | **39** | ✅ done 2026-10-01/02 | project repo created and pushed; everything tagged `v5-final`; the rest is E4 (deferred) |
-| **35** | ✅ done 2026-10-02 | citation slots filled 2026-09-18; the two hazards resolved 2026-10-02 with copies placed in `papers/pfm-paper-v5/literature/sources/`: the publisher's PDF of Battese & Coelli 1992 (note re-appraised, now INCLUDE) and the authors' final manuscript of Douenne & Fabre 2022 with its online appendix (70 / 14 / 22% unchanged; locators §3.1, fn. 21). Port with the literature to the `v6` paper (0005 D19); its uncited-note hygiene goes with it |
+| **35** | ✅ done 2026-10-02 | citation slots filled 2026-09-18; the two hazards resolved 2026-10-02 with copies placed in `../_archive/_wip/2026-11-23/papers/pfm-paper-v5/literature/sources/`: the publisher's PDF of Battese & Coelli 1992 (note re-appraised, now INCLUDE) and the authors' final manuscript of Douenne & Fabre 2022 with its online appendix (70 / 14 / 22% unchanged; locators §3.1, fn. 21). Port with the literature to the `v6` paper (0005 D19); its uncited-note hygiene goes with it |
 | **7** | ✅ done 2026-10-02 | `psm*` → `pfm*` renamed in `pfm`, `preparePFM.R`, `analysis/` and the governed docs, after the `v5-final` tags (`design-notes/0005` D21, F9). Legacy names are still read: `selected-models-psm.yml`, `psm-*` steps, and deprecated aliases for the old exported functions. Released as `pfm` 0.5.0 |
 | **33** | ✅ done 2026-09-18 | costs and abatement relocation adopted as claims **C36** (hold the budget relocates: net +3/+4 Gt against 72/81 Gt moved) and **C37** (where it lands, + the GDP caveat) — `SCENARIOS.md` §4.8, **Fig 5d**, P3.7b |
 | **37** | ✅ done 2026-09-18 | Fig 4b re-pointed to region rank intervals; Fig 2b carries both fossil terms (opposite signs) — `MODEL.md` §2.3, claim C9 |

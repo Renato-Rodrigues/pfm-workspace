@@ -57,7 +57,7 @@ Say this out loud before building any slide. If a slide does not serve one of th
 
 Each slide: **message** (the one thing they should remember) · **figure** · **equation if
 any** · **the rail** (what must not be claimed). Figure IDs match
-`papers/pfm-paper-v5/docs/paper-design.md` so the deck and the paper share display items — build once.
+`../_archive/_wip/2026-11-23/papers/pfm-paper-v5/docs/paper-design.md` so the deck and the paper share display items — build once.
 
 ### Act I — the problem and the object (slides 1–4)
 

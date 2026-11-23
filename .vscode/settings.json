@@ -8,7 +8,8 @@
     "models/pfm",
     "models/remind_pfm",
     "papers/paper-forge",
-    "papers/pfm-paper-v6"
+    "papers/pfm-gmd",
+    "papers/pfm-ncc"
   ]
 }
 

@@ -41,10 +41,8 @@ Two consequences for how work is judged here:
 | which papers, in which order, with which headlines (two papers: a GMD model paper and a *Nature Climate Change* paper; 2026-11-23) | `docs/design-notes/0012-publication-plan.md` |
 | the GMD model paper (Run-Group `v8`; set up 2026-11-23 from the NCC model paper's history) | `papers/pfm-gmd/CLAUDE.md` |
 | the *Nature Climate Change* paper on persistence and expectations (Run-Group `v8`; set up 2026-11-23) | `papers/pfm-ncc/CLAUDE.md` |
-| the NCC model paper (v01–v06, superseded 2026-11-23; kept as a quarry) | `papers/pfm-model-paper/CLAUDE.md` |
 | the tests and runs the papers still need, step by step | `docs/design-notes/0012-publication-plan.md` §12, `papers/pfm-gmd/docs/evidence-runbook.md` |
-| the results-first paper (superseded 2026-11-13, never drafted; kept as a quarry: claims ledger, Methods `v8`, outline) | `papers/pfm-paper-v6/CLAUDE.md` |
-| the `v5` paper (frozen, superseded) | `papers/pfm-paper-v5/CLAUDE.md` |
+| the earlier paper attempts, **reference only, not published** (the NCC model paper v01–v06, the results-first paper, the `v5` paper, the ELEVATE D3.3 deliverable: drafts, ledgers, literature, evidence bundles) | `../_archive/_wip/2026-11-23/papers/` (archived 2026-11-23; `MOVES.md` there) |
 
 Nothing else at `docs/` top level is authoritative. Its subfolders hold decisions (`adr/`) and open
 questions (`design-notes/`). Derived write-ups for people outside the loop (methodology docx, decks)
@@ -74,8 +72,8 @@ analysis/       EVIDENCE: run-groups/ coupled/ checks/ v6/ figures/ (its README)
 tools/          OPERATING A WORKSPACE: setup.sh, repos.txt, madrat cache, cluster sync, reproduction checks
 docs/           the governed documents + adr/ design-notes/
 papers/         own git repos, not in the project repo: paper-forge/ (the toolkit — edit
-                skills HERE, never in a workspace's copy), pfm-model-paper/ (the paper),
-                pfm-paper-v6/ (superseded, a quarry), pfm-paper-v5/ (frozen at v18)
+                skills HERE, never in a workspace's copy), pfm-gmd/ (the GMD model paper),
+                pfm-ncc/ (the NCC paper). Earlier attempts: ../_archive/_wip/2026-11-23/papers/ (reference only)
 records/<group>/ tracked reproduction records: madrat cache manifest and pins (ADR 0047)
 data/madrat/<group>/ the Run-Group's prepared madrat cache (pfmPrepareCache; config.yml madrat:, ADR 0047)
 output/         pfm/<group>/  pfm/fit-cache/  remind-inputs/<group>/  remind-runs/<group>/<res>/
@@ -118,7 +116,7 @@ Pre-commit hooks enforce: parsable R, deps-in-desc, no `browser()`/`debug()`, ti
   bootstrap digest's internal `"psm"` tag stays: it never appears in a name, and changing it
   would orphan every cached resample;
 - old Run-Group names (`psm-country-v3` …), archived file names, the ADRs, and
-  `papers/pfm-paper-v5`.
+  the archived `v5` paper (`../_archive/_wip/2026-11-23/papers/pfm-paper-v5`).
 
 Do not "fix" any of these.
 

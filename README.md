@@ -13,10 +13,10 @@ that does not differ exists once.
 
 | model version (Run-Group) | status | paper workspace | PFM results | coupled runs | design |
 |---|---|---|---|---|---|
-| `v5` (country resolution, spec `X-2079`) | **frozen** — the `v5` record, tagged `v5-final` | `papers/pfm-paper-v5/` (frozen at v18; superseded by the v6 paper) | `output/pfm/v5/` (+ `v5-noinc`, `v5-specalt`) | `output/remind-runs/v5/{EU21,H12}/` | `docs/` as of 2026-10-01, ADRs ≤ 0046 |
+| `v5` (country resolution, spec `X-2079`) | **frozen** — the `v5` record, tagged `v5-final` | `../_archive/_wip/2026-11-23/papers/pfm-paper-v5/` (frozen at v18; superseded by the v6 paper) | `output/pfm/v5/` (+ `v5-noinc`, `v5-specalt`) | `output/remind-runs/v5/{EU21,H12}/` | `docs/` as of 2026-10-01, ADRs ≤ 0046 |
 | `v6` (country resolution, spec `X-1791 … satAP`; share path φ(t)) | superseded by `v7` — coupled batch of 71 runs (REMIND 3.7.1, 2026-10-10) | — | `output/pfm/v6/` (+ `v6-annual`, `v6-specalt`, `v6-sat05`, `v6-sat2`, the assignment variants) | `output/remind-runs/v6/{EU21,H12}/` | `../_archive/_wip/2026-10-25/docs/`, ADRs 0049–0055, design note 0005 |
-| `v7` (spec `X-1791 … satInn iw:fexp`; the democracy weight) | superseded by `v8` — the paper's basis 2026-10-25 to 2026-10-31; coupled batch of 40 runs (2026-10-26) | `papers/pfm-paper-v6/` (`drafts/methods-v7.md`) | `output/pfm/v7/` (+ `v7-h3070`, `v7-h3080`, `v7-p10`) | `output/remind-runs/v7/{EU21,H12}/` | `../_archive/_wip/2026-10-31/docs/`, ADRs 0056–0060, design note 0007 |
-| `v8` (spec `X-1791 … satAP iw:fexp fos5`; the rents slack, covered median, regional strength, gap-closure institutions) | **current, the paper's basis since 2026-11-01** — estimation and the coupled batch complete (66 runs incl. the shrinking-future chains) | `papers/pfm-paper-v6/` | `output/pfm/v8/` | `output/remind-runs/v8/{EU21,H12}/` | `docs/` (rewritten for `v8` 2026-11-01), ADRs 0061–0063, design notes 0008–0009 |
+| `v7` (spec `X-1791 … satInn iw:fexp`; the democracy weight) | superseded by `v8` — the paper's basis 2026-10-25 to 2026-10-31; coupled batch of 40 runs (2026-10-26) | `../_archive/_wip/2026-11-23/papers/pfm-paper-v6/` (`drafts/methods-v7.md`) | `output/pfm/v7/` (+ `v7-h3070`, `v7-h3080`, `v7-p10`) | `output/remind-runs/v7/{EU21,H12}/` | `../_archive/_wip/2026-10-31/docs/`, ADRs 0056–0060, design note 0007 |
+| `v8` (spec `X-1791 … satAP iw:fexp fos5`; the rents slack, covered median, regional strength, gap-closure institutions) | **current, the paper's basis since 2026-11-01** — estimation and the coupled batch complete (66 runs incl. the shrinking-future chains) | `papers/pfm-gmd/` and `papers/pfm-ncc/` (since 2026-11-23; earlier attempts archived) | `output/pfm/v8/` | `output/remind-runs/v8/{EU21,H12}/` | `docs/` (rewritten for `v8` 2026-11-01), ADRs 0061–0063, design notes 0008–0009 |
 | `v1`–`v4` | superseded, never quoted | — | archived | archived | archived |
 
 **Lineage to keep with `v5`.** `v5`'s specification selection is a re-cut of the `v4` sweep under a
@@ -68,7 +68,10 @@ records/             REPRODUCTION RECORDS, tracked in git, one folder per Run-Gr
 
 papers/              PAPERS — each folder is its own git repository (not in the project repo)
   paper-forge/         the paper toolkit
-  pfm-paper-v5/        the v5 paper workspace (paper-forge layout; frozen at v18; repo still to be created)
+  pfm-gmd/             the GMD model paper (2026-11-23)
+  pfm-ncc/             the Nature Climate Change paper on persistence and expectations (2026-11-23)
+  (earlier attempts, reference only and not published: ../_archive/_wip/2026-11-23/papers/ — the NCC model paper,
+   the results-first paper, the v5 paper, the ELEVATE D3.3 deliverable)
 
 data/                INPUTS from outside (not in git)
   madrat/<group>/      the Run-Group's prepared madrat cache + cache-manifest.tsv (ADR 0047)
@@ -137,7 +140,7 @@ Adding `v6` changes no existing folder's contents. It adds one entry per version
 | coupled runs | `output/remind-runs/v6/{EU21,H12}/` |
 | analysis | the same scripts, run with `v6` and `output/remind-runs/v6` |
 | figures | the same builders, run with `--group=v6` |
-| paper | `papers/pfm-paper-v6/`, scaffolded with the toolkit from `papers/pfm-paper-v5/` as the draft |
+| paper | `../_archive/_wip/2026-11-23/papers/pfm-paper-v6/`, scaffolded with the toolkit from `../_archive/_wip/2026-11-23/papers/pfm-paper-v5/` as the draft |
 | design and decisions | `docs/design-notes/` → ADRs in `docs/adr/` |
 | a tag in every repository | `v6-final` when the version is frozen |
 

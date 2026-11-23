@@ -7,9 +7,9 @@ headline *Mitigation pathways that treat political limits as permanent overstate
 answered. No third paper for now: Options B and C are parked here.
 
 **Provenance.** Drafted 2026-11-23 as a Claude Doc (https://claude.ai/artifact/PdSxQxm1AER1s2aX9aNtYi); this file is
-the record and holds everything the doc holds. Sources read: `papers/pfm-paper-v5/manuscript/paper-v18.md`,
-`papers/pfm-model-paper/manuscript/paper-v06.md` and its `docs/framing.md`, `docs/allocation.md`, `docs/claims.md`,
-`docs/gap-plan.md`; `papers/elevate-d3.3/manuscript/paper-v13.md`; `docs/SCENARIOS.md`, `docs/MODEL.md` §5.6a,
+the record and holds everything the doc holds. Sources read: `../_archive/_wip/2026-11-23/papers/pfm-paper-v5/manuscript/paper-v18.md`,
+`../_archive/_wip/2026-11-23/papers/pfm-model-paper/manuscript/paper-v06.md` and its `docs/framing.md`, `docs/allocation.md`, `docs/claims.md`,
+`docs/gap-plan.md`; `../_archive/_wip/2026-11-23/papers/elevate-d3.3/manuscript/paper-v13.md`; `docs/SCENARIOS.md`, `docs/MODEL.md` §5.6a,
 `docs/COUPLING.md` §14.1. Every number is Run-Group `v8` (SSP2, REMIND 3.7.1, 21 regions, θ = 0.50, fading limit,
 to 2100, unless stated) and is orientation only: like every design note this one is not authoritative, so re-read a
 number from its artifact (`coupled-facts.json`, `shrinking-future.rds`, `coupled-costs.json`,
@@ -31,7 +31,7 @@ note's Option A and F; 0010 §11 holds the persistence evidence.
 | 2026-11-23 | The GMD paper frames the PFM as a module to couple with IAMs generically; REMIND is the case study, and the paper underlines that other models can use it | author |
 | 2026-11-23 | D1–D12 answered (§13) | author |
 | 2026-11-23 | D13–D18 answered (§13); the GMD title drops "applied with REMIND 3.7" (REMIND is named in the abstract and the paper) | author |
-| 2026-11-23 | Workspaces: `papers/pfm-gmd` (new, built from `papers/pfm-model-paper`'s history, first version v01) and `papers/pfm-ncc`; `papers/pfm-model-paper` frozen as a quarry | author |
+| 2026-11-23 | Workspaces: `papers/pfm-gmd` (new, built from `../_archive/_wip/2026-11-23/papers/pfm-model-paper`'s history, first version v01) and `papers/pfm-ncc`; `../_archive/_wip/2026-11-23/papers/pfm-model-paper` frozen as a quarry | author |
 
 ## 2. What the earlier drafts teach
 
@@ -193,7 +193,7 @@ the abstract. The control, the 20-year variant and the step length bound it; a l
 be the strongest check, if one exists.
 
 **Format.** *Nature Climate Change* Article, 3,000 words, the format already designed in
-`papers/pfm-model-paper/docs/allocation.md` §3 (findings as subheadings, headline in title, abstract and Fig. 1).
+`../_archive/_wip/2026-11-23/papers/pfm-model-paper/docs/allocation.md` §3 (findings as subheadings, headline in title, abstract and Fig. 1).
 Methods point to the GMD paper for the model.
 
 **Display items.** Fig. 1 the idea (one-shot vs chain) and the headline pair; Fig. 2 the grid as a dot plot with the
@@ -311,7 +311,7 @@ A's framing.
 
 ## 10. Claims ledger (both papers)
 
-Tiers as in `papers/pfm-model-paper/docs/claims.md`: established · provisional · directional · ordering-only ·
+Tiers as in `../_archive/_wip/2026-11-23/papers/pfm-model-paper/docs/claims.md`: established · provisional · directional · ordering-only ·
 pending. M-rows map to that ledger's ids; A-, B-, C-, N-rows go into the Nature paper's own ledger (B, C parked).
 
 | id | claim | paper | tier | evidence (`v8`) | status |
@@ -349,7 +349,7 @@ pending. M-rows map to that ledger's ids; A-, B-, C-, N-rows go into the Nature 
 
 | fig. | shows | exists as | work |
 |---|---|---|---|
-| 1 | the price gap today vs a 1000 Gt pathway; how IAMs treat feasibility | v06 Fig. 1a–b (`papers/pfm-model-paper/paper-figures/R/fig1.R`) | drop panels c–d |
+| 1 | the price gap today vs a 1000 Gt pathway; how IAMs treat feasibility | v06 Fig. 1a–b (`../_archive/_wip/2026-11-23/papers/pfm-model-paper/paper-figures/R/fig1.R`) | drop panels c–d |
 | 2 | the PFM schematic (ceiling, gap, price share, loop) | v06 Fig. 1a | redraw as its own figure |
 | 3 | from the ceiling to a price limit; the regional order and each region's price | v06 Fig. 3 | none |
 | 4 | strength over time, fading vs constant, by driver group | v06 Fig. 4 | none |
@@ -437,7 +437,7 @@ cover letters, suggested reviewers.
 
 | # | decision | answer or recommendation | state |
 |---|---|---|---|
-| D1 | which workspace holds which paper | (a): `papers/pfm-model-paper` becomes the GMD paper; the Nature paper gets a new workspace from paper-forge | decided |
+| D1 | which workspace holds which paper | (a): `../_archive/_wip/2026-11-23/papers/pfm-model-paper` becomes the GMD paper; the Nature paper gets a new workspace from paper-forge | decided |
 | D2 | journal for the Nature paper | *Nature Climate Change*, the journal of Bertram et al. (2024), Bi, Bauer & Jewell (2023) and Muttitt et al. (2023) | decided |
 | D3 | order of submission | GMD first or the same day, so the Nature submission carries the GMD preprint DOI | decided |
 | D4 | release claim C43 (the decade chain) | yes | decided |
@@ -452,7 +452,7 @@ cover letters, suggested reviewers.
 | D13 | run Option N as a test? | **yes** (author): one uncoupled test run at 21 regions, `SSP2-EU21-NPi2025-uniformPrice` (start tag `V8NPIBUDEU21`): current policies with one uniform price from 2030 at their own cumulative CO₂ 2020–2100, 2981.4 Gt (`pm_actualbudgetco2`, read 2026-11-23); REMIND's uniform end-of-century budget recipe (`cm_iterative_target_adj` 5, `cm_taxCO2_regiDiff` 0, interpolation off, `cm_peakBudgYr` 2100); the open point is whether the budget loop converges | decided |
 | D14 | what enters the Nature paper (from D5) | as recommended, to revisit after the batch: **main text** one-shot vs chain vs control (G1), the constant-limit chain, the θ-equivalence pair, the mechanism; **Supplementary** erosion chain, 20-year lift, θ 0.675, 12 regions, 5-year steps | decided |
 | D15 | name of the Nature workspace | `papers/pfm-ncc` (author) | decided |
-| D16 | the model paper's workspace | a **new** workspace `papers/pfm-gmd`, built from `papers/pfm-model-paper`'s history (ledger, gap plan, runbook, literature, bundle, figure scripts carried; v06 and its design quarantined in `drafts/`); its first version is **v01**; `papers/pfm-model-paper` frozen as a quarry (author) | decided |
+| D16 | the model paper's workspace | a **new** workspace `papers/pfm-gmd`, built from `../_archive/_wip/2026-11-23/papers/pfm-model-paper`'s history (ledger, gap plan, runbook, literature, bundle, figure scripts carried; v06 and its design quarantined in `drafts/`); its first version is **v01**; `../_archive/_wip/2026-11-23/papers/pfm-model-paper` frozen as a quarry (author) | decided |
 | D17 | GMD support in paper-forge | **done**: `profiles/gmd.yml` and `skills/paper-design/REFERENCE-gmd.md` (paper-forge `fb3b581`) | decided |
 | D18 | show the PFM with another IAM | **not now** (author): stated as future work in the GMD paper | decided |
 
@@ -476,7 +476,7 @@ Steps 1–3 are the next steps and need no cluster time.
 1. **Secure the code (first).** Commit and push the open-loop option, which exists only as uncommitted changes in
    `models/pfm` and `models/remind_pfm` (§12 item 0), with no package version change; then the workspace
    (`analysis/run-groups/scenario-matrix-v8.yml`, the modified and untracked `analysis/v8` scripts).
-2. **Set up the two papers.** In paper-forge, add `profiles/gmd.yml` (D17). Retarget `papers/pfm-model-paper`:
+2. **Set up the two papers.** In paper-forge, add `profiles/gmd.yml` (D17). Retarget `../_archive/_wip/2026-11-23/papers/pfm-model-paper`:
    `paper.yml` (journal GMD, kind model, a descriptive claim with the generic framing) and its `CLAUDE.md`; the next
    draft is v07 (D16). Create the Nature workspace:
    `Rscript papers/paper-forge/bin/new-paper.R papers/pfm-expectations --slug pfm-expectations --journal nature-climate-change`
