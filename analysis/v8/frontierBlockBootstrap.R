@@ -46,7 +46,11 @@ options(pfm.panel = list(firstYear = 2000L, lastYear = 2023L, movingAverage = 5L
 madrat::setConfig(cachefolder = normalizePath(file.path("data/madrat", g)), forcecache = TRUE, .verbose = FALSE)
 hash <- jsonlite::fromJSON(file.path(GD, "manifest.json"))$panel_hash
 panel <- readRDS(file.path(modelDir, "panels", paste0("panel_", hash, ".rds")))
-scen <- readRDS(file.path(GD, "coupling", paste0("scen-PFMlevelBfix-", g, ".rds")))
+# PFM_BOOT_SCEN (optional): another cached scenario panel under coupling/ (e.g. scen-openloop-<run>.rds, written by
+# analysis/v8/openLoopStrength.R) - the same resamples evaluated on that pathway; PFM_BOOT_TAG names the output
+# frontier-block-bootstrap-<tag>.rds. The refits are not repeated: they are read from block-bootstrap-work/.
+SCENFILE <- Sys.getenv("PFM_BOOT_SCEN", paste0("scen-PFMlevelBfix-", g, ".rds")); TAG <- Sys.getenv("PFM_BOOT_TAG", "")
+scen <- readRDS(file.path(GD, "coupling", SCENFILE))
 w <- pfm:::pfmAnchorFor(file.path("output/remind-inputs", g), "EU21")$weights
 anc0 <- computeAnchorGap(g, resultsDir = "output/pfm", modelDir = modelDir, weights = w, histData = panel, verbose = FALSE)
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
@@ -107,7 +111,7 @@ frames <- lapply(c(Bulk = "Bulk", Diffuse = "Diffuse"), function(sec) {
   list(fml = fit$formula, df = df, slack = slack, names = names(anc0$designs[[sec]]$beta))
 })
 countries <- unique(as.character(frames$Bulk$df$region))
-outFile <- file.path(GD, "frontier-block-bootstrap.rds")
+outFile <- file.path(GD, if (nzchar(TAG)) paste0("frontier-block-bootstrap-", TAG, ".rds") else "frontier-block-bootstrap.rds")
 NW <- as.integer(Sys.getenv("PFM_BOOT_WORKERS", "6")); TLIM <- as.numeric(Sys.getenv("PFM_BOOT_TIMEOUT", "240"))
 setupFile <- file.path(WK, "setup.rds")
 if (file.exists(setupFile) && length(readRDS(setupFile)$ids) == NB) S <- readRDS(setupFile) else {
@@ -173,7 +177,7 @@ gam <- do.call(rbind, lapply(res, `[[`, "gamma"))
 load <- vapply(res, function(r) mean(1 - r$phi$phi[r$phi$year == 2050]), numeric(1))
 edge <- c(p05 = which.min(abs(load - q(load)[1])), p95 = which.min(abs(load - q(load)[3])))
 out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), resamples = NB, used = length(res), failed = failed, failReasons = failReasons, timeout = TLIM, strength = kBand,
-            phi = pBand, u = uBand, kDraws = kAll, shareLoosening = stats::aggregate(k ~ sector + year, data = kAll, FUN = function(x) mean(x < 1)), gamma = gam, gammaAtGate = colMeans(gam >= 0.999, na.rm = TRUE), load2050 = load,
+            phi = pBand, u = uBand, kDraws = kAll, resFiles = basename(list.files(WK, pattern = "^res-", full.names = TRUE)), scenario = SCENFILE, shareLoosening = stats::aggregate(k ~ sector + year, data = kAll, FUN = function(x) mean(x < 1)), gamma = gam, gammaAtGate = colMeans(gam >= 0.999, na.rm = TRUE), load2050 = load,
             edges = lapply(edge, function(i) list(resample = i, load = load[i], beta = res[[i]]$beta)))
 saveRDS(out, outFile); say("wrote ", outFile)
 options(width = 220)

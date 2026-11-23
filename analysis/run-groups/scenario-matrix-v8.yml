@@ -55,6 +55,8 @@
 # Robustness of the coupled result (2026-11-14): V8ROBEU21 (6 rows), V8ROBH12 (1 row); three of them carry another
 # pfmGroup (v8-p10, v8-nearest, v8-alllow) and need that group's output/remind-inputs/<group>.
 # The exogenous governance cap (2026-11-14): V8EXOEU21 (6 rows), groups v8-gov6 and v8-govGE (analysis/v8/exogenousCap.R v8 stage).
+# The governance cap at the estimated mean (2026-11-21): V8EXO2EU21 (2 rows), group v8-gov6mean.
+# Open-loop limits (2026-11-21): V8OPENEU21 (3 rows), pfm option strengthGdx (column pfmPhiStrengthGdx).
 
 format: pfm-scenario-matrix/1
 output: config/scenario_config_PFM_v8.csv
@@ -331,3 +333,33 @@ runs:
      start: {EU21: V8EXOEU21},
      variant: levelForm, warm: "@noPolitics",
      description: "Hold the price, the model's own ranking and fading strength applied to the price level (mode R): what the choice of capping only the step above current policy changes."}
+
+  # ---------------------------------------------------------------- the governance cap at the estimated mean (the model paper's
+  # GP-13, 2026-11-21): the six-WGI order rescaled per sector to the estimated ranking's final-energy-weighted mean, so the
+  # comparison with the estimated ranking is of WHO is limited at an equal average constraint. Start tag V8EXO2EU21 (2 rows);
+  # group v8-gov6mean staged by `Rscript analysis/v8/exogenousCap.R v8 stage`.
+  - {key: holdPrice-exoGov6MeanFixed, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXO2EU21},
+     variant: exoGov6MeanFixed, group: v8-gov6mean, options: {pfmPhiHold: ratio}, warm: "@noPolitics",
+     description: "Hold the price, governance cap (six WGI) rescaled to the estimated mean, fixed over time: compare with -constantLimit."}
+  - {key: holdPrice-exoGov6MeanFading, wave: 1, section: v8_exogenous, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8EXO2EU21},
+     variant: exoGov6MeanFading, group: v8-gov6mean, warm: "@noPolitics",
+     description: "Hold the price, governance ranking (six WGI) rescaled to the estimated mean, with the model's fading strength: compare with the headline."}
+
+  # ---------------------------------------------------------------- open-loop limits (the model paper's review v03 M4 and v02
+  # M1, 2026-11-21): the strength k(t) computed ONCE from another pathway's energy system and held (pfm option strengthGdx,
+  # path relative to the run folder: the other run must sit in the same output/ folder). Start tag V8OPENEU21 (3 rows), EU21,
+  # theta 0.50. Needs pfm and remind_pfm at the commits that carry pfmPhiStrengthGdx.
+  - {key: holdPrice-limitFromCurrentPolicies, wave: 1, section: v8_openloop, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8OPENEU21},
+     variant: limitFromCurrentPolicies, options: {pfmPhiStrengthGdx: "../SSP2-EU21-NPi2025_2026-10-07_12.36.43/fulldata.gdx"}, warm: "@noPolitics",
+     description: "Hold the price on the 1000 Gt pathway with the limit computed once on the current-policies pathway: what a limit taken from today's pathway does to the CO2 of an ambitious one. Compare with the headline."}
+  - {key: holdBudget-limitFromCurrentPolicies, wave: 1, section: v8_openloop, parent: PkBudg1000, rule: holdBudget, theta: "0.50", res: [EU21],
+     start: {EU21: V8OPENEU21},
+     variant: limitFromCurrentPolicies, options: {pfmPhiStrengthGdx: "../SSP2-EU21-NPi2025_2026-10-07_12.36.43/fulldata.gdx"}, warm: "@noPolitics",
+     description: "Hold the budget, the limit computed once on the current-policies pathway: the price and the abatement moved. Compare with the hold-the-budget headline."}
+  - {key: holdPrice-limitFromReference, wave: 1, section: v8_openloop, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21],
+     start: {EU21: V8OPENEU21},
+     variant: limitFromReference, options: {pfmPhiStrengthGdx: "../SSP2-EU21-PkBudg1000-PFM-noPolitics-holdPrice-v8_2026-10-29_23.57.59/fulldata.gdx"}, warm: "@noPolitics",
+     description: "Hold the price, the limit computed once on the no-politics 1000 Gt reference and not recomputed: does one pass give the coupled result? Compare with the headline."}

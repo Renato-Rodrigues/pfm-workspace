@@ -31,7 +31,7 @@
 # Re-run it whenever a new coupled batch lands. It is cheap and idempotent.
 
 source("analysis/coupled/_runKey.R")   # titles from v8 on -> the internal run key (pfmRunKey)
-TCO2 <- 272            # pm_taxCO2eq is T$/GtC; x272 gives US$2005/tCO2 (SCENARIOS.md 9)
+TCO2 <- 272            # pm_taxCO2eq is T$/GtC; x272 gives US$2017/tCO2 (REMIND 3.x base year; SCENARIOS.md 9)
 
 # Resolution order, most specific first:
 #   GDXDUMP        - explicit override, wins over everything

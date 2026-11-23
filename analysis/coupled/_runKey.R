@@ -18,7 +18,7 @@ pfmRunKey <- function(title) {
                 specP10 = "specP10", coverageNearest = "covNearest", coverageLow = "covLow",
                 orderingUniform = "ordUniform", orderingPermuted1 = "ordPerm1", orderingPermuted2 = "ordPerm2",
                 # the exogenous governance cap (2026-11-14, start tag V8EXOEU21); the longer names first
-                exoGov6FixedLevelForm = "exoGov6FixedLevel", exoGov6Fixed = "exoGov6Fixed", exoGovGEFixed = "exoGovGEFixed",
+                limitFromCurrentPolicies = "openCP", limitFromReference = "openRef", exoGov6MeanFixed = "exoGov6MeanFixed", exoGov6MeanFading = "exoGov6MeanFading", exoGov6FixedLevelForm = "exoGov6FixedLevel", exoGov6Fixed = "exoGov6Fixed", exoGovGEFixed = "exoGovGEFixed",
                 exoGov6Fading = "exoGov6Fading", levelForm = "levelForm")
   out <- title
   for (k in names(rules)) out <- sub(k, rules[[k]], out, fixed = TRUE)

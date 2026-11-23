@@ -20,7 +20,10 @@ args <- commandArgs(trailingOnly = TRUE); STAGE <- "stage" %in% args; args <- se
 g <- if (length(args)) args[1] else "v8"; GD <- file.path("output/pfm", g); EXP <- file.path("output/remind-inputs", g)
 say <- function(...) message("[exogenous-cap:", g, "] ", ...)
 CSV <- "analysis/v8/exogenous-cap-ranking.csv"
-VARIANTS <- c(gov6 = "the mean of the six Worldwide Governance Indicators", govGE = "government effectiveness (WGI)")
+VARIANTS <- c(gov6 = "the mean of the six Worldwide Governance Indicators", govGE = "government effectiveness (WGI)",
+              gov6mean = "the six-WGI ranking rescaled, per sector, to the estimated ranking's final-energy-weighted mean")
+# gov6mean (2026-11-21, the model paper's GP-13): the six-WGI order and relative spacing, its weighted mean set equal to the
+# estimated u's in each sector, so a coupled run compares WHO is limited at an equal average constraint.
 x0 <- readRDS(file.path(EXP, "phi-anchor.rds")); stopifnot(identical(x0$format, "pfm-anchor/1"))
 
 if (STAGE) {
@@ -32,15 +35,19 @@ if (STAGE) {
       ok <- file.copy(list.files(EXP, full.names = TRUE, all.files = TRUE, no.. = TRUE), dst, recursive = TRUE); stopifnot(all(ok)) }
     x <- x0
     for (res in names(x$byResolution)) {
-      r <- x$byResolution[[res]]$region; u <- rk[rk$resolution == res & rk$variant == v, ]
+      r <- x$byResolution[[res]]$region
+      base <- if (v == "gov6mean") "gov6" else v; u <- rk[rk$resolution == res & rk$variant == base, ]
       miss <- setdiff(unique(r$region), u$region); if (length(miss)) stop(ng, " ", res, ": no governance ranking for ", paste(miss, collapse = ", "))
       r$uModel <- r$u; r$u <- u$u[match(r$region, u$region)]     # the same ranking in both sectors
+      if (v == "gov6mean") for (sec in unique(r$sector)) { i <- r$sector == sec
+        r$u[i] <- pmin(r$u[i] * stats::weighted.mean(r$uModel[i], r$weight[i]) / stats::weighted.mean(r$u[i], r$weight[i]), 1) }
       x$byResolution[[res]]$region <- r
     }
     x$group <- ng; x$exogenousRanking <- list(variant = v, what = VARIANTS[[v]], from = CSV, base = g)
     saveRDS(x, file.path(dst, "phi-anchor.rds"))
     chk <- pfm:::pfmAnchorFor(dst, names(x$byResolution)[1])$region
     stopifnot(max(abs(chk$u - chk$uModel)) > 0.05)             # the variant must differ from the base
+    if (v == "gov6mean") say("  weighted mean u, ", names(x$byResolution)[1], ": ", paste(sprintf("%s %.3f (estimated %.3f)", unique(chk$sector), vapply(unique(chk$sector), function(s) stats::weighted.mean(chk$u[chk$sector == s], chk$weight[chk$sector == s]), numeric(1)), vapply(unique(chk$sector), function(s) stats::weighted.mean(chk$uModel[chk$sector == s], chk$weight[chk$sector == s]), numeric(1))), collapse = ", "))
     say("staged ", dst, " (", VARIANTS[[v]], "); rank correlation with the model's u, ", names(x$byResolution)[1], ": ",
         paste(sprintf("%s %.2f", unique(chk$sector), vapply(unique(chk$sector), function(s) stats::cor(chk$u[chk$sector == s], chk$uModel[chk$sector == s], method = "spearman"), numeric(1))), collapse = ", "))
   }
