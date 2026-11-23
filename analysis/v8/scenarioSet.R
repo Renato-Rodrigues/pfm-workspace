@@ -58,7 +58,9 @@ ROB <- data.frame(stringsAsFactors = FALSE, rbind(
   c("governance cap at the estimated mean, fixed", "robustness", "-exoGov6MeanFixed", "-exoGov6MeanFixed", "EU21"),
   c("governance ranking at the estimated mean, fading", "robustness", "-exoGov6MeanFading", "-exoGov6MeanFading", "EU21"),
   c("limit from the current-policies pathway", "robustness", "-limitFromCurrentPolicies", "-openCP", "EU21"),
-  c("limit from the reference pathway, one pass", "robustness", "-limitFromReference", "-openRef", "EU21")))
+  c("limit from the reference pathway, one pass", "robustness", "-limitFromReference", "-openRef", "EU21"),
+  c("emissions band, low edge (bootstrap 5%)", "robustness", "-bandLow", "-bandLow", "EU21"),
+  c("emissions band, high edge (bootstrap 95%)", "robustness", "-bandHigh", "-bandHigh", "EU21")))
 names(ROB) <- names(V)
 if (length(Sys.glob(file.path(RR, "*", paste0("*-PFM-", closureTitle, ROB$suffix, "-v8_*"))))) {
   V <- rbind(V, ROB); OPTIONAL <- c(OPTIONAL, ROB$label); FAM <- c(FAM, "robustness") }
