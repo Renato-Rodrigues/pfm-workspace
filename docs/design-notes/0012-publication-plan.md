@@ -384,12 +384,12 @@ the index-maximum test.
 |---|---|---|---|---|---|
 | 0 | Commit and push the open-loop option (`models/pfm` `7fca356`, `models/remind_pfm` `a4db0bac7`) | item 2 | code | — | **done** 2026-11-23 |
 | 1 | Release claim C43 (the chain) | A | decision | — | decided (D4: yes) |
-| 2 | Open-loop runs (`V8OPENEU21`, 3) | M7, A10 | cluster | — | prepared; submit (`docs/RUNNING.md`) |
-| 3 | Governance ranking at the estimated mean (`V8EXO2EU21`, 2) | M10, D | cluster | `exogenousCap.R v8 stage` on the cluster first | prepared; submit |
-| 4 | Expectation chains: control, constant, erosion 2.7%, 20-year lift, θ 0.325 and 0.675 (`V8EXPEU21`, 38 rows), 12 regions (`V8EXPH12`, 5), 5-year steps | C3–C5, C8 of the NCC ledger | cluster | configuration only | prepared 2026-11-23; submit |
+| 2 | Open-loop runs (`V8OPENEU21`, 3) | M7, A10 | cluster | — | **running** since 2026-11-23 14:30 |
+| 3 | Governance ranking at the estimated mean (`V8EXO2EU21`, 2) | M10, D | cluster | `exogenousCap.R v8 stage` on the cluster first | **running** since 2026-11-23 14:55 |
+| 4 | Expectation chains: the control (`V8EXPEU21`, 5 rows, `holdPrice-replanned<year>`); constant, erosion 2.7%, 20-year lift, θ 0.325 and 0.675, 5-year steps (`V8EXP2EU21`, 33 rows, `holdPrice-<variant>-chain<year>`); 12 regions (`V8EXPH12`, 5) | C3–C5, C8 of the NCC ledger | cluster | configuration only | **running**: the control since 15:15, the 12-region chain since 18:28, the other six since 18:12 (first steps; later steps start as each finishes). The six first went in as `V8EXPEU21` `-shrinkingFuture<year>` and failed at GAMS compile: titles over 63 characters (`c_expname`, $109). Renamed and re-tagged; `pfm` `182a676` refuses such titles |
 | 5 | Mechanism extraction, one-shot vs chain (`analysis/v8/expectationsMechanism.R`) | A7 (NCC C7) | offline script | — | **done** 2026-11-23: +236 GW wind and solar in 2040, +232 GW in 2050, −140 GW unabated fossil in 2050; NCC C7 supported |
-| 6 | Option N0 test, `SSP2-EU21-NPi2025-uniformPrice` (`V8NPIBUDEU21`, 1, uncoupled; budget 2981 Gt; the linear price path starts from 14.3 $/t, the emissions-weighted mean current-policy price in 2025, not REMIND's default maximum 71.9, which aborts) | M11, M12, N1 | cluster | — | prepared; submit |
-| 6a | Emissions band (GP-12): `pfm` `80f5423`, bootstrap re-evaluated, `v8-bandLow` / `v8-bandHigh` staged (mean constraint 2050 0.1138 / 0.2221, central 0.1333); rows `V8BANDEU21` (2) | M8 (C42) | cluster | copy the two groups up first (`docs/RUNNING.md`) | **unblocked** 2026-11-23; submit |
+| 6 | Option N0 test, `SSP2-EU21-NPi2025-uniformPrice` (`V8NPIBUDEU21`, 1, uncoupled; budget 2981 Gt; the linear price path starts from 14.3 $/t, the emissions-weighted mean current-policy price in 2025, not REMIND's default maximum 71.9, which aborts) | M11, M12, N1 | cluster | — | **running** since 2026-11-23 18:16 |
+| 6a | Emissions band (GP-12): `pfm` `80f5423`, bootstrap re-evaluated, `v8-bandLow` / `v8-bandHigh` staged (mean constraint 2050 0.1138 / 0.2221, central 0.1333); rows `V8BANDEU21` (2) | M8 (C42) | cluster | copy the two groups up first (`docs/RUNNING.md`) | **running** since 2026-11-23 18:19 |
 | 6b | Offline demonstration on another IAM | — | — | — | future work (D18) |
 | 7 | Revealed-severity regression with bootstrap band | M11, N1 | offline script | a day after N0 | to run |
 | 8 | Coupled hold the budget at the current-policies budget, revealed θ | N item 4 | cluster, 2 runs | after 7 | to run |
