@@ -19,13 +19,13 @@ status review this list follows; IDs such as C10 or D-M3 refer to that note. **T
 ## 🧭 What to do next
 
 **The publication plan, 2026-11-23 (author).** Two papers, planned in `docs/design-notes/0012-publication-plan.md`: a
-*Geoscientific Model Development* model paper (`papers/pfm-model-paper`, retargeted from *Nature Climate Change*; the
-PFM framed as a module for any IAM, REMIND the case study) and a *Nature Climate Change* paper on persistence and
-expectations (*Mitigation pathways that treat political limits as permanent overstate their emissions cost*; new
-workspace, proposed `papers/pfm-expectations`). D1–D12 decided, D13–D18 recommended. 🔴 **First:** the open-loop option
-behind `V8OPENEU21` is uncommitted in `models/pfm` and `models/remind_pfm` (0012 §12 item 0). Then the note's §14,
-steps 2–3 (no cluster), then one batch (open-loop, governance at the mean, 8 expectation chains, the N0 test, the
-emissions band). The model-paper entry below predates this plan; its evidence runbook still applies.
+*Geoscientific Model Development* model paper (`papers/pfm-gmd`; the PFM framed as a module for any IAM, REMIND the case
+study) and a *Nature Climate Change* paper on persistence and expectations (`papers/pfm-ncc`; *Mitigation pathways that
+treat political limits as permanent overstate their emissions cost*). `papers/pfm-model-paper` is frozen as a quarry.
+D1–D18 decided; set up 2026-11-23 (code pushed, workspaces, GMD support in paper-forge, the batch built). 🟠 **Next: the
+batch** (`docs/RUNNING.md`, Step 7 (v8), "The batch for the two papers": `V8OPENEU21`, `V8EXO2EU21`, `V8EXPEU21`,
+`V8EXPH12`, `V8NPIBUDEU21`). 🔴 **The emissions band is blocked** (NaN shares in the bootstrap; 0012 §12). The
+model-paper entry below predates this plan; its evidence runbook is carried into `papers/pfm-gmd`.
 
 **The model paper, 2026-11-13 (author).** The paper is now `papers/pfm-model-paper` (*Nature Climate Change*; headline
 "political limits on carbon pricing can loosen as the energy transition proceeds"; main text: need, theory,

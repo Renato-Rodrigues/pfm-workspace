@@ -1,6 +1,6 @@
 # 0012 — Publication plan: which papers, in which order, with which headlines
 
-**Status: Decided 2026-11-23, with six recommendations awaiting the author (D13–D18, §13).** The author approved the
+**Status: Decided 2026-11-23 (D1–D18).** Set up the same day: `papers/pfm-gmd`, `papers/pfm-ncc`, GMD support in paper-forge, the batch in `scenario-matrix-v8.yml` (§12, §14). The author approved the
 split into a model paper (*Geoscientific Model Development*), which frames the PFM as a feasibility module for any
 integrated assessment model with REMIND as the case study, and a *Nature Climate Change* paper with the working
 headline *Mitigation pathways that treat political limits as permanent overstate their emissions cost*. D1–D12 are
@@ -30,6 +30,8 @@ note's Option A and F; 0010 §11 holds the persistence evidence.
 | 2026-11-23 | No third paper for now; Options B and C stay on record here | author |
 | 2026-11-23 | The GMD paper frames the PFM as a module to couple with IAMs generically; REMIND is the case study, and the paper underlines that other models can use it | author |
 | 2026-11-23 | D1–D12 answered (§13) | author |
+| 2026-11-23 | D13–D18 answered (§13); the GMD title drops "applied with REMIND 3.7" (REMIND is named in the abstract and the paper) | author |
+| 2026-11-23 | Workspaces: `papers/pfm-gmd` (new, built from `papers/pfm-model-paper`'s history, first version v01) and `papers/pfm-ncc`; `papers/pfm-model-paper` frozen as a quarry | author |
 
 ## 2. What the earlier drafts teach
 
@@ -52,8 +54,8 @@ current-policies pathways, observed prices). The model paper keeps the rest, whe
 
 | id | paper | working headline | state | home |
 |---|---|---|---|---|
-| P1 | **The model paper** | *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price stringency for integrated assessment models, applied with REMIND 3.7* | **active** | GMD (§4) |
-| P2 | **The Nature paper: persistence and expectations (Option A)** | *Mitigation pathways that treat political limits as permanent overstate their emissions cost* | **active** | *Nature Climate Change* Article (§5) |
+| P1 | **The model paper** | *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price stringency for integrated assessment models* | **active** | GMD, `papers/pfm-gmd` (§4) |
+| P2 | **The Nature paper: persistence and expectations (Option A)** | *Mitigation pathways that treat political limits as permanent overstate their emissions cost* | **active** | *Nature Climate Change* Article, `papers/pfm-ncc` (§5) |
 | N | Calibrating the severity from current policies (Option N) | *Political limits explain how unevenly carbon is priced today* (only if the fit holds) | active **inside P1** | P1 §6 and Appendix J (§7) |
 | B | Political headroom and the emissions gap | *Today's politics already allows much of the effort current policies miss* (or the reverse) | **parked** 2026-11-23 | a later paper; its offline check may feed P1 (§8.1) |
 | C | Sequencing: cutting fossil dependence first | *Cutting fossil dependence first makes higher carbon prices feasible later* | **parked** 2026-11-23 | *Nature Energy* or a third paper (§8.2) |
@@ -74,8 +76,8 @@ regional set; it already runs at two REMIND resolutions (21 and 12 regions). It 
 energy-system quantities that IAMs report in the IAMC template, plus SSP income and population, and it returns one
 table: a feasibility share by region, period and carbon market (D3.3 Table 5). Since the feedback is second order for
 most regions (C51, C58), a model without an iteration loop can use one evaluation per pathway. The claim stays
-"designed for any IAM, demonstrated with REMIND": no second model has been coupled. D18 (an offline demonstration on
-another IAM's published pathway) would turn the design statement into a demonstration.
+"designed for any IAM, demonstrated with REMIND": no second model has been coupled. Use with other models is stated as
+future work (D18).
 
 **Why GMD allows this.** GMD has no length limit and expects appendices; a model description paper should be
 "detailed, complete, rigorous, and accessible", and "all technical details which could substantially affect the
@@ -87,10 +89,9 @@ the rents slack and the estimation detail may leave the main text, but they go t
 not to a supplement only: GMD's supplement is for the code, the user manual and material without a DOI. GMD also
 requires the model name and version number in the title and a "Code availability" section at the end.
 
-**Title.** *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price stringency for integrated
-assessment models, applied with REMIND 3.7.* Alternative: *PFM v1.0: an empirically estimated political feasibility
-module for integrated assessment models, with a two-way coupling to REMIND.* The version label is D9 (a release tag);
-no package version is changed for it.
+**Title** (author, 2026-11-23). *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price
+stringency for integrated assessment models.* REMIND is named in the abstract and the paper, not in the title. The
+version label is D9 (a release tag); no package version is changed for it.
 
 **Layer 1, the main paper** (about 6,000 words, 8 figures; videos 1–3 are its source):
 
@@ -381,15 +382,15 @@ the index-maximum test.
 
 | # | item | for | type | cost | status |
 |---|---|---|---|---|---|
-| 0 | **Commit and push the open-loop option**: it exists only as uncommitted changes in `models/pfm` (`R/iterativePFM.R`, `R/pfmCouplingV6.R`, `man/pfmV6CouplingDefaults.Rd`) and `models/remind_pfm` (`config/default.cfg`, `scripts/start/preparePFM.R`, `config/scenario_config_PFM_v8.csv`), checked 2026-11-23; no package version change | item 2 | code | an hour | to do first |
+| 0 | Commit and push the open-loop option (`models/pfm` `7fca356`, `models/remind_pfm` `a4db0bac7`) | item 2 | code | — | **done** 2026-11-23 |
 | 1 | Release claim C43 (the chain) | A | decision | — | decided (D4: yes) |
-| 2 | Open-loop runs, prepared (`V8OPENEU21`, 3) | M7, A10 | cluster | half a day to stage | to run |
-| 3 | Governance ranking at the estimated mean, prepared (`V8EXO2EU21`, 2) | M10, D | cluster | same batch | to run |
-| 4 | Expectation chains: constant, erosion, control, 20-year lift, θ 0.325 and 0.675, 12 regions, 5-year steps | A3–A5, A8 | cluster, ~8 chains of 5+ sequential runs | one batch; configuration only (D5) | to run |
+| 2 | Open-loop runs (`V8OPENEU21`, 3) | M7, A10 | cluster | — | prepared; submit (`docs/RUNNING.md`) |
+| 3 | Governance ranking at the estimated mean (`V8EXO2EU21`, 2) | M10, D | cluster | `exogenousCap.R v8 stage` on the cluster first | prepared; submit |
+| 4 | Expectation chains: control, constant, erosion 2.7%, 20-year lift, θ 0.325 and 0.675 (`V8EXPEU21`, 38 rows), 12 regions (`V8EXPH12`, 5), 5-year steps | C3–C5, C8 of the NCC ledger | cluster | configuration only | prepared 2026-11-23; submit |
 | 5 | Mechanism extraction, one-shot vs chain | A7 | offline script | 1–2 days on existing runs | to run |
-| 6 | Uniform-price run at the current-policies budget (N0): a test at 21 regions (D13), 12 regions only if it works | M11, M12, N1 | cluster, 1 run, uncoupled | read the current-policies cumulative CO₂ first | to run |
-| 6a | Emissions band (GP-12): a staging step that writes the two bootstrap anchors kept in `frontier-block-bootstrap.rds` (`edges`) as Run-Groups, modelled on `exogenousCap.R stage`; then 2 hold-the-price rows | M8 (C42) | script + cluster, 2 runs | half a day to write; same batch | to run (D12) |
-| 6b | Offline demonstration on another IAM: an IAMC-template reader, one regional mapping per model, one evaluation per pathway | M13 (D18) | offline script | a few days | to run if D18 |
+| 6 | Option N0 test, `SSP2-EU21-NPi2025-uniformPrice` (`V8NPIBUDEU21`, 1, uncoupled; budget 2981 Gt) | M11, M12, N1 | cluster | — | prepared 2026-11-23; submit |
+| 6a | Emissions band (GP-12): `analysis/v8/emissionsBand.R` stages the two edge anchors; rows `V8BANDEU21` (2) | M8 (C42) | script + cluster | — | **blocked** (below) |
+| 6b | Offline demonstration on another IAM | — | — | — | future work (D18) |
 | 7 | Revealed-severity regression with bootstrap band | M11, N1 | offline script | a day after N0 | to run |
 | 8 | Coupled hold the budget at the current-policies budget, revealed θ | N item 4 | cluster, 2 runs | after 7 | to run |
 | 9 | Headroom table and price slope m | B1 | offline | a day | parked |
@@ -397,10 +398,18 @@ the index-maximum test.
 | 11 | Restructure v06 into the two-layer GMD paper; deposits (GP-16) | P1 | writing | 1–2 weeks | partial |
 | 12 | Abatement-cost refit (`analysis/v8/abatementCost.R`, untracked) | P1 | offline | run and read | partial |
 
+**The emissions band is blocked (found 2026-11-23 while staging it).** Re-evaluated with the current code, the high edge
+(resample 130) gives a NaN share (NES, buildings and transport, 2050), likely a zero 2025 gap that makes the regional strength
+0/0. The same NaN hits the bootstrap itself: 123 of its 184 resamples have a NaN mean constraint in 2050 (`load2050`), so the
+5th and 95th percentile edges were picked from 61. And the bootstrap's central ranking (2026-11-15) differs from the
+coupled runs' anchor (the group's export) by up to 0.064 in u (central mean constraint 0.1303 against 0.1333); the strength
+agrees (0.633 against 0.632, power and industry, 2050). Cause not identified. To unblock: decide how a zero-gap region's
+strength is set (a `pfm` change), re-evaluate the bootstrap from its cached refits around the export's anchor, re-select the
+edges, then stage. Until then the bands of the regional shares and of the strength quoted from the bootstrap carry this caveat.
+
 ## 13. Decisions
 
-D1–D12 answered by the author 2026-11-23. D13–D18 came out of checking the plan against those answers; each carries a
-recommendation and awaits the author. Not needed now, at submission: authorship, funding and ELEVATE acknowledgement,
+All answered by the author on 2026-11-23; D13–D18 came out of checking the plan against D1–D12. Not needed now, at submission: authorship, funding and ELEVATE acknowledgement,
 cover letters, suggested reviewers.
 
 | # | decision | answer or recommendation | state |
@@ -417,12 +426,12 @@ cover letters, suggested reviewers.
 | D10 | Run-Group | `v8` for both papers | decided |
 | D11 | the six explainer videos | later: revise them after the papers are written, then submit with the GMD paper if ready | decided (deferred) |
 | D12 | evidence the GMD paper needs | run both required and optional: `V8OPENEU21` (3), `V8EXO2EU21` (2), the abatement-cost refit, the deposits (GP-16), and the emissions band (GP-12, 2 runs plus a staging step) | decided |
-| D13 | run Option N as a test? | **yes, one uncoupled test run at 21 regions**: one row copying the 1000 Gt parent (`PkBudg1000`) with its budget set to the current-policies cumulative CO₂, no PFM involved; the open point is whether REMIND's budget loop converges on a budget that has not peaked by 2100, which the test answers; 12 regions only if it works | recommended |
-| D14 | what enters the Nature paper (from D5) | **main text**: one-shot vs chain vs control (G1), the constant-limit chain, the θ-equivalence pair, the mechanism; **Supplementary**: erosion chain, 20-year lift, θ 0.675, 12 regions, 5-year steps; re-judged at G3 for clarity | recommended |
-| D15 | name of the Nature workspace | `papers/pfm-expectations`, slug `pfm-expectations` | recommended |
-| D16 | the model paper's existing drafts | keep v01–v06 frozen as the NCC history; the first GMD draft is v07 in the same workspace | recommended |
-| D17 | a GMD profile for paper-forge | add `profiles/gmd.yml` in paper-forge (it has only `generic`, `nature`, `nature-climate-change`): no length limit, appendices, code-availability section, model name and version in the title, GMD's review criteria as the referee's checklist | recommended |
-| D18 | show that the PFM works with another IAM, without coupling one | **yes, offline**: read one or two published pathways of other IAMs in the IAMC template (e.g. ELEVATE scenarios of other models), map their regions, compute the PFM's limit with one evaluation per pathway; a few days; Appendix M and one panel of Fig. 7 | recommended |
+| D13 | run Option N as a test? | **yes** (author): one uncoupled test run at 21 regions, `SSP2-EU21-NPi2025-uniformPrice` (start tag `V8NPIBUDEU21`): current policies with one uniform price from 2030 at their own cumulative CO₂ 2020–2100, 2981.4 Gt (`pm_actualbudgetco2`, read 2026-11-23); REMIND's uniform end-of-century budget recipe (`cm_iterative_target_adj` 5, `cm_taxCO2_regiDiff` 0, interpolation off, `cm_peakBudgYr` 2100); the open point is whether the budget loop converges | decided |
+| D14 | what enters the Nature paper (from D5) | as recommended, to revisit after the batch: **main text** one-shot vs chain vs control (G1), the constant-limit chain, the θ-equivalence pair, the mechanism; **Supplementary** erosion chain, 20-year lift, θ 0.675, 12 regions, 5-year steps | decided |
+| D15 | name of the Nature workspace | `papers/pfm-ncc` (author) | decided |
+| D16 | the model paper's workspace | a **new** workspace `papers/pfm-gmd`, built from `papers/pfm-model-paper`'s history (ledger, gap plan, runbook, literature, bundle, figure scripts carried; v06 and its design quarantined in `drafts/`); its first version is **v01**; `papers/pfm-model-paper` frozen as a quarry (author) | decided |
+| D17 | GMD support in paper-forge | **done**: `profiles/gmd.yml` and `skills/paper-design/REFERENCE-gmd.md` (paper-forge `fb3b581`) | decided |
+| D18 | show the PFM with another IAM | **not now** (author): stated as future work in the GMD paper | decided |
 
 ## 14. Build plan, step by step
 

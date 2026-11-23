@@ -481,6 +481,38 @@ submitPFM("V8KAPPAEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = 
 After they finish and are synced back: `Rscript analysis/v8/scenarioSet.R price` and `... budget` (the new label
 "historical erosion (v8 rates)" is skipped until the runs exist), and the coupled facts as for the batch.
 
+**The batch for the two papers (2026-11-23; design note 0012 §12, §14).** Five tags, all in
+`config/scenario_config_PFM_v8.csv` (built and checked: 130 scenarios, REMIND's reader 0 warnings):
+
+| tag | rows | what | needs first |
+|---|---|---|---|
+| `V8OPENEU21` | 3 | open-loop limits (the limit computed once on current policies, both closures; once on the reference) | `pfm` and `remind_pfm` at the commits with `pfmPhiStrengthGdx` (pushed 2026-11-23); the NPi and no-politics run folders in `output/` (the rows point at their `fulldata.gdx`) |
+| `V8EXO2EU21` | 2 | governance ranking at the estimated mean, fixed and fading | `Rscript analysis/v8/exogenousCap.R v8 stage` (writes `output/remind-inputs/v8-gov6mean`) |
+| `V8EXPEU21` | 38 | the NCC paper's chains: control, constant limit, erosion 2.7%, 20-year lift, θ 0.325 and 0.675, five-year steps | nothing; each step waits for the one before |
+| `V8EXPH12` | 5 | the chain at 12 regions | nothing |
+| `V8NPIBUDEU21` | 1 | Option N0 test: current policies with one uniform price at their own cumulative CO2 (2981 Gt), uncoupled | nothing |
+
+**Do not submit `V8BANDEU21`** (the emissions band): blocked, `analysis/v8/emissionsBand.R` header. On the cluster:
+
+```bash
+cd /p/projects/elevate/WP3.4/pfm-workspace && git pull --ff-only
+./tools/setup.sh --cluster --update --install      # pfm installed, remind_pfm-EU21 / -H12 fast-forwarded
+Rscript analysis/v8/exogenousCap.R v8 stage
+```
+
+```r
+library(pfm)
+cfg <- "config/scenario_config_PFM_v8.csv"
+for (t in c("V8OPENEU21", "V8EXO2EU21", "V8EXPEU21", "V8NPIBUDEU21"))
+  submitPFM(t, remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")                # dry runs
+submitPFM("V8EXPH12", remindDir = "models/remind_pfm-H12", scenarioConfig = cfg, slurmConfig = "standby")          # dry run
+# then the same five calls with dry = FALSE
+```
+
+Read N0 first when it finishes: the budget loop (`cm_iterative_target_adj = 5`) must meet 2981 Gt by 2100; if it does not
+converge, the test answers D13 with "not as set up" and the row is revised, not re-run blindly. The chains' first steps
+start from `-PFM-noPolitics-holdBudget-v8`, which has finished.
+
 ### Step 7a — The v7 first batch (start tags `V7W1EU21`, `V7W1H12`)
 
 Built from `analysis/run-groups/scenario-matrix-v7.yml` into `config/scenario_config_PFM_v7.csv` (24 coupled rows, 12 per

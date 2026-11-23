@@ -39,8 +39,10 @@ Two consequences for how work is judged here:
 | setting up, running on the cluster, syncing back, reproducing a version | `docs/RUNNING.md` |
 | the next model version (v6) | `docs/design-notes/0005-v6-implementation-plan.md` |
 | which papers, in which order, with which headlines (two papers: a GMD model paper and a *Nature Climate Change* paper; 2026-11-23) | `docs/design-notes/0012-publication-plan.md` |
-| the model paper (Run-Group `v8`; set up 2026-11-13, retargeted to GMD 2026-11-23) | `papers/pfm-model-paper/CLAUDE.md` |
-| the tests and runs the paper still needs, step by step | `papers/pfm-model-paper/docs/evidence-runbook.md` |
+| the GMD model paper (Run-Group `v8`; set up 2026-11-23 from the NCC model paper's history) | `papers/pfm-gmd/CLAUDE.md` |
+| the *Nature Climate Change* paper on persistence and expectations (Run-Group `v8`; set up 2026-11-23) | `papers/pfm-ncc/CLAUDE.md` |
+| the NCC model paper (v01–v06, superseded 2026-11-23; kept as a quarry) | `papers/pfm-model-paper/CLAUDE.md` |
+| the tests and runs the papers still need, step by step | `docs/design-notes/0012-publication-plan.md` §12, `papers/pfm-gmd/docs/evidence-runbook.md` |
 | the results-first paper (superseded 2026-11-13, never drafted; kept as a quarry: claims ledger, Methods `v8`, outline) | `papers/pfm-paper-v6/CLAUDE.md` |
 | the `v5` paper (frozen, superseded) | `papers/pfm-paper-v5/CLAUDE.md` |
 
