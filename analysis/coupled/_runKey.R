@@ -26,5 +26,6 @@ pfmRunKey <- function(title) {
   out <- sub("-markupOff", "Min", out, fixed = TRUE)
   for (k in names(variants)) out <- sub(paste0("-", k, "(-|$)"), paste0("-", variants[[k]], "\\1"), out)
   out <- sub("-shrinkingFuture([0-9]{4})", "-seq\\1", out)
+  out <- sub("-chain([0-9]{4})", "-seq\\1", out)   # the chains of V8EXP2EU21 (shorter titles: GAMS's 63-character limit)
   out
 }

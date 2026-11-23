@@ -1,7 +1,7 @@
 # The persistence x expectations grid of the NCC paper (design note 0012 sec. 5; NCC claims C1-C5, C8; gate G1, D6).
 #   Rscript analysis/v8/expectationsGrid.R [group]   (repo root; default v8) -> output/pfm/<group>/coupling/expectations-grid.rds
 # Every chain of scenario-matrix-v8.yml (sections v8_sequential and v8_expectations, start tags V8SEQEU21 / V8EXPEU21 /
-# V8EXPH12), hold the price: the extra cumulative CO2 2020-2100 of the chain's last step and of each step's plan, against
+# V8EXP2EU21 / V8EXPH12; the chains of V8EXP2EU21 are titled -chain<year>, the others -shrinkingFuture<year> / -replanned<year>), hold the price: the extra cumulative CO2 2020-2100 of the chain's last step and of each step's plan, against
 # the no-politics hold-the-price reference of its resolution, beside the one-shot run of the same persistence and severity.
 # Runs not there yet are NA, so the script can be run as the batch comes back. Reads output/remind-runs/<group>/<res>/.
 suppressMessages({ library(gdx); library(magclass) })
@@ -25,12 +25,12 @@ cum2100 <- function(res, title) {
 FAM <- list(
   list(id = "fading.chain",     persistence = "fading",          expectations = "lift after each decade", theta = 0.50,  res = "EU21", oneShot = "holdPrice-v8",                 step = function(y) paste0("holdPrice-shrinkingFuture", y, "-v8"), steps = STEP10),
   list(id = "fading.control",   persistence = "fading",          expectations = "re-planned, known to last (control)", theta = 0.50, res = "EU21", oneShot = "holdPrice-v8", step = function(y) paste0("holdPrice-replanned", y, "-v8"), steps = STEP10),
-  list(id = "fading.lift20",    persistence = "fading",          expectations = "lift after 20 years",    theta = 0.50,  res = "EU21", oneShot = "holdPrice-v8",                 step = function(y) paste0("holdPrice-lift20y-shrinkingFuture", y, "-v8"), steps = STEP10),
-  list(id = "fading.step5",     persistence = "fading",          expectations = "lift after each step (5-year steps)", theta = 0.50, res = "EU21", oneShot = "holdPrice-v8", step = function(y) paste0("holdPrice-step5y-shrinkingFuture", y, "-v8"), steps = STEP5),
-  list(id = "constant.chain",   persistence = "constant",        expectations = "lift after each decade", theta = 0.50,  res = "EU21", oneShot = "holdPrice-constantLimit-v8",   step = function(y) paste0("holdPrice-constantLimit-shrinkingFuture", y, "-v8"), steps = STEP10),
-  list(id = "erosion.chain",    persistence = "fading + 2.7%/yr", expectations = "lift after each decade", theta = 0.50, res = "EU21", oneShot = "holdPrice-erosion2p7-v8",     step = function(y) paste0("holdPrice-erosion2p7-shrinkingFuture", y, "-v8"), steps = STEP10),
-  list(id = "theta325.chain",   persistence = "fading",          expectations = "lift after each decade", theta = 0.325, res = "EU21", oneShot = "holdPrice-theta325-v8",       step = function(y) paste0("holdPrice-theta325-shrinkingFuture", y, "-v8"), steps = STEP10),
-  list(id = "theta675.chain",   persistence = "fading",          expectations = "lift after each decade", theta = 0.675, res = "EU21", oneShot = "holdPrice-theta675-v8",       step = function(y) paste0("holdPrice-theta675-shrinkingFuture", y, "-v8"), steps = STEP10),
+  list(id = "fading.lift20",    persistence = "fading",          expectations = "lift after 20 years",    theta = 0.50,  res = "EU21", oneShot = "holdPrice-v8",                 step = function(y) paste0("holdPrice-lift20y-chain", y, "-v8"), steps = STEP10),
+  list(id = "fading.step5",     persistence = "fading",          expectations = "lift after each step (5-year steps)", theta = 0.50, res = "EU21", oneShot = "holdPrice-v8", step = function(y) paste0("holdPrice-step5y-chain", y, "-v8"), steps = STEP5),
+  list(id = "constant.chain",   persistence = "constant",        expectations = "lift after each decade", theta = 0.50,  res = "EU21", oneShot = "holdPrice-constantLimit-v8",   step = function(y) paste0("holdPrice-constantLimit-chain", y, "-v8"), steps = STEP10),
+  list(id = "erosion.chain",    persistence = "fading + 2.7%/yr", expectations = "lift after each decade", theta = 0.50, res = "EU21", oneShot = "holdPrice-erosion2p7-v8",     step = function(y) paste0("holdPrice-erosion2p7-chain", y, "-v8"), steps = STEP10),
+  list(id = "theta325.chain",   persistence = "fading",          expectations = "lift after each decade", theta = 0.325, res = "EU21", oneShot = "holdPrice-theta325-v8",       step = function(y) paste0("holdPrice-theta325-chain", y, "-v8"), steps = STEP10),
+  list(id = "theta675.chain",   persistence = "fading",          expectations = "lift after each decade", theta = 0.675, res = "EU21", oneShot = "holdPrice-theta675-v8",       step = function(y) paste0("holdPrice-theta675-chain", y, "-v8"), steps = STEP10),
   list(id = "H12.fading.chain", persistence = "fading",          expectations = "lift after each decade", theta = 0.50,  res = "H12",  oneShot = "holdPrice-v8",                 step = function(y) paste0("holdPrice-shrinkingFuture", y, "-v8"), steps = STEP10))
 
 REF <- lapply(c(EU21 = "EU21", H12 = "H12"), function(r) cum2100(r, "noPolitics-holdPrice-v8"))
