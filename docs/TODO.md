@@ -25,8 +25,8 @@ treat political limits as permanent overstate their emissions cost*). `papers/pf
 D1–D18 decided; set up 2026-11-23 (code pushed, workspaces, GMD support in paper-forge, the batch built). 🟠 **Next: the
 batch** (`docs/RUNNING.md`, Step 7 (v8), "The batch for the two papers": `V8OPENEU21`, `V8EXO2EU21`, `V8EXPEU21`,
 `V8EXPH12`, `V8NPIBUDEU21`, `V8BANDEU21`; copy the two band groups up first). The emissions band was unblocked on
-2026-11-23 (`pfm` `80f5423`, bootstrap re-evaluated; 0012 §12). 🟠 The abatement-cost refit in power and industry is
-not a maximum (log-likelihood −1332 < −1232 on the same sample): refit from the selected estimates. The
+2026-11-23 (`pfm` `80f5423`, bootstrap re-evaluated; 0012 §12). The abatement-cost refit was restarted from the
+selected estimates (a valid maximum, −1215.6; 0012 §12 item 12). The
 model-paper entry below predates this plan; its evidence runbook is carried into `papers/pfm-gmd`.
 
 **The model paper, 2026-11-13 (author).** The paper is now `papers/pfm-model-paper` (*Nature Climate Change*; headline
