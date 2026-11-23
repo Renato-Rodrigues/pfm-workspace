@@ -38,7 +38,8 @@ Two consequences for how work is judged here:
 | how the tree is organised, and where a new version goes | `README.md` |
 | setting up, running on the cluster, syncing back, reproducing a version | `docs/RUNNING.md` |
 | the next model version (v6) | `docs/design-notes/0005-v6-implementation-plan.md` |
-| the paper (the model paper, being written on Run-Group `v8`; set up 2026-11-13) | `papers/pfm-model-paper/CLAUDE.md` |
+| which papers, in which order, with which headlines (two papers: a GMD model paper and a *Nature Climate Change* paper; 2026-11-23) | `docs/design-notes/0012-publication-plan.md` |
+| the model paper (Run-Group `v8`; set up 2026-11-13, retargeted to GMD 2026-11-23) | `papers/pfm-model-paper/CLAUDE.md` |
 | the tests and runs the paper still needs, step by step | `papers/pfm-model-paper/docs/evidence-runbook.md` |
 | the results-first paper (superseded 2026-11-13, never drafted; kept as a quarry: claims ledger, Methods `v8`, outline) | `papers/pfm-paper-v6/CLAUDE.md` |
 | the `v5` paper (frozen, superseded) | `papers/pfm-paper-v5/CLAUDE.md` |
