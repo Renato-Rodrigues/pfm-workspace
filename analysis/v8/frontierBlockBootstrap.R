@@ -53,6 +53,19 @@ SCENFILE <- Sys.getenv("PFM_BOOT_SCEN", paste0("scen-PFMlevelBfix-", g, ".rds"))
 scen <- readRDS(file.path(GD, "coupling", SCENFILE))
 w <- pfm:::pfmAnchorFor(file.path("output/remind-inputs", g), "EU21")$weights
 anc0 <- computeAnchorGap(g, resultsDir = "output/pfm", modelDir = modelDir, weights = w, histData = panel, verbose = FALSE)
+# Guard (2026-11-23, design note 0012 sec. 12): the bootstrap is centred on the anchor the coupled runs use, the group's
+# export. The run of 2026-11-15 was not (its central u differed by up to 0.064, from a working state that could not be
+# reproduced), so the centre is now checked, and the code state is recorded with the result.
+ue <- pfm:::pfmAnchorFor(file.path("output/remind-inputs", g), "EU21")$region
+iu <- match(paste(ue$sector, ue$region), paste(anc0$region$sector, anc0$region$region))
+if (anyNA(iu) || max(abs(ue$u - anc0$region$u[iu])) > 1e-8)
+  stop("the recomputed central anchor differs from the group's export (output/remind-inputs/", g, "/phi-anchor.rds): ",
+       "max |u| difference ", signif(max(abs(ue$u - anc0$region$u[iu])), 3), " - not the coupled runs' anchor")
+gitState <- function(dir) { h <- tryCatch(system2("git", c("-C", dir, "rev-parse", "--short", "HEAD"), stdout = TRUE, stderr = FALSE), error = function(e) NA_character_)
+  d <- tryCatch(system2("git", c("-C", dir, "status", "--porcelain"), stdout = TRUE, stderr = FALSE), error = function(e) character(0))
+  list(commit = if (length(h)) h[1] else NA_character_, clean = !length(d)) }
+PROV <- list(pfm = gitState("models/pfm"), workspace = gitState("."), pfmVersion = as.character(utils::packageVersion("pfm")))
+if (!isTRUE(PROV$pfm$clean)) say("WARNING: models/pfm has uncommitted changes - the result is recorded as from a dirty tree")
 sel <- yaml::read_yaml(pfm:::.pfmSelectedModels(GD))
 cfgOf <- function(sec) { hit <- Filter(function(x) identical(x$model_type, paste0("PolicyStringency: ", sec)), sel)[[1]]
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers")) if (!is.null(hit[[f]])) hit[[f]] <- unlist(hit[[f]]); hit }
@@ -176,7 +189,7 @@ gam <- do.call(rbind, lapply(res, `[[`, "gamma"))
 # of 1 - phi over regions and sectors), and the resamples at its 5th and 95th percentile: the anchors of run R1
 load <- vapply(res, function(r) mean(1 - r$phi$phi[r$phi$year == 2050]), numeric(1))
 edge <- c(p05 = which.min(abs(load - q(load)[1])), p95 = which.min(abs(load - q(load)[3])))
-out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), resamples = NB, used = length(res), failed = failed, failReasons = failReasons, timeout = TLIM, strength = kBand,
+out <- list(group = g, made = format(Sys.time(), "%Y-%m-%d %H:%M"), provenance = PROV, resamples = NB, used = length(res), failed = failed, failReasons = failReasons, timeout = TLIM, strength = kBand,
             phi = pBand, u = uBand, kDraws = kAll, resFiles = basename(list.files(WK, pattern = "^res-", full.names = TRUE)), scenario = SCENFILE, shareLoosening = stats::aggregate(k ~ sector + year, data = kAll, FUN = function(x) mean(x < 1)), gamma = gam, gammaAtGate = colMeans(gam >= 0.999, na.rm = TRUE), load2050 = load,
             edges = lapply(edge, function(i) list(resample = i, load = load[i], beta = res[[i]]$beta)))
 saveRDS(out, outFile); say("wrote ", outFile)
