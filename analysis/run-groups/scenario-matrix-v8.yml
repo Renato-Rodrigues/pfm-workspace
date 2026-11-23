@@ -538,9 +538,9 @@ runs:
   # headline (hold the price, fading, theta 0.50) on the country-bootstrap resamples at the 5th and 95th percentile of the world's
   # mean constraint in 2050 (frontier-block-bootstrap.rds, edges). Groups v8-bandLow / v8-bandHigh staged by
   # `Rscript analysis/v8/emissionsBand.R v8 stage`. Start tag V8BANDEU21 (2 rows).
-  # BLOCKED (2026-11-23): DO NOT SUBMIT V8BANDEU21. Re-evaluated with the current code, the high edge gives a NaN share (NES, buildings
-  # & transport, 2050), and 123 of the bootstrap's 184 resamples have a NaN mean constraint, so the edges were chosen from 61;
-  # the bootstrap's central ranking also differs from the export's by up to 0.064. Fix and re-select first (design note 0012 sec. 12).
+  # Unblocked 2026-11-23 (design note 0012 sec. 12): pfm 80f5423 (no NaN share for a zero 2025 gap), the bootstrap re-evaluated
+  # on the coupled anchor; edges 0.1138 (resample 177) and 0.2221 (resample 94), mean constraint 2050, central 0.1333.
+  # The two groups are staged on the workstation and copied to the cluster (docs/RUNNING.md).
   - {key: holdPrice-bandLow, wave: 1, section: v8_band, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8BANDEU21},
      variant: bandLow, group: v8-bandLow, warm: "@noPolitics",
      description: "Hold the price, the anchor of the country-bootstrap resample at the 5th percentile of the mean constraint in 2050: the low edge of the emissions band."}
@@ -554,9 +554,12 @@ runs:
   # Uncoupled. REMIND's recipe for a uniform end-of-century budget (main.gms, 45_carbonprice): functionalForm,
   # cm_iterative_target_adj 5, cm_taxCO2_regiDiff 0 (none), interpolation off, lower bound off, cm_peakBudgYr 2100.
   # Start tag V8NPIBUDEU21 (1 row). Open: whether the budget loop converges on a budget that has not peaked by 2100.
+  # cm_taxCO2_historical 14.3 (2026-11-23): the linear path starts from the emissions-weighted mean of the current-policy prices in
+  # 2025 (pm_taxCO2eq x vm_emiAll of the NPi run), not REMIND's default, the HIGHEST regional price (71.9, ECS): with that default
+  # the 20 $/t start aborts (functionalForm/datainput.gms l. 89) and the uniform price could never fall below the EU's.
   - {key: uniformPriceCurrentPoliciesBudget, wave: 1, section: v8_optionN, parent: NPi2025, coupled: false, stem: uniformPrice, res: [EU21],
      start: {EU21: V8NPIBUDEU21},
      set: {carbonprice: functionalForm, cm_iterative_target_adj: "5", cm_budgetCO2from2020: "2981", cm_taxCO2_regiDiff: "0",
-           cm_taxCO2_interpolation: "off", cm_peakBudgYr: "2100", cm_taxCO2_startyear: "20", cm_startyear: "2030",
+           cm_taxCO2_interpolation: "off", cm_peakBudgYr: "2100", cm_taxCO2_startyear: "20", cm_startyear: "2030", cm_taxCO2_historical: "14.3",
            path_gdx_ref: "@NPi2025", path_gdx_refpolicycost: "@NPi2025"}, warm: "@NPi2025",
      description: "Option N0 test: current policies, regional prices replaced from 2030 by one uniform price meeting the same cumulative CO2 2020-2100 (2981 Gt)."}

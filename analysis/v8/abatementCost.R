@@ -31,12 +31,32 @@ cfgOf <- function(sec, bound) { hit <- Filter(function(x) identical(x$model_type
   for (f in c("actorPowerDrivers", "actorPowerIndex", "instQualityDrivers", "controlDrivers")) if (!is.null(hit[[f]])) hit[[f]] <- unlist(hit[[f]])
   if (bound == "energyIntensity") hit$controlDrivers <- unique(c(hit$controlDrivers, "Energy Intensity")); hit }
 
+BASECF <- list()   # the base fit's coefficients per sector, the restart point of the other bounds
 anchorAt <- function(bound) {
   a <- a0; rows <- list(); info <- list()
   for (sec in names(SECTORS)) {
     cfg <- cfgOf(sec, bound)
     fit <- R.utils::withTimeout(do.call(estimatePolicyStringencyModel, c(list(data = panel, sector = sec, estimator = "frontier", indexMax = 10,
              modelDir = NULL, verbose = FALSE), pfm:::.pfmSpecArgs(cfg))), timeout = 1800, onTimeout = "error")
+    # Restart (2026-11-23, design note 0012 sec. 12): the energy-intensity refit in power and industry stopped at a worse
+    # optimum than the base (log-likelihood -1332.5 against -1232.1 on the same 1127 rows). A model with one more regressor
+    # must reach at least the base's maximum, so a refit without a slack model is restarted from the base estimates (0 for
+    # the added control) and the better of the two maxima is kept; `restarted` records which.
+    restarted <- FALSE
+    if (bound == "base") BASECF[[sec]] <<- stats::coef(fit$model)
+    if (bound != "base" && !length(pfm:::.pfmSlackDriversFor(cfg$slackDrivers, sec)) && !is.null(BASECF[[sec]])) {
+      nm <- names(stats::coef(fit$model)); b0 <- BASECF[[sec]]
+      st <- stats::setNames(ifelse(nm %in% names(b0), b0[nm], 0), nm)
+      keep <- intersect(all.vars(fit$formula), colnames(fit$data))
+      d <- fit$data[stats::complete.cases(fit$data[, keep, drop = FALSE]), , drop = FALSE]
+      if ("regionFE" %in% colnames(d) && is.factor(d$regionFE)) d$regionFE <- droplevels(d$regionFE)
+      m2 <- tryCatch(frontier::sfa(fit$formula, data = d, startVal = unname(st), maxit = 5000), error = function(e) { say("restart failed: ", conditionMessage(e)); NULL })
+      if (!is.null(m2)) {
+        l1 <- as.numeric(stats::logLik(fit$model)); l2 <- as.numeric(stats::logLik(m2))
+        say(bound, " ", sec, ": log-likelihood ", round(l1, 1), " from the default start, ", round(l2, 1), " from the base estimates (", nrow(d), " rows)")
+        if (l2 > l1 + 1e-6) { fit$model <- m2; restarted <- TRUE }
+      }
+    }
     cf <- stats::coef(fit$model)
     des <- pfm:::.pfmAnchorDesign(cfg, sec, panel, cf, modelDir = NULL, indexMax = 10, slackScaling = fit$driverScaling)
     ta <- a0$anchorYear; sq <- function(p) pfm:::.pfmSqueeze(pmin(pmax(p, 0), 1), des$nSqueeze)
@@ -54,7 +74,7 @@ anchorAt <- function(bound) {
                               indexAnchor = 10 * stats::plogis(as.numeric(etaA[reg] - q)), stringsAsFactors = FALSE)
     a$designs[[sec]] <- des
     cb <- pfm:::.pfmCeilingBeta(cf)
-    info[[sec]] <- data.frame(bound = bound, sector = SECTORS[[sec]], logLik = as.numeric(stats::logLik(fit$model)), gamma = unname(cf["gamma"]) %||% NA_real_,
+    info[[sec]] <- data.frame(bound = bound, sector = SECTORS[[sec]], logLik = as.numeric(stats::logLik(fit$model)), restarted = restarted, gamma = unname(cf["gamma"]) %||% NA_real_,
                               fossil = cb[["Incumbent.Power"]], fossilPc = cb[["Incumbent.Power.pc"]])
   }
   a$country <- do.call(rbind, rows); rownames(a$country) <- NULL
