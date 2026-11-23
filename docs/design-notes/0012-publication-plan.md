@@ -319,7 +319,7 @@ pending. M-rows map to that ledger's ids; A-, B-, C-, N-rows go into the Nature 
 | M1 | In the selected frontier fossil dependence lowers the ceiling in both sectors (required; encoded, not tested) | P1 | provisional | C1–C4; `frontier.rds`; −0.81 / −0.17 per s.d. | have |
 | M2 | Fossil rents widen the distance below the buildings-and-transport ceiling | P1 | provisional | C5; ω = +0.28; better out of sample in 38 of 48 | have |
 | M3 | The selection is disclosed: 36,384 candidates, theory gate added after an earlier result, poor split-sample replication | P1 | established | C8–C10; ratio 0.97–1.66 to base rate | have |
-| M4 | Only the ends of the regional order are resolved | P1 | ordering-only | C19–C20; most limited in 89% / 72% of resamples | have |
+| M4 | Only the ends of the regional order are resolved | P1 | ordering-only | C19–C20; most limited in 89% / 69% of resamples (72% before the 2026-11-23 re-evaluation) | have |
 | M5 | The two-way loop converges in every coupled run | P1 | established | C37; 73 of 73 | have |
 | M6 | Under the fading limit the strength depends on the pathway it is computed from | P1 | directional | C50, C52, C57; 2050: 0.82 / 0.75 vs 0.61–0.64 / 0.62–0.63; positive in 89% / 95% | have |
 | M7 | The feedback on its own pathway is second order, except for the most limited region | P1 | established | C51, C58; ≤ 0.03 in 2050; CO₂ needs `V8OPENEU21` | partial |
