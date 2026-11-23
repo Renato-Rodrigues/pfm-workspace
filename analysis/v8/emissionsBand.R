@@ -12,10 +12,10 @@
 # changes. Needs output/pfm/<group> (frontier-block-bootstrap.rds, manifest.json, coupling/scen-PFMlevelBfix-<group>.rds),
 # the Fit Cache panel and data/madrat/<group>: run where those are (the workstation), then sync the two folders to the
 # cluster with the group's remind-inputs.
-# BLOCKED (2026-11-23): the high edge (p95, resample 130) gives a NaN share (NES, buildings & transport, 2050), likely a zero
-# 2025 gap making the regional strength 0/0; 123 of the bootstrap's 184 resamples have a NaN mean constraint, so the edges
-# were chosen from 61; and the bootstrap's central ranking differs from the export's by up to 0.064. Do not stage or run
-# V8BANDEU21 until the NaN is handled, the bootstrap re-evaluated (its refits are cached) and the edges re-selected.
+# History (design note 0012 sec. 12): blocked on 2026-11-23 because a zero 2025 gap made the regional strength 0/0 (NaN
+# shares in 124 of the 184 resamples, the edges chosen from 60-61) and the bootstrap of 2026-11-15 was not centred on the
+# coupled anchor. Unblocked the same day by pfm 80f5423 (k_r = 1 for a zero t0 gap) and the bootstrap re-evaluated on the
+# export's anchor (frontierBlockBootstrap.R now stops otherwise); the checks below are exact again.
 source("analysis/_common/_loadPfm.R"); suppressMessages(library(magclass))
 `%||%` <- function(a, b) if (is.null(a)) b else a
 args <- commandArgs(trailingOnly = TRUE); STAGE <- "stage" %in% args; args <- setdiff(args, "stage")
@@ -85,19 +85,18 @@ if (dq > 1e-6) stop("the export's country anchor differs from computeAnchorGap's
 ru <- x0$byResolution$EU21$region; iu <- match(key(ru), key(anc0$region))
 du <- max(abs(ru$u - anc0$region$u[iu]), na.rm = TRUE)
 if (du > 1e-6) stop("the export's EU21 ranking u differs from computeAnchorGap's (max ", signif(du, 3), ") - not the coupled anchor")
-# The staged anchors are the COUPLED runs' anchor (the group's export) with an edge resample's coefficients. The bootstrap
-# of 2026-11-15 evaluated its resamples around a central anchor whose u differs from the export's by up to 0.064 (found
-# 2026-11-23, cause not identified; its central mean constraint 2050 is 0.1303 against the export's 0.1333). So the edges
-# are checked by their offset from each one's own centre, not by their absolute load.
+# The staged anchors are the COUPLED runs' anchor (the group's export) with an edge resample's coefficients; the bootstrap
+# is centred on the same anchor, so its central load and each edge's load must be reproduced exactly.
 cNow <- load2050(anc0); pb <- bb$phi[bb$phi$year == 2050, ]; cBoot <- mean(1 - pb$central)
 say("central mean constraint 2050: the export's anchor ", round(cNow, 4), ", the bootstrap's centre ", round(cBoot, 4))
+if (abs(cNow - cBoot) > 1e-6) stop("the bootstrap is not centred on the export's anchor - re-run analysis/v8/frontierBlockBootstrap.R")
+if (!is.null(bb$provenance)) say("bootstrap made ", bb$made, " from pfm ", bb$provenance$pfm$commit, if (isTRUE(bb$provenance$pfm$clean)) " (clean)" else " (DIRTY tree)")
 
 for (nm in names(EDGES)) {
   e <- bb$edges[[EDGES[[nm]]]]
   a <- anchorFor(e$beta); ld <- load2050(a)
-  say(nm, " (", EDGES[[nm]], ", resample ", e$resample, "): mean constraint 2050 ", round(ld, 4), ", offset from the centre ",
-      round(ld - cNow, 4), " (bootstrap: ", round(e$load, 4), ", offset ", round(e$load - cBoot, 4), ")")
-  if (abs((ld - cNow) - (e$load - cBoot)) > 0.005) stop(nm, ": the edge's offset from the centre moved by more than 0.005")
+  say(nm, " (", EDGES[[nm]], ", resample ", e$resample, "): mean constraint 2050 ", round(ld, 4), " (bootstrap: ", round(e$load, 4), ")")
+  if (abs(ld - e$load) > 1e-6) stop(nm, ": the rebuilt anchor does not reproduce the bootstrap's load")
   if (!STAGE) next
   ng <- paste0(g, "-", nm); dst <- file.path("output/remind-inputs", ng)
   if (!dir.exists(dst)) { dir.create(dst, recursive = TRUE)
