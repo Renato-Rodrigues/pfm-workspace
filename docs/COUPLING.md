@@ -1069,3 +1069,69 @@ whose price the ratio holds below the anchor).
 - A GAMS harness loading that gdx: the mode-1 ratio equals the path exactly, and the rebuild target
   uses each period's share.
 - `pfmReplayInterface()` with the path symbols: positive replay OK, negative control caught.
+
+## 15. The interface for any integrated assessment model (added 2026-11-23; the GMD paper's Appendix M)
+
+The PFM is presented in the GMD model paper as a feasibility module for **any** IAM, with REMIND as the case study
+(design note 0012 §4). This section states the interface independently of REMIND: what the PFM needs from a host
+model, what it returns, and the three ways to use it. **Only REMIND is implemented and tested**; for any other host this
+is a specification, and using the PFM with other models is future work (0012, D18). The REMIND names are given beside
+each quantity so the mapping can be checked against the code (`models/pfm/R/downscaleREMINDResults.R`,
+`R/pfmFossilRents.R`, `R/panelDataScenario.R`).
+
+### 15.1 What the PFM computes for itself
+
+Everything that does not depend on the pathway: the estimated frontier and its anchor (`phi-anchor.rds`, ADR 0047),
+the 249-country panel, and the exogenous drivers of the chosen SSP — GDP and population, the institutions and their
+projection rule, the comparability weight (madrat: `calcGDP`, `calcPopulation`, `calcWGIindicator`, `calcVDem`,
+`calcSSPextensions`). A host supplies none of these.
+
+### 15.2 What a host must supply, per host region and model period
+
+| quantity (the PFM's name) | used for | REMIND source | IAMC template, nearest variable (to verify per host) |
+|---|---|---|---|
+| primary energy by carrier: coal, oil, gas, wind, solar, nuclear, hydro, geothermal, and the total | the economic weight of fossil and clean-energy interests; the clean-baseload control | `vm_prodPe` (pecoal, peoil, pegas, pewin, pesol, peur, pehyd, pegeo) | `Primary Energy\|Coal`, `\|Oil`, `\|Gas`, `\|Wind`, `\|Solar`, `\|Nuclear`, `\|Hydro`, `\|Geothermal`, `Primary Energy` |
+| electricity from wind and from solar, and total electricity | the clean-energy build-out (power and industry) | `vm_prodSe` (windon, windoff; spv, csp; seel) | `Secondary Energy\|Electricity\|Wind`, `\|Solar`, `Secondary Energy\|Electricity` |
+| final energy of industry: fossil (liquids, gases, solids) and total | fossil dependence (power and industry) | `vm_demFeSector` (indst; seliqfos, segafos, sesofos) | `Final Energy\|Industry\|Liquids\|Fossil` (etc.), `Final Energy\|Industry` |
+| final energy: electricity and total | the build-out (buildings and transport); energy intensity; the country-to-region weights | `vm_demFeSector` (seel; all) | `Final Energy\|Electricity`, `Final Energy` |
+| transport liquids: biofuels and total | the build-out (buildings and transport) | `vm_demFeSector_afterTax` (trans; seliqbio, seliqfos) | `Final Energy\|Transportation\|Liquids\|Biomass`, `Final Energy\|Transportation\|Liquids` |
+| fossil extraction, its price and cost, and GDP | the fossil rents that set the distance below the buildings-and-transport ceiling (ADR 0061) | `vm_fuExtr`, `pm_PEPrice`, `vm_costFuEx`, `vm_cesIO` (inco) | `Resource\|Extraction\|Coal`, `\|Oil`, `\|Gas`; `Price\|Primary Energy\|…`; `GDP\|PPP` |
+
+The PFM downscales each regional quantity to countries with their historical shares, harmonises every country to its
+own last observed value with an offset that fades by 2040, and aggregates to whatever regional set is asked for
+(`gdxRegionMappingFile`, `outputRegionMappingFile`). The country-to-region mapping of the host is the one input that
+must be supplied besides the quantities: 249 ISO countries to the host's regions.
+
+### 15.3 What the PFM returns
+
+One table: a **feasibility share** φ by host region, period and carbon market, in [0, 1] — the share of the step from
+the host's current-policy price to its cost-optimal price that the region can take (`MODEL.md` §5). Power and industry's
+share applies to the emissions-trading market, buildings and transport's to the other markets; a region's floor is the
+smaller of the two. With REMIND it is written as `p45_pfmPhiMkt(all_regi, all_emiMkt)` and the share path (§14); for
+another host the same table as a file (region, year, market, φ), with the regional strength, the anchor ranking u and
+the strength k beside it for diagnosis.
+
+### 15.4 What the host must implement
+
+A limit on each region's carbon price of the form P = min{A, P_cp + φ·max(A − P_cp, 0)} (`MODEL.md` §5), with A its
+cost-optimal (anchor) price and P_cp its current-policy price, plus one of the two closures: **hold the price** (A
+fixed from a no-politics run; the result is extra CO2) or **hold the budget** (A re-solved until the budget holds; the
+result is a higher price and abatement moved between regions). A host without regional carbon prices cannot use the
+share as designed.
+
+### 15.5 Three modes of use
+
+| mode | what the host does | when it is enough | evidence (REMIND, `v8`) |
+|---|---|---|---|
+| **two-way iteration** | calls the PFM between iterations until φ converges (§3, §14) | always; needed for the most limited region | 73 of 73 coupled runs converged (SCENARIOS.md §3) |
+| **one evaluation per pathway** | runs once without the limit, computes φ from that energy system, imposes it | for most regions: the feedback on its own pathway is second order (strength within 0.03 in 2050) | open-loop strength (`open-loop-strength.rds`); the open-loop runs `V8OPENEU21` give its CO2 |
+| **a fixed table** | uses a φ table computed once, as a constraint or as a diagnostic of where a pathway's price exceeds the limit | screening, or a host that cannot iterate | — |
+
+### 15.6 A checklist for a new host
+
+1. Map the host's regions to the 249 ISO countries.
+2. Report the quantities of §15.2 for every region and period (IAMC template or the host's own names, mapped once).
+3. Provide the host's current-policy price path and a no-politics run with the same setup.
+4. Implement the price limit of §15.4 and one closure.
+5. Choose the mode (§15.5); for the two-way iteration, a call between iterations and a convergence criterion on φ (§3).
+6. Check: with θ = 0 the run must reproduce the no-politics reference (the interface gate, §6.6).
