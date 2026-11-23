@@ -481,14 +481,15 @@ submitPFM("V8KAPPAEU21", remindDir = "models/remind_pfm-EU21", scenarioConfig = 
 After they finish and are synced back: `Rscript analysis/v8/scenarioSet.R price` and `... budget` (the new label
 "historical erosion (v8 rates)" is skipped until the runs exist), and the coupled facts as for the batch.
 
-**The batch for the two papers (2026-11-23; design note 0012 §12, §14).** Five tags, all in
+**The batch for the two papers (2026-11-23; design note 0012 §12, §14).** Seven tags, all in
 `config/scenario_config_PFM_v8.csv` (built and checked: 130 scenarios, REMIND's reader 0 warnings):
 
 | tag | rows | what | needs first |
 |---|---|---|---|
 | `V8OPENEU21` | 3 | open-loop limits (the limit computed once on current policies, both closures; once on the reference) | `pfm` and `remind_pfm` at the commits with `pfmPhiStrengthGdx` (pushed 2026-11-23); the NPi and no-politics run folders in `output/` (the rows point at their `fulldata.gdx`) |
 | `V8EXO2EU21` | 2 | governance ranking at the estimated mean, fixed and fading | `Rscript analysis/v8/exogenousCap.R v8 stage` (writes `output/remind-inputs/v8-gov6mean`) |
-| `V8EXPEU21` | 38 | the NCC paper's chains: control, constant limit, erosion 2.7%, 20-year lift, θ 0.325 and 0.675, five-year steps | nothing; each step waits for the one before |
+| `V8EXPEU21` | 5 | the NCC paper's control chain (`holdPrice-replanned<year>`) | nothing; each step waits for the one before |
+| `V8EXP2EU21` | 33 | the other chains, titled `holdPrice-<variant>-chain<year>`: constant limit, erosion 2.7%, 20-year lift, θ 0.325 and 0.675, five-year steps. Renamed 2026-11-23: as `-shrinkingFuture<year>` their titles passed GAMS's 63 characters (`c_expname`, error $109) and the first steps failed at compile; the builder now refuses such titles | nothing; each step waits for the one before |
 | `V8EXPH12` | 5 | the chain at 12 regions | nothing |
 | `V8NPIBUDEU21` | 1 | Option N0 test: current policies with one uniform price at their own cumulative CO2 (2981 Gt), uncoupled | nothing |
 | `V8BANDEU21` | 2 | the emissions band: the headline on the bootstrap edges (mean constraint 2050 0.114 and 0.222) | `pfm` at `80f5423` or later; the groups `v8-bandLow` and `v8-bandHigh`, staged on the workstation by `analysis/v8/emissionsBand.R v8 stage` and copied up (below) |
@@ -510,10 +511,11 @@ Rscript analysis/v8/exogenousCap.R v8 stage
 ```r
 library(pfm)
 cfg <- "config/scenario_config_PFM_v8.csv"
-for (t in c("V8OPENEU21", "V8EXO2EU21", "V8EXPEU21", "V8NPIBUDEU21", "V8BANDEU21"))
+for (t in c("V8OPENEU21", "V8EXO2EU21", "V8EXPEU21", "V8EXP2EU21", "V8NPIBUDEU21", "V8BANDEU21"))
   submitPFM(t, remindDir = "models/remind_pfm-EU21", scenarioConfig = cfg, slurmConfig = "standby")                # dry runs
 submitPFM("V8EXPH12", remindDir = "models/remind_pfm-H12", scenarioConfig = cfg, slurmConfig = "standby")          # dry run
-# then the same six calls with dry = FALSE
+# then the same seven calls with dry = FALSE (V8NPIBUDEU21 with preflight = FALSE: an uncoupled row, which the
+# preflight's group check refuses)
 ```
 
 Read N0 first when it finishes: the budget loop (`cm_iterative_target_adj = 5`) must meet 2981 Gt by 2100; if it does not
