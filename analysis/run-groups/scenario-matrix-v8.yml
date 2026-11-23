@@ -552,7 +552,7 @@ runs:
   # policies with their regional prices replaced from 2030 by ONE globally uniform price that meets the same cumulative CO2
   # 2020-2100 as the current-policies run (2981.4 Gt at EU21, pm_actualbudgetco2 of SSP2-EU21-NPi2025, read 2026-11-23).
   # Uncoupled. REMIND's recipe for a uniform end-of-century budget (main.gms, 45_carbonprice): functionalForm,
-  # cm_iterative_target_adj 5, cm_taxCO2_regiDiff 0 (none), interpolation off, lower bound off, cm_peakBudgYr 2100.
+  # cm_iterative_target_adj 5, cm_taxCO2_regiDiff 0 (none), cm_taxCO2_interpolation 0 (none; this REMIND takes 0|1|2, not "off"), lower bound off, cm_peakBudgYr 2100.
   # Start tag V8NPIBUDEU21 (1 row). Open: whether the budget loop converges on a budget that has not peaked by 2100.
   # cm_taxCO2_historical 14.3 (2026-11-23): the linear path starts from the emissions-weighted mean of the current-policy prices in
   # 2025 (pm_taxCO2eq x vm_emiAll of the NPi run), not REMIND's default, the HIGHEST regional price (71.9, ECS): with that default
@@ -560,6 +560,6 @@ runs:
   - {key: uniformPriceCurrentPoliciesBudget, wave: 1, section: v8_optionN, parent: NPi2025, coupled: false, stem: uniformPrice, res: [EU21],
      start: {EU21: V8NPIBUDEU21},
      set: {carbonprice: functionalForm, cm_iterative_target_adj: "5", cm_budgetCO2from2020: "2981", cm_taxCO2_regiDiff: "0",
-           cm_taxCO2_interpolation: "off", cm_peakBudgYr: "2100", cm_taxCO2_startyear: "20", cm_startyear: "2030", cm_taxCO2_historical: "14.3",
+           cm_taxCO2_interpolation: "0", cm_peakBudgYr: "2100", cm_taxCO2_startyear: "20", cm_startyear: "2030", cm_taxCO2_historical: "14.3",
            path_gdx_ref: "@NPi2025", path_gdx_refpolicycost: "@NPi2025"}, warm: "@NPi2025",
      description: "Option N0 test: current policies, regional prices replaced from 2030 by one uniform price meeting the same cumulative CO2 2020-2100 (2981 Gt)."}
