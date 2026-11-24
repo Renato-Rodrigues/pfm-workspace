@@ -60,7 +60,10 @@ ROB <- data.frame(stringsAsFactors = FALSE, rbind(
   c("limit from the current-policies pathway", "robustness", "-limitFromCurrentPolicies", "-openCP", "EU21"),
   c("limit from the reference pathway, one pass", "robustness", "-limitFromReference", "-openRef", "EU21"),
   c("emissions band, low edge (bootstrap 5%)", "robustness", "-bandLow", "-bandLow", "EU21"),
-  c("emissions band, high edge (bootstrap 95%)", "robustness", "-bandHigh", "-bandHigh", "EU21")))
+  c("emissions band, high edge (bootstrap 95%)", "robustness", "-bandHigh", "-bandHigh", "EU21"),
+  # the severity revealed by current policies (V8THREVEU21, 2026-11-24)
+  c("θ 0.60 (revealed, low end)", "robustness", "-theta60", "Th60", "EU21"),
+  c("θ 0.90 (revealed, high end)", "robustness", "-theta90", "Th90", "EU21")))
 names(ROB) <- names(V)
 if (length(Sys.glob(file.path(RR, "*", paste0("*-PFM-", closureTitle, ROB$suffix, "-v8_*"))))) {
   V <- rbind(V, ROB); OPTIONAL <- c(OPTIONAL, ROB$label); FAM <- c(FAM, "robustness") }

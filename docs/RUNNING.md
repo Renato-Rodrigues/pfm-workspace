@@ -493,6 +493,7 @@ After they finish and are synced back: `Rscript analysis/v8/scenarioSet.R price`
 | `V8EXPH12` | 5 | the chain at 12 regions | nothing |
 | `V8NPIBUDEU21` | 1 | Option N0 test: current policies with one uniform price at their own cumulative CO2 (2981 Gt), uncoupled | nothing |
 | `V8BANDEU21` | 2 | the emissions band: the headline on the bootstrap edges (mean constraint 2050 0.114 and 0.222) | `pfm` at `80f5423` or later; the groups `v8-bandLow` and `v8-bandHigh`, staged on the workstation by `analysis/v8/emissionsBand.R v8 stage` and copied up (below) |
+| `V8THREVEU21` | 2 | added 2026-11-24: hold the price at θ 0.60 and 0.90 (`-theta60`, `-theta90`), the low and high end of the severity revealed by current policies (N0, `theta-revealed.rds`) | nothing |
 
 From the workstation, copy the two band groups (they need the bootstrap's result, which is not on the cluster):
 

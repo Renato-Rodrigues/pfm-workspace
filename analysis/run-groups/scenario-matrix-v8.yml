@@ -10,7 +10,7 @@
 #   SSP2[-EU21]-PkBudg1000-PFM-<closure>[-theta<NNN>][-<variant>]-v8
 #   closure   noPolitics-holdBudget / noPolitics-holdPrice   the no-politics references (theta = 0)
 #             holdPrice / holdBudget                         the two closures
-#   theta     none = 0.50 (the headline); -theta325, -theta675
+#   theta     none = 0.50 (the headline); -theta325, -theta675; -theta60, -theta90 (the revealed range, V8THREVEU21)
 #   variant   none = the fading limit, regional strength, gap-closure institutions (the central case);
 #             commonStrength, gapFirst, rentsWorldPrice, constantLimit, growingLimit, erosion2 / erosion2p7 / erosion5
 #             (2% / 2.7% / 5% a year), erosionHistorical (v7's rates), erosionHistoricalV8 (v8's), institutionsHeld / institutionsAndrijevic /
@@ -550,6 +550,14 @@ runs:
   - {key: holdPrice-bandHigh, wave: 1, section: v8_band, parent: PkBudg1000, rule: holdPrice, theta: "0.50", res: [EU21], start: {EU21: V8BANDEU21},
      variant: bandHigh, group: v8-bandHigh, warm: "@noPolitics",
      description: "Hold the price, the anchor of the country-bootstrap resample at the 95th percentile of the mean constraint in 2050: the high edge of the emissions band."}
+
+  # ---------------------------------------------------------------- the severity revealed by current policies (Option N, 2026-11-24):
+  # theta-revealed.rds (N0) puts the revealed theta at 0.56-0.91 (slope with intercept) and 0.87-1.05 (through the origin). Two
+  # one-shot hold-the-price runs at the lower and upper end replace the extrapolation from the declared sweep (0.325 / 0.50 / 0.675):
+  # titles -theta60 and -theta90. theta 0.50 stays the declared central value (D7). Start tag V8THREVEU21 (2 rows).
+  - {key: holdPrice-revealedTheta, wave: 1, section: v8_thetaRevealed, parent: PkBudg1000, rule: holdPrice, theta: ["0.60", "0.90"], res: [EU21],
+     start: {EU21: V8THREVEU21}, warm: "@noPolitics",
+     description: "Hold the price at the severity revealed by current policies (Option N): the lower (0.60) and upper (0.90) end of the estimates."}
 
   # ---------------------------------------------------------------- Option N0, a test (design note 0012 sec. 7, D13): current
   # policies with their regional prices replaced from 2030 by ONE globally uniform price that meets the same cumulative CO2
