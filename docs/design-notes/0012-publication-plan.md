@@ -443,7 +443,7 @@ cover letters, suggested reviewers.
 | D4 | release claim C43 (the decade chain) | yes | decided |
 | D5 | how much of the grid | run all 8 chains, but include in the paper only what makes it clearer ("less is usually better"); the inclusion rule is D14 | decided |
 | D6 | the headline if the control chain also halves the overshoot | as recommended: A2 holds if the control stays nearer the one-shot result than the chain; otherwise *Mitigation pathways planned once overstate the emissions cost of political limits* | decided |
-| D7 | severity for coupled sizes | declared for now; if Option N runs and gives a band excluding zero, reconsider | decided |
+| D7 | severity for coupled sizes | declared for now; if Option N runs and gives a band excluding zero, reconsider. **Reconsidered 2026-11-24 (author): θ 0.50 stays central.** N0 gives 0.87–1.05 through the origin (bands exclude 0 near-certainly by construction) and 0.56–0.91 as a slope (bands from −0.57 for power and industry): the revealed range is reported as a bound on top of the declared sweep, from two runs at θ 0.60 and 0.90 (`V8THREVEU21`), never as the central value | decided |
 | D8 | where N lives | the model paper (§6, Appendix J) | decided |
 | D9 | model name and version in the GMD title | a release tag "PFM v1.0" on the existing commits; no package version changed | decided |
 | D10 | Run-Group | `v8` for both papers | decided |
