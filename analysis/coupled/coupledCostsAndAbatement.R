@@ -66,9 +66,10 @@ contrasts <- list(
 if (!isV5) {
   # rows the v6 batch does not have (ADR 0050 retired GapC and mode M; no unforced hold the price, no ratioBfix, no noinc)
   contrasts <- contrasts[!grepl("GapC|^levelB($|Th)|^mildProg$|^ratioBfix$|^ratioTh|^ratioMin$|-noinc$", names(contrasts))]
-  arms <-unique(R$key[grepl("^PkBudg1000-PFMlevel(Bfix|C)-[A-Za-z0-9]+$", R$key)])
+  # and the further severities (Th60, Th90: V8THREVEU21, 2026-11-24), which have no hyphen
+  arms <-unique(R$key[grepl("^PkBudg1000-PFMlevel(Bfix|C)(-[A-Za-z0-9]+|Th[0-9]+)$", R$key)])
   for (k in arms) { nm <- sub("^PkBudg1000-PFM", "", k)
-    if (is.null(contrasts[[nm]])) contrasts[[nm]] <- c(k, if (grepl("Bfix-", k)) "PkBudg1000-PFMgateBfix" else "PkBudg1000-PFMgate") }
+    if (is.null(contrasts[[nm]])) contrasts[[nm]] <- c(k, if (grepl("PFMlevelBfix", k, fixed = TRUE)) "PkBudg1000-PFMgateBfix" else "PkBudg1000-PFMgate") }
 }
 have <- function(res, key) sum(R$resolution == res & R$key == key) == 1
 out <- list(group = GROUP, generated = format(Sys.time()), units = list(
