@@ -1153,7 +1153,8 @@ was added while the hold-the-price shrinking-future chain was running; its 2050 
 - **A hand-over can also fail on the packages.** On 2026-11-24 at 15:56 the step `holdPrice-theta675-chain2070-v8`
   stopped 3 s after it started: `there is no package called 'rlang'` (`rs`: "full.log missing"). Its renv is restored
   from the previous step's `renv.lock`, which lists `rlang`, by linking from renv's cache (`log_renv.txt`: "linked from
-  cache"); the cause is not established. It coincided with `setup.sh --update --install` for another submission, which
-  re-links the checkout's renv. As a precaution `setup.sh --update`/`--install` now stop while a chained step waits
+  cache"), yet `rlang` was not in the failed folder's `renv/library`: the restore skipped or lost it. The cause is not
+  established. `setup.sh --update --install`, which re-links the checkout's renv, ran for another submission that
+  afternoon but finished at 16:30 (`output/workspace-commits.txt`), 35 min after the failure. As a precaution `setup.sh --update`/`--install` now stop while a chained step waits
   (its `<title>.RData` is in the checkout, its run folder is not) and list those steps; `--while-chains-wait`
   overrides, best right after a hand-over. Repair as above, without the cfg edit (restarted 2026-11-25, job 3482925).
