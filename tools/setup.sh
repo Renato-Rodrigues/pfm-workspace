@@ -45,8 +45,8 @@ say() { echo "[setup] $*"; }
 # --- 0. chained REMIND steps still waiting (PITFALLS 41) -----------------------------------
 # A chained step is started by the step before it, from <title>.RData saved in the checkout at submission, with the
 # checkout's code and renv as they are at that moment. --update (git) and --install (renv::hydrate, R CMD INSTALL) change
-# both, and a hand-over during them fails at once: 2026-11-24 15:56, theta675-chain2070 started while --install was
-# re-linking the checkout's renv, and stopped after 3 s at "there is no package called 'rlang'". So while a step waits
+# both. 2026-11-24 15:56, theta675-chain2070 was handed over about when --install was
+# re-linking the checkout's renv, and stopped after 3 s at "there is no package called 'rlang'" (cause not established). So while a step waits
 # (its .RData is there, its run folder is not), the checkout is left alone unless --while-chains-wait is given.
 waitingSteps() {  # $1 a REMIND checkout: the titles saved for a chained step that has not started yet
   for f in "$1"/*.RData; do
