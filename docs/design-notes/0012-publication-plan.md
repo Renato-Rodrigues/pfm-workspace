@@ -32,6 +32,7 @@ note's Option A and F; 0010 §11 holds the persistence evidence.
 | 2026-11-23 | D1–D12 answered (§13) | author |
 | 2026-11-23 | D13–D18 answered (§13); the GMD title drops "applied with REMIND 3.7" (REMIND is named in the abstract and the paper) | author |
 | 2026-11-23 | Workspaces: `papers/pfm-gmd` (new, built from `../_archive/_wip/2026-11-23/papers/pfm-model-paper`'s history, first version v01) and `papers/pfm-ncc`; `../_archive/_wip/2026-11-23/papers/pfm-model-paper` frozen as a quarry | author |
+| 2026-11-24 | The GMD title and spine say "an estimated ceiling on climate-policy stringency" in place of "an estimated limit on carbon-price stringency" (GMD review-v03 M1: the ceiling is estimated, the price limit adds the declared severity and persistence) | author |
 
 ## 2. What the earlier drafts teach
 
@@ -54,7 +55,7 @@ current-policies pathways, observed prices). The model paper keeps the rest, whe
 
 | id | paper | working headline | state | home |
 |---|---|---|---|---|
-| P1 | **The model paper** | *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price stringency for integrated assessment models* | **active** | GMD, `papers/pfm-gmd` (§4) |
+| P1 | **The model paper** | *The Political Feasibility Model (PFM v1.0): an estimated ceiling on climate-policy stringency for integrated assessment models* | **active** | GMD, `papers/pfm-gmd` (§4) |
 | P2 | **The Nature paper: persistence and expectations (Option A)** | *Mitigation pathways that treat political limits as permanent overstate their emissions cost* | **active** | *Nature Climate Change* Article, `papers/pfm-ncc` (§5) |
 | N | Calibrating the severity from current policies (Option N) | *Political limits explain how unevenly carbon is priced today* (only if the fit holds) | active **inside P1** | P1 §6 and Appendix J (§7) |
 | B | Political headroom and the emissions gap | *Today's politics already allows much of the effort current policies miss* (or the reverse) | **parked** 2026-11-23 | a later paper; its offline check may feed P1 (§8.1) |
@@ -89,8 +90,7 @@ the rents slack and the estimation detail may leave the main text, but they go t
 not to a supplement only: GMD's supplement is for the code, the user manual and material without a DOI. GMD also
 requires the model name and version number in the title and a "Code availability" section at the end.
 
-**Title** (author, 2026-11-23). *The Political Feasibility Model (PFM v1.0): an estimated limit on carbon-price
-stringency for integrated assessment models.* REMIND is named in the abstract and the paper, not in the title. The
+**Title** (author, 2026-11-23; revised 2026-11-24 after the GMD review-v03 M1, was "an estimated limit on carbon-price stringency"). *The Political Feasibility Model (PFM v1.0): an estimated ceiling on climate-policy stringency for integrated assessment models.* REMIND is named in the abstract and the paper, not in the title. The
 version label is D9 (a release tag); no package version is changed for it.
 
 **Layer 1, the main paper** (about 6,000 words, 8 figures; videos 1–3 are its source):
