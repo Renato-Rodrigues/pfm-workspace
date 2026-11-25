@@ -1150,3 +1150,9 @@ was added while the hold-the-price shrinking-future chain was running; its 2050 
   Source every start script, as `start.R` does: `submit.R` alone stops at `could not find function "isSlurmAvailable"`
   after it has created the results folder (REMIND's own `start_subsequentruns_manually.R` has the same gap). The later
   steps chain on from there.
+- **Not only a new switch: any update during a hand-over.** On 2026-11-24 at 15:56 the step
+  `holdPrice-theta675-chain2070-v8` was handed over while `setup.sh --update --install` ran for another submission. Its
+  renv, restored from a snapshot of the checkout's renv that `renv::hydrate` was re-linking, lacked `rlang`, and the
+  job stopped after 3 s (`there is no package called 'rlang'`; `rs`: "full.log missing"). `setup.sh --update`/`--install`
+  now stop while a chained step waits (its `<title>.RData` is in the checkout, its run folder is not) and list those
+  steps; `--while-chains-wait` overrides, best right after a hand-over. Repair as above, without the cfg edit.

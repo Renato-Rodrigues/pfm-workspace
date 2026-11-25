@@ -10,6 +10,7 @@
 #   ./tools/setup.sh --group v6           # the Run-Group whose madrat cache to prepare (default: config.yml)
 #   ./tools/setup.sh --no-cache           # skip the madrat cache preparation
 #   ./tools/setup.sh --dry-run ...        # print what would happen
+#   ./tools/setup.sh ... --while-chains-wait   # update/install although chained REMIND steps wait (PITFALLS 41)
 #
 # When pfm is installed, it ends by preparing the project madrat cache (pfm::pfmPrepareCache,
 # config.yml `madrat:`): every file the pipeline reads is checked, copied from the configured
@@ -22,7 +23,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."    # the project root: this script lives in tools/
 
-MODE=local; UPDATE=0; REF=""; INSTALL=0; DRY=0; CACHE=1; GROUP=""
+MODE=local; UPDATE=0; REF=""; INSTALL=0; DRY=0; CACHE=1; GROUP=""; WAITOK=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --cluster) MODE=cluster ;;
@@ -32,13 +33,44 @@ while [ $# -gt 0 ]; do
     --group)   GROUP="$2"; shift ;;
     --no-cache) CACHE=0 ;;
     --dry-run) DRY=1 ;;
-    -h|--help) sed -n '2,21p' "$0"; exit 0 ;;
+    --while-chains-wait) WAITOK=1 ;;
+    -h|--help) sed -n '2,22p' "$0"; exit 0 ;;
     *) echo "unknown option: $1" >&2; exit 2 ;;
   esac
   shift
 done
 run() { if [ "$DRY" = 1 ]; then echo "  [dry-run] $*"; else "$@"; fi; }
 say() { echo "[setup] $*"; }
+
+# --- 0. chained REMIND steps still waiting (PITFALLS 41) -----------------------------------
+# A chained step is started by the step before it, from <title>.RData saved in the checkout at submission, with the
+# checkout's code and renv as they are at that moment. --update (git) and --install (renv::hydrate, R CMD INSTALL) change
+# both, and a hand-over during them fails at once: 2026-11-24 15:56, theta675-chain2070 started while --install was
+# re-linking the checkout's renv, and stopped after 3 s at "there is no package called 'rlang'". So while a step waits
+# (its .RData is there, its run folder is not), the checkout is left alone unless --while-chains-wait is given.
+waitingSteps() {  # $1 a REMIND checkout: the titles saved for a chained step that has not started yet
+  for f in "$1"/*.RData; do
+    [ -f "$f" ] || continue
+    t=$(basename "$f" .RData)
+    ls -d "$1/output/${t}_"* > /dev/null 2>&1 || echo "$t"
+  done
+}
+if [ "$UPDATE" = 1 ] || [ "$INSTALL" = 1 ]; then
+  busy=0
+  for r in models/remind_pfm*; do
+    [ -d "$r" ] || continue
+    w=$(waitingSteps "$r")
+    [ -n "$w" ] || continue
+    busy=1; say "$r: $(echo "$w" | wc -l) chained step(s) waiting for the step before them to finish:"
+    echo "$w" | sed 's/^/    /'
+  done
+  if [ "$busy" = 1 ] && [ "$WAITOK" = 0 ] && [ "$DRY" = 0 ]; then
+    say "STOPPED: an update now can break the hand-over to these steps (PITFALLS 41). Wait until they have started"
+    say "  (rs; their run folders appear in output/), or update right after a hand-over - the next is hours away -"
+    say "  and re-run with --while-chains-wait. A step left over from an abandoned chain: delete its .RData."
+    exit 1
+  fi
+fi
 
 [ -f tools/repos.txt ] || { echo "tools/repos.txt not found" >&2; exit 1; }
 
