@@ -63,7 +63,13 @@ ROB <- data.frame(stringsAsFactors = FALSE, rbind(
   c("emissions band, high edge (bootstrap 95%)", "robustness", "-bandHigh", "-bandHigh", "EU21"),
   # the severity revealed by current policies (V8THREVEU21, 2026-11-24)
   c("θ 0.60 (revealed, low end)", "robustness", "-theta60", "Th60", "EU21"),
-  c("θ 0.90 (revealed, high end)", "robustness", "-theta90", "Th90", "EU21")))
+  c("θ 0.90 (revealed, high end)", "robustness", "-theta90", "Th90", "EU21"),
+  # the two runs that stopped at the iteration cap, restarted from their own final state (V8WARMEU21, 2026-11-25,
+  # cm_pfmWarmStart = 1; -warm6: PFM called every 6 iterations); converged except theta90-warm6
+  c("emissions band, high edge, warm restart", "robustness", "-bandHigh-warm", "-bandHigh-warm", "EU21"),
+  c("emissions band, high edge, warm restart (calls every 6)", "robustness", "-bandHigh-warm6", "-bandHigh-warm6", "EU21"),
+  c("θ 0.90, warm restart", "robustness", "-theta90-warm", "Th90-warm", "EU21"),
+  c("θ 0.90, warm restart (calls every 6)", "robustness", "-theta90-warm6", "Th90-warm6", "EU21")))
 names(ROB) <- names(V)
 if (length(Sys.glob(file.path(RR, "*", paste0("*-PFM-", closureTitle, ROB$suffix, "-v8_*"))))) {
   V <- rbind(V, ROB); OPTIONAL <- c(OPTIONAL, ROB$label); FAM <- c(FAM, "robustness") }
